@@ -7,36 +7,37 @@
   }
 
   :root {
-    --warmweiss: #FAF6EF;
-    --champagne: #EFE1C6;
-    --sand: #D9C7A6;
-    --rose: #C89A93;
-    --rose-deep: #A9726C;
-    --anthrazit: #2A2622;
-    --anthrazit-soft: #5B5349;
+    /* Exakt aus dem Original-Logo (Beauty_Lounge_Logo Transparent.png) extrahiert */
+    --warmweiss: #FBFAF8;
+    --rose-pale: #ECD9DF;
+    --rose-wash: #DCB9C5;
+    --rose: #C4879C;
+    --rose-deep: #9A4B66;
+    --anthrazit: #3F3F41;
+    --anthrazit-soft: #7A7A7C;
     --surface: var(--warmweiss);
     --surface-raised: #FFFFFF;
-    --border: rgba(42, 38, 34, 0.14);
-    --border-strong: rgba(42, 38, 34, 0.26);
+    --border: rgba(63, 63, 65, 0.14);
+    --border-strong: rgba(63, 63, 65, 0.26);
     --text: var(--anthrazit);
     --text-soft: var(--anthrazit-soft);
     --danger: #A6473E;
     --warn: #A97A2E;
     --good: #52704F;
 
-    --backdrop: #E9E1D2;
-    --backdrop-ink: #3A342C;
-    --backdrop-ink-soft: rgba(58, 52, 44, 0.6);
+    --backdrop: #EDE7E5;
+    --backdrop-ink: #3A3638;
+    --backdrop-ink-soft: rgba(58, 54, 56, 0.6);
 
     --font-display: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Georgia, 'Times New Roman', serif;
     --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   }
 
   @media (prefers-color-scheme: dark) {
-    :root { --backdrop: #17130E; --backdrop-ink: #EFE7D8; --backdrop-ink-soft: rgba(239,231,216,0.6); }
+    :root { --backdrop: #17161A; --backdrop-ink: #EFE7EA; --backdrop-ink-soft: rgba(239,231,234,0.6); }
   }
-  :root[data-theme="dark"] { --backdrop: #17130E; --backdrop-ink: #EFE7D8; --backdrop-ink-soft: rgba(239,231,216,0.6); }
-  :root[data-theme="light"] { --backdrop: #E9E1D2; --backdrop-ink: #3A342C; --backdrop-ink-soft: rgba(58, 52, 44, 0.6); }
+  :root[data-theme="dark"] { --backdrop: #17161A; --backdrop-ink: #EFE7EA; --backdrop-ink-soft: rgba(239,231,234,0.6); }
+  :root[data-theme="light"] { --backdrop: #EDE7E5; --backdrop-ink: #3A3638; --backdrop-ink-soft: rgba(58, 54, 56, 0.6); }
 
   * { box-sizing: border-box; }
 
@@ -60,13 +61,21 @@
   .rig-caption {
     text-align: center;
     max-width: 34rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
   }
+  .rig-logo { height: 34px; width: auto; }
+  @media (prefers-color-scheme: dark) { .rig-logo { filter: brightness(0) invert(1) opacity(0.92); } }
+  :root[data-theme="dark"] .rig-logo { filter: brightness(0) invert(1) opacity(0.92); }
+  :root[data-theme="light"] .rig-logo { filter: none; }
   .rig-eyebrow {
     font-size: 0.6875rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--backdrop-ink-soft);
-    margin: 0 0 0.35rem;
+    margin: 0;
   }
   .rig-title {
     font-family: var(--font-display);
@@ -75,6 +84,9 @@
     margin: 0;
     text-wrap: balance;
   }
+  .brand-logo { display: block; margin: 0 auto 1.1rem; }
+  .brand-logo.lg { height: 72px; width: auto; }
+  .brand-logo.md { height: 46px; width: auto; }
 
   .device {
     width: min(880px, 94vw);
@@ -98,8 +110,8 @@
     transition: background-color .35s ease;
   }
 
-  .screen[data-mode="dezent"] { background: linear-gradient(180deg, var(--champagne) 0%, var(--warmweiss) 46%); }
-  .screen[data-mode="brand"] { background: linear-gradient(160deg, var(--champagne) 0%, var(--rose) 130%); }
+  .screen[data-mode="dezent"] { background: linear-gradient(180deg, var(--rose-pale) 0%, var(--warmweiss) 46%); }
+  .screen[data-mode="brand"] { background: linear-gradient(160deg, var(--rose-pale) 0%, var(--rose-wash) 130%); }
 
   .topbar {
     display: flex;
@@ -207,7 +219,7 @@
   .card:active { transform: scale(0.98); }
   .card.selected {
     border-color: var(--rose-deep);
-    background: color-mix(in srgb, var(--champagne) 55%, white);
+    background: color-mix(in srgb, var(--rose-pale) 55%, white);
   }
   .card .dot {
     width: 8px; height: 8px; border-radius: 50%;
@@ -303,7 +315,7 @@
   }
   .text-input:focus { outline: 2px solid var(--rose-deep); outline-offset: 1px; }
 
-  .avatar-row { display: flex; gap: 0.7rem; flex-wrap: wrap; }
+  .avatar-row { display: flex; gap: 0.7rem; flex-wrap: wrap; justify-content: center; }
   .avatar-card {
     width: 108px;
     display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
@@ -393,6 +405,7 @@
 </style>
 
 <div class="rig-caption">
+  <img class="rig-logo" src="../assets/logo/beauty-lounge-logo.png" alt="Beauty Lounge" />
   <p class="rig-eyebrow">Beauty Blueprint™ by Beauty Lounge</p>
   <p class="rig-title">Klickbarer Ablauf-Prototyp — Mitarbeiter-Tablet</p>
 </div>
@@ -499,6 +512,17 @@
   var SAFETY_ITEMS = DEFAULT_SAFETY_ITEMS;
   var ANALYSE_ITEMS = DEFAULT_ANALYSE_ITEMS;
   var NEED_INFO = DEFAULT_NEED_INFO;
+
+  // Feste Programm-Logik (wie die 9 Beauty-Needs-Kategorien Teil der Beratungslogik,
+  // siehe Projektbeschreibung Abschnitt 9 "Signature Programs") — welche Needs bilden
+  // gemeinsam ein sinnvolles, aufeinander aufbauendes Programm.
+  var PROGRAM_FAMILIES = [
+    { name: 'Glow & Hydration', needs: ['Hydration', 'Radiance'] },
+    { name: 'Barrier Recovery', needs: ['Barrier Repair', 'Calming'] },
+    { name: 'Clear Skin', needs: ['Sebum Balance', 'Texture Improvement'] },
+    { name: 'Pigment Balance', needs: ['Pigment Control'] },
+    { name: 'Anti-Aging & Straffung', needs: ['Firmness', 'Elasticity'] }
+  ];
 
   var MITARBEITERINNEN = ['Lena', 'Sophie', 'Mara'];
   var BESTEHENDE_KUNDINNEN = ['Anna Weber', 'Julia Sommer'];
@@ -609,7 +633,7 @@
     lifestyle: {},
     sicherheit: {},
     analyse: {},
-    rec: { haupt: 'aktiv', erg: 'aktiv', alt: 'aktiv', home: 'aktiv' }
+    rec: { phase1: 'aktiv', phase2: 'aktiv', watch: 'aktiv' }
   };
 
   var path = ['login'];
@@ -705,8 +729,9 @@
 
   function renderLogin() {
     var body = '' +
-      '<p class="eyebrow">Anmeldung</p>' +
-      '<h1 class="q">Wer berät heute?</h1>' +
+      '<img class="brand-logo lg" src="../assets/logo/beauty-lounge-logo.png" alt="Beauty Lounge" />' +
+      '<p class="eyebrow" style="text-align:center">Anmeldung</p>' +
+      '<h1 class="q" style="text-align:center">Wer berät heute?</h1>' +
       '<div class="avatar-row">' +
       MITARBEITERINNEN.map(function (n) {
         return '<button class="avatar-card" onclick="__bb.select(\'mitarbeiterin\',\'' + n + '\')">' +
@@ -897,6 +922,42 @@
     return arr;
   }
 
+  function needReason(needName) {
+    var parts = ANALYSE_ITEMS.filter(function (it) { return it.need === needName; }).map(function (it) {
+      var v = STATE.analyse[it.key];
+      if (!v) return null;
+      return it.label + ' (' + SCALE4_LABELS[v] + ')';
+    }).filter(Boolean);
+    return parts.length ? parts.join(', ') : 'Geringe Ausprägung, aber relativ höchste Priorität';
+  }
+
+  function familyFor(needName) {
+    return PROGRAM_FAMILIES.filter(function (f) { return f.needs.indexOf(needName) > -1; })[0] ||
+      { name: needName, needs: [needName] };
+  }
+
+  // Baut einen Behandlungsplan: Phase 1 (Hauptpriorität) und, falls die zweit-/dritthöchste
+  // Priorität fachlich zum selben Programm gehört, Phase 2 daraus — statt drei unabhängig
+  // gerankte Needs zu unabhängigen Behandlungen zu verknüpfen. Eine Priorität außerhalb des
+  // Programms wird ehrlich als separater Beobachtungspunkt markiert, nicht als "Alternative"
+  // in eine falsche Reihenfolge gepresst.
+  function computeProgram() {
+    var needs = computeNeeds();
+    var top1 = needs[0];
+    if (!top1) top1 = { need: 'Hydration', avg: 0 };
+    var family = familyFor(top1.need);
+
+    var inFamily = needs.filter(function (n) { return family.needs.indexOf(n.need) > -1; });
+    var phase1 = inFamily[0];
+    var phase2 = inFamily[1] || null;
+
+    var watch = needs.filter(function (n) {
+      return family.needs.indexOf(n.need) === -1 && n.avg > 0;
+    })[0] || null;
+
+    return { family: family, phase1: phase1, phase2: phase2, watch: watch };
+  }
+
   function zielText() {
     if (!STATE.ziel.length) return 'Allgemeine Hautverbesserung';
     return STATE.ziel.map(function (k) {
@@ -906,17 +967,18 @@
   }
 
   function renderStrategy() {
-    var needs = computeNeeds();
-    var top3 = needs.slice(0, 3);
+    var p = computeProgram();
     var body = '' +
       '<p class="eyebrow">Beauty Strategy</p>' +
       '<h1 class="q">Die fachliche Strategie</h1>' +
       '<div class="summary-list">' +
         '<div class="summary-row"><span class="k">Kundenziel</span><span class="v">' + esc(zielText()) + '</span></div>' +
-        '<div class="summary-row"><span class="k">Hauptpriorität</span><span class="v">' + (top3[0] ? esc(top3[0].need) : '—') + '</span></div>' +
-        '<div class="summary-row"><span class="k">Zweite Priorität</span><span class="v">' + (top3[1] ? esc(top3[1].need) : '—') + '</span></div>' +
-        '<div class="summary-row"><span class="k">Dritte Priorität</span><span class="v">' + (top3[2] ? esc(top3[2].need) : '—') + '</span></div>' +
+        '<div class="summary-row"><span class="k">Programm</span><span class="v">' + esc(p.family.name) + '</span></div>' +
+        '<div class="summary-row"><span class="k">Hauptpriorität</span><span class="v">' + (p.phase1 ? esc(p.phase1.need) : '—') + '</span></div>' +
+        (p.phase2 ? '<div class="summary-row"><span class="k">Zweite Priorität (im Programm)</span><span class="v">' + esc(p.phase2.need) + '</span></div>' : '') +
+        (p.watch ? '<div class="summary-row"><span class="k">Ebenfalls beobachten</span><span class="v">' + esc(p.watch.need) + '</span></div>' : '') +
       '</div>' +
+      '<p class="sub">Begründung Hauptpriorität: ' + esc(needReason(p.phase1 ? p.phase1.need : 'Hydration')) + '</p>' +
       '<div class="footer-actions">' +
         '<button class="btn-primary" onclick="__bb.goTo(\'empfehlungen\')">Weiter zu den Empfehlungen</button>' +
       '</div>';
@@ -924,31 +986,30 @@
   }
 
   function renderEmpfehlungen() {
-    var needs = computeNeeds();
-    var top3 = needs.slice(0, 3);
-    var n1 = top3[0] ? NEED_INFO[top3[0].need] : NEED_INFO['Hydration'];
-    var n2 = top3[1] ? NEED_INFO[top3[1].need] : NEED_INFO['Barrier Repair'];
-    var n3 = top3[2] ? NEED_INFO[top3[2].need] : NEED_INFO['Radiance'];
+    var p = computeProgram();
+    var i1 = NEED_INFO[p.phase1.need];
+    var i2 = p.phase2 ? NEED_INFO[p.phase2.need] : null;
+    var iw = p.watch ? NEED_INFO[p.watch.need] : null;
 
-    function card(kicker, name, key) {
+    function phaseCard(kicker, title, needName, info, key) {
       var st = STATE.rec[key];
       return '<div class="rec-card">' +
         '<span class="rec-kicker">' + kicker + '</span>' +
-        '<span class="rec-name" style="' + (st === 'entfernt' ? 'text-decoration:line-through;opacity:.5' : '') + '">' + esc(name) + '</span>' +
+        '<span class="rec-name" style="' + (st === 'entfernt' ? 'text-decoration:line-through;opacity:.5' : '') + '">' + esc(info.behandlung) + '</span>' +
+        '<p class="sub" style="margin:0;font-size:.8125rem">' + esc(title) + ' · ' + esc(needReason(needName)) + '</p>' +
         '<div class="rec-toggle">' +
           '<button class="' + (st === 'aktiv' ? 'active' : '') + '" onclick="__bb.select(\'rec-toggle\',\'' + key + '\')">' + (st === 'aktiv' ? 'Übernommen' : st === 'ersetzt' ? 'Ausgetauscht' : 'Entfernt') + '</button>' +
         '</div></div>';
     }
 
     var body = '' +
-      '<p class="eyebrow">Empfehlungen</p>' +
-      '<h1 class="q">Vorschläge zur Prüfung</h1>' +
+      '<p class="eyebrow">Empfehlungen · Programm: ' + esc(p.family.name) + '</p>' +
+      '<h1 class="q">Behandlungsplan zur Prüfung</h1>' +
       '<p class="sub">Antippen wechselt zwischen Übernehmen / Austauschen / Entfernen.</p>' +
       '<div class="grid cols-2">' +
-        card('Hauptbehandlung', n1.behandlung, 'haupt') +
-        card('Ergänzung', n2.behandlung, 'erg') +
-        card('Alternative', n3.behandlung, 'alt') +
-        card('Homecare', n1.product, 'home') +
+        phaseCard('Phase 1 · Jetzt', 'Hauptpriorität', p.phase1.need, i1, 'phase1') +
+        (p.phase2 ? phaseCard('Phase 2 · Nächster Schritt', 'Im selben Programm', p.phase2.need, i2, 'phase2') : '') +
+        (p.watch ? phaseCard('Ebenfalls beobachten', 'Separates Thema, nicht Teil dieses Programms', p.watch.need, iw, 'watch') : '') +
       '</div>' +
       '<div class="footer-actions">' +
         '<button class="btn-primary" onclick="__bb.goTo(\'blueprint\')">Beauty Blueprint erstellen</button>' +
@@ -957,26 +1018,25 @@
   }
 
   function renderBlueprint() {
-    var needs = computeNeeds();
-    var top3 = needs.slice(0, 3);
-    var n1 = top3[0] ? NEED_INFO[top3[0].need] : NEED_INFO['Hydration'];
-    var n2 = top3[1] ? NEED_INFO[top3[1].need] : NEED_INFO['Barrier Repair'];
-    var n3 = top3[2] ? NEED_INFO[top3[2].need] : NEED_INFO['Radiance'];
+    var p = computeProgram();
+    var i1 = NEED_INFO[p.phase1.need];
+    var i2 = p.phase2 ? NEED_INFO[p.phase2.need] : i1;
     var body = '' +
-      '<p class="eyebrow">Beauty Blueprint</p>' +
-      '<p class="blueprint-hero">' + esc(STATE.kundeName || 'Kundin') + '</p>' +
-      '<p class="sub" style="margin-top:0">' + esc(zielText()) + '</p>' +
+      '<img class="brand-logo md" src="../assets/logo/beauty-lounge-logo.png" alt="Beauty Lounge" />' +
+      '<p class="eyebrow" style="text-align:center">Beauty Blueprint</p>' +
+      '<p class="blueprint-hero" style="text-align:center">' + esc(STATE.kundeName || 'Kundin') + '</p>' +
+      '<p class="sub" style="margin-top:0;text-align:center">' + esc(zielText()) + '</p>' +
       '<hr class="divider"/>' +
       '<div class="summary-list">' +
-        '<div class="summary-row"><span class="k">Hauptpriorität</span><span class="v">' + (top3[0] ? esc(top3[0].need) : '—') + '</span></div>' +
-        '<div class="summary-row"><span class="k">Hauptbehandlung</span><span class="v">' + esc(n1.behandlung) + '</span></div>' +
-        '<div class="summary-row"><span class="k">Ergänzung</span><span class="v">' + esc(n2.behandlung) + '</span></div>' +
-        '<div class="summary-row"><span class="k">Alternative</span><span class="v">' + esc(n3.behandlung) + '</span></div>' +
+        '<div class="summary-row"><span class="k">Programm</span><span class="v">' + esc(p.family.name) + '</span></div>' +
+        '<div class="summary-row"><span class="k">Phase 1 · Jetzt</span><span class="v">' + esc(i1.behandlung) + '</span></div>' +
+        (p.phase2 ? '<div class="summary-row"><span class="k">Phase 2 · Nächster Schritt</span><span class="v">' + esc(i2.behandlung) + '</span></div>' : '') +
+        (p.watch ? '<div class="summary-row"><span class="k">Ebenfalls beobachten</span><span class="v">' + esc(NEED_INFO[p.watch.need].behandlung) + '</span></div>' : '') +
         '<div class="summary-row"><span class="k">Nächster Checkpoint</span><span class="v">in 4 Wochen</span></div>' +
       '</div>' +
       '<div class="routine-cols">' +
-        '<div class="routine-col"><h3>Morgens</h3><ol><li>Reinigung</li><li>' + esc(n1.product) + '</li><li>Tagespflege</li><li>SPF</li></ol></div>' +
-        '<div class="routine-col"><h3>Abends</h3><ol><li>Reinigung</li><li>' + esc(n2.product) + '</li><li>Serum</li><li>Nachtpflege</li></ol></div>' +
+        '<div class="routine-col"><h3>Morgens</h3><ol><li>Reinigung</li><li>' + esc(i1.product) + '</li><li>Tagespflege</li><li>SPF</li></ol></div>' +
+        '<div class="routine-col"><h3>Abends</h3><ol><li>Reinigung</li><li>' + esc(i2.product) + '</li><li>Serum</li><li>Nachtpflege</li></ol></div>' +
       '</div>' +
       '<div class="footer-actions">' +
         '<button class="btn-primary" onclick="__bb.goTo(\'abschluss\')">Freigeben & abschließen</button>' +
@@ -986,9 +1046,10 @@
 
   function renderAbschluss() {
     var body = '' +
-      '<p class="eyebrow">Abgeschlossen</p>' +
-      '<h1 class="q">Beauty Blueprint gespeichert</h1>' +
-      '<p class="sub">' + esc(STATE.kundeName || 'Die Kundin') + ' erhält ihren persönlichen Plan. Ein Bericht kann optional erstellt werden.</p>' +
+      '<img class="brand-logo md" src="../assets/logo/beauty-lounge-logo.png" alt="Beauty Lounge" />' +
+      '<p class="eyebrow" style="text-align:center">Abgeschlossen</p>' +
+      '<h1 class="q" style="text-align:center">Beauty Blueprint gespeichert</h1>' +
+      '<p class="sub" style="text-align:center">' + esc(STATE.kundeName || 'Die Kundin') + ' erhält ihren persönlichen Plan. Ein Bericht kann optional erstellt werden.</p>' +
       '<div class="footer-actions">' +
         '<button class="btn-ghost" onclick="this.outerHTML=\'<span class=&quot;sub&quot; style=&quot;margin:0&quot;>Bericht vorbereitet ✓</span>\'">Bericht als PDF vorbereiten</button>' +
         '<button class="btn-primary" onclick="__bb.goTo(\'kunde-wahl\')">Neue Beratung starten</button>' +

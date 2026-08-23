@@ -15,3 +15,7 @@ Ablauf laut Konzept:
 Lokal öffnen: Datei im Browser laden, oder `python3 -m http.server` im Ordner starten.
 
 **Inhalte bearbeiten, ohne Code anzufassen:** Fragen, Ziele, Behandlungen und Produkte kann der Prototyp aus einem Google Sheet laden (Objekt `SHEET_CONFIG` ganz oben im `<script>`-Block in `prototype.html`). Aufbau und Einrichtung: [docs/knowledge-base/google-sheet-setup.md](../docs/knowledge-base/google-sheet-setup.md). Ohne eingetragenes Sheet läuft der Prototyp weiter mit den eingebauten Beispieldaten.
+
+**Branding:** Farben (`:root`-Variablen ganz oben im `<style>`-Block) sind direkt aus dem Original-Logo extrahiert (Anthrazit `#3F3F41`, Rosé `#C4879C`/`#9A4B66`). Das Logo selbst liegt unverändert unter [`assets/logo/beauty-lounge-logo.png`](../assets/logo/beauty-lounge-logo.png) und wird nur eingebunden (nicht neu erstellt oder verändert), passend zur Vorgabe aus [Projektbeschreibung.md](../docs/Projektbeschreibung.md), Abschnitt 20.
+
+**Empfehlungslogik:** Behandlungen werden nicht mehr unabhängig je Priorität gewählt, sondern über feste Programm-Familien (`PROGRAM_FAMILIES` in `prototype.html`, z. B. "Glow & Hydration" = Hydration + Radiance) zu einem Phase-1/Phase-2-Plan zusammengefasst. Jede Empfehlung zeigt eine Begründung (welche Hautanalyse-Antworten dazu geführt haben). Eine Priorität außerhalb der Programm-Familie wird ehrlich als "Ebenfalls beobachten" markiert statt als unpassende "Alternative".
