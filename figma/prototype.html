@@ -974,6 +974,164 @@
     { name: 'X-TREME Skin Balm Light Beige 30 ml', preis: '26,70 €' }
   ];
 
+  // Vollständiger Behandlungskatalog (Quelle: Studiolution-Export, siehe
+  // docs/knowledge-base/behandlungskatalog.md) — Basis für die Suche beim
+  // Austauschen eines Termins im 6-Monats-Kurplan.
+  var ALL_TREATMENTS = [
+    { name: '+ Ampulle', dauer: '5 Min.', preis: '12 €' },
+    { name: '+ Augen Deluxe Behandlung', dauer: '10 Min.', preis: '25 €' },
+    { name: '+ Augenbrauen färben', dauer: '5 Min.', preis: '14 €' },
+    { name: '+ Augenbrauen färben Browlift', dauer: '5 Min.', preis: '15 €' },
+    { name: '+ Augenbrauen schneiden', dauer: '', preis: '0 €' },
+    { name: '+ Augenbrauen Wachsen', dauer: '5 Min.', preis: '15 €' },
+    { name: '+ Augenbrauen zupfen', dauer: '5 Min.', preis: '15 €' },
+    { name: '+ Collagen Vlies Dekoltee', dauer: '5 Min.', preis: '22 €' },
+    { name: '+ Collagen Vlies OnTop Gesicht', dauer: '5 Min.', preis: '18 €' },
+    { name: '+ Dekolleté', dauer: '10 Min.', preis: '25 €' },
+    { name: '+ Digitale Hautananlyse', dauer: '20 Min.', preis: '39 €' },
+    { name: '+ Exosome', dauer: '5 Min.', preis: '15 €' },
+    { name: '+ Farbgel / French/ Babyboomer', dauer: '10 Min.', preis: '18 €' },
+    { name: '+ Fuß Nagel Gel Aufbau pro Nagel', dauer: '5 Min.', preis: '15 €' },
+    { name: '+ Fußmassage', dauer: '5 Min.', preis: '12 €' },
+    { name: '+ Fußpeeling GEHWOL Fuß', dauer: '5 Min.', preis: '10 €' },
+    { name: '+ Hals', dauer: '5 Min.', preis: '20 €' },
+    { name: '+ Handmassage', dauer: '5 Min.', preis: '12 €' },
+    { name: '+ Hautanalyse Stammkunden', dauer: '10 Min.', preis: '0 €' },
+    { name: '+ Kinn / Oberlippe zupfen Intensiv', dauer: '15 Min.', preis: '24 €' },
+    { name: '+ Kinn/ Oberlippe zupfen', dauer: '5 Min.', preis: '14 €' },
+    { name: '+ Massage', dauer: '10 Min.', preis: '25 €' },
+    { name: '+ Nagellack Fuß', dauer: '10 Min.', preis: '16 €' },
+    { name: '+ Nagellack Maniküre', dauer: '10 Min.', preis: '16 €' },
+    { name: '+ SPA Fuß', dauer: '20 Min.', preis: '33 €' },
+    { name: '+ SPA Hand', dauer: '20 Min.', preis: '33 €' },
+    { name: '+ Spezial Maske', dauer: '5 Min.', preis: '15 €' },
+    { name: '+ Temponade', dauer: '', preis: '1 €' },
+    { name: '+ UV -Nagellack Fuß', dauer: '20 Min.', preis: '31 €' },
+    { name: '+ UV- Nagellack Maniküre', dauer: '15 Min.', preis: '27 €' },
+    { name: '+ Wimpern färben', dauer: '10 Min.', preis: '19 €' },
+    { name: '+ Wimpern färben Lifting/ Welle', dauer: '10 Min.', preis: '19 €' },
+    { name: 'Achseln', dauer: '30 Min.', preis: '89 €' },
+    { name: 'ANGEBOT 5+1 Kur', dauer: '5 Min.', preis: '0 €' },
+    { name: 'ANGEBOT 7+2 Kur', dauer: '5 Min.', preis: '0 €' },
+    { name: 'Aqua Derm NUR Serum oder Peeling', dauer: '20 Min.', preis: '69 €' },
+    { name: 'AquaDerm', dauer: '60 Min.', preis: '159 €' },
+    { name: 'AquaDerm meets Soft Needling Exosome', dauer: '90 Min.', preis: '225 €' },
+    { name: 'Arme Komplett', dauer: '45 Min.', preis: '199 €' },
+    { name: 'Aroma Relax Ganzkörper', dauer: '60 Min.', preis: '114 €' },
+    { name: 'Aroma Relax Rücken Massage', dauer: '30 Min.', preis: '57 €' },
+    { name: 'ASA Fruchtsäure KUR', dauer: '50 Min.', preis: '447 €' },
+    { name: 'ASA PEEL Fruchtsäure', dauer: '50 Min.', preis: '149 €' },
+    { name: 'Auffüllen Gel Nägel', dauer: '60 Min.', preis: '89 €' },
+    { name: 'Augenbrauen färben', dauer: '10 Min.', preis: '18 €' },
+    { name: 'Augenbrauen schneiden', dauer: '', preis: '3 €' },
+    { name: 'Augenbrauen Wachsen', dauer: '10 Min.', preis: '18 €' },
+    { name: 'Augenbrauen zupfen', dauer: '10 Min.', preis: '18 €' },
+    { name: 'Bauch', dauer: '40 Min.', preis: '99 €' },
+    { name: 'Beautiful Hand & Fuß', dauer: '110 Min.', preis: '169 €' },
+    { name: 'Bein Oberschenkel', dauer: '40 Min.', preis: '159 €' },
+    { name: 'Bein Unterschenkel', dauer: '30 Min.', preis: '149 €' },
+    { name: 'Beine Komplett', dauer: '50 Min.', preis: '275 €' },
+    { name: 'Bikini Zone', dauer: '20 Min.', preis: '85 €' },
+    { name: 'Browlift inkl. Keratin Verssiegelung', dauer: '35 Min.', preis: '59 €' },
+    { name: 'Brust', dauer: '40 Min.', preis: '109 €' },
+    { name: 'Chrismas Shopping Event', dauer: '5 Min.', preis: '0 €' },
+    { name: 'Clean & Activ Behandlung', dauer: '50 Min.', preis: '93 €' },
+    { name: 'Deluxe Treatments', dauer: '90 Min.', preis: '205 €' },
+    { name: 'Einzelner Nagel Neu Auffüllen', dauer: '5 Min.', preis: '8 €' },
+    { name: 'Einzelner Nagel Neu Zwischendurch', dauer: '10 Min.', preis: '13 €' },
+    { name: 'Event Vorbereiten', dauer: '5 Min.', preis: '0 €' },
+    { name: 'Extra Zeit Clean Beh.', dauer: '5 Min.', preis: '9 €' },
+    { name: 'Farbgel Neu inkl.Versiegelung', dauer: '20 Min.', preis: '30 €' },
+    { name: 'FIRST DATE! Laser', dauer: '15 Min.', preis: '0 €' },
+    { name: 'FOMRA OnTop 4 Zonen*', dauer: '90 Min.', preis: '0 €' },
+    { name: 'FORMA 1 Zone', dauer: '40 Min.', preis: '119 €' },
+    { name: 'FORMA 2 Zonen', dauer: '75 Min.', preis: '219 €' },
+    { name: 'FORMA 3 Zonen', dauer: '105 Min.', preis: '319 €' },
+    { name: 'FORMA 4 Zonen', dauer: '110 Min.', preis: '399 €' },
+    { name: 'FORMA 6er KUR', dauer: '5 Min.', preis: '0 €' },
+    { name: 'FORMA 8er KUR', dauer: '5 Min.', preis: '0 €' },
+    { name: 'FORMA Augen', dauer: '40 Min.', preis: '129 €' },
+    { name: 'FORMA Beratungsgespräch + Digitaler Hautanalyse KI', dauer: '30 Min.', preis: '39 €' },
+    { name: 'FORMA GRATIS Beratungsgespräch', dauer: '20 Min.', preis: '0 €' },
+    { name: 'FORMA Hals', dauer: '40 Min.', preis: '129 €' },
+    { name: 'FORMA Jawline inkl. unteren Wangenbereich', dauer: '45 Min.', preis: '129 €' },
+    { name: 'FORMA Kennenlern Behandlung', dauer: '30 Min.', preis: '45 €' },
+    { name: 'FORMA Lippen', dauer: '40 Min.', preis: '129 €' },
+    { name: 'FORMA OnTop 3 Zonen*', dauer: '90 Min.', preis: '0 €' },
+    { name: 'FORMA OnTop Augen', dauer: '35 Min.', preis: '0 €' },
+    { name: 'FORMA OnTop Hals', dauer: '35 Min.', preis: '0 €' },
+    { name: 'FORMA OnTop Jawline inkl. unterem Wangenbereich', dauer: '40 Min.', preis: '0 €' },
+    { name: 'FORMA OnTop Lippen', dauer: '35 Min.', preis: '0 €' },
+    { name: 'Fuß Extra Behandlung', dauer: '10 Min.', preis: '20 €' },
+    { name: 'Gel entfernen inkl. Pflege 30min', dauer: '30 Min.', preis: '52 €' },
+    { name: 'Gel entfernen inkl. Pflege 40min', dauer: '40 Min.', preis: '65 €' },
+    { name: 'GLOW SKIN & HAIRFREE EVENT 6.6.', dauer: '', preis: '0 €' },
+    { name: 'GRATIS Beratungsgespräch Inkl. Haar- & Hautanalyse', dauer: '30 Min.', preis: '0 €' },
+    { name: 'GRATIS DIOLAZE Hairfree Termin', dauer: '15 Min.', preis: '0 €' },
+    { name: 'Gratis Hautanalyse Gutschein', dauer: '30 Min.', preis: '0 €' },
+    { name: 'Hautanalyse Event am 28.2.2026', dauer: '40 Min.', preis: '0 €' },
+    { name: 'Hautsprechstunde Hautanalyse', dauer: '45 Min.', preis: '79 €' },
+    { name: 'Herren Achseln', dauer: '30 Min.', preis: '95 €' },
+    { name: 'Herren Arme Komplett', dauer: '45 Min.', preis: '219 €' },
+    { name: 'Herren Bauch', dauer: '30 Min.', preis: '129 €' },
+    { name: 'Herren Beine Komplett', dauer: '50 Min.', preis: '295 €' },
+    { name: 'Herren Brust', dauer: '30 Min.', preis: '115 €' },
+    { name: 'Herren Brust + Bauch', dauer: '50 Min.', preis: '199 €' },
+    { name: 'Herren Brust + Bauch + Rücken', dauer: '75 Min.', preis: '329 €' },
+    { name: 'Herren Nacken', dauer: '20 Min.', preis: '69 €' },
+    { name: 'Herren Nacken + Schulter', dauer: '30 Min.', preis: '135 €' },
+    { name: 'Herren Rücken', dauer: '40 Min.', preis: '169 €' },
+    { name: 'Herren Rücken + Schulter', dauer: '50 Min.', preis: '229 €' },
+    { name: 'Herren Rücken + Schulter + Nacken', dauer: '60 Min.', preis: '259 €' },
+    { name: 'Herren Schultern', dauer: '20 Min.', preis: '89 €' },
+    { name: 'Herren Teil- Rücken', dauer: '20 Min.', preis: '79 €' },
+    { name: 'Intim Bereich', dauer: '30 Min.', preis: '139 €' },
+    { name: 'Kinn', dauer: '20 Min.', preis: '49 €' },
+    { name: 'Kinn + Hals', dauer: '30 Min.', preis: '89 €' },
+    { name: 'Lomi Loci Rücken Massage', dauer: '30 Min.', preis: '49 €' },
+    { name: 'Lomi Lomi Ganzkörper Massage', dauer: '75 Min.', preis: '112 €' },
+    { name: 'Luxus Treatments', dauer: '80 Min.', preis: '179 €' },
+    { name: 'Micro Needling', dauer: '60 Min.', preis: '149 €' },
+    { name: 'MicroDerm', dauer: '60 Min.', preis: '149 €' },
+    { name: 'MicroDerm Gesicht ON TOP', dauer: '20 Min.', preis: '49 €' },
+    { name: 'MicroDerm meets AquaDerm', dauer: '80 Min.', preis: '199 €' },
+    { name: 'Modell Wimpern', dauer: '5 Min.', preis: '0 €' },
+    { name: 'MUST HAVE Achseln + Bikini', dauer: '40 Min.', preis: '155 €' },
+    { name: 'MUST HAVE Achseln + Intim + Unterschenkel', dauer: '80 Min.', preis: '315 €' },
+    { name: 'MUST HAVE Achseln + Intim Bereich', dauer: '45 Min.', preis: '199 €' },
+    { name: 'MUST HAVE Achseln + Intim Bereich + Beine Komplett', dauer: '80 Min.', preis: '439 €' },
+    { name: 'Nachfeilen inkl. Versiegelung 30min', dauer: '30 Min.', preis: '49 €' },
+    { name: 'Nachfeilen inkl. Versiegelung 40min', dauer: '45 Min.', preis: '63 €' },
+    { name: 'Natur Nagel Verstärkung NEU', dauer: '60 Min.', preis: '94 €' },
+    { name: 'Neue Gel Modellage mit Verlängerung Tips/Schablone', dauer: '80 Min.', preis: '125 €' },
+    { name: 'Oberarm', dauer: '35 Min.', preis: '119 €' },
+    { name: 'Oberlippe', dauer: '20 Min.', preis: '49 €' },
+    { name: 'Oberlippe + Kinn', dauer: '30 Min.', preis: '79 €' },
+    { name: 'Oberlippe + Kinn wachsen', dauer: '15 Min.', preis: '30 €' },
+    { name: 'Oberlippe wachsen', dauer: '10 Min.', preis: '20 €' },
+    { name: 'OnTop Hals Dekoltee (Soft Needling/Needling/Micro)', dauer: '10 Min.', preis: '29 €' },
+    { name: 'Polieren', dauer: '5 Min.', preis: '8 €' },
+    { name: 'Relax Behandlung', dauer: '70 Min.', preis: '129 €' },
+    { name: 'Repagen Exclusive Treatment', dauer: '100 Min.', preis: '229 €' },
+    { name: 'Rücken', dauer: '40 Min.', preis: '149 €' },
+    { name: 'Rücken Wachsen 20min normal', dauer: '20 Min.', preis: '35 €' },
+    { name: 'SkinCare & Hairfree Event am 5.9.', dauer: '5 Min.', preis: '0 €' },
+    { name: 'Soft Needling', dauer: '60 Min.', preis: '149 €' },
+    { name: 'Soft Needling Exosome', dauer: '60 Min.', preis: '139 €' },
+    { name: 'Soft Needling meets Hyaluron', dauer: '90 Min.', preis: '239 €' },
+    { name: 'Start Up Behandlung', dauer: '90 Min.', preis: '149 €' },
+    { name: 'Unterarme', dauer: '30 Min.', preis: '109 €' },
+    { name: 'Uv Lack Reparatur', dauer: '5 Min.', preis: '8 €' },
+    { name: 'Uv Lack runter machen', dauer: '15 Min.', preis: '25 €' },
+    { name: 'Vitamin C Fresh Up Power', dauer: '70 Min.', preis: '159 €' },
+    { name: 'Wellness Fußpflege', dauer: '40 Min.', preis: '63 €' },
+    { name: 'Wellness Fußpflege SPA', dauer: '50 Min.', preis: '61 €' },
+    { name: 'Wellness Maniküre', dauer: '30 Min.', preis: '50 €' },
+    { name: 'Wimpern färben', dauer: '15 Min.', preis: '28 €' },
+    { name: 'Wimpernlifting inkl. Keratin Versiegelung', dauer: '50 Min.', preis: '80 €' },
+    { name: 'Wimpernwelle inkl. Keratin Versiegelung', dauer: '50 Min.', preis: '80 €' }
+  ];
+
   // Werden beim Start ggf. durch Sheet-Daten ersetzt (siehe loadSheetData unten).
   var ZIELE = DEFAULT_ZIELE;
   var PAIN_POINTS = DEFAULT_PAIN_POINTS;
@@ -1117,7 +1275,9 @@
       homecare: {
         am: { status: 'aktiv', product: null, searchOpen: false },
         pm: { status: 'aktiv', product: null, searchOpen: false }
-      }
+      },
+      // 6-Monats-Kurplan: 6 Termine (Monat 1-6), Standardbelegung siehe kurDefaultSlots().
+      kur: [0, 1, 2, 3, 4, 5].map(function () { return { status: 'aktiv', override: null, searchOpen: false }; })
     }
   };
 
@@ -1125,6 +1285,8 @@
   // Objekte vor, damit die Ergebnis-Buttons per Index statt per Name referenzieren
   // (Namen können Sonderzeichen enthalten, die im onclick-Attribut Probleme machen).
   var PRODUCT_SEARCH_RESULTS = { am: [], pm: [] };
+  // Gleiches Prinzip für die Behandlungssuche im Kurplan, ein Eintrag je Monats-Slot (0-5).
+  var TREATMENT_SEARCH_RESULTS = [[], [], [], [], [], []];
 
   var path = ['login'];
   var pointer = 0;
@@ -1144,7 +1306,8 @@
   }
   window.__bb = {
     goTo: goTo, goBack: goBack, replaceTop: replaceTop, state: STATE, select: selectHandler, input: inputHandler,
-    filterProducts: filterProducts, pickProduct: pickProduct
+    filterProducts: filterProducts, pickProduct: pickProduct,
+    filterTreatments: filterTreatments, pickTreatment: pickTreatment
   };
 
   function selectHandler(kind, key, extra) {
@@ -1183,6 +1346,22 @@
       STATE.rec.homecare[key].searchOpen = false;
       render();
     }
+    else if (kind === 'kur-toggle-status') {
+      var ks = STATE.rec.kur[key];
+      ks.status = ks.status === 'entfernt' ? 'aktiv' : 'entfernt';
+      ks.searchOpen = false;
+      render();
+    }
+    else if (kind === 'kur-toggle-search') {
+      var kts = STATE.rec.kur[key];
+      kts.searchOpen = !kts.searchOpen;
+      render();
+    }
+    else if (kind === 'kur-reset-treatment') {
+      STATE.rec.kur[key].override = null;
+      STATE.rec.kur[key].searchOpen = false;
+      render();
+    }
   }
   function inputHandler() {}
 
@@ -1214,6 +1393,36 @@
     if (!p) return;
     STATE.rec.homecare[slot].product = p;
     STATE.rec.homecare[slot].searchOpen = false;
+    render();
+  }
+
+  // Gleiches Prinzip wie filterProducts/pickProduct, nur für ALL_TREATMENTS und
+  // die 6 Monats-Slots des Kurplans (Index 0-5 statt am/pm).
+  function filterTreatments(idx, query) {
+    var q = (query || '').trim().toLowerCase();
+    var results = q.length < 2 ? [] : ALL_TREATMENTS.filter(function (t) {
+      return t.name.toLowerCase().indexOf(q) > -1;
+    }).slice(0, 8);
+    TREATMENT_SEARCH_RESULTS[idx] = results;
+    var box = document.getElementById('treatment-results-' + idx);
+    if (!box) return;
+    if (!q.length || q.length < 2) {
+      box.innerHTML = '<p class="sub" style="margin:.4rem 0 0;font-size:.75rem">Mindestens 2 Zeichen eingeben …</p>';
+    } else if (!results.length) {
+      box.innerHTML = '<p class="sub" style="margin:.4rem 0 0;font-size:.75rem">Keine Treffer.</p>';
+    } else {
+      box.innerHTML = results.map(function (t, i) {
+        return '<button type="button" class="product-result" onclick="__bb.pickTreatment(' + idx + ',' + i + ')">' +
+          '<span>' + esc(t.name) + '</span><span class="k" style="font-size:.75rem">' + esc([t.dauer, t.preis].filter(Boolean).join(' · ')) + '</span></button>';
+      }).join('');
+    }
+  }
+
+  function pickTreatment(idx, resultIdx) {
+    var t = TREATMENT_SEARCH_RESULTS[idx][resultIdx];
+    if (!t) return;
+    STATE.rec.kur[idx].override = t;
+    STATE.rec.kur[idx].searchOpen = false;
     render();
   }
 
@@ -1547,6 +1756,12 @@
       lines.push('Ebenfalls beobachten: ' + treatLine(displayInfo(plan.watch)));
     }
     lines.push('');
+    lines.push('6-Monats-Kurplan:');
+    kurDefaultSlots(plan).forEach(function (baseInfo, idx) {
+      var info = kurInfoFor(idx, baseInfo);
+      lines.push('  Monat ' + (idx + 1) + ': ' + (info ? treatLine(info) : 'entfernt'));
+    });
+    lines.push('');
     var homeAM = homecareInfoFor('am', i1);
     var homePM = homecareInfoFor('pm', i2);
     if (homeAM) lines.push('Homecare morgens: Reinigung, ' + productLine(homeAM) + ', Tagespflege, SPF');
@@ -1652,6 +1867,30 @@
     return baseInfo;
   }
 
+  // 6-Monats-Kurplan: die Hauptbehandlung (Phase 1) bildet das Rückgrat, an zwei Terminen
+  // (Monat 3 und 6) wird zur Auflockerung die Phase-2- bzw. "Ebenfalls beobachten"-Behandlung
+  // vorgeschlagen — angelehnt an echte Studiolution-Kur-Pakete (z. B. ASA-Kur), aber weiterhin
+  // individuell auf die Hautanalyse der Kundin bezogen. Jeder Termin bleibt einzeln editierbar.
+  var KUR_MONTHS = 6;
+  var KUR_ALT_POSITIONS = [2, 5];
+
+  function kurDefaultSlots(plan) {
+    var i1 = displayInfo(plan.phase1);
+    var i2 = plan.phase2 ? displayInfo(plan.phase2) : (plan.watch ? displayInfo(plan.watch) : i1);
+    var slots = [];
+    for (var m = 0; m < KUR_MONTHS; m++) {
+      slots.push(KUR_ALT_POSITIONS.indexOf(m) > -1 ? i2 : i1);
+    }
+    return slots;
+  }
+
+  function kurInfoFor(idx, baseInfo) {
+    var s = STATE.rec.kur[idx];
+    if (s.status === 'entfernt') return null;
+    if (s.override) return { behandlung: s.override.name, dauer: s.override.dauer, preis: s.override.preis };
+    return baseInfo;
+  }
+
   function zielText() {
     if (!STATE.ziel.length) return 'Allgemeine Hautverbesserung';
     return STATE.ziel.map(function (k) {
@@ -1720,6 +1959,31 @@
       '</div>';
     }
 
+    // 6-Monats-Kurplan: ein Termin pro Monat, Vorschlag aus kurDefaultSlots() (Hauptbehandlung
+    // + zwei Auflockerungs-Termine). Gleiches Suche/Entfernen-Muster wie beim Homecare-Produkt.
+    function kurSlotCard(idx, baseInfo) {
+      var s = STATE.rec.kur[idx];
+      var removed = s.status === 'entfernt';
+      var display = s.override ? { behandlung: s.override.name, dauer: s.override.dauer, preis: s.override.preis } : baseInfo;
+      return '<div class="rec-card">' +
+        '<span class="rec-kicker">Monat ' + (idx + 1) + '</span>' +
+        '<span class="rec-name" style="' + (removed ? 'text-decoration:line-through;opacity:.5' : '') + '">' + esc(display.behandlung) + '</span>' +
+        '<span style="font-size:.8125rem;color:var(--text-soft)">' + esc([display.dauer, display.preis].filter(Boolean).join(' · ')) + '</span>' +
+        (s.override && !removed ? '<p class="sub" style="margin:0;font-size:.75rem">Von dir ausgewählt — <a href="#" onclick="__bb.select(\'kur-reset-treatment\',' + idx + ');return false;" style="color:var(--rose-deep)">Systemvorschlag verwenden</a></p>' : '') +
+        '<div class="rec-toggle" style="flex-wrap:wrap">' +
+          (removed ? '' : '<button onclick="__bb.select(\'kur-toggle-search\',' + idx + ')">' + (s.searchOpen ? 'Suche schließen' : 'Anderes Programm wählen') + '</button>') +
+          '<button class="' + (removed ? '' : 'active') + '" onclick="__bb.select(\'kur-toggle-status\',' + idx + ')">' + (removed ? 'Entfernt — wiederherstellen' : 'Übernommen') + '</button>' +
+        '</div>' +
+        (s.searchOpen && !removed ?
+          '<div class="product-search">' +
+            '<input type="text" class="text-input" placeholder="Behandlung suchen …" oninput="__bb.filterTreatments(' + idx + ', this.value)" />' +
+            '<div class="product-results" id="treatment-results-' + idx + '"></div>' +
+          '</div>' : '') +
+      '</div>';
+    }
+
+    var kurSlots = kurDefaultSlots(getPlan());
+
     var body = '' +
       '<p class="eyebrow">Empfehlungen · Programm: ' + esc(p.family.name) + '</p>' +
       '<h1 class="q">Behandlungsplan zur Prüfung</h1>' +
@@ -1729,6 +1993,11 @@
         phaseCard('Phase 1 · Jetzt', 'Hauptpriorität', p.phase1.need, i1, 'phase1') +
         (p.phase2 ? phaseCard('Phase 2 · Nächster Schritt', 'Im selben Programm', p.phase2.need, i2, 'phase2') : '') +
         (p.watch ? phaseCard('Ebenfalls beobachten', 'Separates Thema, nicht Teil dieses Programms', p.watch.need, iw, 'watch') : '') +
+      '</div>' +
+      '<h3 class="section-label">6-Monats-Kurplan</h3>' +
+      '<p class="sub" style="margin-top:-.4rem">Ein Termin pro Monat — Hauptbehandlung als Rückgrat, an zwei Terminen zur Auflockerung die zweite Priorität. Jeder Termin einzeln anpassbar.</p>' +
+      '<div class="grid cols-3">' +
+        kurSlots.map(function (info, idx) { return kurSlotCard(idx, info); }).join('') +
       '</div>' +
       '<h3 class="section-label">Homecare-Produkte</h3>' +
       '<p class="sub" style="margin-top:-.4rem">Vorschlag passend zur Priorität — bei Bedarf über die Suche austauschen.</p>' +
@@ -1750,6 +2019,10 @@
     var homePM = homecareInfoFor('pm', i2);
     var homecareRow = !homeAM && !homePM ? 'Entfernt' :
       (productLine(homeAM) === productLine(homePM) ? productLine(homeAM) : productLine(homeAM) + ' + ' + productLine(homePM));
+    var kurRows = kurDefaultSlots(plan).map(function (baseInfo, idx) {
+      var info = kurInfoFor(idx, baseInfo);
+      return '<div class="summary-row"><span class="k">Monat ' + (idx + 1) + '</span><span class="v">' + esc(info ? treatLine(info) : 'Entfernt') + '</span></div>';
+    }).join('');
     var body = '' +
       '<img class="brand-logo md" src="' + LOGO_SRC + '" alt="Beauty Lounge" />' +
       '<p class="eyebrow" style="text-align:center">Beauty Blueprint</p>' +
@@ -1764,6 +2037,8 @@
         '<div class="summary-row"><span class="k">Nächster Checkpoint</span><span class="v">in 4 Wochen</span></div>' +
         '<div class="summary-row"><span class="k">Homecare</span><span class="v">' + esc(homecareRow) + '</span></div>' +
       '</div>' +
+      '<h3 class="section-label">6-Monats-Kurplan</h3>' +
+      '<div class="summary-list">' + kurRows + '</div>' +
       (homeAM || homePM ? '' +
         '<h3 class="section-label">Homecare-Routine</h3>' +
         '<div class="routine-cols">' +
