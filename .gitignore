@@ -38,8 +38,9 @@ yarn-error.log*
 supabase/.branches/
 supabase/.temp/
 
-# Rohdaten-Ordner (Original liegt bereits unter assets/logo/)
+# Rohdaten-Ordner (Originale liegen bereits unter assets/logo/ bzw. assets/team/)
 /Logo/
+/Mitarbeiter Bilder/
 
 # Claude Code interne Session-Dateien
 .claude/

@@ -394,13 +394,15 @@
     background: transparent; border: none; cursor: pointer; font-family: var(--font-body);
   }
   .avatar-circle {
-    width: 64px; height: 64px; border-radius: 50%;
+    width: 72px; height: 72px; border-radius: 50%;
     background: var(--surface-raised);
     border: 1.5px solid var(--border);
     display: flex; align-items: center; justify-content: center;
     font-family: var(--font-display); font-size: 1.4rem; color: var(--rose-deep);
     transition: border-color .15s ease, transform .15s ease;
+    overflow: hidden;
   }
+  .avatar-circle img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .avatar-card:hover .avatar-circle { border-color: var(--rose-deep); transform: translateY(-2px); }
   .avatar-name { font-size: 0.8125rem; color: var(--text); }
 
@@ -606,7 +608,12 @@
     { name: 'Anti-Aging & Straffung', needs: ['Firmness', 'Elasticity'] }
   ];
 
-  var MITARBEITERINNEN = ['Svenja', 'Viktoria', 'Janine', 'Eleni'];
+  var MITARBEITERINNEN = [
+    { name: 'Svenja', img: '../assets/team/svenja.jpg' },
+    { name: 'Viktoria', img: '../assets/team/viktoria.jpg' },
+    { name: 'Eleni', img: '../assets/team/eleni.jpg' },
+    { name: 'Janine', img: '../assets/team/janine.jpg' }
+  ];
   var BOOKING_URL = 'https://www.studiobookr.com/beauty-lounge-66137?rwg_token=AE37R_hn_NJgm7K5jfMEpQphd98TRv0aNa2GEf75TCmpJanNi3KcmREKr3J17eEnC2-flqQdsq-pFJ5qD-W9jG2TJ-A51-wXhQ%3D%3D';
   var BESTEHENDE_KUNDINNEN = ['Anna Weber', 'Julia Sommer'];
 
@@ -816,10 +823,10 @@
       '<p class="eyebrow" style="text-align:center">Anmeldung</p>' +
       '<h1 class="q" style="text-align:center">Wer berät heute?</h1>' +
       '<div class="avatar-row">' +
-      MITARBEITERINNEN.map(function (n) {
-        return '<button class="avatar-card" onclick="__bb.select(\'mitarbeiterin\',\'' + n + '\')">' +
-          '<span class="avatar-circle">' + n.charAt(0) + '</span>' +
-          '<span class="avatar-name">' + n + '</span>' +
+      MITARBEITERINNEN.map(function (m) {
+        return '<button class="avatar-card" onclick="__bb.select(\'mitarbeiterin\',\'' + m.name + '\')">' +
+          '<span class="avatar-circle"><img src="' + m.img + '" alt="' + m.name + '" /></span>' +
+          '<span class="avatar-name">' + m.name + '</span>' +
         '</button>';
       }).join('') +
       '</div>';
