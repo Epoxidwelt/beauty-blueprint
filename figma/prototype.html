@@ -992,6 +992,40 @@
       '<a class="btn-link" href="' + BOOKING_URL + '" target="_blank" rel="noopener noreferrer">Termin online buchen ↗</a>';
   }
 
+  // Öffnet das lokale Mailprogramm mit vorausgefüllter Zusammenfassung (mailto:) —
+  // die Mitarbeiterin sieht die E-Mail vor dem Versand und kann Empfänger/Text noch anpassen.
+  // Kein automatischer Versand im Hintergrund.
+  function emailSummaryHref(p) {
+    var i1 = NEED_INFO[p.phase1.need];
+    var i2 = p.phase2 ? NEED_INFO[p.phase2.need] : i1;
+    var lines = [
+      'Beauty Blueprint — ' + (STATE.kundeName || 'Kundin'),
+      'Mitarbeiterin: ' + (STATE.mitarbeiterin || ''),
+      '',
+      'Kundenziel: ' + zielText(),
+      'Programm: ' + p.family.name,
+      '',
+      'Phase 1 · Jetzt: ' + treatLine(i1),
+      '  Begründung: ' + needReason(p.phase1.need)
+    ];
+    if (p.phase2) {
+      lines.push('Phase 2 · Nächster Schritt: ' + treatLine(i2));
+      lines.push('  Begründung: ' + needReason(p.phase2.need));
+    }
+    if (p.watch) {
+      lines.push('Ebenfalls beobachten: ' + treatLine(NEED_INFO[p.watch.need]));
+    }
+    lines.push('');
+    lines.push('Homecare morgens: Reinigung, ' + i1.product + ', Tagespflege, SPF');
+    lines.push('Homecare abends: Reinigung, ' + i2.product + ', Serum, Nachtpflege');
+    lines.push('');
+    lines.push('Nächster Checkpoint: in 4 Wochen');
+    lines.push('Termin buchen: ' + BOOKING_URL);
+    var body = lines.join('\n');
+    var subject = 'Beauty Blueprint — ' + (STATE.kundeName || 'Kundin');
+    return 'mailto:info@epoxidwelt.de?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  }
+
   function treatLine(info) {
     var extra = [info.dauer, info.preis].filter(Boolean).join(' · ');
     return extra ? info.behandlung + ' (' + extra + ')' : info.behandlung;
@@ -1128,7 +1162,10 @@
       '<p class="eyebrow" style="text-align:center">Abgeschlossen</p>' +
       '<h1 class="q" style="text-align:center">Beauty Blueprint gespeichert</h1>' +
       '<p class="sub" style="text-align:center">' + esc(STATE.kundeName || 'Die Kundin') + ' erhält ihren persönlichen Plan. Ein Bericht kann optional erstellt werden.</p>' +
-      '<div style="text-align:center">' + bookingBlock(p) + '</div>' +
+      '<div style="text-align:center">' + bookingBlock(p) +
+        '<p class="sub" style="margin:.9rem 0 .5rem">Zusammenfassung für die Kartei per E-Mail versenden:</p>' +
+        '<a class="btn-link" href="' + emailSummaryHref(p) + '">Per E-Mail versenden ✉</a>' +
+      '</div>' +
       '<div class="footer-actions">' +
         '<button class="btn-ghost" onclick="this.outerHTML=\'<span class=&quot;sub&quot; style=&quot;margin:0&quot;>Bericht vorbereitet ✓</span>\'">Bericht als PDF vorbereiten</button>' +
         '<button class="btn-primary" onclick="__bb.goTo(\'kunde-wahl\')">Neue Beratung starten</button>' +
