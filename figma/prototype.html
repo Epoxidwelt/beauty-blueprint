@@ -704,7 +704,7 @@
     lifestyle: {},
     sicherheit: {},
     analyse: {},
-    rec: { phase1: 'aktiv', phase2: 'aktiv', watch: 'aktiv' }
+    rec: { phase1: 'aktiv', phase2: 'aktiv', watch: 'aktiv', homecare: 'aktiv' }
   };
 
   var path = ['login'];
@@ -1142,6 +1142,22 @@
         '</div></div>';
     }
 
+    function homecareCard() {
+      var st = STATE.rec.homecare;
+      var abendsInfo = i2 || i1;
+      var sameProduct = productLine(i1) === productLine(abendsInfo);
+      return '<div class="rec-card">' +
+        '<span class="rec-kicker">Homecare</span>' +
+        '<span class="rec-name" style="' + (st === 'entfernt' ? 'text-decoration:line-through;opacity:.5' : '') + '">' + esc(productLine(i1)) + '</span>' +
+        '<p class="sub" style="margin:0;font-size:.8125rem">Morgens' + (sameProduct ? ' & abends' : '') + '</p>' +
+        (sameProduct ? '' :
+          '<span class="rec-name" style="font-size:1rem;' + (st === 'entfernt' ? 'text-decoration:line-through;opacity:.5' : '') + '">' + esc(productLine(abendsInfo)) + '</span>' +
+          '<p class="sub" style="margin:0;font-size:.8125rem">Abends</p>') +
+        '<div class="rec-toggle">' +
+          '<button class="' + (st === 'aktiv' ? 'active' : '') + '" onclick="__bb.select(\'rec-toggle\',\'homecare\')">' + (st === 'aktiv' ? 'Übernommen' : st === 'ersetzt' ? 'Ausgetauscht' : 'Entfernt') + '</button>' +
+        '</div></div>';
+    }
+
     var body = '' +
       '<p class="eyebrow">Empfehlungen · Programm: ' + esc(p.family.name) + '</p>' +
       '<h1 class="q">Behandlungsplan zur Prüfung</h1>' +
@@ -1150,6 +1166,7 @@
         phaseCard('Phase 1 · Jetzt', 'Hauptpriorität', p.phase1.need, i1, 'phase1') +
         (p.phase2 ? phaseCard('Phase 2 · Nächster Schritt', 'Im selben Programm', p.phase2.need, i2, 'phase2') : '') +
         (p.watch ? phaseCard('Ebenfalls beobachten', 'Separates Thema, nicht Teil dieses Programms', p.watch.need, iw, 'watch') : '') +
+        homecareCard() +
       '</div>' +
       '<div class="footer-actions">' +
         '<button class="btn-primary" onclick="__bb.goTo(\'blueprint\')">Beauty Blueprint erstellen</button>' +
