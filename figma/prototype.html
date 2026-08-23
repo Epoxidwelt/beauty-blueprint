@@ -259,17 +259,27 @@
   .scale4 .level-fill span { width: 6px; height: 6px; border-radius: 50%; background: var(--border-strong); }
   .scale4 .card.selected .level-fill span.on { background: var(--rose-deep); }
 
-  .btn-primary {
+  .btn-primary, .btn-ghost, .btn-link {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
     font-family: var(--font-body);
-    font-size: 0.875rem;
+    font-size: 0.9375rem;
     font-weight: 600;
+    border-radius: 8px;
+    padding: 0.85rem 1.3rem;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+  }
+  .btn-primary {
     letter-spacing: 0.01em;
     background: var(--anthrazit);
     color: var(--warmweiss);
     border: none;
-    border-radius: 8px;
-    padding: 0.85rem 1.3rem;
-    cursor: pointer;
     transition: transform .1s ease, opacity .15s ease;
   }
   .btn-primary:hover { opacity: 0.88; }
@@ -277,31 +287,17 @@
   .btn-primary[disabled] { opacity: 0.35; cursor: not-allowed; }
 
   .btn-ghost {
-    font-family: var(--font-body);
-    font-size: 0.8125rem;
+    font-weight: 500;
     background: transparent;
     color: var(--text-soft);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 0.7rem 1.1rem;
-    cursor: pointer;
+    border: 1.5px solid var(--border);
   }
   .btn-ghost:hover { border-color: var(--border-strong); color: var(--text); }
 
   .btn-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-family: var(--font-body);
-    font-size: 0.875rem;
-    font-weight: 600;
     background: transparent;
     color: var(--rose-deep);
     border: 1.5px solid var(--rose-deep);
-    border-radius: 8px;
-    padding: 0.8rem 1.2rem;
-    cursor: pointer;
-    text-decoration: none;
   }
   .btn-link:hover { background: var(--rose-pale); }
 
@@ -355,6 +351,7 @@
     margin-top: auto;
     padding-top: 1.2rem;
     display: flex;
+    flex-direction: column;
     gap: 0.6rem;
     flex-shrink: 0;
   }
@@ -1029,13 +1026,15 @@
     return arr;
   }
 
-  function bookingBlock() {
+  function bookingCaption() {
     var plan = getPlan();
     var names = [displayInfo(plan.phase1).behandlung];
     if (plan.phase2) names.push(displayInfo(plan.phase2).behandlung);
-    return '' +
-      '<p class="sub" style="margin:1.1rem 0 .5rem">Termin buchen für: ' + esc(names.join(' + ')) + '</p>' +
-      '<a class="btn-link" href="' + BOOKING_URL + '" target="_blank" rel="noopener noreferrer">Termin online buchen ↗</a>';
+    return '<p class="sub" style="margin:1.1rem 0 .5rem">Termin buchen für: ' + esc(names.join(' + ')) + '</p>';
+  }
+
+  function bookingButton() {
+    return '<a class="btn-link" href="' + BOOKING_URL + '" target="_blank" rel="noopener noreferrer">Termin online buchen ↗</a>';
   }
 
   // Öffnet das lokale Mailprogramm mit vorausgefüllter Zusammenfassung (mailto:) —
@@ -1277,8 +1276,9 @@
           '<div class="routine-col"><h3>Morgens</h3><ol><li>Reinigung</li><li>' + esc(homeAM ? productLine(homeAM) : 'entfernt') + '</li><li>Tagespflege</li><li>SPF</li></ol></div>' +
           '<div class="routine-col"><h3>Abends</h3><ol><li>Reinigung</li><li>' + esc(homePM ? productLine(homePM) : 'entfernt') + '</li><li>Serum</li><li>Nachtpflege</li></ol></div>' +
         '</div>' : '') +
-      bookingBlock() +
+      bookingCaption() +
       '<div class="footer-actions">' +
+        bookingButton() +
         '<button class="btn-primary" onclick="__bb.goTo(\'abschluss\')">Freigeben & abschließen</button>' +
       '</div>';
     screenWrap('brand', phasePercent('ergebnis', 4, 5), contextLabel(), body);
@@ -1290,11 +1290,10 @@
       '<p class="eyebrow" style="text-align:center">Abgeschlossen</p>' +
       '<h1 class="q" style="text-align:center">Beauty Blueprint gespeichert</h1>' +
       '<p class="sub" style="text-align:center">' + esc(STATE.kundeName || 'Die Kundin') + ' erhält ihren persönlichen Plan. Ein Bericht kann optional erstellt werden.</p>' +
-      '<div style="text-align:center">' + bookingBlock() +
-        '<p class="sub" style="margin:.9rem 0 .5rem">Zusammenfassung für die Kartei per E-Mail versenden:</p>' +
-        '<a class="btn-link" href="' + emailSummaryHref() + '">Per E-Mail versenden ✉</a>' +
-      '</div>' +
+      '<div style="text-align:center">' + bookingCaption() + '</div>' +
       '<div class="footer-actions">' +
+        bookingButton() +
+        '<a class="btn-link" href="' + emailSummaryHref() + '">Per E-Mail versenden ✉</a>' +
         '<button class="btn-ghost" onclick="this.outerHTML=\'<span class=&quot;sub&quot; style=&quot;margin:0&quot;>Bericht vorbereitet ✓</span>\'">Bericht als PDF vorbereiten</button>' +
         '<button class="btn-primary" onclick="__bb.goTo(\'kunde-wahl\')">Neue Beratung starten</button>' +
       '</div>';
