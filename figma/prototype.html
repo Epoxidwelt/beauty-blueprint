@@ -1110,15 +1110,20 @@
     if (!top1) top1 = { need: 'Hydration', avg: 0 };
     var family = familyFor(top1.need);
 
-    var inFamily = needs.filter(function (n) { return family.needs.indexOf(n.need) > -1; });
-    var phase1 = inFamily[0];
-    var phase2 = inFamily[1] || null;
+    // Phase 1 ist immer die höchste Priorität (Anker), auch wenn noch nichts beobachtet wurde
+    // (Fallback-Fall). Phase 2 und "Ebenfalls beobachten" dürfen dagegen NUR erscheinen, wenn
+    // in der Hautanalyse tatsächlich etwas dafür beobachtet wurde (avg > 0) — sonst würde eine
+    // zweite Behandlung/ein Produkt allein deshalb empfohlen, weil es zufällig zur selben
+    // Programm-Familie gehört, ohne jeden Beleg in den Antworten der Mitarbeiterin.
+    var phase2 = needs.filter(function (n) {
+      return n.need !== top1.need && family.needs.indexOf(n.need) > -1 && n.avg > 0;
+    })[0] || null;
 
     var watch = needs.filter(function (n) {
       return family.needs.indexOf(n.need) === -1 && n.avg > 0;
     })[0] || null;
 
-    return { family: family, phase1: phase1, phase2: phase2, watch: watch };
+    return { family: family, phase1: top1, phase2: phase2, watch: watch };
   }
 
   var REPLACED_LABEL = 'Individuell angepasst (auf Wunsch der Mitarbeiterin ausgetauscht)';
