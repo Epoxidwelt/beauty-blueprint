@@ -30,8 +30,22 @@ Die vollständige Liste dieser 379 Produkte (alle KLAPP-Linien: HYALURONIC, CAVI
 | Elasticity | DIAMOND Day & Night Cream 50 ml | 99,90 € | Diamond-Linie, passend zur Deluxe-Treatment-Zuordnung |
 | Radiance | CAVIAR POWER Cream Day 50 ml | 95,90 € | Caviar-Power-Linie, Glow-/Ausstrahlungspflege |
 
-**Hinweis:** Ein Produkt pro Need ist eine Vereinfachung für den Prototyp — real bietet jede Linie mehrere Schritte (Reinigung, Tonic, Serum, Creme, Maske). Die volle Auswahl je Linie steht im Tab „Homecare-Produkte (KLAPP)" und kann bei Bedarf zu einer echten mehrstufigen Morgen-/Abendroutine ausgebaut werden (siehe Abschnitt 13, "Homecare-Routine" im Konzept).
+**Update 2026-08-23:** Die Morgen-/Abendroutine wurde wie hier angekündigt ausgebaut — jedes Need hat jetzt zusätzlich ein vorgeschlagenes Reinigungs-, Peeling- und Maskenprodukt (`reinigung`, `peeling`, `maske` in `DEFAULT_NEED_INFO`), wo möglich aus derselben KLAPP-Linie wie die Tages-/Nachtcreme, sonst ein thematisch passendes Produkt aus den 379 Homecare-Produkten:
+
+| Beauty Need | Reinigung | Peeling | Maske |
+|---|---|---|---|
+| Hydration | Cleansing Milk 200ml | Enzym Peeling Balm 50ml | HYALURONIC Mask 50 ml |
+| Barrier Repair | BETA GLUCAN Milk Cleansing 150 ml | CLEAN & ACTIVE Lotion Exfoliator Dry Skin 250 ml | MASK.LAB Aloe Vera Moisturizing Mask |
+| Calming | Cleansing Milk Sensitiv 200ml | Enzym peeling 15ml | SKIN NATURAL Aloe Vera Mousse Mask 50 ml |
+| Pigment Control | C PURE Cleanser Foam 200 ml | Enzym peeling 15ml | MASK.LAB Vitamin A/C Mask |
+| Sebum Balance | CLEAN & ACTIVE Gel Cleansing 250 ml | CLEAN & ACTIVE PEELING ENZYME 50 ml | Niacinamide Sheet Maske |
+| Texture Improvement | CLEAN & ACTIVE Cleansing Lotion 250 ml | CLEAN & ACTIVE Lotion Exfoliator Oily Skin 250 ml | X-TREME Mask Skin Renovator 50 ml |
+| Firmness | Cleansing Gel 200ml | CLINICAL CARE 3 Step Home Peeling Treatment 3 Beh. | MASK.LAB Collagen Lifting Mask |
+| Elasticity | Cleansing Balm 50ml | Enzym Peeling Balm 50ml | Cell Pro Overnight Mask |
+| Radiance | CAVIAR POWER Milk Cleansing 200 ml | Glow Peeling AHA+ BHA | CAVIAR POWER Mask 50 ml |
+
+Bei Sebum Balance und Texture Improvement wurde bewusst ein anderes Produkt als die bestehende Tagespflege gewählt (dort ist die Line bereits als Reinigungs- bzw. Peeling-Produkt verplant), um keine Dopplung in der Routine zu zeigen. Wie bei der Tages-/Nachtcreme kann die Mitarbeiterin jeden dieser drei Schritte im Empfehlungen-Screen einzeln über eine Suche gegen jedes der 379 Homecare-Produkte austauschen oder entfernen.
 
 ## Wo das in der App verwendet wird
 
-`DEFAULT_NEED_INFO` in `figma/prototype.html` — jedes der 9 Needs hat jetzt `product` (Name) und `produktpreis`. Erscheint auf dem Empfehlungs- und Beauty-Blueprint-Screen (Morgens-/Abends-Routine) sowie in der E-Mail-Zusammenfassung.
+`DEFAULT_NEED_INFO` in `figma/prototype.html` — jedes der 9 Needs hat `product`/`produktpreis` (Tages-/Nachtcreme) sowie `reinigung`/`reinigungpreis`, `peeling`/`peelingpreis`, `maske`/`maskepreis`. Erscheint auf dem Empfehlungs- und Beauty-Blueprint-Screen (komplette Morgens-/Abends-Routine plus "1-2x wöchentlich"-Extras) sowie in der E-Mail-Zusammenfassung.

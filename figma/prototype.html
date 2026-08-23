@@ -601,16 +601,28 @@
   var SCALE4_LABELS = ['Nicht vorhanden', 'Leicht', 'Mittel', 'Stark'];
   // Echte Beauty-Lounge-Behandlungen (Quelle: BeautyLounge_Preisliste_A5_2024,
   // siehe docs/knowledge-base/behandlungskatalog.md für Zuordnungsbegründung und Preisstand).
+  // Reinigung/Peeling/Maske je Need: echte KLAPP-Produkte aus derselben Linie wie das
+  // Haupt-Homecare-Produkt (z.B. HYALURONIC-Linie bei Hydration), wo verfügbar — sonst ein
+  // thematisch passendes Produkt aus dem Studiolution-Katalog (siehe produktkatalog.md).
   var DEFAULT_NEED_INFO = {
-    'Hydration': { behandlung: 'Soft Needling meets Hyaluron', dauer: '90 Min.', preis: '239 €', product: 'HYALURONIC Cream Day & Night 50 ml', produktpreis: '72,50 €' },
-    'Barrier Repair': { behandlung: 'Soft Needling', dauer: '60 Min.', preis: '149 €', product: 'BETA GLUCAN Cream 24h 50 ml', produktpreis: '53,60 €' },
-    'Calming': { behandlung: 'Relax Behandlung', dauer: '70 Min.', preis: '129 €', product: 'A. MEDICAL Serum Skin Calming 30 ml', produktpreis: '58,80 €' },
-    'Pigment Control': { behandlung: 'ASA Peel Fruchtsäure', dauer: '50 Min.', preis: '149 €', product: 'C PURE Cream Complete 50 ml', produktpreis: '67,90 €' },
-    'Sebum Balance': { behandlung: 'Clean & Activ Behandlung', dauer: '50 Min.', preis: '93 €', product: 'PSC Sebum Cleansing Lotion 125 ml', produktpreis: '21,60 €' },
-    'Texture Improvement': { behandlung: 'Micro Needling', dauer: '60 Min.', preis: '149 €', product: 'CLEAN & ACTIVE Micro Peeling VK 50 ml', produktpreis: '26,90 €' },
-    'Firmness': { behandlung: 'FORMA 1 Zone', dauer: '40 Min.', preis: '119 €', product: 'CS III Cream 50 ml', produktpreis: '69,90 €' },
-    'Elasticity': { behandlung: 'Deluxe Treatments', dauer: '90 Min.', preis: '205 €', product: 'DIAMOND Day & Night Cream 50 ml', produktpreis: '99,90 €' },
-    'Radiance': { behandlung: 'MicroDerm meets AquaDerm', dauer: '80 Min.', preis: '199 €', product: 'CAVIAR POWER Cream Day 50 ml', produktpreis: '95,90 €' }
+    'Hydration': { behandlung: 'Soft Needling meets Hyaluron', dauer: '90 Min.', preis: '239 €', product: 'HYALURONIC Cream Day & Night 50 ml', produktpreis: '72,50 €',
+      reinigung: 'Cleansing Milk 200ml', reinigungpreis: '30,00 €', peeling: 'Enzym Peeling Balm 50ml', peelingpreis: '31,00 €', maske: 'HYALURONIC Mask 50 ml', maskepreis: '59,90 €' },
+    'Barrier Repair': { behandlung: 'Soft Needling', dauer: '60 Min.', preis: '149 €', product: 'BETA GLUCAN Cream 24h 50 ml', produktpreis: '53,60 €',
+      reinigung: 'BETA GLUCAN Milk Cleansing 150 ml', reinigungpreis: '20,60 €', peeling: 'CLEAN & ACTIVE Lotion Exfoliator Dry Skin 250 ml', peelingpreis: '22,90 €', maske: 'MASK.LAB Aloe Vera Moisturizing Mask', maskepreis: '10,00 €' },
+    'Calming': { behandlung: 'Relax Behandlung', dauer: '70 Min.', preis: '129 €', product: 'A. MEDICAL Serum Skin Calming 30 ml', produktpreis: '58,80 €',
+      reinigung: 'Cleansing Milk Sensitiv 200ml', reinigungpreis: '34,90 €', peeling: 'Enzym peeling 15ml', peelingpreis: '7,90 €', maske: 'SKIN NATURAL Aloe Vera Mousse Mask 50 ml', maskepreis: '37,60 €' },
+    'Pigment Control': { behandlung: 'ASA Peel Fruchtsäure', dauer: '50 Min.', preis: '149 €', product: 'C PURE Cream Complete 50 ml', produktpreis: '67,90 €',
+      reinigung: 'C PURE Cleanser Foam 200 ml', reinigungpreis: '25,20 €', peeling: 'Enzym peeling 15ml', peelingpreis: '7,90 €', maske: 'MASK.LAB Vitamin A/C Mask', maskepreis: '10,00 €' },
+    'Sebum Balance': { behandlung: 'Clean & Activ Behandlung', dauer: '50 Min.', preis: '93 €', product: 'PSC Sebum Cleansing Lotion 125 ml', produktpreis: '21,60 €',
+      reinigung: 'CLEAN & ACTIVE Gel Cleansing 250 ml', reinigungpreis: '26,30 €', peeling: 'CLEAN & ACTIVE PEELING ENZYME 50 ml', peelingpreis: '26,90 €', maske: 'Niacinamide Sheet Maske', maskepreis: '9,90 €' },
+    'Texture Improvement': { behandlung: 'Micro Needling', dauer: '60 Min.', preis: '149 €', product: 'CLEAN & ACTIVE Micro Peeling VK 50 ml', produktpreis: '26,90 €',
+      reinigung: 'CLEAN & ACTIVE Cleansing Lotion 250 ml', reinigungpreis: '24,90 €', peeling: 'CLEAN & ACTIVE Lotion Exfoliator Oily Skin 250 ml', peelingpreis: '22,90 €', maske: 'X-TREME Mask Skin Renovator 50 ml', maskepreis: '41,30 €' },
+    'Firmness': { behandlung: 'FORMA 1 Zone', dauer: '40 Min.', preis: '119 €', product: 'CS III Cream 50 ml', produktpreis: '69,90 €',
+      reinigung: 'Cleansing Gel 200ml', reinigungpreis: '26,80 €', peeling: 'CLINICAL CARE 3 Step Home Peeling Treatment 3 Beh.', peelingpreis: '21,30 €', maske: 'MASK.LAB Collagen Lifting Mask', maskepreis: '10,00 €' },
+    'Elasticity': { behandlung: 'Deluxe Treatments', dauer: '90 Min.', preis: '205 €', product: 'DIAMOND Day & Night Cream 50 ml', produktpreis: '99,90 €',
+      reinigung: 'Cleansing Balm 50ml', reinigungpreis: '38,90 €', peeling: 'Enzym Peeling Balm 50ml', peelingpreis: '31,00 €', maske: 'Cell Pro Overnight Mask', maskepreis: '74,00 €' },
+    'Radiance': { behandlung: 'MicroDerm meets AquaDerm', dauer: '80 Min.', preis: '199 €', product: 'CAVIAR POWER Cream Day 50 ml', produktpreis: '95,90 €',
+      reinigung: 'CAVIAR POWER Milk Cleansing 200 ml', reinigungpreis: '27,90 €', peeling: 'Glow Peeling AHA+ BHA', peelingpreis: '37,90 €', maske: 'CAVIAR POWER Mask 50 ml', maskepreis: '53,90 €' }
   };
 
   // Vollständiger Homecare-Produktkatalog (Quelle: Studiolution-Produktexport,
@@ -1811,12 +1823,15 @@
     lines.push('');
     var homeAM = homecareInfoFor('am', i1);
     var homePM = homecareInfoFor('pm', i2);
-    var reinigungLine = optionalProductLine('reinigung') || 'Reinigung';
+    var reinigungInfo = homecareInfoFor('reinigung', { product: i1.reinigung, produktpreis: i1.reinigungpreis });
+    var peelingInfo = homecareInfoFor('peeling', { product: i1.peeling, produktpreis: i1.peelingpreis });
+    var maskeInfo = homecareInfoFor('maske', { product: i1.maske, produktpreis: i1.maskepreis });
+    var reinigungLine = reinigungInfo ? productLine(reinigungInfo) : 'Reinigung';
     if (homeAM) lines.push('Homecare morgens: ' + reinigungLine + ', ' + productLine(homeAM) + ', Tagespflege, SPF');
     if (homePM) lines.push('Homecare abends: ' + reinigungLine + ', ' + productLine(homePM) + ', Serum, Nachtpflege');
     if (!homeAM && !homePM) lines.push('Homecare: von der Mitarbeiterin entfernt');
-    if (optionalProductLine('peeling')) lines.push('Peeling (1-2x/Woche): ' + optionalProductLine('peeling'));
-    if (optionalProductLine('maske')) lines.push('Maske (1-2x/Woche): ' + optionalProductLine('maske'));
+    if (peelingInfo) lines.push('Peeling (1-2x/Woche): ' + productLine(peelingInfo));
+    if (maskeInfo) lines.push('Maske (1-2x/Woche): ' + productLine(maskeInfo));
     lines.push('');
     lines.push('Nächster Checkpoint: in 4 Wochen');
     lines.push('Termin buchen: ' + BOOKING_URL);
@@ -1873,13 +1888,6 @@
     if (s.status === 'entfernt') return null;
     if (s.product) return { product: s.product.name, produktpreis: s.product.preis };
     return baseInfo;
-  }
-
-  // Für die optionalen Homecare-Schritte (Reinigung/Peeling/Maske) ohne Systemvorschlag:
-  // gibt die formatierte Produktzeile zurück, oder null wenn nichts ausgewählt wurde.
-  function optionalProductLine(slot) {
-    var p = STATE.rec.homecare[slot].product;
-    return p ? productLine({ product: p.name, produktpreis: p.preis }) : null;
   }
 
   // 6-Monats-Kurplan: die Hauptbehandlung (Phase 1) bildet das Rückgrat, an zwei Terminen
@@ -2014,27 +2022,6 @@
       '</div>';
     }
 
-    // Optionale Homecare-Schritte (Reinigung/Peeling/Maske) ohne Systemvorschlag: die
-    // Mitarbeiterin wählt selbst, ob und welches Produkt für diesen Schritt gebraucht wird.
-    function homecareOptionalCard(slot, label) {
-      var s = STATE.rec.homecare[slot];
-      var has = !!s.product;
-      return '<div class="rec-card">' +
-        '<span class="rec-kicker">Homecare · ' + label + '</span>' +
-        (has ? '<span class="rec-name">' + esc(productLine({ product: s.product.name, produktpreis: s.product.preis })) + '</span>'
-             : '<p class="sub" style="margin:0;font-size:.875rem">Nicht ausgewählt · optional</p>') +
-        '<div class="rec-toggle" style="flex-wrap:wrap">' +
-          '<button onclick="__bb.select(\'homecare-toggle-search\',\'' + slot + '\')">' + (s.searchOpen ? 'Suche schließen' : (has ? 'Produkt ändern' : 'Produkt hinzufügen')) + '</button>' +
-          (has ? '<button onclick="__bb.select(\'homecare-reset-product\',\'' + slot + '\')">Entfernen</button>' : '') +
-        '</div>' +
-        (s.searchOpen ?
-          '<div class="product-search">' +
-            '<input type="text" class="text-input" placeholder="Produkt suchen …" oninput="__bb.filterProducts(\'' + slot + '\', this.value)" />' +
-            '<div class="product-results" id="product-results-' + slot + '"></div>' +
-          '</div>' : '') +
-      '</div>';
-    }
-
     // 6-Monats-Kurplan: ein Termin pro Monat, Vorschlag aus kurDefaultSlots() (Hauptbehandlung
     // + zwei Auflockerungs-Termine). Beim Öffnen der Suche stehen zuerst die priorisierten,
     // zur Hautanalyse passenden Behandlungen als Ein-Klick-Optionen bereit; alternativ frei
@@ -2087,13 +2074,13 @@
         kurSlots.map(function (info, idx) { return kurSlotCard(idx, info, ranked); }).join('') +
       '</div>' +
       '<h3 class="section-label">Homecare-Produkte</h3>' +
-      '<p class="sub" style="margin-top:-.4rem">Vorschlag passend zur Priorität — bei Bedarf über die Suche austauschen. Reinigung, Peeling und Maske sind optional.</p>' +
-      '<div class="grid cols-2">' +
+      '<p class="sub" style="margin-top:-.4rem">Komplette Routine passend zur Priorität vorgeschlagen — bei Bedarf über die Suche austauschen oder entfernen.</p>' +
+      '<div class="grid cols-3">' +
         homecareSlotCard('am', 'Morgens', i1) +
         homecareSlotCard('pm', 'Abends', i2 || i1) +
-        homecareOptionalCard('reinigung', 'Reinigung') +
-        homecareOptionalCard('peeling', 'Peeling') +
-        homecareOptionalCard('maske', 'Maske') +
+        homecareSlotCard('reinigung', 'Reinigung', { product: i1.reinigung, produktpreis: i1.reinigungpreis }) +
+        homecareSlotCard('peeling', 'Peeling', { product: i1.peeling, produktpreis: i1.peelingpreis }) +
+        homecareSlotCard('maske', 'Maske', { product: i1.maske, produktpreis: i1.maskepreis }) +
       '</div>' +
       '<div class="footer-actions">' +
         '<button class="btn-primary" onclick="__bb.goTo(\'blueprint\')">Beauty Blueprint erstellen</button>' +
@@ -2107,6 +2094,9 @@
     var i2 = plan.active[1] ? NEED_INFO[plan.active[1].need] : i1;
     var homeAM = homecareInfoFor('am', i1);
     var homePM = homecareInfoFor('pm', i2);
+    var reinigungInfo = homecareInfoFor('reinigung', { product: i1.reinigung, produktpreis: i1.reinigungpreis });
+    var peelingInfo = homecareInfoFor('peeling', { product: i1.peeling, produktpreis: i1.peelingpreis });
+    var maskeInfo = homecareInfoFor('maske', { product: i1.maske, produktpreis: i1.maskepreis });
     var homecareRow = !homeAM && !homePM ? 'Entfernt' :
       (productLine(homeAM) === productLine(homePM) ? productLine(homeAM) : productLine(homeAM) + ' + ' + productLine(homePM));
     var kurRows = kurDefaultSlots(plan).map(function (baseInfo, idx) {
@@ -2133,12 +2123,12 @@
       (homeAM || homePM ? '' +
         '<h3 class="section-label">Homecare-Routine</h3>' +
         '<div class="routine-cols">' +
-          '<div class="routine-col"><h3>Morgens</h3><ol><li>' + esc(optionalProductLine('reinigung') || 'Reinigung') + '</li><li>' + esc(homeAM ? productLine(homeAM) : 'entfernt') + '</li><li>SPF</li></ol></div>' +
-          '<div class="routine-col"><h3>Abends</h3><ol><li>' + esc(optionalProductLine('reinigung') || 'Reinigung') + '</li><li>' + esc(homePM ? productLine(homePM) : 'entfernt') + '</li><li>Serum</li></ol></div>' +
-          (optionalProductLine('peeling') || optionalProductLine('maske') ?
+          '<div class="routine-col"><h3>Morgens</h3><ol><li>' + esc(reinigungInfo ? productLine(reinigungInfo) : 'Reinigung') + '</li><li>' + esc(homeAM ? productLine(homeAM) : 'entfernt') + '</li><li>SPF</li></ol></div>' +
+          '<div class="routine-col"><h3>Abends</h3><ol><li>' + esc(reinigungInfo ? productLine(reinigungInfo) : 'Reinigung') + '</li><li>' + esc(homePM ? productLine(homePM) : 'entfernt') + '</li><li>Serum</li></ol></div>' +
+          (peelingInfo || maskeInfo ?
             '<div class="routine-col"><h3>1-2x wöchentlich</h3><ol>' +
-              (optionalProductLine('peeling') ? '<li>Peeling: ' + esc(optionalProductLine('peeling')) + '</li>' : '') +
-              (optionalProductLine('maske') ? '<li>Maske: ' + esc(optionalProductLine('maske')) + '</li>' : '') +
+              (peelingInfo ? '<li>Peeling: ' + esc(productLine(peelingInfo)) + '</li>' : '') +
+              (maskeInfo ? '<li>Maske: ' + esc(productLine(maskeInfo)) + '</li>' : '') +
             '</ol></div>' : '') +
         '</div>' : '') +
       bookingCaption() +
