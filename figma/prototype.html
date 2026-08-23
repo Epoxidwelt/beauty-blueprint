@@ -563,15 +563,15 @@
   // Echte Beauty-Lounge-Behandlungen (Quelle: BeautyLounge_Preisliste_A5_2024,
   // siehe docs/knowledge-base/behandlungskatalog.md für Zuordnungsbegründung und Preisstand).
   var DEFAULT_NEED_INFO = {
-    'Hydration': { behandlung: 'Soft Needling meets Hyaluron', dauer: '90 Min.', preis: '239 €', product: 'Klapp Heimpflege (individuell nach Hautanalyse)' },
-    'Barrier Repair': { behandlung: 'Soft Needling', dauer: '60 Min.', preis: '149 €', product: 'Klapp Heimpflege (individuell nach Hautanalyse)' },
-    'Calming': { behandlung: 'Relax Behandlung', dauer: '70 Min.', preis: '129 €', product: 'Klapp Heimpflege (individuell nach Hautanalyse)' },
-    'Pigment Control': { behandlung: 'ASA Peel Fruchtsäure', dauer: '50 Min.', preis: '149 €', product: 'Klapp Heimpflege (individuell nach Hautanalyse)' },
-    'Sebum Balance': { behandlung: 'Clean & Activ Behandlung', dauer: '50 Min.', preis: '93 €', product: 'Klapp Heimpflege (individuell nach Hautanalyse)' },
-    'Texture Improvement': { behandlung: 'Micro Needling', dauer: '60 Min.', preis: '149 €', product: 'Klapp Heimpflege (individuell nach Hautanalyse)' },
-    'Firmness': { behandlung: 'FORMA 1 Zone', dauer: '40 Min.', preis: '119 €', product: 'Klapp Heimpflege (individuell nach Hautanalyse)' },
-    'Elasticity': { behandlung: 'Deluxe Treatments', dauer: '90 Min.', preis: '205 €', product: 'Klapp Heimpflege (individuell nach Hautanalyse)' },
-    'Radiance': { behandlung: 'MicroDerm meets AquaDerm', dauer: '80 Min.', preis: '199 €', product: 'Klapp Heimpflege (individuell nach Hautanalyse)' }
+    'Hydration': { behandlung: 'Soft Needling meets Hyaluron', dauer: '90 Min.', preis: '239 €', product: 'HYALURONIC Cream Day & Night 50 ml', produktpreis: '72,50 €' },
+    'Barrier Repair': { behandlung: 'Soft Needling', dauer: '60 Min.', preis: '149 €', product: 'BETA GLUCAN Cream 24h 50 ml', produktpreis: '53,60 €' },
+    'Calming': { behandlung: 'Relax Behandlung', dauer: '70 Min.', preis: '129 €', product: 'A. MEDICAL Serum Skin Calming 30 ml', produktpreis: '58,80 €' },
+    'Pigment Control': { behandlung: 'ASA Peel Fruchtsäure', dauer: '50 Min.', preis: '149 €', product: 'C PURE Cream Complete 50 ml', produktpreis: '67,90 €' },
+    'Sebum Balance': { behandlung: 'Clean & Activ Behandlung', dauer: '50 Min.', preis: '93 €', product: 'PSC Sebum Cleansing Lotion 125 ml', produktpreis: '21,60 €' },
+    'Texture Improvement': { behandlung: 'Micro Needling', dauer: '60 Min.', preis: '149 €', product: 'CLEAN & ACTIVE Micro Peeling VK 50 ml', produktpreis: '26,90 €' },
+    'Firmness': { behandlung: 'FORMA 1 Zone', dauer: '40 Min.', preis: '119 €', product: 'CS III Cream 50 ml', produktpreis: '69,90 €' },
+    'Elasticity': { behandlung: 'Deluxe Treatments', dauer: '90 Min.', preis: '205 €', product: 'DIAMOND Day & Night Cream 50 ml', produktpreis: '99,90 €' },
+    'Radiance': { behandlung: 'MicroDerm meets AquaDerm', dauer: '80 Min.', preis: '199 €', product: 'CAVIAR POWER Cream Day 50 ml', produktpreis: '95,90 €' }
   };
 
   // Werden beim Start ggf. durch Sheet-Daten ersetzt (siehe loadSheetData unten).
@@ -683,7 +683,7 @@
 
     if (SHEET_CONFIG.beautyneeds) tasks.push(fetchSheet(SHEET_CONFIG.beautyneeds).then(function (rows) {
       var map = {};
-      rows.forEach(function (row) { if (row.need) map[row.need] = { behandlung: row.behandlung, dauer: row.dauer || '', preis: row.preis || '', product: row.produkt }; });
+      rows.forEach(function (row) { if (row.need) map[row.need] = { behandlung: row.behandlung, dauer: row.dauer || '', preis: row.preis || '', product: row.produkt, produktpreis: row.produktpreis || '' }; });
       if (Object.keys(map).length) NEED_INFO = map;
     }).catch(function (e) { console.warn('BeautyNeeds-Sheet konnte nicht geladen werden, nutze Standardwerte.', e); }));
 
@@ -1042,8 +1042,8 @@
       lines.push('Ebenfalls beobachten: ' + treatLine(NEED_INFO[p.watch.need]));
     }
     lines.push('');
-    lines.push('Homecare morgens: Reinigung, ' + i1.product + ', Tagespflege, SPF');
-    lines.push('Homecare abends: Reinigung, ' + i2.product + ', Serum, Nachtpflege');
+    lines.push('Homecare morgens: Reinigung, ' + productLine(i1) + ', Tagespflege, SPF');
+    lines.push('Homecare abends: Reinigung, ' + productLine(i2) + ', Serum, Nachtpflege');
     lines.push('');
     lines.push('Nächster Checkpoint: in 4 Wochen');
     lines.push('Termin buchen: ' + BOOKING_URL);
@@ -1055,6 +1055,10 @@
   function treatLine(info) {
     var extra = [info.dauer, info.preis].filter(Boolean).join(' · ');
     return extra ? info.behandlung + ' (' + extra + ')' : info.behandlung;
+  }
+
+  function productLine(info) {
+    return info.produktpreis ? info.product + ' (' + info.produktpreis + ')' : info.product;
   }
 
   function needReason(needName) {
@@ -1171,8 +1175,8 @@
         '<div class="summary-row"><span class="k">Nächster Checkpoint</span><span class="v">in 4 Wochen</span></div>' +
       '</div>' +
       '<div class="routine-cols">' +
-        '<div class="routine-col"><h3>Morgens</h3><ol><li>Reinigung</li><li>' + esc(i1.product) + '</li><li>Tagespflege</li><li>SPF</li></ol></div>' +
-        '<div class="routine-col"><h3>Abends</h3><ol><li>Reinigung</li><li>' + esc(i2.product) + '</li><li>Serum</li><li>Nachtpflege</li></ol></div>' +
+        '<div class="routine-col"><h3>Morgens</h3><ol><li>Reinigung</li><li>' + esc(productLine(i1)) + '</li><li>Tagespflege</li><li>SPF</li></ol></div>' +
+        '<div class="routine-col"><h3>Abends</h3><ol><li>Reinigung</li><li>' + esc(productLine(i2)) + '</li><li>Serum</li><li>Nachtpflege</li></ol></div>' +
       '</div>' +
       bookingBlock(p) +
       '<div class="footer-actions">' +

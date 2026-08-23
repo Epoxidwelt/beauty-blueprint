@@ -43,7 +43,7 @@ Das beantwortet die Frage nach Kur-Buchungen: Ja, das ist über den Buchungslink
 
 ## Homecare / Produkte
 
-Es liegt weiterhin **kein** strukturierter Produktkatalog vor (Abschnitt 13). Der Prototyp verwendet den ehrlichen Platzhalter „Klapp Heimpflege (individuell nach Hautanalyse)" statt erfundener Produktnamen — Klapp SkinCare ist als echte Partnermarke bei Studiobookr bestätigt.
+Seit 2026-08-23 gibt es einen echten Produktkatalog (Abschnitt 13) — siehe [produktkatalog.md](produktkatalog.md). Der Platzhalter „Klapp Heimpflege (individuell nach Hautanalyse)" wurde durch echte KLAPP-SkinCare-Produkte mit Preisen ersetzt.
 
 ## Studio-Stammdaten (aus Studiobookr)
 

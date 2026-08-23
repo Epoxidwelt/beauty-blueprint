@@ -56,11 +56,11 @@ Bleibt eine URL leer, nutzt der Prototyp für dieses Tabellenblatt weiter die ei
 | feuchtigkeit | Feuchtigkeitsmangel | Hydration | ja |
 
 ### 7. BeautyNeeds
-| need | behandlung | dauer | preis | produkt |
-|---|---|---|---|---|
-| Hydration | Soft Needling meets Hyaluron | 90 Min. | 239 € | Klapp Heimpflege (individuell nach Hautanalyse) |
+| need | behandlung | dauer | preis | produkt | produktpreis |
+|---|---|---|---|---|---|
+| Hydration | Soft Needling meets Hyaluron | 90 Min. | 239 € | HYALURONIC Cream Day & Night 50 ml | 72,50 € |
 
-`dauer` und `preis` sind optional — leer lassen, wenn nicht bekannt. Echte Werte für alle 9 Kategorien: siehe [behandlungskatalog.md](behandlungskatalog.md) (Quelle: aktuelle Beauty-Lounge-Preisliste).
+`dauer`, `preis` und `produktpreis` sind optional — leer lassen, wenn nicht bekannt. Echte Werte für alle 9 Kategorien (Behandlung + Homecare-Produkt): siehe [behandlungskatalog.md](behandlungskatalog.md) und [produktkatalog.md](produktkatalog.md).
 
 ## Feste Beauty-Needs-Kategorien
 
