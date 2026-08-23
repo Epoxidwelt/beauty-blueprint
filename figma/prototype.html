@@ -276,6 +276,69 @@
   }
   .btn-ghost:hover { border-color: var(--border-strong); color: var(--text); }
 
+  .btn-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    font-weight: 600;
+    background: transparent;
+    color: var(--rose-deep);
+    border: 1.5px solid var(--rose-deep);
+    border-radius: 8px;
+    padding: 0.8rem 1.2rem;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .btn-link:hover { background: var(--rose-pale); }
+
+  .welcome-title {
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--text);
+    text-align: center;
+    margin: 0 0 1.6rem;
+  }
+
+  .stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+  .stack-btn {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+    background: var(--surface-raised);
+    color: var(--text);
+    border: 1.5px solid var(--border-strong);
+    border-radius: 12px;
+    padding: 1.1rem 1rem;
+    cursor: pointer;
+    transition: border-color .15s ease, background-color .15s ease, transform .1s ease;
+  }
+  .stack-btn:hover { border-color: var(--rose-deep); }
+  .stack-btn:active { transform: scale(0.99); }
+  .stack-btn.primary {
+    background: var(--rose-pale);
+    border-color: var(--rose-deep);
+    color: var(--rose-deep);
+  }
+  .stack-btn[disabled] {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .stack-btn .hint {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--text-soft);
+    margin-top: 0.15rem;
+  }
+
   .footer-actions {
     margin-top: auto;
     padding-top: 1.2rem;
@@ -492,15 +555,15 @@
   // Echte Beauty-Lounge-Behandlungen (Quelle: BeautyLounge_Preisliste_A5_2024,
   // siehe docs/knowledge-base/behandlungskatalog.md für Zuordnungsbegründung und Preisstand).
   var DEFAULT_NEED_INFO = {
-    'Hydration': { behandlung: 'Hyaluron Infusion Behandlung', dauer: '90 Min.', preis: '139 €', product: 'Klapp Heimpflege (individuell nach Hautanalyse)' },
-    'Barrier Repair': { behandlung: 'Start Up Behandlung', dauer: '70 Min.', preis: '91 €', product: 'Klapp Heimpflege (individuell nach Hautanalyse)' },
-    'Calming': { behandlung: 'Relax Behandlung', dauer: '', preis: 'auf Anfrage', product: 'Klapp Heimpflege (individuell nach Hautanalyse)' },
-    'Pigment Control': { behandlung: 'ASA Peel Behandlung', dauer: '60 Min.', preis: '117 €', product: 'Klapp Heimpflege (individuell nach Hautanalyse)' },
-    'Sebum Balance': { behandlung: 'Clean & Activ Behandlung', dauer: '50 Min.', preis: '75 €', product: 'Klapp Heimpflege (individuell nach Hautanalyse)' },
-    'Texture Improvement': { behandlung: 'Micro Needling Gesicht', dauer: '', preis: '129 €', product: 'Klapp Heimpflege (individuell nach Hautanalyse)' },
-    'Firmness': { behandlung: 'Vitamin A Thermo Behandlung', dauer: '90 Min.', preis: '139 €', product: 'Klapp Heimpflege (individuell nach Hautanalyse)' },
-    'Elasticity': { behandlung: 'Vitamin A Power Behandlung', dauer: '90 Min.', preis: '139 €', product: 'Klapp Heimpflege (individuell nach Hautanalyse)' },
-    'Radiance': { behandlung: 'Diamond Behandlung', dauer: '90 Min.', preis: '149 €', product: 'Klapp Heimpflege (individuell nach Hautanalyse)' }
+    'Hydration': { behandlung: 'Soft Needling meets Hyaluron', dauer: '90 Min.', preis: '239 €', product: 'Klapp Heimpflege (individuell nach Hautanalyse)' },
+    'Barrier Repair': { behandlung: 'Soft Needling', dauer: '60 Min.', preis: '149 €', product: 'Klapp Heimpflege (individuell nach Hautanalyse)' },
+    'Calming': { behandlung: 'Relax Behandlung', dauer: '70 Min.', preis: '129 €', product: 'Klapp Heimpflege (individuell nach Hautanalyse)' },
+    'Pigment Control': { behandlung: 'ASA Peel Fruchtsäure', dauer: '50 Min.', preis: '149 €', product: 'Klapp Heimpflege (individuell nach Hautanalyse)' },
+    'Sebum Balance': { behandlung: 'Clean & Activ Behandlung', dauer: '50 Min.', preis: '93 €', product: 'Klapp Heimpflege (individuell nach Hautanalyse)' },
+    'Texture Improvement': { behandlung: 'Micro Needling', dauer: '60 Min.', preis: '149 €', product: 'Klapp Heimpflege (individuell nach Hautanalyse)' },
+    'Firmness': { behandlung: 'FORMA 1 Zone', dauer: '40 Min.', preis: '119 €', product: 'Klapp Heimpflege (individuell nach Hautanalyse)' },
+    'Elasticity': { behandlung: 'Deluxe Treatments', dauer: '90 Min.', preis: '205 €', product: 'Klapp Heimpflege (individuell nach Hautanalyse)' },
+    'Radiance': { behandlung: 'MicroDerm meets AquaDerm', dauer: '80 Min.', preis: '199 €', product: 'Klapp Heimpflege (individuell nach Hautanalyse)' }
   };
 
   // Werden beim Start ggf. durch Sheet-Daten ersetzt (siehe loadSheetData unten).
@@ -524,6 +587,7 @@
   ];
 
   var MITARBEITERINNEN = ['Svenja', 'Viktoria', 'Janine', 'Eleni'];
+  var BOOKING_URL = 'https://www.studiobookr.com/beauty-lounge-66137?rwg_token=AE37R_hn_NJgm7K5jfMEpQphd98TRv0aNa2GEf75TCmpJanNi3KcmREKr3J17eEnC2-flqQdsq-pFJ5qD-W9jG2TJ-A51-wXhQ%3D%3D';
   var BESTEHENDE_KUNDINNEN = ['Anna Weber', 'Julia Sommer'];
 
   // ---------- CSV laden & parsen ----------
@@ -743,14 +807,13 @@
   }
 
   function renderKundeWahl() {
-    var hasOffen = false;
     var body = '' +
-      '<p class="eyebrow">Neue Beratung</p>' +
-      '<h1 class="q">Kundin auswählen</h1>' +
-      '<div class="grid cols-2">' +
-        '<button class="card center-tap" onclick="__bb.goTo(\'kunde-neu\')">Neue Kundin</button>' +
-        '<button class="card center-tap" onclick="__bb.goTo(\'kunde-bestehend\')">Bestehende Kundin</button>' +
-        '<button class="card center-tap disabled" disabled>Offene Beratung fortsetzen<br><span style="font-size:.75rem;color:var(--text-soft)">Keine vorhanden</span></button>' +
+      '<img class="brand-logo md" src="../assets/logo/beauty-lounge-logo.png" alt="Beauty Lounge" />' +
+      '<p class="welcome-title">Willkommen, ' + esc(STATE.mitarbeiterin || '') + '</p>' +
+      '<div class="stack">' +
+        '<button class="stack-btn primary" onclick="__bb.goTo(\'kunde-neu\')">Neue Beratung</button>' +
+        '<button class="stack-btn" onclick="__bb.goTo(\'kunde-bestehend\')">Kundin auswählen</button>' +
+        '<button class="stack-btn" disabled>Beratung fortsetzen<span class="hint">Keine offene Beratung vorhanden</span></button>' +
       '</div>';
     screenWrap('dezent', phasePercent('kunde', 0, 3), contextLabel(), body);
   }
@@ -759,9 +822,9 @@
     var body = '' +
       '<p class="eyebrow">Bestehende Kundin</p>' +
       '<h1 class="q">Wen berätst du?</h1>' +
-      '<div class="grid cols-2">' +
+      '<div class="stack">' +
       BESTEHENDE_KUNDINNEN.map(function (n) {
-        return '<button class="card" onclick="__bb.select(\'kunde-bestehend\',\'' + n + '\')"><span>' + n + '</span></button>';
+        return '<button class="stack-btn" onclick="__bb.select(\'kunde-bestehend\',\'' + n + '\')">' + n + '</button>';
       }).join('') +
       '</div>';
     screenWrap('dezent', phasePercent('kunde', 1, 3), contextLabel(), body);
@@ -921,6 +984,14 @@
     return arr;
   }
 
+  function bookingBlock(p) {
+    var names = [NEED_INFO[p.phase1.need].behandlung];
+    if (p.phase2) names.push(NEED_INFO[p.phase2.need].behandlung);
+    return '' +
+      '<p class="sub" style="margin:1.1rem 0 .5rem">Termin buchen für: ' + esc(names.join(' + ')) + '</p>' +
+      '<a class="btn-link" href="' + BOOKING_URL + '" target="_blank" rel="noopener noreferrer">Termin online buchen ↗</a>';
+  }
+
   function treatLine(info) {
     var extra = [info.dauer, info.preis].filter(Boolean).join(' · ');
     return extra ? info.behandlung + ' (' + extra + ')' : info.behandlung;
@@ -1043,6 +1114,7 @@
         '<div class="routine-col"><h3>Morgens</h3><ol><li>Reinigung</li><li>' + esc(i1.product) + '</li><li>Tagespflege</li><li>SPF</li></ol></div>' +
         '<div class="routine-col"><h3>Abends</h3><ol><li>Reinigung</li><li>' + esc(i2.product) + '</li><li>Serum</li><li>Nachtpflege</li></ol></div>' +
       '</div>' +
+      bookingBlock(p) +
       '<div class="footer-actions">' +
         '<button class="btn-primary" onclick="__bb.goTo(\'abschluss\')">Freigeben & abschließen</button>' +
       '</div>';
@@ -1050,11 +1122,13 @@
   }
 
   function renderAbschluss() {
+    var p = computeProgram();
     var body = '' +
       '<img class="brand-logo md" src="../assets/logo/beauty-lounge-logo.png" alt="Beauty Lounge" />' +
       '<p class="eyebrow" style="text-align:center">Abgeschlossen</p>' +
       '<h1 class="q" style="text-align:center">Beauty Blueprint gespeichert</h1>' +
       '<p class="sub" style="text-align:center">' + esc(STATE.kundeName || 'Die Kundin') + ' erhält ihren persönlichen Plan. Ein Bericht kann optional erstellt werden.</p>' +
+      '<div style="text-align:center">' + bookingBlock(p) + '</div>' +
       '<div class="footer-actions">' +
         '<button class="btn-ghost" onclick="this.outerHTML=\'<span class=&quot;sub&quot; style=&quot;margin:0&quot;>Bericht vorbereitet ✓</span>\'">Bericht als PDF vorbereiten</button>' +
         '<button class="btn-primary" onclick="__bb.goTo(\'kunde-wahl\')">Neue Beratung starten</button>' +

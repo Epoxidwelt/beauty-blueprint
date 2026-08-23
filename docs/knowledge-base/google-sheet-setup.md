@@ -58,7 +58,7 @@ Bleibt eine URL leer, nutzt der Prototyp für dieses Tabellenblatt weiter die ei
 ### 7. BeautyNeeds
 | need | behandlung | dauer | preis | produkt |
 |---|---|---|---|---|
-| Hydration | Hyaluron Infusion Behandlung | 90 Min. | 139 € | Klapp Heimpflege (individuell nach Hautanalyse) |
+| Hydration | Soft Needling meets Hyaluron | 90 Min. | 239 € | Klapp Heimpflege (individuell nach Hautanalyse) |
 
 `dauer` und `preis` sind optional — leer lassen, wenn nicht bekannt. Echte Werte für alle 9 Kategorien: siehe [behandlungskatalog.md](behandlungskatalog.md) (Quelle: aktuelle Beauty-Lounge-Preisliste).
 

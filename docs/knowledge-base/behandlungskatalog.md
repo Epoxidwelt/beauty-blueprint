@@ -1,61 +1,53 @@
 # Behandlungskatalog (echte Daten)
 
-Quelle: `BeautyLounge_Preisliste_A5_2024`, heruntergeladen von [beautylounge-neuss.de](https://www.beautylounge-neuss.de) am 2026-08-23. Ersetzt die bisherigen Platzhalternamen (z. B. "Hydra Boost Signature Facial") im Prototyp durch die tatsächlichen Beauty-Lounge-Behandlungen.
+**Aktuelle Quelle:** [studiobookr.com/beauty-lounge-66137](https://www.studiobookr.com/beauty-lounge-66137) — die echte Online-Terminbuchungsseite der Beauty Lounge, abgerufen am 2026-08-23. Das ist die **verlässlichste verfügbare Quelle**, da hier tatsächlich buchbare Leistungen mit aktuellen Preisen stehen (nicht nur Marketing-Material). Ersetzt die zuvor verwendete `BeautyLounge_Preisliste_A5_2024`-PDF — die Preise dort waren spürbar veraltet (z. B. Start Up Behandlung: 91 € in der PDF vs. 149 € aktuell bei Studiobookr).
 
-**Wichtiger Vorbehalt:** Das ist die Preisliste, wie sie online veröffentlicht war — keine Garantie, dass sie in jedem Detail mit der aktuellen internen Preisliste übereinstimmt. Zwei Unsicherheiten aus der PDF-Textextraktion:
+**Wichtige Randnotiz zu Studiobookr/Studiolution:** Im Footer von Studiobookr steht *"studiobookr ist ein Service von studiolution.com"*. Studiobookr ist also das Online-Buchungswidget von **Studiolution**, die daneben auch Kassensystem und Kundenverwaltung anbieten (siehe [Projektbeschreibung.md](../Projektbeschreibung.md), Abschnitt 29, wo "Studiolution" bereits als mögliches künftiges CRM/Buchungssystem genannt wurde). Es gibt aktuell **keine automatisierte Anbindung** zwischen dieser Excel-Tabelle/App und Studiolution — dafür wäre Zugriff auf eine Studiolution-API oder einen Datenexport nötig, den ich nicht habe und aus Sicherheitsgründen auch nicht ungefragt mit Zugangsdaten einrichten würde. Änderungen müssen also weiterhin manuell gepflegt werden (siehe unten).
 
-- **Relax Behandlung**: Preis/Dauer waren im PDF vermutlich als Grafik statt als Text hinterlegt und wurden nicht mit extrahiert. Bitte manuell nachtragen.
-- **ASA Peel Behandlung**: Neben "60 Min. € 117 / 3er Kur € 351" stand im selben Layout-Block noch eine zweite Preis-Dauer-Gruppe ("60 Min. € 85 / 75 Min. € 105 / 90 Min. € 126"), deren Zuordnung durch die Spaltenreihenfolge der PDF-Extraktion nicht eindeutig war. Bitte im Original-PDF/Aushang gegenprüfen.
+## Vollständige Leistungsliste
 
-## Gesichtsbehandlungen (skin-relevant, ins Beauty-Needs-System eingebunden)
+Der komplette, aktuelle Leistungskatalog (alle Kategorien, nicht nur Gesichtsbehandlungen) liegt als Excel-Tabelle vor:
 
-| Behandlung | Dauer | Preis | Beschreibung |
-|---|---|---|---|
-| Start Up Behandlung | 70 Min. | 91 € | Kennenlernbehandlung für Neukunden. Hautanalyse + individuell abgestimmte Behandlung (warme Kompressen, Reinigung, sanftes Enzympeeling, Ausreinigung, intensives Serum, Massage, Maske, Abschlusspflege). |
-| Clean & Activ Behandlung | 50 Min. | 75 € | Reinigung, intensives Peeling, Entfernen von Unreinheiten, Reinigungsmaske. |
-| Relax Behandlung | — | — (siehe Vorbehalt) | Entspannende Verwöhnbehandlung mit intensiver Wirkung — warme Kompressen, Enzympeeling, Ausreinigung, Wirkstoffampulle, Massage, Maske. |
-| Spezial Maske (Zusatz) | — | 14 € | Ergänzung zu einer Gesichtsbehandlung. |
-| Men Behandlung | 60 / 75 Min. | 88 € / 110 € | Beruhigende Anti-Age-Behandlung speziell für Männerhaut. |
-| Aqua Derm Classic | — | 125 € | Tiefenreinigung, Peeling, Wirkstoffeinschleusung, intensive Hydration. |
-| Aqua Derm Intensiv | — | 145 € | Wie Classic, zusätzlich Power-Lifting-Maske. |
-| ASA Peel Behandlung | 60 Min. | 117 € (3er Kur 351 €) | Fruchtsäure-Hauterneuerung. Verfeinert Pigmentflecken, Unebenheiten, Linien, Fältchen. |
-| Hyaluron Infusion Behandlung | 90 Min. | 139 € | Feuchtigkeitskonzept mit Hyaluronsäure für sehr trockene, beanspruchte Haut. |
-| Vitamin A Power Behandlung | 90 Min. | 139 € | Gold-Gel-Modellage-Maske, regt Regeneration an, fördert Elastizität. |
-| Vitamin A Thermo Behandlung | 90 Min. | 139 € | Wärmende Anti-Age-Behandlung für beanspruchte, regenerationsbedürftige Haut. |
-| Diamond Behandlung | 90 Min. | 149 € | Diamantpartikel, verbessert Ausstrahlung, Feuchtigkeitsversorgung, glättend. |
-| Micro Needling Gesicht | — | 129 € (+ Hals 22 € + Dekolleté 22 €) | Kollagen-/Elastinstimulation. Geeignet bei Aknenarben, Falten, großporiger Haut, Pigmentflecken, UV-Schäden. Kur-Empfehlung: 6–8×. |
+**[exports/Beauty_Lounge_Behandlungskatalog.xlsx](exports/Beauty_Lounge_Behandlungskatalog.xlsx)**
 
-**Zusatzbehandlungen (Gesicht):** Wimpern färben ab 16 €, Augenbrauen färben ab 12 €, Augenbrauen zupfen ab 12 €, Augenbrauen wachsen ab 13 €.
+- Tab **„Alle Leistungen"** — alle ca. 118 Positionen von Studiobookr (Kategorie, Behandlung, Preis, Dauer, Beschreibung), inkl. Fußpflege, Maniküre, Wimpern, Massagen, FORMA-Hautstraffung und DIOLAZE-Haarentfernung.
+- Tab **„Beauty-Needs-Zuordnung"** — die 9 Kategorien mit ihrer aktuellen Behandlung, exakt im Format der Google-Sheet-BeautyNeeds-Tabelle (siehe [google-sheet-setup.md](google-sheet-setup.md)) — kann bei Bedarf 1:1 in Google Sheets importiert werden.
 
-## Weitere Kategorien (aktuell nicht Teil der Beauty-Needs-Logik)
+## Zuordnung zu den 9 Beauty-Needs-Kategorien (aktueller Stand)
 
-Diese Leistungen sind real und Teil des Studio-Angebots, aber nicht auf Hautbedürfnisse (Hydration, Barrier Repair, …) gemappt, da sie außerhalb der Gesichts-/Hautanalyse liegen. Können bei Bedarf als eigener Zweig ergänzt werden.
+| Beauty Need | Behandlung | Dauer | Preis | Begründung |
+|---|---|---|---|---|
+| Hydration | Soft Needling meets Hyaluron | 90 Min. | 239 € | Explizit „3-fach Hyaluronsäure … aufgepolstert" |
+| Barrier Repair | Soft Needling | 60 Min. | 149 € | Explizit „Hautbarriere aufbauen und stärken" |
+| Calming | Relax Behandlung | 70 Min. | 129 € | Explizit „Entspannende Verwöhnbehandlung" |
+| Pigment Control | ASA Peel Fruchtsäure | 50 Min. | 149 € | Explizit „Pigmente werden minimiert" |
+| Sebum Balance | Clean & Activ Behandlung | 50 Min. | 93 € | Explizit „intensive Ausreinigung, geklärtes Hautbild" |
+| Texture Improvement | Micro Needling | 60 Min. | 149 € | Explizit „Pickelmale, Narben, Unebenheiten vermindert" |
+| Firmness | FORMA 1 Zone | 40 Min. | 119 € | Explizit „Elastizitätsverlust wird stark minimiert" (Radiofrequenz-Hautstraffung — weitere Zonen/Preise siehe Excel) |
+| Elasticity | Deluxe Treatments | 90 Min. | 205 € | Klapp-Regenerationsbehandlung (CellPro/Diamond/ExoGen, individuell zusammengestellt) |
+| Radiance | MicroDerm meets AquaDerm | 80 Min. | 199 € | Explizit „sofortiger Glow, strahlende Haut" |
 
-- **Wimpern:** Wimpernlifting 64 €, Wimpernwelle 64 €, Browlifting 51 € (jeweils inkl. Keratinpflege/Laminierung)
-- **Hand & Nagelpflege:** Wellness Maniküre 40 €, Nagellack 13 €, ProLaq 24 €, Spa Hand Behandlung 28 €, Gelnägel (Naturnagelverstärkung 76 €, Komplett-Set 97 €, Auffüllen 70 €, u. a.)
-- **Fußpflege:** Wellness Fußpflege 51 €, Pedix 25 €, Fußmassage 9 €, Spa Fuß Behandlung 28 €, Beautyful Hand & Fuß (Kombi) 139 €
-- **Warmwachsbehandlungen:** Oberlippe 14 €, Oberlippe+Kinn 21 €, Augenbrauen 14 €, Beine bis Knie 36 €, Beine komplett 57 €, Brust/Rücken ab 35 €, Arme ab 26 €, Achseln ab 25 €
+**Hinweis:** Die alte Zuordnung (Hyaluron Infusion, Vitamin A Power/Thermo, Diamond Behandlung, ASA Peel Behandlung als Einzelnamen) existiert bei Studiobookr so nicht mehr — diese Einzelbehandlungen wurden zu den VIP-/Kombi-Angeboten „Luxus Treatments", „Deluxe Treatments" und „Repagen Exclusive Treatment" zusammengefasst. `prototype.html` verwendet jetzt ausschließlich die aktuelle Studiobookr-Benennung.
 
-## Zuordnung zu den 9 Beauty-Needs-Kategorien
+## Kur-Konzepte (Mehrfach-Behandlungen)
 
-Jede Kategorie bekommt genau eine primäre Behandlung zugeordnet (Vereinfachung für den Prototyp — real könnte eine Behandlung mehrere Needs gleichzeitig bedienen, siehe Projektbeschreibung Abschnitt 10).
+Studiobookr bietet einige Leistungen explizit als **Kur** (mehrere Sitzungen als ein Paket) an, buchbar wie jede andere Leistung:
 
-| Beauty Need | Zugeordnete Behandlung | Begründung |
-|---|---|---|
-| Hydration | Hyaluron Infusion Behandlung | Explizit "Feuchtigkeitskonzept ... Hyaluronsäure für sehr trockene Haut" |
-| Barrier Repair | Start Up Behandlung | Adaptive Einstiegsbehandlung "auf die Bedürfnisse der Haut abgestimmt" — passt zur Stabilisierungsphase |
-| Calming | Relax Behandlung | Explizit "Entspannende Verwöhnbehandlung" |
-| Pigment Control | ASA Peel Behandlung | Explizit "Pigmentflecken ... werden verfeinert" |
-| Sebum Balance | Clean & Activ Behandlung | Explizit "Entfernen von Unreinheiten" |
-| Texture Improvement | Micro Needling Gesicht | Explizit "großporige Haut", "Hautstruktur deutlich verbessert" |
-| Firmness | Vitamin A Thermo Behandlung | Wärmende Anti-Age-Behandlung, Regenerationsanregung |
-| Elasticity | Vitamin A Power Behandlung | Explizit "Elastizität gefördert" |
-| Radiance | Diamond Behandlung | Explizit "Ausstrahlung Ihrer Haut verbessert" |
+- **ASA Fruchtsäure KUR** — 447 € / 50 Min. (empfohlen: 3er-Kur, inkl. gratis Heimpflege im Wert von 30 €)
+- **FORMA 6er KUR** / **FORMA 8er KUR** — 10 % Rabatt auf die gewählte FORMA-Zonenbehandlung als Kur
+
+Das beantwortet die Frage nach Kur-Buchungen: Ja, das ist über den Buchungslink möglich — die Kundin bzw. Mitarbeiterin sucht beim Buchen einfach nach dem Kur-Namen (z. B. „ASA Fruchtsäure KUR") statt der Einzelbehandlung. Eine automatische Vorauswahl/Deep-Link auf eine bestimmte Leistung ist mit den aktuell bekannten Möglichkeiten von Studiobookr nicht umgesetzt (siehe [figma/README.md](../../figma/README.md) zum Buchungs-Button).
 
 ## Homecare / Produkte
 
-Es liegt noch **kein** strukturierter Produktkatalog vor (Abschnitt 13) — die Preisliste nennt nur Partnermarken (Klapp Cosmetics, Alessandro International, Gehwol), keine einzelnen Pflegeprodukte mit Namen. Der Prototyp verwendet deshalb aktuell den ehrlichen Platzhalter "Klapp Heimpflege (individuell nach Hautanalyse)" statt erfundener Produktnamen. Ein echter Produktkatalog müsste separat erfasst werden (z. B. von Klapp direkt oder aus dem Studio-Sortiment).
+Es liegt weiterhin **kein** strukturierter Produktkatalog vor (Abschnitt 13). Der Prototyp verwendet den ehrlichen Platzhalter „Klapp Heimpflege (individuell nach Hautanalyse)" statt erfundener Produktnamen — Klapp SkinCare ist als echte Partnermarke bei Studiobookr bestätigt.
 
-## Studio-Stammdaten (aus der Preisliste, für spätere Verwendung z. B. im Beauty-Blueprint-Bericht)
+## Studio-Stammdaten (aus Studiobookr)
 
-Inh. Svenja Gampp · Hoistener Straße 15 · 41466 Neuss · Tel. 02131-4506806 / 0160-99812403 · beauty_lounge@gmx.net · Mo–Sa, Termine nach Vereinbarung. Stornohinweis: Aufwandsentschädigung 50 % bei Absage < 24 Std. vor Termin.
+Beauty Lounge · Inh. Svenja Gampp · Team: Viktoria Lauk-Filimonov, Eleni Tserkezi, Janine Reinhardt · Hoistener Str. 15, 41466 Neuss · Tel. 02131 4506806 · Öffnungszeiten: Mo 08:00–15:00, Di–Do 09:00–15:00, Fr 09:00–17:30, Sa 09:00–15:00, So geschlossen.
+
+## Pflege-Workflow für diese Tabelle
+
+1. Änderungen an Preisen/Behandlungen zuerst in der Excel-Datei nachtragen (oder mir Bescheid geben, dann übernehme ich es).
+2. Für den Prototyp: entweder die Excel-Daten in Google Sheets importieren und über `SHEET_CONFIG` einbinden (siehe [google-sheet-setup.md](google-sheet-setup.md) — dann lädt die App live), oder mir die Änderung nennen, dann trage ich sie direkt in `DEFAULT_NEED_INFO` in `figma/prototype.html` ein.
+3. Eine automatische Rückschreibung nach Studiolution/Studiobookr ist aktuell nicht möglich (siehe oben) — Preisänderungen im echten Buchungssystem müssen weiterhin direkt dort gepflegt werden.
