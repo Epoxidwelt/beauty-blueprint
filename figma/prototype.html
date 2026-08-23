@@ -1173,6 +1173,23 @@
     { name: 'Anti-Aging & Straffung', needs: ['Firmness', 'Elasticity'] }
   ];
 
+  // Deutsche Anzeige-Namen der 9 internen Need-Schlüssel — auf der "Fachliche Strategie"-Seite
+  // sollen keine englischen Kategorie-Namen (Hydration, Barrier Repair, ...) auftauchen.
+  var NEED_LABELS_DE = {
+    'Hydration': 'Feuchtigkeit',
+    'Barrier Repair': 'Hautbarriere',
+    'Calming': 'Beruhigung',
+    'Pigment Control': 'Pigmentierung',
+    'Sebum Balance': 'Talgregulierung',
+    'Texture Improvement': 'Hautstruktur',
+    'Firmness': 'Festigkeit',
+    'Elasticity': 'Elastizität',
+    'Radiance': 'Ausstrahlung'
+  };
+  function needLabel(need) {
+    return NEED_LABELS_DE[need] || need;
+  }
+
   var MITARBEITERINNEN = [
     { name: 'Svenja', img: '../assets/team/svenja.jpg' },
     { name: 'Viktoria', img: '../assets/team/viktoria.jpg' },
@@ -1794,47 +1811,49 @@
   // Öffnet das lokale Mailprogramm mit vorausgefüllter Zusammenfassung (mailto:) —
   // die Mitarbeiterin sieht die E-Mail vor dem Versand und kann Empfänger/Text noch anpassen.
   // Kein automatischer Versand im Hintergrund.
+  // Bewusst schlank gehalten: nur Aufzählung von Behandlungen/Produkten mit Preis und
+  // Behandlungszeit, keine internen Begründungen/Kontext — das ist für die Kundin bzw. die
+  // Kundenkartei gedacht, nicht für die interne fachliche Nachvollziehbarkeit (dafür gibt es
+  // den Strategie-Screen). Der Buchungslink steht allein auf seiner eigenen Zeile ohne
+  // weiteren Text davor/danach, damit ihn möglichst jedes Mailprogramm automatisch verlinkt —
+  // eine "echte" HTML-Schaltfläche ist über mailto: technisch nicht möglich (reiner Text).
   function emailSummaryHref() {
     var plan = getPlan();
     var i1 = NEED_INFO[(plan.active[0] || plan.ranked[0]).need];
     var i2 = plan.active[1] ? NEED_INFO[plan.active[1].need] : i1;
     var lines = [
       'Beauty Blueprint — ' + (STATE.kundeName || 'Kundin'),
-      'Mitarbeiterin: ' + (STATE.mitarbeiterin || ''),
-      '',
-      'Kundenziel: ' + zielText(),
-      'Programm: ' + plan.family.name,
       ''
     ];
+    lines.push('Behandlungen:');
     if (plan.active.length) {
-      plan.active.forEach(function (r) {
-        lines.push('Priorität ' + r.prio + ': ' + treatLine(r));
-        lines.push('  Begründung: ' + needReason(r.need));
-      });
+      plan.active.forEach(function (r) { lines.push('- ' + treatLine(r)); });
     } else {
-      lines.push('Keine Behandlung ausgewählt');
+      lines.push('- keine ausgewählt');
     }
     lines.push('');
     lines.push('6-Monats-Kurplan:');
     kurDefaultSlots(plan).forEach(function (baseInfo, idx) {
       var info = kurInfoFor(idx, baseInfo);
-      lines.push('  Monat ' + (idx + 1) + ': ' + (info ? treatLine(info) : 'entfernt'));
+      lines.push('Monat ' + (idx + 1) + ': ' + (info ? treatLine(info) : 'entfernt'));
     });
+    lines.push('Kur-Gesamtpreis (6 Monate): ' + formatPrice(kurTotal(plan)));
     lines.push('');
+    lines.push('Homecare-Produkte:');
     var homeAM = homecareInfoFor('am', i1);
     var homePM = homecareInfoFor('pm', i2);
     var reinigungInfo = homecareInfoFor('reinigung', { product: i1.reinigung, produktpreis: i1.reinigungpreis });
     var peelingInfo = homecareInfoFor('peeling', { product: i1.peeling, produktpreis: i1.peelingpreis });
     var maskeInfo = homecareInfoFor('maske', { product: i1.maske, produktpreis: i1.maskepreis });
-    var reinigungLine = reinigungInfo ? productLine(reinigungInfo) : 'Reinigung';
-    if (homeAM) lines.push('Homecare morgens: ' + reinigungLine + ', ' + productLine(homeAM) + ', Tagespflege, SPF');
-    if (homePM) lines.push('Homecare abends: ' + reinigungLine + ', ' + productLine(homePM) + ', Serum, Nachtpflege');
-    if (!homeAM && !homePM) lines.push('Homecare: von der Mitarbeiterin entfernt');
-    if (peelingInfo) lines.push('Peeling (1-2x/Woche): ' + productLine(peelingInfo));
-    if (maskeInfo) lines.push('Maske (1-2x/Woche): ' + productLine(maskeInfo));
+    if (reinigungInfo) lines.push('- Reinigung: ' + productLine(reinigungInfo));
+    if (homeAM) lines.push('- Morgens: ' + productLine(homeAM));
+    if (peelingInfo) lines.push('- Peeling (1-2x/Woche): ' + productLine(peelingInfo));
+    if (homePM) lines.push('- Abends: ' + productLine(homePM));
+    if (maskeInfo) lines.push('- Maske (1-2x/Woche): ' + productLine(maskeInfo));
+    if (!reinigungInfo && !homeAM && !peelingInfo && !homePM && !maskeInfo) lines.push('- keine ausgewählt');
     lines.push('');
-    lines.push('Nächster Checkpoint: in 4 Wochen');
-    lines.push('Termin buchen: ' + BOOKING_URL);
+    lines.push('Termin online buchen:');
+    lines.push(BOOKING_URL);
     var body = lines.join('\n');
     var subject = 'Beauty Blueprint — ' + (STATE.kundeName || 'Kundin');
     return 'mailto:info@epoxidwelt.de?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
@@ -1914,6 +1933,28 @@
     return baseInfo;
   }
 
+  // Preis-String ("239 €" oder "72,50 €") in eine Zahl umwandeln bzw. wieder zurück —
+  // Grundlage für die Kur-Gesamtsumme, die der Kundin mitgeteilt werden kann.
+  function parsePrice(str) {
+    if (!str) return 0;
+    var n = parseFloat(String(str).replace(/[^\d,.]/g, '').replace(',', '.'));
+    return isNaN(n) ? 0 : n;
+  }
+  function formatPrice(n) {
+    return (Math.round(n * 100) % 100 === 0 ? n.toFixed(0) : n.toFixed(2).replace('.', ',')) + ' €';
+  }
+
+  // Summe aller (noch aktiven) Kur-Termine — zeigt der Mitarbeiterin/Kundin, was die
+  // gesamte 6-Monats-Kur kostet, nicht nur die einzelne Behandlung.
+  function kurTotal(plan) {
+    var sum = 0;
+    kurDefaultSlots(plan).forEach(function (baseInfo, idx) {
+      var info = kurInfoFor(idx, baseInfo);
+      if (info) sum += parsePrice(info.preis);
+    });
+    return sum;
+  }
+
   // Alle Beauty-Needs, für die in der Hautanalyse tatsächlich etwas beobachtet wurde (avg > 0),
   // als priorisierte Liste geeigneter Behandlungen — Grundlage für die Schnellauswahl im
   // Kurplan, damit die Mitarbeiterin nicht erst tippen muss, um die passenden Optionen zu sehen.
@@ -1962,13 +2003,13 @@
   function renderStrategy() {
     var plan = getPlan();
     var body = '' +
-      '<p class="eyebrow">Beauty Strategy</p>' +
+      '<p class="eyebrow">Strategie</p>' +
       '<h1 class="q">Die fachliche Strategie</h1>' +
       '<div class="summary-list">' +
         '<div class="summary-row"><span class="k">Kundenziel</span><span class="v">' + esc(zielText()) + '</span></div>' +
         '<div class="summary-row"><span class="k">Programm</span><span class="v">' + esc(plan.family.name) + '</span></div>' +
         plan.ranked.map(function (r) {
-          return '<div class="summary-row"><span class="k">Prio ' + r.prio + '</span><span class="v">' + esc(r.need) + '</span></div>';
+          return '<div class="summary-row"><span class="k">Prio ' + r.prio + '</span><span class="v">' + esc(needLabel(r.need)) + '</span></div>';
         }).join('') +
       '</div>' +
       '<p class="sub">Begründung Hauptpriorität: ' + esc(needReason(plan.ranked[0].need)) + '</p>' +
@@ -2058,6 +2099,7 @@
     var kurSlots = kurDefaultSlots(plan);
     RANKED_TREATMENTS = ranked;
     var asaWarning = kurAsaWarning(kurSlots);
+    var kurGesamtpreis = kurTotal(plan);
 
     var body = '' +
       '<p class="eyebrow">Empfehlungen · Programm: ' + esc(plan.family.name) + '</p>' +
@@ -2072,6 +2114,9 @@
       (asaWarning ? '<div class="kur-warning">⚠ ' + esc(asaWarning) + '</div>' : '') +
       '<div class="grid cols-3">' +
         kurSlots.map(function (info, idx) { return kurSlotCard(idx, info, ranked); }).join('') +
+      '</div>' +
+      '<div class="summary-list" style="margin-top:.7rem">' +
+        '<div class="summary-row"><span class="k">Kur-Gesamtpreis (6 Monate)</span><span class="v">' + esc(formatPrice(kurGesamtpreis)) + '</span></div>' +
       '</div>' +
       '<h3 class="section-label">Homecare-Produkte</h3>' +
       '<p class="sub" style="margin-top:-.4rem">Komplette Routine passend zur Priorität vorgeschlagen — bei Bedarf über die Suche austauschen oder entfernen.</p>' +
@@ -2119,7 +2164,9 @@
         '<div class="summary-row"><span class="k">Homecare</span><span class="v">' + esc(homecareRow) + '</span></div>' +
       '</div>' +
       '<h3 class="section-label">6-Monats-Kurplan</h3>' +
-      '<div class="summary-list">' + kurRows + '</div>' +
+      '<div class="summary-list">' + kurRows +
+        '<div class="summary-row"><span class="k" style="font-weight:700">Kur-Gesamtpreis (6 Monate)</span><span class="v" style="font-weight:700">' + esc(formatPrice(kurTotal(plan))) + '</span></div>' +
+      '</div>' +
       (homeAM || homePM ? '' +
         '<h3 class="section-label">Homecare-Routine</h3>' +
         '<div class="routine-cols">' +
