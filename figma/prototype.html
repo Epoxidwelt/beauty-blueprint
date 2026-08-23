@@ -489,16 +489,18 @@
     { key: 'hautstruktur', label: 'Unregelmäßige Hautstruktur', need: 'Texture Improvement' }
   ];
   var SCALE4_LABELS = ['Nicht vorhanden', 'Leicht', 'Mittel', 'Stark'];
+  // Echte Beauty-Lounge-Behandlungen (Quelle: BeautyLounge_Preisliste_A5_2024,
+  // siehe docs/knowledge-base/behandlungskatalog.md für Zuordnungsbegründung und Preisstand).
   var DEFAULT_NEED_INFO = {
-    'Hydration': { behandlung: 'Hydra Boost Signature Facial', product: 'Intensiv-Feuchtigkeitsserum' },
-    'Barrier Repair': { behandlung: 'Barrier Recovery Ritual', product: 'Ceramid-Repair-Creme' },
-    'Calming': { behandlung: 'Calm & Soothe Treatment', product: 'Beruhigendes Kalmus-Serum' },
-    'Pigment Control': { behandlung: 'Pigment Balance Peeling', product: 'Vitamin-C-Aufhellungsserum' },
-    'Sebum Balance': { behandlung: 'Clear Skin Deep Cleanse', product: 'Porenklärendes Reinigungsgel' },
-    'Texture Improvement': { behandlung: 'Micro-Resurfacing Facial', product: 'Enzym-Peeling-Maske' },
-    'Firmness': { behandlung: 'Lifting & Firming Treatment', product: 'Straffungs-Serum' },
-    'Elasticity': { behandlung: 'Collagen Boost Therapy', product: 'Collagen-Booster-Ampullen' },
-    'Radiance': { behandlung: 'Glow Renewal Facial', product: 'Radiance-Booster-Drops' }
+    'Hydration': { behandlung: 'Hyaluron Infusion Behandlung', dauer: '90 Min.', preis: '139 €', product: 'Klapp Heimpflege (individuell nach Hautanalyse)' },
+    'Barrier Repair': { behandlung: 'Start Up Behandlung', dauer: '70 Min.', preis: '91 €', product: 'Klapp Heimpflege (individuell nach Hautanalyse)' },
+    'Calming': { behandlung: 'Relax Behandlung', dauer: '', preis: 'auf Anfrage', product: 'Klapp Heimpflege (individuell nach Hautanalyse)' },
+    'Pigment Control': { behandlung: 'ASA Peel Behandlung', dauer: '60 Min.', preis: '117 €', product: 'Klapp Heimpflege (individuell nach Hautanalyse)' },
+    'Sebum Balance': { behandlung: 'Clean & Activ Behandlung', dauer: '50 Min.', preis: '75 €', product: 'Klapp Heimpflege (individuell nach Hautanalyse)' },
+    'Texture Improvement': { behandlung: 'Micro Needling Gesicht', dauer: '', preis: '129 €', product: 'Klapp Heimpflege (individuell nach Hautanalyse)' },
+    'Firmness': { behandlung: 'Vitamin A Thermo Behandlung', dauer: '90 Min.', preis: '139 €', product: 'Klapp Heimpflege (individuell nach Hautanalyse)' },
+    'Elasticity': { behandlung: 'Vitamin A Power Behandlung', dauer: '90 Min.', preis: '139 €', product: 'Klapp Heimpflege (individuell nach Hautanalyse)' },
+    'Radiance': { behandlung: 'Diamond Behandlung', dauer: '90 Min.', preis: '149 €', product: 'Klapp Heimpflege (individuell nach Hautanalyse)' }
   };
 
   // Werden beim Start ggf. durch Sheet-Daten ersetzt (siehe loadSheetData unten).
@@ -609,7 +611,7 @@
 
     if (SHEET_CONFIG.beautyneeds) tasks.push(fetchSheet(SHEET_CONFIG.beautyneeds).then(function (rows) {
       var map = {};
-      rows.forEach(function (row) { if (row.need) map[row.need] = { behandlung: row.behandlung, product: row.produkt }; });
+      rows.forEach(function (row) { if (row.need) map[row.need] = { behandlung: row.behandlung, dauer: row.dauer || '', preis: row.preis || '', product: row.produkt }; });
       if (Object.keys(map).length) NEED_INFO = map;
     }).catch(function (e) { console.warn('BeautyNeeds-Sheet konnte nicht geladen werden, nutze Standardwerte.', e); }));
 
@@ -919,6 +921,11 @@
     return arr;
   }
 
+  function treatLine(info) {
+    var extra = [info.dauer, info.preis].filter(Boolean).join(' · ');
+    return extra ? info.behandlung + ' (' + extra + ')' : info.behandlung;
+  }
+
   function needReason(needName) {
     var parts = ANALYSE_ITEMS.filter(function (it) { return it.need === needName; }).map(function (it) {
       var v = STATE.analyse[it.key];
@@ -993,6 +1000,7 @@
       return '<div class="rec-card">' +
         '<span class="rec-kicker">' + kicker + '</span>' +
         '<span class="rec-name" style="' + (st === 'entfernt' ? 'text-decoration:line-through;opacity:.5' : '') + '">' + esc(info.behandlung) + '</span>' +
+        '<span style="font-size:.8125rem;color:var(--text-soft)">' + esc([info.dauer, info.preis].filter(Boolean).join(' · ')) + '</span>' +
         '<p class="sub" style="margin:0;font-size:.8125rem">' + esc(title) + ' · ' + esc(needReason(needName)) + '</p>' +
         '<div class="rec-toggle">' +
           '<button class="' + (st === 'aktiv' ? 'active' : '') + '" onclick="__bb.select(\'rec-toggle\',\'' + key + '\')">' + (st === 'aktiv' ? 'Übernommen' : st === 'ersetzt' ? 'Ausgetauscht' : 'Entfernt') + '</button>' +
@@ -1026,9 +1034,9 @@
       '<hr class="divider"/>' +
       '<div class="summary-list">' +
         '<div class="summary-row"><span class="k">Programm</span><span class="v">' + esc(p.family.name) + '</span></div>' +
-        '<div class="summary-row"><span class="k">Phase 1 · Jetzt</span><span class="v">' + esc(i1.behandlung) + '</span></div>' +
-        (p.phase2 ? '<div class="summary-row"><span class="k">Phase 2 · Nächster Schritt</span><span class="v">' + esc(i2.behandlung) + '</span></div>' : '') +
-        (p.watch ? '<div class="summary-row"><span class="k">Ebenfalls beobachten</span><span class="v">' + esc(NEED_INFO[p.watch.need].behandlung) + '</span></div>' : '') +
+        '<div class="summary-row"><span class="k">Phase 1 · Jetzt</span><span class="v">' + esc(treatLine(i1)) + '</span></div>' +
+        (p.phase2 ? '<div class="summary-row"><span class="k">Phase 2 · Nächster Schritt</span><span class="v">' + esc(treatLine(i2)) + '</span></div>' : '') +
+        (p.watch ? '<div class="summary-row"><span class="k">Ebenfalls beobachten</span><span class="v">' + esc(treatLine(NEED_INFO[p.watch.need])) + '</span></div>' : '') +
         '<div class="summary-row"><span class="k">Nächster Checkpoint</span><span class="v">in 4 Wochen</span></div>' +
       '</div>' +
       '<div class="routine-cols">' +

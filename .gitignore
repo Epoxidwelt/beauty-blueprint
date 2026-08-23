@@ -40,3 +40,6 @@ supabase/.temp/
 
 # Rohdaten-Ordner (Original liegt bereits unter assets/logo/)
 /Logo/
+
+# Claude Code interne Session-Dateien
+.claude/
