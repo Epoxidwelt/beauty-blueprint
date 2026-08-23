@@ -1,0 +1,904 @@
+<meta charset="utf-8">
+<title>Beauty Blueprint — Klickbarer Prototyp</title>
+<style>
+  @font-face {
+    font-family: 'Iowan Old Style';
+    src: local('Iowan Old Style');
+  }
+
+  :root {
+    --warmweiss: #FAF6EF;
+    --champagne: #EFE1C6;
+    --sand: #D9C7A6;
+    --rose: #C89A93;
+    --rose-deep: #A9726C;
+    --anthrazit: #2A2622;
+    --anthrazit-soft: #5B5349;
+    --surface: var(--warmweiss);
+    --surface-raised: #FFFFFF;
+    --border: rgba(42, 38, 34, 0.14);
+    --border-strong: rgba(42, 38, 34, 0.26);
+    --text: var(--anthrazit);
+    --text-soft: var(--anthrazit-soft);
+    --danger: #A6473E;
+    --warn: #A97A2E;
+    --good: #52704F;
+
+    --backdrop: #E9E1D2;
+    --backdrop-ink: #3A342C;
+    --backdrop-ink-soft: rgba(58, 52, 44, 0.6);
+
+    --font-display: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Georgia, 'Times New Roman', serif;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root { --backdrop: #17130E; --backdrop-ink: #EFE7D8; --backdrop-ink-soft: rgba(239,231,216,0.6); }
+  }
+  :root[data-theme="dark"] { --backdrop: #17130E; --backdrop-ink: #EFE7D8; --backdrop-ink-soft: rgba(239,231,216,0.6); }
+  :root[data-theme="light"] { --backdrop: #E9E1D2; --backdrop-ink: #3A342C; --backdrop-ink-soft: rgba(58, 52, 44, 0.6); }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--backdrop);
+    background-image: radial-gradient(ellipse at 50% -10%, rgba(255,255,255,0.35), transparent 60%);
+    color: var(--backdrop-ink);
+    font-family: var(--font-body);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.1rem;
+    padding: 2.5rem 1rem;
+    overflow-x: hidden;
+  }
+  :root[data-theme="dark"] body, @media (prefers-color-scheme: dark) { body { background-image: radial-gradient(ellipse at 50% -10%, rgba(255,255,255,0.05), transparent 60%); } }
+
+  .rig-caption {
+    text-align: center;
+    max-width: 34rem;
+  }
+  .rig-eyebrow {
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--backdrop-ink-soft);
+    margin: 0 0 0.35rem;
+  }
+  .rig-title {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-style: italic;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .device {
+    width: min(880px, 94vw);
+    aspect-ratio: 4 / 3;
+    max-height: 84vh;
+    background: #1c1a17;
+    border-radius: 22px;
+    padding: 14px;
+    box-shadow: 0 30px 70px -25px rgba(0,0,0,0.5), 0 2px 0 rgba(255,255,255,0.04) inset;
+    display: flex;
+  }
+
+  .screen {
+    flex: 1;
+    background: var(--surface);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: background-color .35s ease;
+  }
+
+  .screen[data-mode="dezent"] { background: linear-gradient(180deg, var(--champagne) 0%, var(--warmweiss) 46%); }
+  .screen[data-mode="brand"] { background: linear-gradient(160deg, var(--champagne) 0%, var(--rose) 130%); }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.9rem 1.3rem 0.6rem;
+    flex-shrink: 0;
+  }
+  .back-btn {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.5);
+    color: var(--text);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+  }
+  .back-btn:hover { border-color: var(--border-strong); }
+  .back-btn[disabled] { visibility: hidden; }
+
+  .progress-track {
+    flex: 1;
+    height: 3px;
+    background: rgba(42,38,34,0.1);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--rose-deep);
+    border-radius: 3px;
+    transition: width .4s ease;
+  }
+  .context-label {
+    font-size: 0.6875rem;
+    color: var(--text-soft);
+    white-space: nowrap;
+    flex-shrink: 0;
+    max-width: 9rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.5rem 2.2rem 2rem;
+    display: flex;
+    flex-direction: column;
+  }
+  .content.center { justify-content: center; }
+
+  .eyebrow {
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+    margin: 0 0 0.4rem;
+  }
+  h1.q, h2.q {
+    font-family: var(--font-display);
+    font-weight: 500;
+    color: var(--text);
+    margin: 0 0 1.1rem;
+    text-wrap: balance;
+    line-height: 1.25;
+  }
+  h1.q { font-size: 1.9rem; }
+  h2.q { font-size: 1.35rem; }
+  p.sub {
+    font-size: 0.875rem;
+    color: var(--text-soft);
+    margin: -0.6rem 0 1.2rem;
+    max-width: 34rem;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 0.6rem;
+  }
+  .grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+  .card {
+    font-family: var(--font-body);
+    text-align: left;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.9rem 1rem;
+    font-size: 0.9rem;
+    color: var(--text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    transition: border-color .15s ease, background-color .15s ease, transform .1s ease;
+  }
+  .card:hover { border-color: var(--rose-deep); }
+  .card:active { transform: scale(0.98); }
+  .card.selected {
+    border-color: var(--rose-deep);
+    background: color-mix(in srgb, var(--champagne) 55%, white);
+  }
+  .card .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--rose-deep);
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity .15s ease;
+  }
+  .card.selected .dot { opacity: 1; }
+  .card.disabled { opacity: 0.45; cursor: not-allowed; }
+  .card.disabled:hover { border-color: var(--border); }
+
+  .card.center-tap { justify-content: center; text-align: center; font-size: 0.95rem; padding: 1.2rem 1rem; }
+
+  .row-choice {
+    display: flex;
+    gap: 0.6rem;
+  }
+  .row-choice .card { flex: 1; justify-content: center; text-align: center; }
+
+  .scale4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+  }
+  .scale4 .card { flex-direction: column; gap: 0.5rem; text-align: center; justify-content: center; padding: 1rem 0.5rem; }
+  .scale4 .level-fill { display: flex; gap: 3px; }
+  .scale4 .level-fill span { width: 6px; height: 6px; border-radius: 50%; background: var(--border-strong); }
+  .scale4 .card.selected .level-fill span.on { background: var(--rose-deep); }
+
+  .btn-primary {
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    background: var(--anthrazit);
+    color: var(--warmweiss);
+    border: none;
+    border-radius: 8px;
+    padding: 0.85rem 1.3rem;
+    cursor: pointer;
+    transition: transform .1s ease, opacity .15s ease;
+  }
+  .btn-primary:hover { opacity: 0.88; }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-primary[disabled] { opacity: 0.35; cursor: not-allowed; }
+
+  .btn-ghost {
+    font-family: var(--font-body);
+    font-size: 0.8125rem;
+    background: transparent;
+    color: var(--text-soft);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.7rem 1.1rem;
+    cursor: pointer;
+  }
+  .btn-ghost:hover { border-color: var(--border-strong); color: var(--text); }
+
+  .footer-actions {
+    margin-top: auto;
+    padding-top: 1.2rem;
+    display: flex;
+    gap: 0.6rem;
+    flex-shrink: 0;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    width: fit-content;
+  }
+  .badge.gruen { background: rgba(82,112,79,0.14); color: var(--good); }
+  .badge.gelb { background: rgba(169,122,46,0.14); color: var(--warn); }
+  .badge.rot { background: rgba(166,71,62,0.14); color: var(--danger); }
+  .badge .dot2 { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+  .text-input {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    background: var(--surface-raised);
+    color: var(--text);
+    width: 100%;
+    max-width: 22rem;
+  }
+  .text-input:focus { outline: 2px solid var(--rose-deep); outline-offset: 1px; }
+
+  .avatar-row { display: flex; gap: 0.7rem; flex-wrap: wrap; }
+  .avatar-card {
+    width: 108px;
+    display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+    background: transparent; border: none; cursor: pointer; font-family: var(--font-body);
+  }
+  .avatar-circle {
+    width: 64px; height: 64px; border-radius: 50%;
+    background: var(--surface-raised);
+    border: 1.5px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-size: 1.4rem; color: var(--rose-deep);
+    transition: border-color .15s ease, transform .15s ease;
+  }
+  .avatar-card:hover .avatar-circle { border-color: var(--rose-deep); transform: translateY(-2px); }
+  .avatar-name { font-size: 0.8125rem; color: var(--text); }
+
+  .summary-list { display: flex; flex-direction: column; gap: 0.55rem; margin: 0 0 1rem; }
+  .summary-row {
+    display: flex; justify-content: space-between; gap: 1rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.875rem;
+  }
+  .summary-row .k { color: var(--text-soft); }
+  .summary-row .v { color: var(--text); font-weight: 600; text-align: right; }
+
+  .rec-card {
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .rec-kicker { font-size: 0.6875rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--rose-deep); }
+  .rec-name { font-family: var(--font-display); font-size: 1.15rem; color: var(--text); }
+  .rec-toggle {
+    display: flex; gap: 0.4rem; margin-top: 0.2rem;
+  }
+  .rec-toggle button {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-soft);
+    border-radius: 999px;
+    padding: 0.3rem 0.7rem;
+    cursor: pointer;
+  }
+  .rec-toggle button.active { background: var(--anthrazit); color: var(--warmweiss); border-color: var(--anthrazit); }
+
+  .blueprint-hero {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-style: italic;
+    color: var(--anthrazit);
+    margin: 0.2rem 0 0.1rem;
+    text-wrap: balance;
+  }
+  .divider { height: 1px; background: var(--border-strong); margin: 1.1rem 0; border: none; }
+
+  .routine-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .routine-col h3 { font-size: 0.8125rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--rose-deep); margin: 0 0 0.5rem; }
+  .routine-col ol { margin: 0; padding-left: 1.1rem; font-size: 0.875rem; color: var(--text); display: flex; flex-direction: column; gap: 0.3rem; }
+
+  .loading-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; flex: 1; }
+  .spinner {
+    width: 34px; height: 34px; border-radius: 50%;
+    border: 2.5px solid var(--border);
+    border-top-color: var(--rose-deep);
+    animation: spin 0.9s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) {
+    .spinner { animation-duration: 2.4s; }
+    * { transition-duration: 0.01ms !important; }
+  }
+
+  @media (max-width: 640px) {
+    .device { aspect-ratio: 3 / 4.3; max-height: none; padding: 8px; border-radius: 16px; }
+    .screen { border-radius: 9px; }
+    .content { padding: 0.5rem 1.2rem 1.6rem; }
+    .grid.cols-3, .grid.cols-4 { grid-template-columns: repeat(2, 1fr); }
+    .routine-cols { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="rig-caption">
+  <p class="rig-eyebrow">Beauty Blueprint™ by Beauty Lounge</p>
+  <p class="rig-title">Klickbarer Ablauf-Prototyp — Mitarbeiter-Tablet</p>
+</div>
+<div class="device"><div class="screen" id="screen"></div></div>
+
+<script>
+(function () {
+  var ZIELE = [
+    { key: 'glow', label: 'Mehr Feuchtigkeit & Glow' },
+    { key: 'juenger', label: 'Jünger & frischer aussehen' },
+    { key: 'rein', label: 'Reinere Haut' },
+    { key: 'pigment', label: 'Weniger Pigmentflecken' },
+    { key: 'sensibel', label: 'Empfindliche Haut beruhigen' },
+    { key: 'poren', label: 'Feinere Poren' },
+    { key: 'struktur', label: 'Bessere Hautstruktur' },
+    { key: 'straffung', label: 'Straffung' },
+    { key: 'allgemein', label: 'Allgemeine Hautverbesserung' }
+  ];
+  var PAIN_POINTS = [
+    { key: 'muede', label: 'Haut sieht müde aus' },
+    { key: 'makeup', label: 'Fühlt sich ohne Make-up unwohl' },
+    { key: 'spannung', label: 'Spannungsgefühl' },
+    { key: 'unreinheiten', label: 'Unreinheiten belasten sie' },
+    { key: 'aelter', label: 'Fühlt sich älter' },
+    { key: 'unruhig', label: 'Hautbild wirkt unruhig' },
+    { key: 'ereignis', label: 'Ein bestimmtes Ereignis steht bevor' }
+  ];
+  var ANLASS = [
+    { key: 'alltag', label: 'Alltag' },
+    { key: 'hochzeit', label: 'Hochzeit' },
+    { key: 'urlaub', label: 'Urlaub' },
+    { key: 'event', label: 'Event' },
+    { key: 'beruflich', label: 'Beruflicher Anlass' },
+    { key: 'praevention', label: 'Prävention' },
+    { key: 'langfristig', label: 'Langfristige Verbesserung' }
+  ];
+  var LIFESTYLE_ITEMS = [
+    { key: 'sonnenschutz', frage: 'Nutzt die Kundin täglich Sonnenschutz?', type: 'yesno' },
+    { key: 'routine', frage: 'Hat sie aktuell eine feste Pflegeroutine?', type: 'yesno' },
+    { key: 'stress', frage: 'Wie hoch ist ihr aktuelles Stresslevel?', type: 'scale3', options: ['Niedrig', 'Mittel', 'Hoch'] },
+    { key: 'schlaf', frage: 'Wie ist ihre Schlafqualität?', type: 'scale3', options: ['Gut', 'Wechselhaft', 'Schlecht'] },
+    { key: 'trinkmenge', frage: 'Trinkt sie ausreichend Wasser am Tag?', type: 'yesno' },
+    { key: 'sonne', frage: 'Ist sie regelmäßig starker Sonne ausgesetzt?', type: 'yesno' },
+    { key: 'rauchen', frage: 'Raucht die Kundin?', type: 'yesno' },
+    { key: 'vorbehandlungen', frage: 'Gab es bereits professionelle Behandlungen?', type: 'yesno' }
+  ];
+  var SAFETY_ITEMS = [
+    { key: 'schwanger', frage: 'Schwangerschaft oder Stillzeit?', risk: 'rot' },
+    { key: 'medikamente', frage: 'Einnahme bestimmter Medikamente?', risk: 'gelb' },
+    { key: 'allergien', frage: 'Bekannte Allergien?', risk: 'gelb' },
+    { key: 'hautveraenderung', frage: 'Akute Hautveränderungen?', risk: 'gelb' },
+    { key: 'offeneStellen', frage: 'Offene Stellen im Behandlungsbereich?', risk: 'rot' },
+    { key: 'frischeBehandlung', frage: 'Frische medizinische oder kosmetische Behandlung?', risk: 'gelb' },
+    { key: 'sonnenexposition', frage: 'Starke Sonnenexposition in den letzten Tagen?', risk: 'gelb' },
+    { key: 'unvertraeglichkeit', frage: 'Bekannte Unverträglichkeiten?', risk: 'gelb' }
+  ];
+  var ANALYSE_ITEMS = [
+    { key: 'feuchtigkeit', label: 'Feuchtigkeitsmangel', need: 'Hydration' },
+    { key: 'hautbarriere', label: 'Geschwächte Hautbarriere', need: 'Barrier Repair' },
+    { key: 'sensibilitaet', label: 'Sensibilität / Reizbarkeit', need: 'Calming' },
+    { key: 'pigmentierung', label: 'Pigmentflecken', need: 'Pigment Control' },
+    { key: 'unreinheiten', label: 'Unreinheiten', need: 'Sebum Balance' },
+    { key: 'sebum', label: 'Talgproduktion (Sebum)', need: 'Sebum Balance' },
+    { key: 'poren', label: 'Sichtbare Poren', need: 'Texture Improvement' },
+    { key: 'falten', label: 'Faltenbildung', need: 'Firmness' },
+    { key: 'elastizitaet', label: 'Elastizitätsverlust', need: 'Elasticity' },
+    { key: 'spannkraft', label: 'Spannkraftverlust', need: 'Firmness' },
+    { key: 'glow', label: 'Mangelnder Glow', need: 'Radiance' },
+    { key: 'hautstruktur', label: 'Unregelmäßige Hautstruktur', need: 'Texture Improvement' }
+  ];
+  var SCALE4_LABELS = ['Nicht vorhanden', 'Leicht', 'Mittel', 'Stark'];
+  var NEED_INFO = {
+    'Hydration': { behandlung: 'Hydra Boost Signature Facial', product: 'Intensiv-Feuchtigkeitsserum' },
+    'Barrier Repair': { behandlung: 'Barrier Recovery Ritual', product: 'Ceramid-Repair-Creme' },
+    'Calming': { behandlung: 'Calm & Soothe Treatment', product: 'Beruhigendes Kalmus-Serum' },
+    'Pigment Control': { behandlung: 'Pigment Balance Peeling', product: 'Vitamin-C-Aufhellungsserum' },
+    'Sebum Balance': { behandlung: 'Clear Skin Deep Cleanse', product: 'Porenklärendes Reinigungsgel' },
+    'Texture Improvement': { behandlung: 'Micro-Resurfacing Facial', product: 'Enzym-Peeling-Maske' },
+    'Firmness': { behandlung: 'Lifting & Firming Treatment', product: 'Straffungs-Serum' },
+    'Elasticity': { behandlung: 'Collagen Boost Therapy', product: 'Collagen-Booster-Ampullen' },
+    'Radiance': { behandlung: 'Glow Renewal Facial', product: 'Radiance-Booster-Drops' }
+  };
+  var MITARBEITERINNEN = ['Lena', 'Sophie', 'Mara'];
+  var BESTEHENDE_KUNDINNEN = ['Anna Weber', 'Julia Sommer'];
+
+  var PHASE_RANGE = {
+    kunde: [2, 12], ziel: [12, 20], painpoint: [20, 28], anlass: [28, 34],
+    lifestyle: [34, 48], sicherheit: [48, 64], analyse: [64, 90], ergebnis: [90, 100]
+  };
+
+  var STATE = {
+    mitarbeiterin: null,
+    kundeName: '',
+    ziel: [],
+    painpoint: [],
+    anlass: null,
+    lifestyle: {},
+    sicherheit: {},
+    analyse: {},
+    rec: { haupt: 'aktiv', erg: 'aktiv', alt: 'aktiv', home: 'aktiv' }
+  };
+
+  var path = ['login'];
+  var pointer = 0;
+
+  function goTo(id) {
+    path = path.slice(0, pointer + 1);
+    path.push(id);
+    pointer++;
+    render();
+  }
+  function goBack() {
+    if (pointer > 0) { pointer--; render(); }
+  }
+  function replaceTop(id) {
+    path[pointer] = id;
+    render();
+  }
+  window.__bb = { goTo: goTo, goBack: goBack, replaceTop: replaceTop, state: STATE, select: selectHandler, input: inputHandler };
+
+  function selectHandler(kind, key, extra) {
+    if (kind === 'mitarbeiterin') { STATE.mitarbeiterin = key; goTo('kunde-wahl'); }
+    else if (kind === 'kunde-bestehend') { STATE.kundeName = key; goTo('ziel'); }
+    else if (kind === 'kunde-neu-weiter') {
+      var val = document.getElementById('kunde-name-input');
+      if (val && val.value.trim()) { STATE.kundeName = val.value.trim(); goTo('ziel'); }
+    }
+    else if (kind === 'ziel') { toggleMulti(STATE.ziel, key); render(); }
+    else if (kind === 'painpoint') { toggleMulti(STATE.painpoint, key); render(); }
+    else if (kind === 'anlass') { STATE.anlass = key; goTo('lifestyle:0'); }
+    else if (kind === 'lifestyle') { STATE.lifestyle[key] = extra; advanceFlow('lifestyle', LIFESTYLE_ITEMS, 'sicherheit:0'); }
+    else if (kind === 'sicherheit') { STATE.sicherheit[key] = extra; advanceFlow('sicherheit', SAFETY_ITEMS, 'sicherheit-summary'); }
+    else if (kind === 'analyse') { STATE.analyse[key] = extra; advanceFlow('analyse', ANALYSE_ITEMS, 'auswertung'); }
+    else if (kind === 'rec-toggle') {
+      var order = ['aktiv', 'ersetzt', 'entfernt'];
+      var cur = STATE.rec[key];
+      var next = order[(order.indexOf(cur) + 1) % order.length];
+      STATE.rec[key] = next;
+      render();
+    }
+  }
+  function inputHandler() {}
+
+  function toggleMulti(arr, key) {
+    var idx = arr.indexOf(key);
+    if (idx === -1) arr.push(key); else arr.splice(idx, 1);
+  }
+
+  function currentFlowScreen(prefix) {
+    var top = path[pointer];
+    if (top.indexOf(prefix + ':') === 0) return parseInt(top.split(':')[1], 10);
+    return 0;
+  }
+
+  function advanceFlow(prefix, items, nextId) {
+    var idx = currentFlowScreen(prefix);
+    if (idx + 1 < items.length) goTo(prefix + ':' + (idx + 1));
+    else goTo(nextId);
+  }
+
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+
+  function topbar(mode, percent, contextText) {
+    var backDisabled = pointer === 0 ? 'disabled' : '';
+    return '' +
+      '<div class="topbar">' +
+        '<button class="back-btn" ' + backDisabled + ' onclick="__bb.goBack()" aria-label="Zurück">&#8592;</button>' +
+        '<div class="progress-track"><div class="progress-fill" style="width:' + percent + '%"></div></div>' +
+        '<div class="context-label">' + esc(contextText || '') + '</div>' +
+      '</div>';
+  }
+
+  function screenWrap(mode, percent, contextText, bodyHtml, center) {
+    var el = document.getElementById('screen');
+    el.setAttribute('data-mode', mode);
+    el.innerHTML = topbar(mode, percent, contextText) + '<div class="content' + (center ? ' center' : '') + '">' + bodyHtml + '</div>';
+  }
+
+  function phasePercent(phase, idx, count) {
+    var r = PHASE_RANGE[phase];
+    if (idx === undefined) return r[1];
+    return Math.round(r[0] + (idx + 1) / count * (r[1] - r[0]));
+  }
+
+  function contextLabel() {
+    var parts = [];
+    if (STATE.mitarbeiterin) parts.push(STATE.mitarbeiterin);
+    if (STATE.kundeName) parts.push('Kundin: ' + STATE.kundeName);
+    return parts.join(' · ');
+  }
+
+  // ---------- Screens ----------
+
+  function renderLogin() {
+    var body = '' +
+      '<p class="eyebrow">Anmeldung</p>' +
+      '<h1 class="q">Wer berät heute?</h1>' +
+      '<div class="avatar-row">' +
+      MITARBEITERINNEN.map(function (n) {
+        return '<button class="avatar-card" onclick="__bb.select(\'mitarbeiterin\',\'' + n + '\')">' +
+          '<span class="avatar-circle">' + n.charAt(0) + '</span>' +
+          '<span class="avatar-name">' + n + '</span>' +
+        '</button>';
+      }).join('') +
+      '</div>';
+    screenWrap('brand', 0, '', body, true);
+  }
+
+  function renderKundeWahl() {
+    var hasOffen = false;
+    var body = '' +
+      '<p class="eyebrow">Neue Beratung</p>' +
+      '<h1 class="q">Kundin auswählen</h1>' +
+      '<div class="grid cols-2">' +
+        '<button class="card center-tap" onclick="__bb.goTo(\'kunde-neu\')">Neue Kundin</button>' +
+        '<button class="card center-tap" onclick="__bb.goTo(\'kunde-bestehend\')">Bestehende Kundin</button>' +
+        '<button class="card center-tap disabled" disabled>Offene Beratung fortsetzen<br><span style="font-size:.75rem;color:var(--text-soft)">Keine vorhanden</span></button>' +
+      '</div>';
+    screenWrap('dezent', phasePercent('kunde', 0, 3), contextLabel(), body);
+  }
+
+  function renderKundeBestehend() {
+    var body = '' +
+      '<p class="eyebrow">Bestehende Kundin</p>' +
+      '<h1 class="q">Wen berätst du?</h1>' +
+      '<div class="grid cols-2">' +
+      BESTEHENDE_KUNDINNEN.map(function (n) {
+        return '<button class="card" onclick="__bb.select(\'kunde-bestehend\',\'' + n + '\')"><span>' + n + '</span></button>';
+      }).join('') +
+      '</div>';
+    screenWrap('dezent', phasePercent('kunde', 1, 3), contextLabel(), body);
+  }
+
+  function renderKundeNeu() {
+    var body = '' +
+      '<p class="eyebrow">Neue Kundin</p>' +
+      '<h1 class="q">Wie heißt die Kundin?</h1>' +
+      '<input id="kunde-name-input" class="text-input" type="text" placeholder="Vor- und Nachname" value="' + esc(STATE.kundeName) + '" />' +
+      '<div class="footer-actions">' +
+        '<button class="btn-primary" onclick="__bb.select(\'kunde-neu-weiter\')">Weiter</button>' +
+      '</div>';
+    screenWrap('dezent', phasePercent('kunde', 2, 3), contextLabel(), body);
+  }
+
+  function renderZiel() {
+    var body = '' +
+      '<p class="eyebrow">Schritt 1 · Ziel</p>' +
+      '<h1 class="q">Was möchte ' + (STATE.kundeName ? esc(STATE.kundeName) : 'die Kundin') + ' erreichen?</h1>' +
+      '<p class="sub">Mehrfachauswahl möglich — antippen zum Auswählen.</p>' +
+      '<div class="grid cols-3">' +
+      ZIELE.map(function (z) {
+        var sel = STATE.ziel.indexOf(z.key) > -1;
+        return '<button class="card' + (sel ? ' selected' : '') + '" onclick="__bb.select(\'ziel\',\'' + z.key + '\')"><span>' + z.label + '</span><span class="dot"></span></button>';
+      }).join('') +
+      '</div>' +
+      '<div class="footer-actions">' +
+        '<button class="btn-primary" ' + (STATE.ziel.length ? '' : 'disabled') + ' onclick="__bb.goTo(\'painpoint\')">Weiter</button>' +
+      '</div>';
+    screenWrap('neutral', phasePercent('ziel'), contextLabel(), body);
+  }
+
+  function renderPainpoint() {
+    var body = '' +
+      '<p class="eyebrow">Schritt 2 · Pain Point</p>' +
+      '<h1 class="q">Was stört sie daran besonders?</h1>' +
+      '<div class="grid cols-3">' +
+      PAIN_POINTS.map(function (p) {
+        var sel = STATE.painpoint.indexOf(p.key) > -1;
+        return '<button class="card' + (sel ? ' selected' : '') + '" onclick="__bb.select(\'painpoint\',\'' + p.key + '\')"><span>' + p.label + '</span><span class="dot"></span></button>';
+      }).join('') +
+      '</div>' +
+      '<div class="footer-actions">' +
+        '<button class="btn-primary" ' + (STATE.painpoint.length ? '' : 'disabled') + ' onclick="__bb.goTo(\'anlass\')">Weiter</button>' +
+      '</div>';
+    screenWrap('neutral', phasePercent('painpoint'), contextLabel(), body);
+  }
+
+  function renderAnlass() {
+    var body = '' +
+      '<p class="eyebrow">Schritt 3 · Anlass & Zeitrahmen</p>' +
+      '<h1 class="q">Gibt es einen bestimmten Anlass?</h1>' +
+      '<div class="grid cols-3">' +
+      ANLASS.map(function (a) {
+        return '<button class="card center-tap" onclick="__bb.select(\'anlass\',\'' + a.key + '\')">' + a.label + '</button>';
+      }).join('') +
+      '</div>';
+    screenWrap('neutral', phasePercent('anlass'), contextLabel(), body);
+  }
+
+  function renderYesNoStep(prefix, items, phase, title) {
+    var idx = currentFlowScreen(prefix);
+    var item = items[idx];
+    var current = STATE[prefix][item.key];
+    var optionsHtml;
+    if (item.type === 'yesno') {
+      optionsHtml = '<div class="row-choice">' +
+        ['Ja', 'Nein'].map(function (opt) {
+          var sel = current === opt;
+          return '<button class="card' + (sel ? ' selected' : '') + '" onclick="__bb.select(\'' + prefix + '\',\'' + item.key + '\',\'' + opt + '\')">' + opt + '</button>';
+        }).join('') + '</div>';
+    } else if (item.type === 'scale3') {
+      optionsHtml = '<div class="row-choice">' +
+        item.options.map(function (opt) {
+          var sel = current === opt;
+          return '<button class="card' + (sel ? ' selected' : '') + '" onclick="__bb.select(\'' + prefix + '\',\'' + item.key + '\',\'' + opt + '\')">' + opt + '</button>';
+        }).join('') + '</div>';
+    } else {
+      var sel = current === 'Ja';
+      optionsHtml = '<div class="row-choice">' +
+        ['Ja', 'Nein'].map(function (opt) {
+          var s = current === opt;
+          return '<button class="card' + (s ? ' selected' : '') + '" onclick="__bb.select(\'' + prefix + '\',\'' + item.key + '\',\'' + opt + '\')">' + opt + '</button>';
+        }).join('') + '</div>';
+    }
+    var body = '' +
+      '<p class="eyebrow">' + title + ' · Frage ' + (idx + 1) + ' von ' + items.length + '</p>' +
+      '<h2 class="q">' + item.frage + '</h2>' +
+      optionsHtml;
+    screenWrap('neutral', phasePercent(phase, idx, items.length), contextLabel(), body, true);
+  }
+
+  function computeRisk() {
+    var maxRisk = 'gruen';
+    SAFETY_ITEMS.forEach(function (it) {
+      if (STATE.sicherheit[it.key] === 'Ja') {
+        if (it.risk === 'rot') maxRisk = 'rot';
+        else if (it.risk === 'gelb' && maxRisk !== 'rot') maxRisk = 'gelb';
+      }
+    });
+    return maxRisk;
+  }
+
+  function renderSicherheitSummary() {
+    var risk = computeRisk();
+    var label = { gruen: 'Grundsätzlich geeignet', gelb: 'Fachlich prüfen', rot: 'Keine automatische Freigabe' }[risk];
+    var body = '' +
+      '<p class="eyebrow">Sicherheitscheck · Ergebnis</p>' +
+      '<h1 class="q">Sicherheitsstufe</h1>' +
+      '<div class="badge ' + risk + '"><span class="dot2"></span>' + label + '</div>' +
+      '<p class="sub" style="margin-top:1rem;">Die endgültige Entscheidung bleibt bei dir — das System schlägt nur vor.</p>' +
+      '<div class="footer-actions">' +
+        '<button class="btn-primary" onclick="__bb.goTo(\'analyse:0\')">Weiter zur Hautanalyse</button>' +
+      '</div>';
+    screenWrap('neutral', phasePercent('sicherheit'), contextLabel(), body, true);
+  }
+
+  function renderAnalyseStep() {
+    var idx = currentFlowScreen('analyse');
+    var item = ANALYSE_ITEMS[idx];
+    var current = STATE.analyse[item.key];
+    var body = '' +
+      '<p class="eyebrow">Fachanalyse · ' + (idx + 1) + ' von ' + ANALYSE_ITEMS.length + '</p>' +
+      '<h2 class="q">' + item.label + '</h2>' +
+      '<div class="scale4">' +
+      SCALE4_LABELS.map(function (lbl, i) {
+        var sel = current === i;
+        var dots = '';
+        for (var d = 0; d < 4; d++) dots += '<span class="' + (d <= i ? 'on' : '') + '"></span>';
+        return '<button class="card' + (sel ? ' selected' : '') + '" onclick="__bb.select(\'analyse\',\'' + item.key + '\',' + i + ')">' +
+          '<div class="level-fill">' + dots + '</div><span>' + lbl + '</span></button>';
+      }).join('') +
+      '</div>';
+    screenWrap('neutral', phasePercent('analyse', idx, ANALYSE_ITEMS.length), contextLabel(), body, true);
+  }
+
+  function renderAuswertung() {
+    screenWrap('dezent', phasePercent('ergebnis', 0, 5), contextLabel(),
+      '<div class="loading-wrap"><div class="spinner"></div><p style="font-size:.875rem;color:var(--text-soft)">Strategie wird erstellt …</p></div>', true);
+    setTimeout(function () { if (path[pointer] === 'auswertung') goTo('strategy'); }, 1400);
+  }
+
+  function computeNeeds() {
+    var scores = {};
+    ANALYSE_ITEMS.forEach(function (it) {
+      var v = STATE.analyse[it.key];
+      if (v === undefined) v = 0;
+      if (!scores[it.need]) scores[it.need] = { sum: 0, count: 0 };
+      scores[it.need].sum += v;
+      scores[it.need].count += 1;
+    });
+    var arr = Object.keys(scores).map(function (need) {
+      return { need: need, avg: scores[need].sum / scores[need].count };
+    });
+    arr.sort(function (a, b) { return b.avg - a.avg; });
+    return arr;
+  }
+
+  function zielText() {
+    if (!STATE.ziel.length) return 'Allgemeine Hautverbesserung';
+    return STATE.ziel.map(function (k) {
+      var z = ZIELE.filter(function (z) { return z.key === k; })[0];
+      return z ? z.label : k;
+    }).join(', ');
+  }
+
+  function renderStrategy() {
+    var needs = computeNeeds();
+    var top3 = needs.slice(0, 3);
+    var body = '' +
+      '<p class="eyebrow">Beauty Strategy</p>' +
+      '<h1 class="q">Die fachliche Strategie</h1>' +
+      '<div class="summary-list">' +
+        '<div class="summary-row"><span class="k">Kundenziel</span><span class="v">' + esc(zielText()) + '</span></div>' +
+        '<div class="summary-row"><span class="k">Hauptpriorität</span><span class="v">' + (top3[0] ? esc(top3[0].need) : '—') + '</span></div>' +
+        '<div class="summary-row"><span class="k">Zweite Priorität</span><span class="v">' + (top3[1] ? esc(top3[1].need) : '—') + '</span></div>' +
+        '<div class="summary-row"><span class="k">Dritte Priorität</span><span class="v">' + (top3[2] ? esc(top3[2].need) : '—') + '</span></div>' +
+      '</div>' +
+      '<div class="footer-actions">' +
+        '<button class="btn-primary" onclick="__bb.goTo(\'empfehlungen\')">Weiter zu den Empfehlungen</button>' +
+      '</div>';
+    screenWrap('dezent', phasePercent('ergebnis', 2, 5), contextLabel(), body);
+  }
+
+  function renderEmpfehlungen() {
+    var needs = computeNeeds();
+    var top3 = needs.slice(0, 3);
+    var n1 = top3[0] ? NEED_INFO[top3[0].need] : NEED_INFO['Hydration'];
+    var n2 = top3[1] ? NEED_INFO[top3[1].need] : NEED_INFO['Barrier Repair'];
+    var n3 = top3[2] ? NEED_INFO[top3[2].need] : NEED_INFO['Radiance'];
+
+    function card(kicker, name, key) {
+      var st = STATE.rec[key];
+      return '<div class="rec-card">' +
+        '<span class="rec-kicker">' + kicker + '</span>' +
+        '<span class="rec-name" style="' + (st === 'entfernt' ? 'text-decoration:line-through;opacity:.5' : '') + '">' + esc(name) + '</span>' +
+        '<div class="rec-toggle">' +
+          '<button class="' + (st === 'aktiv' ? 'active' : '') + '" onclick="__bb.select(\'rec-toggle\',\'' + key + '\')">' + (st === 'aktiv' ? 'Übernommen' : st === 'ersetzt' ? 'Ausgetauscht' : 'Entfernt') + '</button>' +
+        '</div></div>';
+    }
+
+    var body = '' +
+      '<p class="eyebrow">Empfehlungen</p>' +
+      '<h1 class="q">Vorschläge zur Prüfung</h1>' +
+      '<p class="sub">Antippen wechselt zwischen Übernehmen / Austauschen / Entfernen.</p>' +
+      '<div class="grid cols-2">' +
+        card('Hauptbehandlung', n1.behandlung, 'haupt') +
+        card('Ergänzung', n2.behandlung, 'erg') +
+        card('Alternative', n3.behandlung, 'alt') +
+        card('Homecare', n1.product, 'home') +
+      '</div>' +
+      '<div class="footer-actions">' +
+        '<button class="btn-primary" onclick="__bb.goTo(\'blueprint\')">Beauty Blueprint erstellen</button>' +
+      '</div>';
+    screenWrap('dezent', phasePercent('ergebnis', 3, 5), contextLabel(), body);
+  }
+
+  function renderBlueprint() {
+    var needs = computeNeeds();
+    var top3 = needs.slice(0, 3);
+    var n1 = top3[0] ? NEED_INFO[top3[0].need] : NEED_INFO['Hydration'];
+    var n2 = top3[1] ? NEED_INFO[top3[1].need] : NEED_INFO['Barrier Repair'];
+    var n3 = top3[2] ? NEED_INFO[top3[2].need] : NEED_INFO['Radiance'];
+    var body = '' +
+      '<p class="eyebrow">Beauty Blueprint</p>' +
+      '<p class="blueprint-hero">' + esc(STATE.kundeName || 'Kundin') + '</p>' +
+      '<p class="sub" style="margin-top:0">' + esc(zielText()) + '</p>' +
+      '<hr class="divider"/>' +
+      '<div class="summary-list">' +
+        '<div class="summary-row"><span class="k">Hauptpriorität</span><span class="v">' + (top3[0] ? esc(top3[0].need) : '—') + '</span></div>' +
+        '<div class="summary-row"><span class="k">Hauptbehandlung</span><span class="v">' + esc(n1.behandlung) + '</span></div>' +
+        '<div class="summary-row"><span class="k">Ergänzung</span><span class="v">' + esc(n2.behandlung) + '</span></div>' +
+        '<div class="summary-row"><span class="k">Alternative</span><span class="v">' + esc(n3.behandlung) + '</span></div>' +
+        '<div class="summary-row"><span class="k">Nächster Checkpoint</span><span class="v">in 4 Wochen</span></div>' +
+      '</div>' +
+      '<div class="routine-cols">' +
+        '<div class="routine-col"><h3>Morgens</h3><ol><li>Reinigung</li><li>' + esc(n1.product) + '</li><li>Tagespflege</li><li>SPF</li></ol></div>' +
+        '<div class="routine-col"><h3>Abends</h3><ol><li>Reinigung</li><li>' + esc(n2.product) + '</li><li>Serum</li><li>Nachtpflege</li></ol></div>' +
+      '</div>' +
+      '<div class="footer-actions">' +
+        '<button class="btn-primary" onclick="__bb.goTo(\'abschluss\')">Freigeben & abschließen</button>' +
+      '</div>';
+    screenWrap('brand', phasePercent('ergebnis', 4, 5), contextLabel(), body);
+  }
+
+  function renderAbschluss() {
+    var body = '' +
+      '<p class="eyebrow">Abgeschlossen</p>' +
+      '<h1 class="q">Beauty Blueprint gespeichert</h1>' +
+      '<p class="sub">' + esc(STATE.kundeName || 'Die Kundin') + ' erhält ihren persönlichen Plan. Ein Bericht kann optional erstellt werden.</p>' +
+      '<div class="footer-actions">' +
+        '<button class="btn-ghost" onclick="this.outerHTML=\'<span class=&quot;sub&quot; style=&quot;margin:0&quot;>Bericht vorbereitet ✓</span>\'">Bericht als PDF vorbereiten</button>' +
+        '<button class="btn-primary" onclick="__bb.goTo(\'kunde-wahl\')">Neue Beratung starten</button>' +
+      '</div>';
+    screenWrap('brand', 100, contextLabel(), body, true);
+  }
+
+  function render() {
+    var id = path[pointer];
+    if (id === 'login') return renderLogin();
+    if (id === 'kunde-wahl') return renderKundeWahl();
+    if (id === 'kunde-bestehend') return renderKundeBestehend();
+    if (id === 'kunde-neu') return renderKundeNeu();
+    if (id === 'ziel') return renderZiel();
+    if (id === 'painpoint') return renderPainpoint();
+    if (id === 'anlass') return renderAnlass();
+    if (id.indexOf('lifestyle:') === 0) return renderYesNoStep('lifestyle', LIFESTYLE_ITEMS, 'lifestyle', 'Lifestyle & Pflege');
+    if (id.indexOf('sicherheit:') === 0) return renderYesNoStep('sicherheit', SAFETY_ITEMS, 'sicherheit', 'Sicherheitscheck');
+    if (id === 'sicherheit-summary') return renderSicherheitSummary();
+    if (id.indexOf('analyse:') === 0) return renderAnalyseStep();
+    if (id === 'auswertung') return renderAuswertung();
+    if (id === 'strategy') return renderStrategy();
+    if (id === 'empfehlungen') return renderEmpfehlungen();
+    if (id === 'blueprint') return renderBlueprint();
+    if (id === 'abschluss') return renderAbschluss();
+  }
+
+  render();
+})();
+</script>

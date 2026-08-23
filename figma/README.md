@@ -10,4 +10,6 @@ Ablauf laut Konzept:
 4. Prototyp verbessern
 5. Erst danach: Software entwickeln (`/app`, `/admin`)
 
-**Status:** Figma-Datei noch nicht angelegt. Sobald verfügbar, hier den Link eintragen.
+**Status:** Figma-Datei noch nicht angelegt. Als Zwischenschritt gibt es einen funktionalen HTML-Klickdummy ([prototype.html](prototype.html)), der den kompletten Ablauf aus [screen-flow.md](screen-flow.md) simuliert — inklusive Fortschritt, Zurück-Navigation und der regelbasierten Auswertung (Punkt 23). Er dient als Vorlage/Referenz für den eigentlichen Figma-Prototyp, ersetzt ihn aber nicht — Figma bleibt das Werkzeug für Phase 1.
+
+Lokal öffnen: Datei im Browser laden, oder `python3 -m http.server` im Ordner starten.
