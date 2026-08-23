@@ -1522,10 +1522,23 @@
     var currentId = path[pointer];
     var oldContent = el.querySelector('.content');
     var scrollTop = (currentId === lastRenderedScreenId && oldContent) ? oldContent.scrollTop : 0;
+    // Tippen in ein Suchfeld öffnet auf Tablet/Handy die Bildschirmtastatur; ein Tap auf ein
+    // Suchergebnis nimmt den Fokus weg, wodurch sich die Tastatur schließt — das verändert die
+    // sichtbare Höhe der Seite NACH diesem render() nochmal und kann unsere Scroll-Position
+    // überschreiben. Vorab den Fokus zu entfernen stößt das Schließen schon hier an; das erneute
+    // Setzen von scrollTop kurz danach (rAF + Timeout) gewinnt den Wettlauf mit der
+    // Tastatur-Schließanimation zuverlässig, auch wenn diese noch etwas länger braucht.
+    if (document.activeElement && document.activeElement !== document.body && document.activeElement.blur) {
+      document.activeElement.blur();
+    }
     el.setAttribute('data-mode', mode);
     el.innerHTML = topbar(mode, percent, contextText) + '<div class="content' + (center ? ' center' : '') + '">' + bodyHtml + '</div>';
     var newContent = el.querySelector('.content');
-    if (newContent) newContent.scrollTop = scrollTop;
+    if (newContent) {
+      newContent.scrollTop = scrollTop;
+      requestAnimationFrame(function () { newContent.scrollTop = scrollTop; });
+      setTimeout(function () { newContent.scrollTop = scrollTop; }, 350);
+    }
     lastRenderedScreenId = currentId;
   }
 
