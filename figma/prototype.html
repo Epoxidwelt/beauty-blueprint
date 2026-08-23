@@ -400,7 +400,22 @@
 
 <script>
 (function () {
-  var ZIELE = [
+  // ---------- Google Sheet als zentrale Inhaltsquelle ----------
+  // Jede URL kommt aus Google Sheets: Datei > Freigeben > Im Web veröffentlichen >
+  // gewünschtes Tabellenblatt auswählen > Format "CSV" > Link kopieren.
+  // Bleibt ein Feld leer, nutzt der Prototyp die eingebauten Beispieldaten (DEFAULT_*) als Fallback,
+  // damit die Demo auch ohne Sheet sofort funktioniert.
+  var SHEET_CONFIG = {
+    ziele: '',
+    painpoints: '',
+    anlass: '',
+    lifestyle: '',
+    sicherheitscheck: '',
+    hautanalyse: '',
+    beautyneeds: ''
+  };
+
+  var DEFAULT_ZIELE = [
     { key: 'glow', label: 'Mehr Feuchtigkeit & Glow' },
     { key: 'juenger', label: 'Jünger & frischer aussehen' },
     { key: 'rein', label: 'Reinere Haut' },
@@ -411,7 +426,7 @@
     { key: 'straffung', label: 'Straffung' },
     { key: 'allgemein', label: 'Allgemeine Hautverbesserung' }
   ];
-  var PAIN_POINTS = [
+  var DEFAULT_PAIN_POINTS = [
     { key: 'muede', label: 'Haut sieht müde aus' },
     { key: 'makeup', label: 'Fühlt sich ohne Make-up unwohl' },
     { key: 'spannung', label: 'Spannungsgefühl' },
@@ -420,7 +435,7 @@
     { key: 'unruhig', label: 'Hautbild wirkt unruhig' },
     { key: 'ereignis', label: 'Ein bestimmtes Ereignis steht bevor' }
   ];
-  var ANLASS = [
+  var DEFAULT_ANLASS = [
     { key: 'alltag', label: 'Alltag' },
     { key: 'hochzeit', label: 'Hochzeit' },
     { key: 'urlaub', label: 'Urlaub' },
@@ -429,7 +444,7 @@
     { key: 'praevention', label: 'Prävention' },
     { key: 'langfristig', label: 'Langfristige Verbesserung' }
   ];
-  var LIFESTYLE_ITEMS = [
+  var DEFAULT_LIFESTYLE_ITEMS = [
     { key: 'sonnenschutz', frage: 'Nutzt die Kundin täglich Sonnenschutz?', type: 'yesno' },
     { key: 'routine', frage: 'Hat sie aktuell eine feste Pflegeroutine?', type: 'yesno' },
     { key: 'stress', frage: 'Wie hoch ist ihr aktuelles Stresslevel?', type: 'scale3', options: ['Niedrig', 'Mittel', 'Hoch'] },
@@ -439,7 +454,7 @@
     { key: 'rauchen', frage: 'Raucht die Kundin?', type: 'yesno' },
     { key: 'vorbehandlungen', frage: 'Gab es bereits professionelle Behandlungen?', type: 'yesno' }
   ];
-  var SAFETY_ITEMS = [
+  var DEFAULT_SAFETY_ITEMS = [
     { key: 'schwanger', frage: 'Schwangerschaft oder Stillzeit?', risk: 'rot' },
     { key: 'medikamente', frage: 'Einnahme bestimmter Medikamente?', risk: 'gelb' },
     { key: 'allergien', frage: 'Bekannte Allergien?', risk: 'gelb' },
@@ -449,7 +464,7 @@
     { key: 'sonnenexposition', frage: 'Starke Sonnenexposition in den letzten Tagen?', risk: 'gelb' },
     { key: 'unvertraeglichkeit', frage: 'Bekannte Unverträglichkeiten?', risk: 'gelb' }
   ];
-  var ANALYSE_ITEMS = [
+  var DEFAULT_ANALYSE_ITEMS = [
     { key: 'feuchtigkeit', label: 'Feuchtigkeitsmangel', need: 'Hydration' },
     { key: 'hautbarriere', label: 'Geschwächte Hautbarriere', need: 'Barrier Repair' },
     { key: 'sensibilitaet', label: 'Sensibilität / Reizbarkeit', need: 'Calming' },
@@ -464,7 +479,7 @@
     { key: 'hautstruktur', label: 'Unregelmäßige Hautstruktur', need: 'Texture Improvement' }
   ];
   var SCALE4_LABELS = ['Nicht vorhanden', 'Leicht', 'Mittel', 'Stark'];
-  var NEED_INFO = {
+  var DEFAULT_NEED_INFO = {
     'Hydration': { behandlung: 'Hydra Boost Signature Facial', product: 'Intensiv-Feuchtigkeitsserum' },
     'Barrier Repair': { behandlung: 'Barrier Recovery Ritual', product: 'Ceramid-Repair-Creme' },
     'Calming': { behandlung: 'Calm & Soothe Treatment', product: 'Beruhigendes Kalmus-Serum' },
@@ -475,8 +490,110 @@
     'Elasticity': { behandlung: 'Collagen Boost Therapy', product: 'Collagen-Booster-Ampullen' },
     'Radiance': { behandlung: 'Glow Renewal Facial', product: 'Radiance-Booster-Drops' }
   };
+
+  // Werden beim Start ggf. durch Sheet-Daten ersetzt (siehe loadSheetData unten).
+  var ZIELE = DEFAULT_ZIELE;
+  var PAIN_POINTS = DEFAULT_PAIN_POINTS;
+  var ANLASS = DEFAULT_ANLASS;
+  var LIFESTYLE_ITEMS = DEFAULT_LIFESTYLE_ITEMS;
+  var SAFETY_ITEMS = DEFAULT_SAFETY_ITEMS;
+  var ANALYSE_ITEMS = DEFAULT_ANALYSE_ITEMS;
+  var NEED_INFO = DEFAULT_NEED_INFO;
+
   var MITARBEITERINNEN = ['Lena', 'Sophie', 'Mara'];
   var BESTEHENDE_KUNDINNEN = ['Anna Weber', 'Julia Sommer'];
+
+  // ---------- CSV laden & parsen ----------
+  function parseCSV(text) {
+    var rows = [];
+    var row = [];
+    var field = '';
+    var inQuotes = false;
+    for (var i = 0; i < text.length; i++) {
+      var c = text[i];
+      if (inQuotes) {
+        if (c === '"') {
+          if (text[i + 1] === '"') { field += '"'; i++; } else { inQuotes = false; }
+        } else field += c;
+      } else if (c === '"') inQuotes = true;
+      else if (c === ',') { row.push(field); field = ''; }
+      else if (c === '\n' || c === '\r') {
+        if (c === '\r' && text[i + 1] === '\n') i++;
+        row.push(field); field = '';
+        if (row.length > 1 || row[0] !== '') rows.push(row);
+        row = [];
+      } else field += c;
+    }
+    if (field !== '' || row.length) { row.push(field); rows.push(row); }
+    if (!rows.length) return [];
+    var headers = rows[0].map(function (h) { return h.trim(); });
+    return rows.slice(1).filter(function (r) { return r.some(function (v) { return v.trim() !== ''; }); }).map(function (r) {
+      var obj = {};
+      headers.forEach(function (h, i) { obj[h] = (r[i] || '').trim(); });
+      return obj;
+    });
+  }
+
+  function isActive(row) {
+    var v = (row.aktiv || '').toLowerCase();
+    return v === '' || v === 'ja' || v === 'true' || v === '1' || v === 'yes';
+  }
+
+  function fetchSheet(url) {
+    return fetch(url).then(function (res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.text();
+    }).then(parseCSV);
+  }
+
+  function loadSheetData() {
+    var anyConfigured = Object.keys(SHEET_CONFIG).some(function (k) { return SHEET_CONFIG[k]; });
+    if (!anyConfigured) return Promise.resolve();
+
+    var tasks = [];
+
+    if (SHEET_CONFIG.ziele) tasks.push(fetchSheet(SHEET_CONFIG.ziele).then(function (rows) {
+      var r = rows.filter(isActive).map(function (row) { return { key: row.key, label: row.label }; });
+      if (r.length) ZIELE = r;
+    }).catch(function (e) { console.warn('Ziele-Sheet konnte nicht geladen werden, nutze Standardwerte.', e); }));
+
+    if (SHEET_CONFIG.painpoints) tasks.push(fetchSheet(SHEET_CONFIG.painpoints).then(function (rows) {
+      var r = rows.filter(isActive).map(function (row) { return { key: row.key, label: row.label }; });
+      if (r.length) PAIN_POINTS = r;
+    }).catch(function (e) { console.warn('PainPoints-Sheet konnte nicht geladen werden, nutze Standardwerte.', e); }));
+
+    if (SHEET_CONFIG.anlass) tasks.push(fetchSheet(SHEET_CONFIG.anlass).then(function (rows) {
+      var r = rows.filter(isActive).map(function (row) { return { key: row.key, label: row.label }; });
+      if (r.length) ANLASS = r;
+    }).catch(function (e) { console.warn('Anlass-Sheet konnte nicht geladen werden, nutze Standardwerte.', e); }));
+
+    if (SHEET_CONFIG.lifestyle) tasks.push(fetchSheet(SHEET_CONFIG.lifestyle).then(function (rows) {
+      var r = rows.filter(isActive).map(function (row) {
+        var item = { key: row.key, frage: row.frage, type: row.typ || 'yesno' };
+        if (item.type === 'scale3') item.options = (row.optionen || '').split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+        return item;
+      });
+      if (r.length) LIFESTYLE_ITEMS = r;
+    }).catch(function (e) { console.warn('Lifestyle-Sheet konnte nicht geladen werden, nutze Standardwerte.', e); }));
+
+    if (SHEET_CONFIG.sicherheitscheck) tasks.push(fetchSheet(SHEET_CONFIG.sicherheitscheck).then(function (rows) {
+      var r = rows.filter(isActive).map(function (row) { return { key: row.key, frage: row.frage, risk: row.risiko }; });
+      if (r.length) SAFETY_ITEMS = r;
+    }).catch(function (e) { console.warn('Sicherheitscheck-Sheet konnte nicht geladen werden, nutze Standardwerte.', e); }));
+
+    if (SHEET_CONFIG.hautanalyse) tasks.push(fetchSheet(SHEET_CONFIG.hautanalyse).then(function (rows) {
+      var r = rows.filter(isActive).map(function (row) { return { key: row.key, label: row.label, need: row.need }; });
+      if (r.length) ANALYSE_ITEMS = r;
+    }).catch(function (e) { console.warn('Hautanalyse-Sheet konnte nicht geladen werden, nutze Standardwerte.', e); }));
+
+    if (SHEET_CONFIG.beautyneeds) tasks.push(fetchSheet(SHEET_CONFIG.beautyneeds).then(function (rows) {
+      var map = {};
+      rows.forEach(function (row) { if (row.need) map[row.need] = { behandlung: row.behandlung, product: row.produkt }; });
+      if (Object.keys(map).length) NEED_INFO = map;
+    }).catch(function (e) { console.warn('BeautyNeeds-Sheet konnte nicht geladen werden, nutze Standardwerte.', e); }));
+
+    return Promise.all(tasks);
+  }
 
   var PHASE_RANGE = {
     kunde: [2, 12], ziel: [12, 20], painpoint: [20, 28], anlass: [28, 34],
@@ -899,6 +1016,18 @@
     if (id === 'abschluss') return renderAbschluss();
   }
 
-  render();
+  function renderInitialLoading() {
+    var el = document.getElementById('screen');
+    el.setAttribute('data-mode', 'brand');
+    el.innerHTML = '<div class="content center"><div class="loading-wrap"><div class="spinner"></div>' +
+      '<p style="font-size:.875rem;color:var(--text-soft)">Beratungsinhalte werden geladen …</p></div></div>';
+  }
+
+  var sheetsConfigured = Object.keys(SHEET_CONFIG).some(function (k) { return SHEET_CONFIG[k]; });
+  if (sheetsConfigured) renderInitialLoading();
+  loadSheetData().then(render).catch(function (e) {
+    console.warn('Sheet-Daten konnten nicht vollständig geladen werden, nutze Standardwerte.', e);
+    render();
+  });
 })();
 </script>

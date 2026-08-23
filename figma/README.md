@@ -13,3 +13,5 @@ Ablauf laut Konzept:
 **Status:** Figma-Datei noch nicht angelegt. Als Zwischenschritt gibt es einen funktionalen HTML-Klickdummy ([prototype.html](prototype.html)), der den kompletten Ablauf aus [screen-flow.md](screen-flow.md) simuliert — inklusive Fortschritt, Zurück-Navigation und der regelbasierten Auswertung (Punkt 23). Er dient als Vorlage/Referenz für den eigentlichen Figma-Prototyp, ersetzt ihn aber nicht — Figma bleibt das Werkzeug für Phase 1.
 
 Lokal öffnen: Datei im Browser laden, oder `python3 -m http.server` im Ordner starten.
+
+**Inhalte bearbeiten, ohne Code anzufassen:** Fragen, Ziele, Behandlungen und Produkte kann der Prototyp aus einem Google Sheet laden (Objekt `SHEET_CONFIG` ganz oben im `<script>`-Block in `prototype.html`). Aufbau und Einrichtung: [docs/knowledge-base/google-sheet-setup.md](../docs/knowledge-base/google-sheet-setup.md). Ohne eingetragenes Sheet läuft der Prototyp weiter mit den eingebauten Beispieldaten.
