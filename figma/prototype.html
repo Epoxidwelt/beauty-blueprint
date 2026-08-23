@@ -1,5 +1,10 @@
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Beauty Blueprint">
+<link rel="apple-touch-icon" href="../assets/logo/beauty-lounge-logo.png">
 <title>Beauty Blueprint — Klickbarer Prototyp</title>
 <style>
   @font-face {
@@ -501,6 +506,20 @@
     .content { padding: 0.5rem 1.2rem 1.6rem; }
     .grid.cols-3, .grid.cols-4 { grid-template-columns: repeat(2, 1fr); }
     .routine-cols { grid-template-columns: 1fr; }
+  }
+
+  /* Echtes Gerät (Tablet/Handy, Touch statt Maus): der Deko-Rahmen ("Gerät auf grauem
+     Hintergrund") ist nur für die Desktop-Vorschau/Reviews gedacht. Auf einem echten
+     Touch-Bildschirm füllt die App den ganzen Screen, ohne Rahmen und ohne Kopfzeile. */
+  @media (pointer: coarse) {
+    .rig-caption { display: none; }
+    body { padding: 0; gap: 0; }
+    .device {
+      width: 100vw; height: 100vh; height: 100dvh;
+      max-height: none; aspect-ratio: unset;
+      background: none; padding: 0; border-radius: 0; box-shadow: none;
+    }
+    .screen { border-radius: 0; }
   }
 </style>
 
