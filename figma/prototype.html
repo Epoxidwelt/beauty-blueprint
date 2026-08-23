@@ -49,64 +49,30 @@
 
   body {
     margin: 0;
-    min-height: 100vh;
+    height: 100vh;
+    height: 100dvh;
     background: var(--backdrop);
     color: var(--backdrop-ink);
     font-family: var(--font-body);
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 1.1rem;
-    padding: 2.5rem 1rem;
-    overflow-x: hidden;
+    overflow: hidden;
   }
 
-  .rig-caption {
-    text-align: center;
-    max-width: 34rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  .rig-logo { height: 34px; width: auto; }
-  @media (prefers-color-scheme: dark) { .rig-logo { filter: brightness(0) invert(1) opacity(0.92); } }
-  :root[data-theme="dark"] .rig-logo { filter: brightness(0) invert(1) opacity(0.92); }
-  :root[data-theme="light"] .rig-logo { filter: none; }
-  .rig-eyebrow {
-    font-size: 0.6875rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--backdrop-ink-soft);
-    margin: 0;
-  }
-  .rig-title {
-    font-family: var(--font-display);
-    font-size: 1.4rem;
-    font-style: italic;
-    margin: 0;
-    text-wrap: balance;
-  }
   .brand-logo { display: block; margin: 0 auto 1.1rem; }
   .brand-logo.lg { height: 72px; width: auto; }
   .brand-logo.md { height: 46px; width: auto; }
 
   .device {
-    width: min(880px, 94vw);
-    aspect-ratio: 4 / 3;
-    max-height: 84vh;
-    background: #1c1a17;
-    border-radius: 22px;
-    padding: 14px;
-    box-shadow: 0 30px 70px -25px rgba(0,0,0,0.5), 0 2px 0 rgba(255,255,255,0.04) inset;
+    width: 100%;
+    max-width: 1024px;
+    height: 100%;
+    margin: 0 auto;
     display: flex;
   }
 
   .screen {
     flex: 1;
     background: var(--surface);
-    border-radius: 12px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -501,33 +467,12 @@
   }
 
   @media (max-width: 640px) {
-    .device { aspect-ratio: 3 / 4.3; max-height: none; padding: 8px; border-radius: 16px; }
-    .screen { border-radius: 9px; }
     .content { padding: 0.5rem 1.2rem 1.6rem; }
     .grid.cols-3, .grid.cols-4 { grid-template-columns: repeat(2, 1fr); }
     .routine-cols { grid-template-columns: 1fr; }
   }
-
-  /* Echtes Gerät (Tablet/Handy, Touch statt Maus): der Deko-Rahmen ("Gerät auf grauem
-     Hintergrund") ist nur für die Desktop-Vorschau/Reviews gedacht. Auf einem echten
-     Touch-Bildschirm füllt die App den ganzen Screen, ohne Rahmen und ohne Kopfzeile. */
-  @media (pointer: coarse) {
-    .rig-caption { display: none; }
-    body { padding: 0; gap: 0; }
-    .device {
-      width: 100vw; height: 100vh; height: 100dvh;
-      max-height: none; aspect-ratio: unset;
-      background: none; padding: 0; border-radius: 0; box-shadow: none;
-    }
-    .screen { border-radius: 0; }
-  }
 </style>
 
-<div class="rig-caption">
-  <img class="rig-logo" src="../assets/logo/beauty-lounge-logo.png" alt="Beauty Lounge" />
-  <p class="rig-eyebrow">Beauty Blueprint™ by Beauty Lounge</p>
-  <p class="rig-title">Klickbarer Ablauf-Prototyp — Mitarbeiter-Tablet</p>
-</div>
 <div class="device"><div class="screen" id="screen"></div></div>
 
 <script>
