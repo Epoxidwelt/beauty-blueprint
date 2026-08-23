@@ -170,6 +170,18 @@
     color: var(--text-soft);
     margin: 0 0 0.4rem;
   }
+  .section-label {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--rose-deep);
+    margin: 1.3rem 0 0.6rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--border);
+  }
+  .section-label:first-of-type { margin-top: 0.9rem; padding-top: 0; border-top: none; }
   h1.q, h2.q {
     font-family: var(--font-display);
     font-weight: 500;
@@ -1162,10 +1174,14 @@
       '<p class="eyebrow">Empfehlungen · Programm: ' + esc(p.family.name) + '</p>' +
       '<h1 class="q">Behandlungsplan zur Prüfung</h1>' +
       '<p class="sub">Antippen wechselt zwischen Übernehmen / Austauschen / Entfernen.</p>' +
+      '<h3 class="section-label">Behandlungen</h3>' +
       '<div class="grid cols-2">' +
         phaseCard('Phase 1 · Jetzt', 'Hauptpriorität', p.phase1.need, i1, 'phase1') +
         (p.phase2 ? phaseCard('Phase 2 · Nächster Schritt', 'Im selben Programm', p.phase2.need, i2, 'phase2') : '') +
         (p.watch ? phaseCard('Ebenfalls beobachten', 'Separates Thema, nicht Teil dieses Programms', p.watch.need, iw, 'watch') : '') +
+      '</div>' +
+      '<h3 class="section-label">Homecare-Produkte</h3>' +
+      '<div class="grid cols-2">' +
         homecareCard() +
       '</div>' +
       '<div class="footer-actions">' +
@@ -1190,7 +1206,9 @@
         (p.phase2 ? '<div class="summary-row"><span class="k">Phase 2 · Nächster Schritt</span><span class="v">' + esc(treatLine(i2)) + '</span></div>' : '') +
         (p.watch ? '<div class="summary-row"><span class="k">Ebenfalls beobachten</span><span class="v">' + esc(treatLine(NEED_INFO[p.watch.need])) + '</span></div>' : '') +
         '<div class="summary-row"><span class="k">Nächster Checkpoint</span><span class="v">in 4 Wochen</span></div>' +
+        '<div class="summary-row"><span class="k">Homecare</span><span class="v">' + esc(productLine(i1) === productLine(i2) ? productLine(i1) : productLine(i1) + ' + ' + productLine(i2)) + '</span></div>' +
       '</div>' +
+      '<h3 class="section-label">Homecare-Routine</h3>' +
       '<div class="routine-cols">' +
         '<div class="routine-col"><h3>Morgens</h3><ol><li>Reinigung</li><li>' + esc(productLine(i1)) + '</li><li>Tagespflege</li><li>SPF</li></ol></div>' +
         '<div class="routine-col"><h3>Abends</h3><ol><li>Reinigung</li><li>' + esc(productLine(i2)) + '</li><li>Serum</li><li>Nachtpflege</li></ol></div>' +
