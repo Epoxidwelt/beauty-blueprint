@@ -46,6 +46,7 @@
   :root[data-theme="light"] { --backdrop: #FFFFFF; --backdrop-ink: #3A3638; --backdrop-ink-soft: rgba(58, 54, 56, 0.6); }
 
   * { box-sizing: border-box; }
+  html { font-size: 16px; }
 
   body {
     margin: 0;
@@ -64,7 +65,7 @@
 
   .device {
     width: 100%;
-    max-width: 1024px;
+    max-width: 1280px;
     height: 100%;
     margin: 0 auto;
     display: flex;
@@ -470,6 +471,24 @@
     .content { padding: 0.5rem 1.2rem 1.6rem; }
     .grid.cols-3, .grid.cols-4 { grid-template-columns: repeat(2, 1fr); }
     .routine-cols { grid-template-columns: 1fr; }
+  }
+
+  /* iPad Pro & größere Tablets (Höhe mitgeprüft, damit ein Iphone im Querformat nicht
+     mit hineinfällt): größere Grundschrift skaliert alle rem-Maße automatisch mit,
+     dazu gezielt größere Touch-Ziele und ein deutlich präsenteres Logo. */
+  @media (min-width: 800px) and (min-height: 700px) {
+    html { font-size: 19px; }
+    .topbar { padding: 1.4rem 1.8rem 0.5rem; gap: 0.9rem; }
+    .topbar-logo { height: 42px; }
+    .back-btn { width: 40px; height: 40px; font-size: 1.05rem; }
+    .stepper { padding: 0.6rem 1.8rem 1.3rem; }
+    .stepper .step-dot { width: 12px; height: 12px; }
+    .stepper .step-dot.current { width: 17px; height: 17px; }
+    .brand-logo.lg { height: 100px; }
+    .brand-logo.md { height: 64px; }
+    .avatar-card { width: 138px; }
+    .avatar-circle { width: 96px; height: 96px; }
+    .card .dot { width: 10px; height: 10px; }
   }
 </style>
 
