@@ -8,7 +8,7 @@
 
   :root {
     /* Exakt aus dem Original-Logo (Beauty_Lounge_Logo Transparent.png) extrahiert */
-    --warmweiss: #FBFAF8;
+    --warmweiss: #FFFFFF;
     --rose-pale: #ECD9DF;
     --rose-wash: #DCB9C5;
     --rose: #C4879C;
@@ -25,7 +25,7 @@
     --warn: #A97A2E;
     --good: #52704F;
 
-    --backdrop: #EDE7E5;
+    --backdrop: #FFFFFF;
     --backdrop-ink: #3A3638;
     --backdrop-ink-soft: rgba(58, 54, 56, 0.6);
 
@@ -34,10 +34,10 @@
   }
 
   @media (prefers-color-scheme: dark) {
-    :root { --backdrop: #17161A; --backdrop-ink: #EFE7EA; --backdrop-ink-soft: rgba(239,231,234,0.6); }
+    :root { --backdrop: #FFFFFF; --backdrop-ink: #3A3638; --backdrop-ink-soft: rgba(58, 54, 56, 0.6); }
   }
-  :root[data-theme="dark"] { --backdrop: #17161A; --backdrop-ink: #EFE7EA; --backdrop-ink-soft: rgba(239,231,234,0.6); }
-  :root[data-theme="light"] { --backdrop: #EDE7E5; --backdrop-ink: #3A3638; --backdrop-ink-soft: rgba(58, 54, 56, 0.6); }
+  :root[data-theme="dark"] { --backdrop: #FFFFFF; --backdrop-ink: #3A3638; --backdrop-ink-soft: rgba(58, 54, 56, 0.6); }
+  :root[data-theme="light"] { --backdrop: #FFFFFF; --backdrop-ink: #3A3638; --backdrop-ink-soft: rgba(58, 54, 56, 0.6); }
 
   * { box-sizing: border-box; }
 
@@ -45,7 +45,6 @@
     margin: 0;
     min-height: 100vh;
     background: var(--backdrop);
-    background-image: radial-gradient(ellipse at 50% -10%, rgba(255,255,255,0.35), transparent 60%);
     color: var(--backdrop-ink);
     font-family: var(--font-body);
     display: flex;
@@ -56,7 +55,6 @@
     padding: 2.5rem 1rem;
     overflow-x: hidden;
   }
-  :root[data-theme="dark"] body, @media (prefers-color-scheme: dark) { body { background-image: radial-gradient(ellipse at 50% -10%, rgba(255,255,255,0.05), transparent 60%); } }
 
   .rig-caption {
     text-align: center;
@@ -110,8 +108,7 @@
     transition: background-color .35s ease;
   }
 
-  .screen[data-mode="dezent"] { background: linear-gradient(180deg, var(--rose-pale) 0%, var(--warmweiss) 46%); }
-  .screen[data-mode="brand"] { background: linear-gradient(160deg, var(--rose-pale) 0%, var(--rose-wash) 130%); }
+  .screen[data-mode="dezent"], .screen[data-mode="brand"] { background: var(--warmweiss); }
 
   .topbar {
     display: flex;
