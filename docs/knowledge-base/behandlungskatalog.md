@@ -1,6 +1,8 @@
 # Behandlungskatalog (echte Daten)
 
-**Aktuelle Quelle:** [studiobookr.com/beauty-lounge-66137](https://www.studiobookr.com/beauty-lounge-66137) — die echte Online-Terminbuchungsseite der Beauty Lounge, abgerufen am 2026-08-23. Das ist die **verlässlichste verfügbare Quelle**, da hier tatsächlich buchbare Leistungen mit aktuellen Preisen stehen (nicht nur Marketing-Material). Ersetzt die zuvor verwendete `BeautyLounge_Preisliste_A5_2024`-PDF — die Preise dort waren spürbar veraltet (z. B. Start Up Behandlung: 91 € in der PDF vs. 149 € aktuell bei Studiobookr).
+**Aktuelle Quelle:** Direkter Export aus **Studiolution** (dem internen Kassen-/Kundenverwaltungssystem der Beauty Lounge), von Gerald per Google Sheet geteilt, abgerufen am 2026-08-23 — 190 Positionen, davon 158 echte Kundenleistungen und 32 interne Kalenderblöcke (Schulung, Büro, Reserviert, Ausfallgebühr etc., siehe unten). Das ist die **verlässlichste bisher verfügbare Quelle**, da es der direkte Export aus dem tatsächlichen Kassensystem ist, nicht nur eine öffentliche Buchungsseite oder ein Marketing-PDF. Alle zuvor per Studiobookr-Buchungsseite abgelesenen Preise stimmen exakt mit diesem Export überein (Cross-Check erfolgreich) — Studiobookr zeigt also korrekt die Studiolution-Daten an, aber der Studiolution-Export selbst enthält mehr Positionen (z. B. weitere FORMA-Zonen, Massage-Zusatzoptionen), die auf der öffentlichen Buchungsseite nicht alle einzeln sichtbar waren.
+
+Ersetzt zusätzlich die zuvor verwendete `BeautyLounge_Preisliste_A5_2024`-PDF, deren Preise spürbar veraltet waren (z. B. Start Up Behandlung: 91 € in der PDF vs. 149 € aktuell).
 
 **Wichtige Randnotiz zu Studiobookr/Studiolution:** Im Footer von Studiobookr steht *"studiobookr ist ein Service von studiolution.com"*. Studiobookr ist also das Online-Buchungswidget von **Studiolution**, die daneben auch Kassensystem und Kundenverwaltung anbieten (siehe [Projektbeschreibung.md](../Projektbeschreibung.md), Abschnitt 29, wo "Studiolution" bereits als mögliches künftiges CRM/Buchungssystem genannt wurde). Es gibt aktuell **keine automatisierte Anbindung** zwischen dieser Excel-Tabelle/App und Studiolution — dafür wäre Zugriff auf eine Studiolution-API oder einen Datenexport nötig, den ich nicht habe und aus Sicherheitsgründen auch nicht ungefragt mit Zugangsdaten einrichten würde. Änderungen müssen also weiterhin manuell gepflegt werden (siehe unten).
 
@@ -10,8 +12,9 @@ Der komplette, aktuelle Leistungskatalog (alle Kategorien, nicht nur Gesichtsbeh
 
 **[exports/Beauty_Lounge_Behandlungskatalog.xlsx](exports/Beauty_Lounge_Behandlungskatalog.xlsx)**
 
-- Tab **„Alle Leistungen"** — alle ca. 118 Positionen von Studiobookr (Kategorie, Behandlung, Preis, Dauer, Beschreibung), inkl. Fußpflege, Maniküre, Wimpern, Massagen, FORMA-Hautstraffung und DIOLAZE-Haarentfernung.
+- Tab **„Alle Leistungen"** — alle 158 echten Kundenleistungen aus dem Studiolution-Export (Kategorie, Behandlung, Preis, Dauer, Nachbereitungszeit, online buchbar ja/nein, Abkürzung, Beschreibung, Studiolution-ID), inkl. Fußpflege, Maniküre, Wimpern, Massagen, FORMA-Hautstraffung und DIOLAZE-Haarentfernung.
 - Tab **„Beauty-Needs-Zuordnung"** — die 9 Kategorien mit ihrer aktuellen Behandlung, exakt im Format der Google-Sheet-BeautyNeeds-Tabelle (siehe [google-sheet-setup.md](google-sheet-setup.md)) — kann bei Bedarf 1:1 in Google Sheets importiert werden.
+- Tab **„Nur intern (Kalenderblöcke)"** — die 32 ausgeschlossenen Positionen (Schulung, Büro, Reserviert/Extra Zeit, Ausfallgebühr etc.) zur Nachvollziehbarkeit, was bewusst nicht im Kundenkatalog steht.
 
 ## Zuordnung zu den 9 Beauty-Needs-Kategorien (aktueller Stand)
 
@@ -48,6 +51,7 @@ Beauty Lounge · Inh. Svenja Gampp · Team: Viktoria Lauk-Filimonov, Eleni Tserk
 
 ## Pflege-Workflow für diese Tabelle
 
-1. Änderungen an Preisen/Behandlungen zuerst in der Excel-Datei nachtragen (oder mir Bescheid geben, dann übernehme ich es).
-2. Für den Prototyp: entweder die Excel-Daten in Google Sheets importieren und über `SHEET_CONFIG` einbinden (siehe [google-sheet-setup.md](google-sheet-setup.md) — dann lädt die App live), oder mir die Änderung nennen, dann trage ich sie direkt in `DEFAULT_NEED_INFO` in `figma/prototype.html` ein.
-3. Eine automatische Rückschreibung nach Studiolution/Studiobookr ist aktuell nicht möglich (siehe oben) — Preisänderungen im echten Buchungssystem müssen weiterhin direkt dort gepflegt werden.
+1. Änderungen an Preisen/Behandlungen zuerst in Studiolution pflegen (das ist ohnehin die Quelle) — und/oder in der Excel-Datei nachtragen bzw. mir Bescheid geben, dann übernehme ich es.
+2. Für den Prototyp: entweder die Excel-Daten in Google Sheets einbinden und über `SHEET_CONFIG` laden (siehe [google-sheet-setup.md](google-sheet-setup.md) — dann lädt die App live), oder mir die Änderung nennen, dann trage ich sie direkt in `DEFAULT_NEED_INFO` in `figma/prototype.html` ein.
+3. **Halb-automatischer Weg über das bereits geteilte Google Sheet:** Wenn du dieses Studiolution-Export-Sheet regelmäßig aktualisierst (neu exportieren/hochladen), kann ich die Beauty-Needs-Zuordnung von dort direkt neu einlesen, ohne dass du mir jede Preisänderung einzeln nennen musst — sag einfach Bescheid, wenn ein neuer Export drin liegt.
+4. Eine vollautomatische Rückschreibung aus dieser App nach Studiolution/Studiobookr ist weiterhin nicht möglich (kein API-Zugriff) — Preisänderungen im echten Kassensystem müssen dort gepflegt werden, der Datenfluss in die App läuft nur in diese eine Richtung.
