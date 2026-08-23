@@ -450,7 +450,16 @@
   }
   .divider { height: 1px; background: var(--border-strong); margin: 1.1rem 0; border: none; }
 
-  .routine-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .routine-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; }
+  .kur-warning {
+    background: rgba(169,122,46,0.12);
+    color: var(--warn);
+    border: 1px solid rgba(169,122,46,0.3);
+    border-radius: 10px;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.8125rem;
+    margin: 0.6rem 0 0;
+  }
   .routine-col h3 { font-size: 0.8125rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--rose-deep); margin: 0 0 0.5rem; }
   .routine-col ol { margin: 0; padding-left: 1.1rem; font-size: 0.875rem; color: var(--text); display: flex; flex-direction: column; gap: 0.3rem; }
 
@@ -1274,7 +1283,10 @@
       phase1: 'aktiv', phase2: 'aktiv', watch: 'aktiv',
       homecare: {
         am: { status: 'aktiv', product: null, searchOpen: false },
-        pm: { status: 'aktiv', product: null, searchOpen: false }
+        pm: { status: 'aktiv', product: null, searchOpen: false },
+        reinigung: { status: 'aktiv', product: null, searchOpen: false },
+        peeling: { status: 'aktiv', product: null, searchOpen: false },
+        maske: { status: 'aktiv', product: null, searchOpen: false }
       },
       // 6-Monats-Kurplan: 6 Termine (Monat 1-6), Standardbelegung siehe kurDefaultSlots().
       kur: [0, 1, 2, 3, 4, 5].map(function () { return { status: 'aktiv', override: null, searchOpen: false }; })
@@ -1284,7 +1296,7 @@
   // Ergebnisliste der zuletzt getippten Produktsuche je Slot (am/pm) — hält die
   // Objekte vor, damit die Ergebnis-Buttons per Index statt per Name referenzieren
   // (Namen können Sonderzeichen enthalten, die im onclick-Attribut Probleme machen).
-  var PRODUCT_SEARCH_RESULTS = { am: [], pm: [] };
+  var PRODUCT_SEARCH_RESULTS = { am: [], pm: [], reinigung: [], peeling: [], maske: [] };
   // Gleiches Prinzip für die Behandlungssuche im Kurplan, ein Eintrag je Monats-Slot (0-5).
   var TREATMENT_SEARCH_RESULTS = [[], [], [], [], [], []];
 
@@ -1307,7 +1319,7 @@
   window.__bb = {
     goTo: goTo, goBack: goBack, replaceTop: replaceTop, state: STATE, select: selectHandler, input: inputHandler,
     filterProducts: filterProducts, pickProduct: pickProduct,
-    filterTreatments: filterTreatments, pickTreatment: pickTreatment
+    filterTreatments: filterTreatments, pickTreatment: pickTreatment, pickKurOption: pickKurOption
   };
 
   function selectHandler(kind, key, extra) {
@@ -1422,6 +1434,17 @@
     var t = TREATMENT_SEARCH_RESULTS[idx][resultIdx];
     if (!t) return;
     STATE.rec.kur[idx].override = t;
+    STATE.rec.kur[idx].searchOpen = false;
+    render();
+  }
+
+  // Ein-Klick-Auswahl aus der priorisierten Liste passender Behandlungen (rankedTreatmentOptions,
+  // neu berechnet bei jedem render() und in RANKED_TREATMENTS gehalten) — Alternative zum Tippen.
+  var RANKED_TREATMENTS = [];
+  function pickKurOption(idx, prioIdx) {
+    var r = RANKED_TREATMENTS[prioIdx];
+    if (!r) return;
+    STATE.rec.kur[idx].override = { name: r.behandlung, dauer: r.dauer, preis: r.preis };
     STATE.rec.kur[idx].searchOpen = false;
     render();
   }
@@ -1764,9 +1787,12 @@
     lines.push('');
     var homeAM = homecareInfoFor('am', i1);
     var homePM = homecareInfoFor('pm', i2);
-    if (homeAM) lines.push('Homecare morgens: Reinigung, ' + productLine(homeAM) + ', Tagespflege, SPF');
-    if (homePM) lines.push('Homecare abends: Reinigung, ' + productLine(homePM) + ', Serum, Nachtpflege');
+    var reinigungLine = optionalProductLine('reinigung') || 'Reinigung';
+    if (homeAM) lines.push('Homecare morgens: ' + reinigungLine + ', ' + productLine(homeAM) + ', Tagespflege, SPF');
+    if (homePM) lines.push('Homecare abends: ' + reinigungLine + ', ' + productLine(homePM) + ', Serum, Nachtpflege');
     if (!homeAM && !homePM) lines.push('Homecare: von der Mitarbeiterin entfernt');
+    if (optionalProductLine('peeling')) lines.push('Peeling (1-2x/Woche): ' + optionalProductLine('peeling'));
+    if (optionalProductLine('maske')) lines.push('Maske (1-2x/Woche): ' + optionalProductLine('maske'));
     lines.push('');
     lines.push('Nächster Checkpoint: in 4 Wochen');
     lines.push('Termin buchen: ' + BOOKING_URL);
@@ -1867,6 +1893,13 @@
     return baseInfo;
   }
 
+  // Für die optionalen Homecare-Schritte (Reinigung/Peeling/Maske) ohne Systemvorschlag:
+  // gibt die formatierte Produktzeile zurück, oder null wenn nichts ausgewählt wurde.
+  function optionalProductLine(slot) {
+    var p = STATE.rec.homecare[slot].product;
+    return p ? productLine({ product: p.name, produktpreis: p.preis }) : null;
+  }
+
   // 6-Monats-Kurplan: die Hauptbehandlung (Phase 1) bildet das Rückgrat, an zwei Terminen
   // (Monat 3 und 6) wird zur Auflockerung die Phase-2- bzw. "Ebenfalls beobachten"-Behandlung
   // vorgeschlagen — angelehnt an echte Studiolution-Kur-Pakete (z. B. ASA-Kur), aber weiterhin
@@ -1889,6 +1922,37 @@
     if (s.status === 'entfernt') return null;
     if (s.override) return { behandlung: s.override.name, dauer: s.override.dauer, preis: s.override.preis };
     return baseInfo;
+  }
+
+  // Alle Beauty-Needs, für die in der Hautanalyse tatsächlich etwas beobachtet wurde (avg > 0),
+  // als priorisierte Liste geeigneter Behandlungen — Grundlage für die Schnellauswahl im
+  // Kurplan, damit die Mitarbeiterin nicht erst tippen muss, um die passenden Optionen zu sehen.
+  function rankedTreatmentOptions() {
+    return computeNeeds().filter(function (n) { return n.avg > 0; }).map(function (n, i) {
+      var info = NEED_INFO[n.need];
+      return { prio: i + 1, need: n.need, behandlung: info.behandlung, dauer: info.dauer, preis: info.preis };
+    });
+  }
+
+  // ASA Peel Fruchtsäure darf laut Studiolution-Kur-Konzept nur einmalig oder als direkt
+  // aufeinanderfolgende 3er-Kur eingeplant werden (siehe "ASA Fruchtsäure KUR" im Katalog).
+  function isAsaPeel(name) {
+    var n = (name || '').toLowerCase();
+    return n.indexOf('asa') > -1 && n.indexOf('peel') > -1 && n.indexOf('kur') === -1;
+  }
+
+  function kurAsaWarning(kurSlots) {
+    var idxs = [];
+    kurSlots.forEach(function (baseInfo, idx) {
+      var info = kurInfoFor(idx, baseInfo);
+      if (info && isAsaPeel(info.behandlung)) idxs.push(idx);
+    });
+    if (idxs.length <= 1) return null;
+    var monthsText = idxs.map(function (i) { return i + 1; }).join(', ');
+    if (idxs.length === 3 && idxs[2] - idxs[0] === 2) return null;
+    return idxs.length === 3
+      ? 'ASA Peel Fruchtsäure ist 3x eingeplant (Monat ' + monthsText + '), aber nicht direkt hintereinander. Als 3er-Kur sollte sie ohne Unterbrechung stattfinden.'
+      : 'ASA Peel Fruchtsäure ist ' + idxs.length + 'x eingeplant (Monat ' + monthsText + '). Sie ist nur als Einzelbehandlung oder als direkt aufeinanderfolgende 3er-Kur vorgesehen.';
   }
 
   function zielText() {
@@ -1959,9 +2023,32 @@
       '</div>';
     }
 
+    // Optionale Homecare-Schritte (Reinigung/Peeling/Maske) ohne Systemvorschlag: die
+    // Mitarbeiterin wählt selbst, ob und welches Produkt für diesen Schritt gebraucht wird.
+    function homecareOptionalCard(slot, label) {
+      var s = STATE.rec.homecare[slot];
+      var has = !!s.product;
+      return '<div class="rec-card">' +
+        '<span class="rec-kicker">Homecare · ' + label + '</span>' +
+        (has ? '<span class="rec-name">' + esc(productLine({ product: s.product.name, produktpreis: s.product.preis })) + '</span>'
+             : '<p class="sub" style="margin:0;font-size:.875rem">Nicht ausgewählt · optional</p>') +
+        '<div class="rec-toggle" style="flex-wrap:wrap">' +
+          '<button onclick="__bb.select(\'homecare-toggle-search\',\'' + slot + '\')">' + (s.searchOpen ? 'Suche schließen' : (has ? 'Produkt ändern' : 'Produkt hinzufügen')) + '</button>' +
+          (has ? '<button onclick="__bb.select(\'homecare-reset-product\',\'' + slot + '\')">Entfernen</button>' : '') +
+        '</div>' +
+        (s.searchOpen ?
+          '<div class="product-search">' +
+            '<input type="text" class="text-input" placeholder="Produkt suchen …" oninput="__bb.filterProducts(\'' + slot + '\', this.value)" />' +
+            '<div class="product-results" id="product-results-' + slot + '"></div>' +
+          '</div>' : '') +
+      '</div>';
+    }
+
     // 6-Monats-Kurplan: ein Termin pro Monat, Vorschlag aus kurDefaultSlots() (Hauptbehandlung
-    // + zwei Auflockerungs-Termine). Gleiches Suche/Entfernen-Muster wie beim Homecare-Produkt.
-    function kurSlotCard(idx, baseInfo) {
+    // + zwei Auflockerungs-Termine). Beim Öffnen der Suche stehen zuerst die priorisierten,
+    // zur Hautanalyse passenden Behandlungen als Ein-Klick-Optionen bereit; alternativ frei
+    // aus allen 152 echten Studiolution-Behandlungen tippen.
+    function kurSlotCard(idx, baseInfo, ranked) {
       var s = STATE.rec.kur[idx];
       var removed = s.status === 'entfernt';
       var display = s.override ? { behandlung: s.override.name, dauer: s.override.dauer, preis: s.override.preis } : baseInfo;
@@ -1976,13 +2063,23 @@
         '</div>' +
         (s.searchOpen && !removed ?
           '<div class="product-search">' +
-            '<input type="text" class="text-input" placeholder="Behandlung suchen …" oninput="__bb.filterTreatments(' + idx + ', this.value)" />' +
+            (ranked.length ? '<p class="sub" style="margin:0 0 .35rem;font-size:.75rem">Passende Optionen (nach Priorität):</p>' +
+              '<div class="product-results">' +
+                ranked.map(function (r, i) {
+                  return '<button type="button" class="product-result" onclick="__bb.pickKurOption(' + idx + ',' + i + ')">' +
+                    '<span>Prio ' + r.prio + ' · ' + esc(r.behandlung) + '</span><span class="k" style="font-size:.75rem">' + esc([r.dauer, r.preis].filter(Boolean).join(' · ')) + '</span></button>';
+                }).join('') +
+              '</div>' : '') +
+            '<input type="text" class="text-input" placeholder="Oder andere Behandlung suchen …" style="margin-top:.5rem" oninput="__bb.filterTreatments(' + idx + ', this.value)" />' +
             '<div class="product-results" id="treatment-results-' + idx + '"></div>' +
           '</div>' : '') +
       '</div>';
     }
 
     var kurSlots = kurDefaultSlots(getPlan());
+    var ranked = rankedTreatmentOptions();
+    RANKED_TREATMENTS = ranked;
+    var asaWarning = kurAsaWarning(kurSlots);
 
     var body = '' +
       '<p class="eyebrow">Empfehlungen · Programm: ' + esc(p.family.name) + '</p>' +
@@ -1994,16 +2091,22 @@
         (p.phase2 ? phaseCard('Phase 2 · Nächster Schritt', 'Im selben Programm', p.phase2.need, i2, 'phase2') : '') +
         (p.watch ? phaseCard('Ebenfalls beobachten', 'Separates Thema, nicht Teil dieses Programms', p.watch.need, iw, 'watch') : '') +
       '</div>' +
+      (ranked.length ? '<p class="sub" style="margin-top:.6rem">Alle passenden Behandlungen zur aktuellen Hautanalyse, priorisiert: ' +
+        ranked.map(function (r) { return 'Prio ' + r.prio + ' ' + esc(r.behandlung); }).join(' · ') + '</p>' : '') +
       '<h3 class="section-label">6-Monats-Kurplan</h3>' +
-      '<p class="sub" style="margin-top:-.4rem">Ein Termin pro Monat — Hauptbehandlung als Rückgrat, an zwei Terminen zur Auflockerung die zweite Priorität. Jeder Termin einzeln anpassbar.</p>' +
+      '<p class="sub" style="margin-top:-.4rem">Ein Termin pro Monat — Hauptbehandlung als Rückgrat, an zwei Terminen zur Auflockerung die zweite Priorität. Struktur, Häufigkeit und Reihenfolge frei anpassbar.</p>' +
+      (asaWarning ? '<div class="kur-warning">⚠ ' + esc(asaWarning) + '</div>' : '') +
       '<div class="grid cols-3">' +
-        kurSlots.map(function (info, idx) { return kurSlotCard(idx, info); }).join('') +
+        kurSlots.map(function (info, idx) { return kurSlotCard(idx, info, ranked); }).join('') +
       '</div>' +
       '<h3 class="section-label">Homecare-Produkte</h3>' +
-      '<p class="sub" style="margin-top:-.4rem">Vorschlag passend zur Priorität — bei Bedarf über die Suche austauschen.</p>' +
+      '<p class="sub" style="margin-top:-.4rem">Vorschlag passend zur Priorität — bei Bedarf über die Suche austauschen. Reinigung, Peeling und Maske sind optional.</p>' +
       '<div class="grid cols-2">' +
         homecareSlotCard('am', 'Morgens', i1) +
         homecareSlotCard('pm', 'Abends', i2 || i1) +
+        homecareOptionalCard('reinigung', 'Reinigung') +
+        homecareOptionalCard('peeling', 'Peeling') +
+        homecareOptionalCard('maske', 'Maske') +
       '</div>' +
       '<div class="footer-actions">' +
         '<button class="btn-primary" onclick="__bb.goTo(\'blueprint\')">Beauty Blueprint erstellen</button>' +
@@ -2042,8 +2145,13 @@
       (homeAM || homePM ? '' +
         '<h3 class="section-label">Homecare-Routine</h3>' +
         '<div class="routine-cols">' +
-          '<div class="routine-col"><h3>Morgens</h3><ol><li>Reinigung</li><li>' + esc(homeAM ? productLine(homeAM) : 'entfernt') + '</li><li>Tagespflege</li><li>SPF</li></ol></div>' +
-          '<div class="routine-col"><h3>Abends</h3><ol><li>Reinigung</li><li>' + esc(homePM ? productLine(homePM) : 'entfernt') + '</li><li>Serum</li><li>Nachtpflege</li></ol></div>' +
+          '<div class="routine-col"><h3>Morgens</h3><ol><li>' + esc(optionalProductLine('reinigung') || 'Reinigung') + '</li><li>' + esc(homeAM ? productLine(homeAM) : 'entfernt') + '</li><li>SPF</li></ol></div>' +
+          '<div class="routine-col"><h3>Abends</h3><ol><li>' + esc(optionalProductLine('reinigung') || 'Reinigung') + '</li><li>' + esc(homePM ? productLine(homePM) : 'entfernt') + '</li><li>Serum</li></ol></div>' +
+          (optionalProductLine('peeling') || optionalProductLine('maske') ?
+            '<div class="routine-col"><h3>1-2x wöchentlich</h3><ol>' +
+              (optionalProductLine('peeling') ? '<li>Peeling: ' + esc(optionalProductLine('peeling')) + '</li>' : '') +
+              (optionalProductLine('maske') ? '<li>Maske: ' + esc(optionalProductLine('maske')) + '</li>' : '') +
+            '</ol></div>' : '') +
         '</div>' : '') +
       bookingCaption() +
       '<div class="footer-actions">' +
