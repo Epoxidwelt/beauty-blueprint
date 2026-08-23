@@ -1029,9 +1029,10 @@
     return arr;
   }
 
-  function bookingBlock(p) {
-    var names = [NEED_INFO[p.phase1.need].behandlung];
-    if (p.phase2) names.push(NEED_INFO[p.phase2.need].behandlung);
+  function bookingBlock() {
+    var plan = getPlan();
+    var names = [displayInfo(plan.phase1).behandlung];
+    if (plan.phase2) names.push(displayInfo(plan.phase2).behandlung);
     return '' +
       '<p class="sub" style="margin:1.1rem 0 .5rem">Termin buchen für: ' + esc(names.join(' + ')) + '</p>' +
       '<a class="btn-link" href="' + BOOKING_URL + '" target="_blank" rel="noopener noreferrer">Termin online buchen ↗</a>';
@@ -1040,29 +1041,33 @@
   // Öffnet das lokale Mailprogramm mit vorausgefüllter Zusammenfassung (mailto:) —
   // die Mitarbeiterin sieht die E-Mail vor dem Versand und kann Empfänger/Text noch anpassen.
   // Kein automatischer Versand im Hintergrund.
-  function emailSummaryHref(p) {
-    var i1 = NEED_INFO[p.phase1.need];
-    var i2 = p.phase2 ? NEED_INFO[p.phase2.need] : i1;
+  function emailSummaryHref() {
+    var plan = getPlan();
+    var i1 = displayInfo(plan.phase1);
+    var i2 = plan.phase2 ? displayInfo(plan.phase2) : i1;
     var lines = [
       'Beauty Blueprint — ' + (STATE.kundeName || 'Kundin'),
       'Mitarbeiterin: ' + (STATE.mitarbeiterin || ''),
       '',
       'Kundenziel: ' + zielText(),
-      'Programm: ' + p.family.name,
+      'Programm: ' + plan.family.name,
       '',
       'Phase 1 · Jetzt: ' + treatLine(i1),
-      '  Begründung: ' + needReason(p.phase1.need)
+      '  Begründung: ' + needReason(plan.phase1.need)
     ];
-    if (p.phase2) {
+    if (plan.phase2) {
       lines.push('Phase 2 · Nächster Schritt: ' + treatLine(i2));
-      lines.push('  Begründung: ' + needReason(p.phase2.need));
+      lines.push('  Begründung: ' + needReason(plan.phase2.need));
     }
-    if (p.watch) {
-      lines.push('Ebenfalls beobachten: ' + treatLine(NEED_INFO[p.watch.need]));
+    if (plan.watch) {
+      lines.push('Ebenfalls beobachten: ' + treatLine(displayInfo(plan.watch)));
     }
     lines.push('');
-    lines.push('Homecare morgens: Reinigung, ' + productLine(i1) + ', Tagespflege, SPF');
-    lines.push('Homecare abends: Reinigung, ' + productLine(i2) + ', Serum, Nachtpflege');
+    var homeAM = homecareInfoFor(plan, i1);
+    var homePM = homecareInfoFor(plan, i2);
+    if (homeAM) lines.push('Homecare morgens: Reinigung, ' + productLine(homeAM) + ', Tagespflege, SPF');
+    if (homePM) lines.push('Homecare abends: Reinigung, ' + productLine(homePM) + ', Serum, Nachtpflege');
+    if (!homeAM && !homePM) lines.push('Homecare: von der Mitarbeiterin entfernt');
     lines.push('');
     lines.push('Nächster Checkpoint: in 4 Wochen');
     lines.push('Termin buchen: ' + BOOKING_URL);
@@ -1114,6 +1119,48 @@
     })[0] || null;
 
     return { family: family, phase1: phase1, phase2: phase2, watch: watch };
+  }
+
+  var REPLACED_LABEL = 'Individuell angepasst (auf Wunsch der Mitarbeiterin ausgetauscht)';
+
+  // Ab hier zählt nicht mehr die reine Analyse, sondern das, was auf dem Empfehlungen-Screen
+  // tatsächlich entschieden wurde (STATE.rec) — sonst würden Blueprint/E-Mail/Buchung eine
+  // Behandlung zeigen, die die Mitarbeiterin dort bereits entfernt oder ausgetauscht hat.
+  function displayInfo(slot) {
+    if (!slot) return null;
+    if (slot.replaced) return { behandlung: REPLACED_LABEL, dauer: '', preis: '', product: REPLACED_LABEL, produktpreis: '' };
+    return slot.info;
+  }
+
+  function getPlan() {
+    var p = computeProgram();
+    function slot(key, needObj) {
+      if (!needObj) return null;
+      var st = STATE.rec[key];
+      if (st === 'entfernt') return null;
+      return { need: needObj.need, info: NEED_INFO[needObj.need], replaced: st === 'ersetzt' };
+    }
+    var phase1 = slot('phase1', p.phase1);
+    var phase2 = slot('phase2', p.phase2);
+    var watch = slot('watch', p.watch);
+    // Phase 1 trägt die gesamte Strategie (Programmname, Homecare) — bei "entfernt" wird die
+    // nächstbeste noch aktive Priorität nachgerückt, statt einen leeren Plan zu zeigen.
+    if (!phase1) {
+      if (phase2) { phase1 = phase2; phase2 = null; }
+      else if (watch) { phase1 = watch; watch = null; }
+      else phase1 = { need: p.phase1.need, info: NEED_INFO[p.phase1.need], replaced: false };
+    }
+    return {
+      family: p.family, phase1: phase1, phase2: phase2, watch: watch,
+      homecareRemoved: STATE.rec.homecare === 'entfernt',
+      homecareReplaced: STATE.rec.homecare === 'ersetzt'
+    };
+  }
+
+  function homecareInfoFor(plan, baseInfo) {
+    if (plan.homecareRemoved) return null;
+    if (plan.homecareReplaced) return { product: REPLACED_LABEL, produktpreis: '' };
+    return baseInfo;
   }
 
   function zielText() {
@@ -1198,9 +1245,13 @@
   }
 
   function renderBlueprint() {
-    var p = computeProgram();
-    var i1 = NEED_INFO[p.phase1.need];
-    var i2 = p.phase2 ? NEED_INFO[p.phase2.need] : i1;
+    var plan = getPlan();
+    var i1 = displayInfo(plan.phase1);
+    var i2 = plan.phase2 ? displayInfo(plan.phase2) : i1;
+    var homeAM = homecareInfoFor(plan, i1);
+    var homePM = homecareInfoFor(plan, i2);
+    var homecareRow = !homeAM && !homePM ? 'Entfernt' :
+      (productLine(homeAM) === productLine(homePM) ? productLine(homeAM) : productLine(homeAM) + ' + ' + productLine(homePM));
     var body = '' +
       '<img class="brand-logo md" src="../assets/logo/beauty-lounge-logo.png" alt="Beauty Lounge" />' +
       '<p class="eyebrow" style="text-align:center">Beauty Blueprint</p>' +
@@ -1208,19 +1259,20 @@
       '<p class="sub" style="margin-top:0;text-align:center">' + esc(zielText()) + '</p>' +
       '<hr class="divider"/>' +
       '<div class="summary-list">' +
-        '<div class="summary-row"><span class="k">Programm</span><span class="v">' + esc(p.family.name) + '</span></div>' +
+        '<div class="summary-row"><span class="k">Programm</span><span class="v">' + esc(plan.family.name) + '</span></div>' +
         '<div class="summary-row"><span class="k">Phase 1 · Jetzt</span><span class="v">' + esc(treatLine(i1)) + '</span></div>' +
-        (p.phase2 ? '<div class="summary-row"><span class="k">Phase 2 · Nächster Schritt</span><span class="v">' + esc(treatLine(i2)) + '</span></div>' : '') +
-        (p.watch ? '<div class="summary-row"><span class="k">Ebenfalls beobachten</span><span class="v">' + esc(treatLine(NEED_INFO[p.watch.need])) + '</span></div>' : '') +
+        (plan.phase2 ? '<div class="summary-row"><span class="k">Phase 2 · Nächster Schritt</span><span class="v">' + esc(treatLine(i2)) + '</span></div>' : '') +
+        (plan.watch ? '<div class="summary-row"><span class="k">Ebenfalls beobachten</span><span class="v">' + esc(treatLine(displayInfo(plan.watch))) + '</span></div>' : '') +
         '<div class="summary-row"><span class="k">Nächster Checkpoint</span><span class="v">in 4 Wochen</span></div>' +
-        '<div class="summary-row"><span class="k">Homecare</span><span class="v">' + esc(productLine(i1) === productLine(i2) ? productLine(i1) : productLine(i1) + ' + ' + productLine(i2)) + '</span></div>' +
+        '<div class="summary-row"><span class="k">Homecare</span><span class="v">' + esc(homecareRow) + '</span></div>' +
       '</div>' +
-      '<h3 class="section-label">Homecare-Routine</h3>' +
-      '<div class="routine-cols">' +
-        '<div class="routine-col"><h3>Morgens</h3><ol><li>Reinigung</li><li>' + esc(productLine(i1)) + '</li><li>Tagespflege</li><li>SPF</li></ol></div>' +
-        '<div class="routine-col"><h3>Abends</h3><ol><li>Reinigung</li><li>' + esc(productLine(i2)) + '</li><li>Serum</li><li>Nachtpflege</li></ol></div>' +
-      '</div>' +
-      bookingBlock(p) +
+      (homeAM || homePM ? '' +
+        '<h3 class="section-label">Homecare-Routine</h3>' +
+        '<div class="routine-cols">' +
+          '<div class="routine-col"><h3>Morgens</h3><ol><li>Reinigung</li><li>' + esc(homeAM ? productLine(homeAM) : 'entfernt') + '</li><li>Tagespflege</li><li>SPF</li></ol></div>' +
+          '<div class="routine-col"><h3>Abends</h3><ol><li>Reinigung</li><li>' + esc(homePM ? productLine(homePM) : 'entfernt') + '</li><li>Serum</li><li>Nachtpflege</li></ol></div>' +
+        '</div>' : '') +
+      bookingBlock() +
       '<div class="footer-actions">' +
         '<button class="btn-primary" onclick="__bb.goTo(\'abschluss\')">Freigeben & abschließen</button>' +
       '</div>';
@@ -1228,15 +1280,14 @@
   }
 
   function renderAbschluss() {
-    var p = computeProgram();
     var body = '' +
       '<img class="brand-logo md" src="../assets/logo/beauty-lounge-logo.png" alt="Beauty Lounge" />' +
       '<p class="eyebrow" style="text-align:center">Abgeschlossen</p>' +
       '<h1 class="q" style="text-align:center">Beauty Blueprint gespeichert</h1>' +
       '<p class="sub" style="text-align:center">' + esc(STATE.kundeName || 'Die Kundin') + ' erhält ihren persönlichen Plan. Ein Bericht kann optional erstellt werden.</p>' +
-      '<div style="text-align:center">' + bookingBlock(p) +
+      '<div style="text-align:center">' + bookingBlock() +
         '<p class="sub" style="margin:.9rem 0 .5rem">Zusammenfassung für die Kartei per E-Mail versenden:</p>' +
-        '<a class="btn-link" href="' + emailSummaryHref(p) + '">Per E-Mail versenden ✉</a>' +
+        '<a class="btn-link" href="' + emailSummaryHref() + '">Per E-Mail versenden ✉</a>' +
       '</div>' +
       '<div class="footer-actions">' +
         '<button class="btn-ghost" onclick="this.outerHTML=\'<span class=&quot;sub&quot; style=&quot;margin:0&quot;>Bericht vorbereitet ✓</span>\'">Bericht als PDF vorbereiten</button>' +
