@@ -1280,7 +1280,10 @@
     sicherheit: {},
     analyse: {},
     rec: {
-      phase1: 'aktiv', phase2: 'aktiv', watch: 'aktiv',
+      // Übernehmen/Entfernen je Beauty Need (Schlüssel = need-Name), ohne erzwungene
+      // Phase-Zuordnung — jede zur Hautanalyse passende Behandlung steht gleichwertig
+      // zur Wahl, die Mitarbeiterin entscheidet frei. Fehlt ein Eintrag, gilt 'aktiv'.
+      behandlung: {},
       homecare: {
         am: { status: 'aktiv', product: null, searchOpen: false },
         pm: { status: 'aktiv', product: null, searchOpen: false },
@@ -1335,11 +1338,9 @@
     else if (kind === 'lifestyle') { STATE.lifestyle[key] = extra; advanceFlow('lifestyle', LIFESTYLE_ITEMS, 'sicherheit:0'); }
     else if (kind === 'sicherheit') { STATE.sicherheit[key] = extra; advanceFlow('sicherheit', SAFETY_ITEMS, 'sicherheit-summary'); }
     else if (kind === 'analyse') { STATE.analyse[key] = extra; advanceFlow('analyse', ANALYSE_ITEMS, 'auswertung'); }
-    else if (kind === 'rec-toggle') {
-      var order = ['aktiv', 'ersetzt', 'entfernt'];
-      var cur = STATE.rec[key];
-      var next = order[(order.indexOf(cur) + 1) % order.length];
-      STATE.rec[key] = next;
+    else if (kind === 'behandlung-toggle') {
+      var curSt = STATE.rec.behandlung[key] || 'aktiv';
+      STATE.rec.behandlung[key] = curSt === 'entfernt' ? 'aktiv' : 'entfernt';
       render();
     }
     else if (kind === 'homecare-toggle-status') {
@@ -1510,10 +1511,22 @@
     return header + (step ? stepperHtml(step) : '');
   }
 
+  // Merkt sich, welcher Screen zuletzt gezeichnet wurde: ein erneutes render() DERSELBEN
+  // Ansicht (z.B. nach Produktauswahl aus einem Dropdown) soll die Scroll-Position behalten,
+  // statt die Mitarbeiterin nach jedem Klick zurück nach oben zu werfen. Ein echter
+  // Screen-Wechsel (goTo/goBack) startet dagegen bewusst wieder oben.
+  var lastRenderedScreenId = null;
+
   function screenWrap(mode, percent, contextText, bodyHtml, center) {
     var el = document.getElementById('screen');
+    var currentId = path[pointer];
+    var oldContent = el.querySelector('.content');
+    var scrollTop = (currentId === lastRenderedScreenId && oldContent) ? oldContent.scrollTop : 0;
     el.setAttribute('data-mode', mode);
     el.innerHTML = topbar(mode, percent, contextText) + '<div class="content' + (center ? ' center' : '') + '">' + bodyHtml + '</div>';
+    var newContent = el.querySelector('.content');
+    if (newContent) newContent.scrollTop = scrollTop;
+    lastRenderedScreenId = currentId;
   }
 
   function phasePercent(phase, idx, count) {
@@ -1745,9 +1758,8 @@
 
   function bookingCaption() {
     var plan = getPlan();
-    var names = [displayInfo(plan.phase1).behandlung];
-    if (plan.phase2) names.push(displayInfo(plan.phase2).behandlung);
-    return '<p class="sub" style="margin:1.1rem 0 .5rem">Termin buchen für: ' + esc(names.join(' + ')) + '</p>';
+    var names = plan.active.map(function (r) { return r.behandlung; });
+    return '<p class="sub" style="margin:1.1rem 0 .5rem">Termin buchen für: ' + esc(names.length ? names.join(' + ') : 'individuelle Beratung') + '</p>';
   }
 
   function bookingButton() {
@@ -1759,24 +1771,23 @@
   // Kein automatischer Versand im Hintergrund.
   function emailSummaryHref() {
     var plan = getPlan();
-    var i1 = displayInfo(plan.phase1);
-    var i2 = plan.phase2 ? displayInfo(plan.phase2) : i1;
+    var i1 = NEED_INFO[(plan.active[0] || plan.ranked[0]).need];
+    var i2 = plan.active[1] ? NEED_INFO[plan.active[1].need] : i1;
     var lines = [
       'Beauty Blueprint — ' + (STATE.kundeName || 'Kundin'),
       'Mitarbeiterin: ' + (STATE.mitarbeiterin || ''),
       '',
       'Kundenziel: ' + zielText(),
       'Programm: ' + plan.family.name,
-      '',
-      'Phase 1 · Jetzt: ' + treatLine(i1),
-      '  Begründung: ' + needReason(plan.phase1.need)
+      ''
     ];
-    if (plan.phase2) {
-      lines.push('Phase 2 · Nächster Schritt: ' + treatLine(i2));
-      lines.push('  Begründung: ' + needReason(plan.phase2.need));
-    }
-    if (plan.watch) {
-      lines.push('Ebenfalls beobachten: ' + treatLine(displayInfo(plan.watch)));
+    if (plan.active.length) {
+      plan.active.forEach(function (r) {
+        lines.push('Priorität ' + r.prio + ': ' + treatLine(r));
+        lines.push('  Begründung: ' + needReason(r.need));
+      });
+    } else {
+      lines.push('Keine Behandlung ausgewählt');
     }
     lines.push('');
     lines.push('6-Monats-Kurplan:');
@@ -1824,63 +1835,21 @@
       { name: needName, needs: [needName] };
   }
 
-  // Baut einen Behandlungsplan: Phase 1 (Hauptpriorität) und, falls die zweit-/dritthöchste
-  // Priorität fachlich zum selben Programm gehört, Phase 2 daraus — statt drei unabhängig
-  // gerankte Needs zu unabhängigen Behandlungen zu verknüpfen. Eine Priorität außerhalb des
-  // Programms wird ehrlich als separater Beobachtungspunkt markiert, nicht als "Alternative"
-  // in eine falsche Reihenfolge gepresst.
-  function computeProgram() {
-    var needs = computeNeeds();
-    var top1 = needs[0];
-    if (!top1) top1 = { need: 'Hydration', avg: 0 };
-    var family = familyFor(top1.need);
-
-    // Phase 1 ist immer die höchste Priorität (Anker), auch wenn noch nichts beobachtet wurde
-    // (Fallback-Fall). Phase 2 und "Ebenfalls beobachten" dürfen dagegen NUR erscheinen, wenn
-    // in der Hautanalyse tatsächlich etwas dafür beobachtet wurde (avg > 0) — sonst würde eine
-    // zweite Behandlung/ein Produkt allein deshalb empfohlen, weil es zufällig zur selben
-    // Programm-Familie gehört, ohne jeden Beleg in den Antworten der Mitarbeiterin.
-    var phase2 = needs.filter(function (n) {
-      return n.need !== top1.need && family.needs.indexOf(n.need) > -1 && n.avg > 0;
-    })[0] || null;
-
-    var watch = needs.filter(function (n) {
-      return family.needs.indexOf(n.need) === -1 && n.avg > 0;
-    })[0] || null;
-
-    return { family: family, phase1: top1, phase2: phase2, watch: watch };
+  // Status einer Behandlung (Schlüssel = need-Name) — ohne Eintrag gilt 'aktiv', d.h. jede
+  // zur Hautanalyse passende Behandlung ist standardmäßig übernommen, bis die Mitarbeiterin
+  // sie explizit entfernt.
+  function behandlungStatus(need) {
+    return STATE.rec.behandlung[need] || 'aktiv';
   }
 
-  var REPLACED_LABEL = 'Individuell angepasst (auf Wunsch der Mitarbeiterin ausgetauscht)';
-
-  // Ab hier zählt nicht mehr die reine Analyse, sondern das, was auf dem Empfehlungen-Screen
-  // tatsächlich entschieden wurde (STATE.rec) — sonst würden Blueprint/E-Mail/Buchung eine
-  // Behandlung zeigen, die die Mitarbeiterin dort bereits entfernt oder ausgetauscht hat.
-  function displayInfo(slot) {
-    if (!slot) return null;
-    if (slot.replaced) return { behandlung: REPLACED_LABEL, dauer: '', preis: '', product: REPLACED_LABEL, produktpreis: '' };
-    return slot.info;
-  }
-
+  // Der komplette Plan: alle passenden Behandlungen (rankedTreatmentOptions, garantiert nicht
+  // leer) gefiltert auf die von der Mitarbeiterin tatsächlich übernommenen — ohne erzwungene
+  // Phase-1/Phase-2/Beobachten-Zuordnung. "Programm" dient nur noch als grober Kontext-Name.
   function getPlan() {
-    var p = computeProgram();
-    function slot(key, needObj) {
-      if (!needObj) return null;
-      var st = STATE.rec[key];
-      if (st === 'entfernt') return null;
-      return { need: needObj.need, info: NEED_INFO[needObj.need], replaced: st === 'ersetzt' };
-    }
-    var phase1 = slot('phase1', p.phase1);
-    var phase2 = slot('phase2', p.phase2);
-    var watch = slot('watch', p.watch);
-    // Phase 1 trägt die gesamte Strategie (Programmname, Homecare) — bei "entfernt" wird die
-    // nächstbeste noch aktive Priorität nachgerückt, statt einen leeren Plan zu zeigen.
-    if (!phase1) {
-      if (phase2) { phase1 = phase2; phase2 = null; }
-      else if (watch) { phase1 = watch; watch = null; }
-      else phase1 = { need: p.phase1.need, info: NEED_INFO[p.phase1.need], replaced: false };
-    }
-    return { family: p.family, phase1: phase1, phase2: phase2, watch: watch };
+    var ranked = rankedTreatmentOptions();
+    var active = ranked.filter(function (r) { return behandlungStatus(r.need) !== 'entfernt'; });
+    var family = familyFor((active[0] || ranked[0]).need);
+    return { family: family, active: active, ranked: ranked };
   }
 
   // Löst den tatsächlich anzuzeigenden Homecare-Eintrag für "am" (morgens) oder
@@ -1908,11 +1877,11 @@
   var KUR_ALT_POSITIONS = [2, 5];
 
   function kurDefaultSlots(plan) {
-    var i1 = displayInfo(plan.phase1);
-    var i2 = plan.phase2 ? displayInfo(plan.phase2) : (plan.watch ? displayInfo(plan.watch) : i1);
+    var main = plan.active[0] || plan.ranked[0];
+    var alt = plan.active[1] || main;
     var slots = [];
     for (var m = 0; m < KUR_MONTHS; m++) {
-      slots.push(KUR_ALT_POSITIONS.indexOf(m) > -1 ? i2 : i1);
+      slots.push(KUR_ALT_POSITIONS.indexOf(m) > -1 ? alt : main);
     }
     return slots;
   }
@@ -1928,7 +1897,13 @@
   // als priorisierte Liste geeigneter Behandlungen — Grundlage für die Schnellauswahl im
   // Kurplan, damit die Mitarbeiterin nicht erst tippen muss, um die passenden Optionen zu sehen.
   function rankedTreatmentOptions() {
-    return computeNeeds().filter(function (n) { return n.avg > 0; }).map(function (n, i) {
+    var needs = computeNeeds();
+    var list = needs.filter(function (n) { return n.avg > 0; });
+    // Fallback, falls noch keine Hautanalyse-Antworten vorliegen: die (aus computeNeeds())
+    // relativ höchste Priorität wird trotzdem als Ausgangspunkt gezeigt, statt eine leere
+    // Liste — needReason() markiert diesen Fall bereits als "geringe Ausprägung".
+    if (!list.length) list = needs[0] ? [needs[0]] : [{ need: 'Hydration', avg: 0 }];
+    return list.map(function (n, i) {
       var info = NEED_INFO[n.need];
       return { prio: i + 1, need: n.need, behandlung: info.behandlung, dauer: info.dauer, preis: info.preis };
     });
@@ -1964,18 +1939,18 @@
   }
 
   function renderStrategy() {
-    var p = computeProgram();
+    var plan = getPlan();
     var body = '' +
       '<p class="eyebrow">Beauty Strategy</p>' +
       '<h1 class="q">Die fachliche Strategie</h1>' +
       '<div class="summary-list">' +
         '<div class="summary-row"><span class="k">Kundenziel</span><span class="v">' + esc(zielText()) + '</span></div>' +
-        '<div class="summary-row"><span class="k">Programm</span><span class="v">' + esc(p.family.name) + '</span></div>' +
-        '<div class="summary-row"><span class="k">Hauptpriorität</span><span class="v">' + (p.phase1 ? esc(p.phase1.need) : '—') + '</span></div>' +
-        (p.phase2 ? '<div class="summary-row"><span class="k">Zweite Priorität (im Programm)</span><span class="v">' + esc(p.phase2.need) + '</span></div>' : '') +
-        (p.watch ? '<div class="summary-row"><span class="k">Ebenfalls beobachten</span><span class="v">' + esc(p.watch.need) + '</span></div>' : '') +
+        '<div class="summary-row"><span class="k">Programm</span><span class="v">' + esc(plan.family.name) + '</span></div>' +
+        plan.ranked.map(function (r) {
+          return '<div class="summary-row"><span class="k">Prio ' + r.prio + '</span><span class="v">' + esc(r.need) + '</span></div>';
+        }).join('') +
       '</div>' +
-      '<p class="sub">Begründung Hauptpriorität: ' + esc(needReason(p.phase1 ? p.phase1.need : 'Hydration')) + '</p>' +
+      '<p class="sub">Begründung Hauptpriorität: ' + esc(needReason(plan.ranked[0].need)) + '</p>' +
       '<div class="footer-actions">' +
         '<button class="btn-primary" onclick="__bb.goTo(\'empfehlungen\')">Weiter zu den Empfehlungen</button>' +
       '</div>';
@@ -1983,20 +1958,23 @@
   }
 
   function renderEmpfehlungen() {
-    var p = computeProgram();
-    var i1 = NEED_INFO[p.phase1.need];
-    var i2 = p.phase2 ? NEED_INFO[p.phase2.need] : null;
-    var iw = p.watch ? NEED_INFO[p.watch.need] : null;
+    var plan = getPlan();
+    var i1 = NEED_INFO[(plan.active[0] || plan.ranked[0]).need];
+    var i2 = plan.active[1] ? NEED_INFO[plan.active[1].need] : i1;
 
-    function phaseCard(kicker, title, needName, info, key) {
-      var st = STATE.rec[key];
+    // Jede zur Hautanalyse passende Behandlung steht gleichwertig zur Wahl, ohne erzwungene
+    // Phase-1/Phase-2/Beobachten-Rolle — die Mitarbeiterin entscheidet per Klick, welche
+    // davon tatsächlich übernommen werden.
+    function behandlungCard(r) {
+      var st = behandlungStatus(r.need);
+      var removed = st === 'entfernt';
       return '<div class="rec-card">' +
-        '<span class="rec-kicker">' + kicker + '</span>' +
-        '<span class="rec-name" style="' + (st === 'entfernt' ? 'text-decoration:line-through;opacity:.5' : '') + '">' + esc(info.behandlung) + '</span>' +
-        '<span style="font-size:.8125rem;color:var(--text-soft)">' + esc([info.dauer, info.preis].filter(Boolean).join(' · ')) + '</span>' +
-        '<p class="sub" style="margin:0;font-size:.8125rem">' + esc(title) + ' · ' + esc(needReason(needName)) + '</p>' +
+        '<span class="rec-kicker">Prio ' + r.prio + '</span>' +
+        '<span class="rec-name" style="' + (removed ? 'text-decoration:line-through;opacity:.5' : '') + '">' + esc(r.behandlung) + '</span>' +
+        '<span style="font-size:.8125rem;color:var(--text-soft)">' + esc([r.dauer, r.preis].filter(Boolean).join(' · ')) + '</span>' +
+        '<p class="sub" style="margin:0;font-size:.8125rem">' + esc(needReason(r.need)) + '</p>' +
         '<div class="rec-toggle">' +
-          '<button class="' + (st === 'aktiv' ? 'active' : '') + '" onclick="__bb.select(\'rec-toggle\',\'' + key + '\')">' + (st === 'aktiv' ? 'Übernommen' : st === 'ersetzt' ? 'Ausgetauscht' : 'Entfernt') + '</button>' +
+          '<button class="' + (removed ? '' : 'active') + '" onclick="__bb.select(\'behandlung-toggle\',\'' + r.need + '\')">' + (removed ? 'Entfernt' : 'Übernommen') + '</button>' +
         '</div></div>';
     }
 
@@ -2076,23 +2054,19 @@
       '</div>';
     }
 
-    var kurSlots = kurDefaultSlots(getPlan());
-    var ranked = rankedTreatmentOptions();
+    var ranked = plan.ranked;
+    var kurSlots = kurDefaultSlots(plan);
     RANKED_TREATMENTS = ranked;
     var asaWarning = kurAsaWarning(kurSlots);
 
     var body = '' +
-      '<p class="eyebrow">Empfehlungen · Programm: ' + esc(p.family.name) + '</p>' +
+      '<p class="eyebrow">Empfehlungen · Programm: ' + esc(plan.family.name) + '</p>' +
       '<h1 class="q">Behandlungsplan zur Prüfung</h1>' +
-      '<p class="sub">Antippen wechselt zwischen Übernehmen / Austauschen / Entfernen.</p>' +
+      '<p class="sub">Alle zur Hautanalyse passenden Behandlungen — antippen zum Übernehmen/Entfernen. Du entscheidest, welche gewählt werden.</p>' +
       '<h3 class="section-label">Behandlungen</h3>' +
-      '<div class="grid cols-2">' +
-        phaseCard('Phase 1 · Jetzt', 'Hauptpriorität', p.phase1.need, i1, 'phase1') +
-        (p.phase2 ? phaseCard('Phase 2 · Nächster Schritt', 'Im selben Programm', p.phase2.need, i2, 'phase2') : '') +
-        (p.watch ? phaseCard('Ebenfalls beobachten', 'Separates Thema, nicht Teil dieses Programms', p.watch.need, iw, 'watch') : '') +
+      '<div class="grid cols-3">' +
+        ranked.map(behandlungCard).join('') +
       '</div>' +
-      (ranked.length ? '<p class="sub" style="margin-top:.6rem">Alle passenden Behandlungen zur aktuellen Hautanalyse, priorisiert: ' +
-        ranked.map(function (r) { return 'Prio ' + r.prio + ' ' + esc(r.behandlung); }).join(' · ') + '</p>' : '') +
       '<h3 class="section-label">6-Monats-Kurplan</h3>' +
       '<p class="sub" style="margin-top:-.4rem">Ein Termin pro Monat — Hauptbehandlung als Rückgrat, an zwei Terminen zur Auflockerung die zweite Priorität. Struktur, Häufigkeit und Reihenfolge frei anpassbar.</p>' +
       (asaWarning ? '<div class="kur-warning">⚠ ' + esc(asaWarning) + '</div>' : '') +
@@ -2116,8 +2090,8 @@
 
   function renderBlueprint() {
     var plan = getPlan();
-    var i1 = displayInfo(plan.phase1);
-    var i2 = plan.phase2 ? displayInfo(plan.phase2) : i1;
+    var i1 = NEED_INFO[(plan.active[0] || plan.ranked[0]).need];
+    var i2 = plan.active[1] ? NEED_INFO[plan.active[1].need] : i1;
     var homeAM = homecareInfoFor('am', i1);
     var homePM = homecareInfoFor('pm', i2);
     var homecareRow = !homeAM && !homePM ? 'Entfernt' :
@@ -2125,6 +2099,9 @@
     var kurRows = kurDefaultSlots(plan).map(function (baseInfo, idx) {
       var info = kurInfoFor(idx, baseInfo);
       return '<div class="summary-row"><span class="k">Monat ' + (idx + 1) + '</span><span class="v">' + esc(info ? treatLine(info) : 'Entfernt') + '</span></div>';
+    }).join('');
+    var behandlungRows = plan.active.map(function (r) {
+      return '<div class="summary-row"><span class="k">Priorität ' + r.prio + '</span><span class="v">' + esc(treatLine(r)) + '</span></div>';
     }).join('');
     var body = '' +
       '<img class="brand-logo md" src="' + LOGO_SRC + '" alt="Beauty Lounge" />' +
@@ -2134,9 +2111,7 @@
       '<hr class="divider"/>' +
       '<div class="summary-list">' +
         '<div class="summary-row"><span class="k">Programm</span><span class="v">' + esc(plan.family.name) + '</span></div>' +
-        '<div class="summary-row"><span class="k">Phase 1 · Jetzt</span><span class="v">' + esc(treatLine(i1)) + '</span></div>' +
-        (plan.phase2 ? '<div class="summary-row"><span class="k">Phase 2 · Nächster Schritt</span><span class="v">' + esc(treatLine(i2)) + '</span></div>' : '') +
-        (plan.watch ? '<div class="summary-row"><span class="k">Ebenfalls beobachten</span><span class="v">' + esc(treatLine(displayInfo(plan.watch))) + '</span></div>' : '') +
+        (behandlungRows || '<div class="summary-row"><span class="k">Behandlung</span><span class="v">Keine ausgewählt</span></div>') +
         '<div class="summary-row"><span class="k">Nächster Checkpoint</span><span class="v">in 4 Wochen</span></div>' +
         '<div class="summary-row"><span class="k">Homecare</span><span class="v">' + esc(homecareRow) + '</span></div>' +
       '</div>' +
