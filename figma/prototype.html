@@ -528,14 +528,22 @@
     { key: 'vorbehandlungen', frage: 'Gab es bereits professionelle Behandlungen?', type: 'yesno' }
   ];
   var DEFAULT_SAFETY_ITEMS = [
-    { key: 'schwanger', frage: 'Schwangerschaft oder Stillzeit?', risk: 'rot' },
-    { key: 'medikamente', frage: 'Einnahme bestimmter Medikamente?', risk: 'gelb' },
-    { key: 'allergien', frage: 'Bekannte Allergien?', risk: 'gelb' },
-    { key: 'hautveraenderung', frage: 'Akute Hautveränderungen?', risk: 'gelb' },
-    { key: 'offeneStellen', frage: 'Offene Stellen im Behandlungsbereich?', risk: 'rot' },
-    { key: 'frischeBehandlung', frage: 'Frische medizinische oder kosmetische Behandlung?', risk: 'gelb' },
-    { key: 'sonnenexposition', frage: 'Starke Sonnenexposition in den letzten Tagen?', risk: 'gelb' },
-    { key: 'unvertraeglichkeit', frage: 'Bekannte Unverträglichkeiten?', risk: 'gelb' }
+    { key: 'schwanger', frage: 'Schwangerschaft oder Stillzeit?', risk: 'rot',
+      hinweis: 'Viele Wirkstoffe (z. B. Fruchtsäure, Retinoide) und Geräte (z. B. Radiofrequenz, Laser) sind in Schwangerschaft/Stillzeit nicht freigegeben.' },
+    { key: 'medikamente', frage: 'Einnahme bestimmter Medikamente?', risk: 'gelb',
+      hinweis: 'Manche Medikamente (z. B. Blutverdünner, Retinoide, Antibiotika) verändern die Verträglichkeit einzelner Behandlungen.' },
+    { key: 'allergien', frage: 'Bekannte Allergien?', risk: 'gelb',
+      hinweis: 'Prüfen, ob verwendete Inhaltsstoffe oder Produkte die genannte Allergie betreffen könnten.' },
+    { key: 'hautveraenderung', frage: 'Akute Hautveränderungen?', risk: 'gelb',
+      hinweis: 'Akute Veränderungen (z. B. Ausschlag, Entzündung, Ekzem) sollten vor einer Behandlung fachlich abgeklärt werden.' },
+    { key: 'offeneStellen', frage: 'Offene Stellen im Behandlungsbereich?', risk: 'rot',
+      hinweis: 'Offene Haut erhöht bei den meisten Behandlungen das Infektions- und Reizungsrisiko deutlich.' },
+    { key: 'frischeBehandlung', frage: 'Frische medizinische oder kosmetische Behandlung?', risk: 'gelb',
+      hinweis: 'Empfohlenen Mindestabstand zur vorherigen Behandlung prüfen, bevor eine neue Behandlung stattfindet.' },
+    { key: 'sonnenexposition', frage: 'Starke Sonnenexposition in den letzten Tagen?', risk: 'gelb',
+      hinweis: 'Erhöhtes Risiko für Pigmentstörungen oder verstärkte Reizung, z. B. bei Fruchtsäure- oder Needling-Behandlungen.' },
+    { key: 'unvertraeglichkeit', frage: 'Bekannte Unverträglichkeiten?', risk: 'gelb',
+      hinweis: 'Bekannte Reaktionen auf bestimmte Inhaltsstoffe oder Geräte mit der geplanten Behandlung abgleichen.' }
   ];
   var DEFAULT_ANALYSE_ITEMS = [
     { key: 'feuchtigkeit', label: 'Feuchtigkeitsmangel', need: 'Hydration' },
@@ -664,7 +672,7 @@
     }).catch(function (e) { console.warn('Lifestyle-Sheet konnte nicht geladen werden, nutze Standardwerte.', e); }));
 
     if (SHEET_CONFIG.sicherheitscheck) tasks.push(fetchSheet(SHEET_CONFIG.sicherheitscheck).then(function (rows) {
-      var r = rows.filter(isActive).map(function (row) { return { key: row.key, frage: row.frage, risk: row.risiko }; });
+      var r = rows.filter(isActive).map(function (row) { return { key: row.key, frage: row.frage, risk: row.risiko, hinweis: row.hinweis || '' }; });
       if (r.length) SAFETY_ITEMS = r;
     }).catch(function (e) { console.warn('Sicherheitscheck-Sheet konnte nicht geladen werden, nutze Standardwerte.', e); }));
 
@@ -918,24 +926,42 @@
     screenWrap('neutral', phasePercent(phase, idx, items.length), contextLabel(), body, true);
   }
 
-  function computeRisk() {
+  function computeRiskDetails() {
     var maxRisk = 'gruen';
+    var triggers = [];
     SAFETY_ITEMS.forEach(function (it) {
       if (STATE.sicherheit[it.key] === 'Ja') {
+        triggers.push(it);
         if (it.risk === 'rot') maxRisk = 'rot';
         else if (it.risk === 'gelb' && maxRisk !== 'rot') maxRisk = 'gelb';
       }
     });
-    return maxRisk;
+    triggers.sort(function (a, b) { return (a.risk === 'rot' ? 0 : 1) - (b.risk === 'rot' ? 0 : 1); });
+    return { level: maxRisk, triggers: triggers };
   }
 
+  var RISK_EXPLAIN = {
+    gruen: 'Keiner der geprüften Punkte wurde bejaht. Die Behandlung kann wie geplant vorbereitet werden.',
+    gelb: 'Mindestens ein Punkt erfordert deine fachliche Einschätzung, bevor du die Behandlung bestätigst — sieh dir die Gründe unten an und entscheide, ob die Behandlung wie geplant, angepasst oder verschoben werden sollte.',
+    rot: 'Mindestens ein Ausschlusskriterium liegt vor. Diese Behandlung darf ohne Rücksprache (z. B. mit der Studioleitung) nicht automatisch freigegeben werden.'
+  };
+
   function renderSicherheitSummary() {
-    var risk = computeRisk();
-    var label = { gruen: 'Grundsätzlich geeignet', gelb: 'Fachlich prüfen', rot: 'Keine automatische Freigabe' }[risk];
+    var d = computeRiskDetails();
+    var label = { gruen: 'Grundsätzlich geeignet', gelb: 'Fachlich prüfen', rot: 'Keine automatische Freigabe' }[d.level];
     var body = '' +
       '<p class="eyebrow">Sicherheitscheck · Ergebnis</p>' +
       '<h1 class="q">Sicherheitsstufe</h1>' +
-      '<div class="badge ' + risk + '"><span class="dot2"></span>' + label + '</div>' +
+      '<div class="badge ' + d.level + '"><span class="dot2"></span>' + label + '</div>' +
+      '<p class="sub" style="margin-top:.9rem">' + RISK_EXPLAIN[d.level] + '</p>' +
+      (d.triggers.length ? '<div class="summary-list" style="margin-top:.5rem">' +
+        d.triggers.map(function (t) {
+          return '<div class="summary-row" style="align-items:flex-start;flex-direction:column;gap:.25rem">' +
+            '<span class="badge ' + t.risk + '" style="margin:0"><span class="dot2"></span>' + esc(t.frage) + '</span>' +
+            '<span class="k" style="font-size:.8125rem">' + esc(t.hinweis || '') + '</span>' +
+          '</div>';
+        }).join('') +
+      '</div>' : '') +
       '<p class="sub" style="margin-top:1rem;">Die endgültige Entscheidung bleibt bei dir — das System schlägt nur vor.</p>' +
       '<div class="footer-actions">' +
         '<button class="btn-primary" onclick="__bb.goTo(\'analyse:0\')">Weiter zur Hautanalyse</button>' +

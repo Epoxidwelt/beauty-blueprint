@@ -43,12 +43,12 @@ Bleibt eine URL leer, nutzt der Prototyp für dieses Tabellenblatt weiter die ei
 `typ` ist entweder `yesno` (Ja/Nein) oder `scale3` (drei Stufen, in `optionen` kommagetrennt).
 
 ### 5. Sicherheitscheck
-| key | frage | risiko | aktiv |
-|---|---|---|---|
-| schwanger | Schwangerschaft oder Stillzeit? | rot | ja |
-| allergien | Bekannte Allergien? | gelb | ja |
+| key | frage | risiko | hinweis | aktiv |
+|---|---|---|---|---|
+| schwanger | Schwangerschaft oder Stillzeit? | rot | Viele Wirkstoffe und Geräte sind in Schwangerschaft/Stillzeit nicht freigegeben. | ja |
+| allergien | Bekannte Allergien? | gelb | Prüfen, ob verwendete Inhaltsstoffe die genannte Allergie betreffen könnten. | ja |
 
-`risiko` ist `gruen`, `gelb` oder `rot` — greift, wenn die Mitarbeiterin diese Frage mit "Ja" beantwortet (siehe Sicherheitsstufen, Abschnitt 6 der Projektbeschreibung).
+`risiko` ist `gruen`, `gelb` oder `rot` — greift, wenn die Mitarbeiterin diese Frage mit "Ja" beantwortet (siehe Sicherheitsstufen, Abschnitt 6 der Projektbeschreibung). `hinweis` ist die kurze fachliche Begründung, die der Mitarbeiterin auf dem Ergebnis-Screen zusammen mit der Frage angezeigt wird, damit die Einstufung nachvollziehbar ist und schneller entschieden werden kann — nicht nur die Farbe, sondern auch das "Warum".
 
 ### 6. Hautanalyse
 | key | label | need | aktiv |
