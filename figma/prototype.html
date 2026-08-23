@@ -1,4 +1,5 @@
 <meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
 <title>Beauty Blueprint — Klickbarer Prototyp</title>
 <style>
   @font-face {
@@ -113,8 +114,8 @@
   .topbar {
     display: flex;
     align-items: center;
-    gap: 0.9rem;
-    padding: 0.9rem 1.3rem 0.6rem;
+    gap: 0.7rem;
+    padding: 1rem 1.3rem 0.3rem;
     flex-shrink: 0;
   }
   .back-btn {
@@ -130,29 +131,43 @@
   }
   .back-btn:hover { border-color: var(--border-strong); }
   .back-btn[disabled] { visibility: hidden; }
-
-  .progress-track {
-    flex: 1;
-    height: 3px;
-    background: rgba(42,38,34,0.1);
-    border-radius: 3px;
-    overflow: hidden;
-  }
-  .progress-fill {
-    height: 100%;
-    background: var(--rose-deep);
-    border-radius: 3px;
-    transition: width .4s ease;
+  .topbar-logo { height: 26px; width: auto; flex-shrink: 0; }
+  .topbar-spacer { flex: 1; }
+  .topbar-right { display: flex; flex-direction: column; align-items: flex-end; gap: 0.15rem; }
+  .step-label {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-soft);
+    white-space: nowrap;
   }
   .context-label {
-    font-size: 0.6875rem;
+    font-size: 0.625rem;
     color: var(--text-soft);
+    opacity: 0.75;
     white-space: nowrap;
     flex-shrink: 0;
     max-width: 9rem;
     overflow: hidden;
     text-overflow: ellipsis;
   }
+
+  .stepper {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1.6rem 1.1rem;
+    flex-shrink: 0;
+  }
+  .stepper .seg { flex: 1; height: 1px; background: var(--border-strong); }
+  .stepper .step-dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--surface-raised);
+    border: 1.5px solid var(--border-strong);
+    flex-shrink: 0;
+    transition: all .2s ease;
+  }
+  .stepper .step-dot.done { background: var(--rose); border-color: var(--rose); }
+  .stepper .step-dot.current { width: 13px; height: 13px; background: var(--rose-deep); border-color: var(--rose-deep); }
 
   .content {
     flex: 1;
@@ -183,14 +198,15 @@
   }
   .section-label:first-of-type { margin-top: 0.9rem; padding-top: 0; border-top: none; }
   h1.q, h2.q {
-    font-family: var(--font-display);
-    font-weight: 500;
+    font-family: var(--font-body);
+    font-weight: 800;
+    letter-spacing: -0.01em;
     color: var(--text);
     margin: 0 0 1.1rem;
     text-wrap: balance;
-    line-height: 1.25;
+    line-height: 1.2;
   }
-  h1.q { font-size: 1.9rem; }
+  h1.q { font-size: 1.75rem; }
   h2.q { font-size: 1.35rem; }
   p.sub {
     font-size: 0.875rem;
@@ -439,6 +455,19 @@
   }
   .rec-toggle button.active { background: var(--anthrazit); color: var(--warmweiss); border-color: var(--anthrazit); }
 
+  .product-search { margin-top: 0.3rem; padding-top: 0.6rem; border-top: 1px solid var(--border); }
+  .product-search .text-input { font-size: 0.875rem; padding: 0.55rem 0.7rem; }
+  .product-results { display: flex; flex-direction: column; gap: 0.15rem; margin-top: 0.4rem; max-height: 220px; overflow-y: auto; }
+  .product-result {
+    display: flex; justify-content: space-between; align-items: center; gap: 0.6rem;
+    width: 100%; text-align: left;
+    font-family: var(--font-body); font-size: 0.8125rem; color: var(--text);
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 0.5rem 0.65rem; cursor: pointer;
+  }
+  .product-result:hover, .product-result:focus { border-color: var(--rose-deep); background: var(--surface-raised); }
+  .product-result span:first-child { flex: 1; }
+
   .blueprint-hero {
     font-family: var(--font-display);
     font-size: 2rem;
@@ -585,6 +614,376 @@
     'Radiance': { behandlung: 'MicroDerm meets AquaDerm', dauer: '80 Min.', preis: '199 €', product: 'CAVIAR POWER Cream Day 50 ml', produktpreis: '95,90 €' }
   };
 
+  // Vollständiger Homecare-Produktkatalog (Quelle: Studiolution-Produktexport,
+  // siehe docs/knowledge-base/produktkatalog.md) — Basis für die Produktsuche
+  // beim Austauschen der Morgens-/Abends-Empfehlung in den Empfehlungen.
+  var ALL_PRODUCTS = [
+    { name: '7 Tage Ampullen Kur', preis: '18,90 €' },
+    { name: 'A CLASSIC Body Lotion 200 ml', preis: '32,20 €' },
+    { name: 'A CLASSIC Cream 50 ml', preis: '76,60 €' },
+    { name: 'A CLASSIC Cream Eye Care 15 ml', preis: '39,90 €' },
+    { name: 'A CLASSIC Cream Micro Retinol Soft 30 ml', preis: '41,10 €' },
+    { name: 'A CLASSIC Cream Neck & Décolleté 50 ml', preis: '74,60 €' },
+    { name: 'A CLASSIC Cream Ultra 50 ml', preis: '57,20 €' },
+    { name: 'A CLASSIC Cream Ultra 50ml', preis: '69,10 €' },
+    { name: 'A Classic Face Care Set', preis: '100,70 €' },
+    { name: 'A CLASSIC Facial Oil with Retinol 30 ml', preis: '73,90 €' },
+    { name: 'A CLASSIC Fluid Retinol Pure 30 ml', preis: '68,70 €' },
+    { name: 'A CLASSIC Hydrogel Eye Patches 5 x 2 Stück', preis: '13,10 €' },
+    { name: 'A Classic Iconics Birthday Set', preis: '119,90 €' },
+    { name: 'A CLASSIC Mask Effect 50 ml', preis: '66,00 €' },
+    { name: 'A CLASSIC Mask Hydrogel Face 3 Stück', preis: '24,00 €' },
+    { name: 'A CLASSIC Revital Serum 30 ml', preis: '77,70 €' },
+    { name: 'A. MEDICAL Serum Acne Regulation 30 ml', preis: '58,80 €' },
+    { name: 'A. MEDICAL Serum Capillary Restoring 30 ml', preis: '58,80 €' },
+    { name: 'A. MEDICAL Serum Collagen Dermis Rebuilder 30 ml', preis: '58,80 €' },
+    { name: 'A. MEDICAL Serum Moisturizer Booster 30 ml', preis: '58,80 €' },
+    { name: 'A. MEDICAL Serum Skin Calming 30 ml', preis: '58,80 €' },
+    { name: 'A. MEDICAL Serum Stem Cell Booster 30 ml', preis: '58,80 €' },
+    { name: 'A. MEDICAL Serum Tyrosinase Reduction 30 ml', preis: '58,80 €' },
+    { name: 'Adventkalender 45 years', preis: '89,90 €' },
+    { name: 'After Sun Gel 200ml', preis: '29,90 €' },
+    { name: 'After Sun Tan Maximizer', preis: '32,90 €' },
+    { name: 'After Sun, Tube 200 ml', preis: '25,90 €' },
+    { name: 'Aloe Vera Cream 15ml', preis: '10,90 €' },
+    { name: 'Aloe Vera Face Care Set', preis: '24,90 €' },
+    { name: 'Aloe Vera Gel 15ml', preis: '10,90 €' },
+    { name: 'Aloe Vera Sheet Maske', preis: '29,70 €' },
+    { name: 'Aloe Vera Skin Care Set', preis: '44,90 €' },
+    { name: 'Alternative Medical Moisturizing Chin Mask 1 Stück', preis: '9,90 €' },
+    { name: 'ASA PEEL Cream Care 30 ml', preis: '45,90 €' },
+    { name: 'ASA PEEL Serum 30 ml', preis: '49,80 €' },
+    { name: 'BB Facial Sunscreen 50 SPF', preis: '38,30 €' },
+    { name: 'BC Anti-Aging Serum + Vitamin A 30 Stück', preis: '20,50 €' },
+    { name: 'BC Moisturizing Serum + ProVitamin B 5 30 Stück', preis: '20,50 €' },
+    { name: 'BC Protecting Serum + Vitamin E 30 Stück', preis: '20,50 €' },
+    { name: 'BC Skin-Refining Serum + Vitamin C 30 Stück', preis: '20,50 €' },
+    { name: 'BEAUTY SECRETS Ultra Lift Serum', preis: '72,50 €' },
+    { name: 'BEAUTY SECRETS Ultra Lift Set', preis: '72,50 €' },
+    { name: 'BETA GLUCAN Cream 24h 50 ml', preis: '53,60 €' },
+    { name: 'BETA GLUCAN Milk Cleansing 150 ml', preis: '20,60 €' },
+    { name: 'BETA GLUCAN Tonic 150 ml', preis: '20,60 €' },
+    { name: 'C PURE Cleanser Foam 200 ml', preis: '25,20 €' },
+    { name: 'C PURE Cream Complete 50 ml', preis: '67,90 €' },
+    { name: 'C PURE Fluid 50 ml', preis: '56,60 €' },
+    { name: 'C PURE Foam Tonic 200 ml', preis: '25,20 €' },
+    { name: 'C Pure Jubiläums ICONICS Box', preis: '76,90 €' },
+    { name: 'C PURE Power Set', preis: '10,90 €' },
+    { name: 'C PURE Treatment Eyezone 15 ml', preis: '32,90 €' },
+    { name: 'CASHMERE Body Butter', preis: '33,10 €' },
+    { name: 'Cashmere Body Butter Xmas', preis: '29,90 €' },
+    { name: 'Caviar Imperial EXCLUSIV BOX Black', preis: '189,90 €' },
+    { name: 'Caviar Imperial Exclusive Box White', preis: '189,90 €' },
+    { name: 'CAVIAR POWER Care Eye Roll-On 10 ml', preis: '35,40 €' },
+    { name: 'CAVIAR POWER Cream Day 50 ml', preis: '95,90 €' },
+    { name: 'CAVIAR POWER Cream Night 50 ml', preis: '89,40 €' },
+    { name: 'Caviar Power Day&Night Duo', preis: '294,50 €' },
+    { name: 'CAVIAR POWER Eye Care Liquid Serum 5 x 3 ml', preis: '49,20 €' },
+    { name: 'CAVIAR POWER Imperial 24H Jelly Cream 30 ml', preis: '42,60 €' },
+    { name: 'CAVIAR POWER Imperial 24H Jelly Cream 50 ml', preis: '97,10 €' },
+    { name: 'CAVIAR POWER Imperial 24H White Creme 50 ml', preis: '99,00 €' },
+    { name: 'Caviar Power Imperial White Cream Serum', preis: '276,90 €' },
+    { name: 'CAVIAR POWER IMPERIAL WHITE SERUM 40 ml', preis: '149,30 €' },
+    { name: 'CAVIAR POWER Mask 50 ml', preis: '53,90 €' },
+    { name: 'CAVIAR POWER Milk Cleansing 200 ml', preis: '27,90 €' },
+    { name: 'CAVIAR POWER Serum 50ml mit Stör', preis: '77,30 €' },
+    { name: 'CAVIAR Power Serum Imperial Black 40 ml', preis: '145,20 €' },
+    { name: 'CAVIAR POWER Tonic 200 ml', preis: '27,90 €' },
+    { name: 'CC Emulsion Surgery Light - Finish 50 ml', preis: '64,30 €' },
+    { name: 'CC Surgery - Eye Zone - Couperose Serum 30 ml', preis: '64,30 €' },
+    { name: 'CC Surgery-Cell Boost 40+-Cell Energy Serum 30 ml', preis: '64,30 €' },
+    { name: 'CC Surgery-Regeneration 60+-Rebuild Serum 30 ml', preis: '64,30 €' },
+    { name: 'CC Surgery-Restructure 50+-Regeneration Serum 30ml', preis: '64,30 €' },
+    { name: 'Cell Pro Balancing Face Cream', preis: '49,00 €' },
+    { name: 'Cell Pro Balancing Serum', preis: '54,00 €' },
+    { name: 'Cell Pro Body Age Body Lotion', preis: '24,90 €' },
+    { name: 'Cell Pro Body Coffee Scrub', preis: '27,90 €' },
+    { name: 'Cell Pro Body hand Cream', preis: '10,90 €' },
+    { name: 'Cell Pro Body Hydrating Wash', preis: '19,90 €' },
+    { name: 'Cell Pro Eye Cream', preis: '54,00 €' },
+    { name: 'Cell Pro Firming Face Cream', preis: '69,00 €' },
+    { name: 'Cell Pro Firming Serum', preis: '74,00 €' },
+    { name: 'Cell Pro Firming Xmas Set (2024)', preis: '89,90 €' },
+    { name: 'Cell Pro Hals & Dekollete Cream', preis: '64,00 €' },
+    { name: 'Cell Pro Ionics Birthday Set', preis: '144,90 €' },
+    { name: 'Cell Pro Lifting Face Cream', preis: '89,00 €' },
+    { name: 'Cell Pro Lifting Serum', preis: '94,00 €' },
+    { name: 'Cell Pro Lifting XMas Set', preis: '129,90 €' },
+    { name: 'Cell Pro Overnight Mask', preis: '74,00 €' },
+    { name: 'CLEAN & ACTIVE Cleansing Lotion 250 ml', preis: '24,90 €' },
+    { name: 'CLEAN & ACTIVE Gel Cleansing 250 ml', preis: '26,30 €' },
+    { name: 'CLEAN & ACTIVE Lotion Exfoliator Dry Skin 250 ml', preis: '22,90 €' },
+    { name: 'CLEAN & ACTIVE Lotion Exfoliator Oily Skin 250 ml', preis: '22,90 €' },
+    { name: 'CLEAN & ACTIVE Micro Peeling VK 50 ml', preis: '26,90 €' },
+    { name: 'CLEAN & ACTIVE PEELING ENZYME 50 ml', preis: '26,90 €' },
+    { name: 'CLEAN & ACTIVE Tonic with Alcohol 250 ml', preis: '24,90 €' },
+    { name: 'CLEAN & ACTIVE Tonic without Alcohol 250 ml', preis: '24,90 €' },
+    { name: 'Cleansing & Skin Care Set', preis: '109,90 €' },
+    { name: 'Cleansing Balm 50ml', preis: '38,90 €' },
+    { name: 'Cleansing Foam', preis: '27,90 €' },
+    { name: 'Cleansing Foam 30ml', preis: '7,90 €' },
+    { name: 'Cleansing Foam Reisegröße 50 ml', preis: '7,00 €' },
+    { name: 'Cleansing Gel 200ml', preis: '26,80 €' },
+    { name: 'Cleansing Lotion 75ml', preis: '7,90 €' },
+    { name: 'Cleansing Milk 200ml', preis: '30,00 €' },
+    { name: 'Cleansing Milk Sensitiv 200ml', preis: '34,90 €' },
+    { name: 'CLINICAL CARE 3 Step Home Peeling Treatment 3 Beh.', preis: '21,30 €' },
+    { name: 'CLINICAL CARE Emulsion Surg. Rich-Finish 50 ml', preis: '64,30 €' },
+    { name: 'CollaGen 24h Creme 50 ml', preis: '72,50 €' },
+    { name: 'CollaGen 24h Creme rich 50 ml', preis: '74,60 €' },
+    { name: 'CollaGen Eye Care Cream 20 ml', preis: '51,50 €' },
+    { name: 'CollaGen Refill Set', preis: '36,30 €' },
+    { name: 'CollaGen Starterset', preis: '30,50 €' },
+    { name: 'CS III 3 Step Home Treatment 3 Beh.', preis: '21,30 €' },
+    { name: 'CS III Cream 50 ml', preis: '69,90 €' },
+    { name: 'CS III CREAMFLUID EYEZONE 20 ml', preis: '46,20 €' },
+    { name: 'CS III Gel Timeless Transfer Lift 50 ml', preis: '81,20 €' },
+    { name: 'CUVEE PRESTIGE Concentrate Luminous Serum 50 ml', preis: '93,50 €' },
+    { name: 'CUVEE PRESTIGE Eye Care Soft 15 ml', preis: '41,00 €' },
+    { name: 'CUVEE PRESTIGE Mousse 24h Cream 50 ml', preis: '93,50 €' },
+    { name: 'CUVEE PRESTIGE Mousse 24h Cream Rich 50 ml', preis: '93,50 €' },
+    { name: 'CUVEE PRESTIGE Mousse Facial Cleansing 2in1 100 ml', preis: '30,50 €' },
+    { name: 'CUVEE PRESTIGE Mousse Neck & Décolleté 50 ml', preis: '51,50 €' },
+    { name: 'Daily Beauty Boost 7 Tage Ampullen Kur', preis: '24,95 €' },
+    { name: 'Day Limited edition Ampoules', preis: '24,90 €' },
+    { name: 'Dermaroller Micro Needling Home Set', preis: '92,60 €' },
+    { name: 'Detox Serum', preis: '39,00 €' },
+    { name: 'DIAMOND Day & Night Cream 50 ml', preis: '99,90 €' },
+    { name: 'Diamond Day & Night Cream Rich 30ml', preis: '60,60 €' },
+    { name: 'Diamond Day&Night Cream Rich 30ml', preis: '60,60 €' },
+    { name: 'Diamond Exclusive Box', preis: '165,00 €' },
+    { name: 'DIAMOND Eye Care Cream 15 ml', preis: '59,90 €' },
+    { name: 'DIAMOND Serum Concentrate 50 ml', preis: '109,90 €' },
+    { name: 'Discovery Set Cleansing', preis: '19,90 €' },
+    { name: 'Discovery Set Cleansing BHA', preis: '18,90 €' },
+    { name: 'Effekt Mask', preis: '35,00 €' },
+    { name: 'Enzym peeling 15ml', preis: '7,90 €' },
+    { name: 'Enzym Peeling Balm 50ml', preis: '31,00 €' },
+    { name: 'Exo/Gen Restore Age Defense', preis: '59,90 €' },
+    { name: 'Exo/Gen Restore Clarify Cream', preis: '39,90 €' },
+    { name: 'Exo/Gen Restore Radiance Cream', preis: '59,90 €' },
+    { name: 'Exo/Gen soothing Shield Cream', preis: '49,90 €' },
+    { name: 'Eye Make up Remover 125ml', preis: '24,80 €' },
+    { name: 'eyeTECH Eyebrow Booster Serum 8 ml', preis: '76,10 €' },
+    { name: 'eyeTECH Lash Booster Serum 8 ml', preis: '76,10 €' },
+    { name: 'eyeTECH Star Fresh Work Out Fluid 15 ml', preis: '45,20 €' },
+    { name: 'Facial Suncream 30SPF 50ml', preis: '31,00 €' },
+    { name: 'Facial Suncream 50SPF 50ml', preis: '36,20 €' },
+    { name: 'Geschenk Set Amp.Kur CellPro', preis: '39,90 €' },
+    { name: 'Geschenk Set Glam Ampullen', preis: '11,90 €' },
+    { name: 'Geschenk Set Hand', preis: '12,90 €' },
+    { name: 'Geschenk Set Men', preis: '19,90 €' },
+    { name: 'Glam Stripes 2 x 2 Stück Ergänzungsprodukte', preis: '17,80 €' },
+    { name: 'Glow Peeling AHA+ BHA', preis: '37,90 €' },
+    { name: 'Glow Ritual Kit', preis: '38,90 €' },
+    { name: 'Glow Set', preis: '31,90 €' },
+    { name: 'Hangover Age Fight serum 15ml', preis: '18,00 €' },
+    { name: 'HC & CC Foundat. Dark 15 ml', preis: '35,00 €' },
+    { name: 'HC & CC Foundat. Dark Refill 15 ml', preis: '26,30 €' },
+    { name: 'Herbst Tasche  Hydration&Revival', preis: '39,90 €' },
+    { name: 'Herbst Tasche Calm & Clear', preis: '47,90 €' },
+    { name: 'Hot Chocolate Power Concentrate 3 x 2 ml', preis: '10,50 €' },
+    { name: 'Hyaluron Concentrate For Microneddling', preis: '37,90 €' },
+    { name: 'Hyaluron Hydration Edition', preis: '26,90 €' },
+    { name: 'Hyaluronic Booster 20ml', preis: '32,00 €' },
+    { name: 'HYALURONIC Care Eye Roll-on 10 ml', preis: '40,90 €' },
+    { name: 'Hyaluronic Colour &Care Foundat.Light Refill 15 ml', preis: '29,90 €' },
+    { name: 'Hyaluronic Colour&Care Foundat. Light 15 ml', preis: '39,90 €' },
+    { name: 'Hyaluronic Colour&Care Foundat. Medium 15 ml', preis: '39,90 €' },
+    { name: 'Hyaluronic Colour&Care Foundat.Medium Refill 15 ml', preis: '29,90 €' },
+    { name: 'HYALURONIC Cream Day & Night 50 ml', preis: '72,50 €' },
+    { name: 'Hyaluronic Day &Night Cream 15ml', preis: '21,50 €' },
+    { name: 'Hyaluronic Face Mist Spray', preis: '19,90 €' },
+    { name: 'HYALURONIC Face Protection Cream SPF 15 30 ml', preis: '31,00 €' },
+    { name: 'Hyaluronic Iconics Set', preis: '96,90 €' },
+    { name: 'Hyaluronic Mask 15ml', preis: '19,00 €' },
+    { name: 'HYALURONIC Mask 50 ml', preis: '59,90 €' },
+    { name: 'HYALURONIC Power Set', preis: '10,90 €' },
+    { name: 'Hyaluronic Power Set Ampullen', preis: '10,90 €' },
+    { name: 'HYALURONIC Serum Day & Night 50 ml', preis: '67,40 €' },
+    { name: 'Hyaluronic Set', preis: '42,00 €' },
+    { name: 'HYALURONIC Set Cream Day & Night 50ml & Serum 50ml', preis: '108,90 €' },
+    { name: 'Hyaluronic Skin Care Set Xmas', preis: '86,90 €' },
+    { name: 'Hyaluronic Triple Action  Moisture Eye Cream', preis: '29,90 €' },
+    { name: 'Hyaluronic Triple Action Moist. Power Trio Set', preis: '139,90 €' },
+    { name: 'Hyaluronic Triple Action Moisture Day&Night Cream', preis: '64,90 €' },
+    { name: 'Hyaluronic Triple Action Moisture Eye Couture Gel', preis: '35,90 €' },
+    { name: 'Hyaluronic Triple Action Moisture Serum 50ml', preis: '89,90 €' },
+    { name: 'Hyaluronic Triple Action Moisture Sheet Mask 3St.', preis: '29,70 €' },
+    { name: 'Hyaluronic Triple Action Moisturizing Booster', preis: '39,90 €' },
+    { name: 'Hydrogel Eye Patches rosa', preis: '9,00 €' },
+    { name: 'Hydrogel Eye Patches rot', preis: '9,00 €' },
+    { name: 'IMMUN Concentrate Aloe Vera Super Moisturizer 50ml', preis: '35,80 €' },
+    { name: 'IMMUN Couperose Cream 30 ml', preis: '38,00 €' },
+    { name: 'IMMUN Couperose Serum 30 ml', preis: '45,70 €' },
+    { name: 'IMMUN Cream Anti-Stress Pack 50 ml', preis: '32,30 €' },
+    { name: 'IMMUN Cream Daily Protection 50 ml', preis: '37,30 €' },
+    { name: 'IMMUN Cream Night Defense 50 ml', preis: '34,70 €' },
+    { name: 'IMMUN Cream Repair Concentrate 50 ml', preis: '39,60 €' },
+    { name: 'IMMUN Gel Gentle Eye Protection 30 ml', preis: '24,70 €' },
+    { name: 'IMMUN Gel Radical Moist Complex 50 ml', preis: '32,10 €' },
+    { name: 'IMMUN Patch Décolleté 1 Stück', preis: '9,90 €' },
+    { name: 'IMMUN SOS Balm 30 ml', preis: '25,80 €' },
+    { name: 'IMMUN SUN After Sun Aloe Vera Cream-Gel 200 ml', preis: '25,50 €' },
+    { name: 'IMMUN SUN After Sun Aloe Vera Mist 200 ml', preis: '25,50 €' },
+    { name: 'IMMUN SUN Body Protection Cream SPF 50, 200 ml', preis: '25,50 €' },
+    { name: 'IMMUN SUN BODY PROTECTION SPRAY SPF 50, 200 ml', preis: '25,50 €' },
+    { name: 'IMMUN SUN Face Foundation Cream SPF 50, 50 ml', preis: '25,50 €' },
+    { name: 'IMMUN SUN Face Protection Cream SPF 30, 50 ml', preis: '25,50 €' },
+    { name: 'IMMUN SUN Face Protection Cream SPF 50, 50 ml', preis: '25,50 €' },
+    { name: 'IMMUN SUN Protection Stick SPF 50', preis: '25,50 €' },
+    { name: 'IMMUN SUN Repair Concentrate 30 ml', preis: '25,50 €' },
+    { name: 'Invisible Face & Body Glow Spray', preis: '38,30 €' },
+    { name: 'KIWICHA Eye Contour Cream 15 ml', preis: '37,60 €' },
+    { name: 'KIWICHA Inca Gold Elixir 15 ml', preis: '40,90 €' },
+    { name: 'KIWICHA Night Cream 50 ml', preis: '43,10 €' },
+    { name: 'Klapp Adventskalender', preis: '125,00 €' },
+    { name: 'Klapp Adventskalender 2024', preis: '79,00 €' },
+    { name: 'Love Set -Augenpads-Ampulle-Maske', preis: '35,00 €' },
+    { name: 'Mask Hydra Flash 1 Stück', preis: '11,90 €' },
+    { name: 'MASK.LAB Aloe Vera Moisturizing Mask', preis: '10,00 €' },
+    { name: 'MASK.LAB Caviar Balance Mask 3 Stück', preis: '35,70 €' },
+    { name: 'MASK.LAB Collagen Lifting Mask', preis: '10,00 €' },
+    { name: 'MASK.LAB Hyaluron 7 Intensive Moisturizing Mask 3x', preis: '35,70 €' },
+    { name: 'MASK.LAB Hyaluron Push up Mask', preis: '10,00 €' },
+    { name: 'MASK.LAB Vitamin A/C Mask', preis: '10,00 €' },
+    { name: 'MEN Concentrate Soft & Smooth Beard & Skin 30 ml', preis: '43,00 €' },
+    { name: 'MEN Cream All Day Long 24h Hydro 50 ml', preis: '60,10 €' },
+    { name: 'MEN Face Care Set', preis: '59,90 €' },
+    { name: 'Men Face Care Set', preis: '41,80 €' },
+    { name: 'Men Face Care Set X-mas', preis: '41,80 €' },
+    { name: 'MEN Fluid Moist & Matt Oilfree 50 ml', preis: '53,90 €' },
+    { name: 'MEN Serum Hangover Age Fight 50 ml', preis: '62,10 €' },
+    { name: 'Men Set Xmas', preis: '59,90 €' },
+    { name: 'Moisturizing Foot Mask 1Stk.', preis: '7,50 €' },
+    { name: 'Niacinamid 10% Serum', preis: '39,90 €' },
+    { name: 'Niacinamid 20% Concentrate', preis: '44,90 €' },
+    { name: 'Niacinamide Sheet Maske', preis: '9,90 €' },
+    { name: 'OHA Toner Sensitive 200ml', preis: '34,90 €' },
+    { name: 'PHA Toner 200ml', preis: '30,00 €' },
+    { name: 'PHA Toner 50ml Sondergröße', preis: '8,50 €' },
+    { name: 'Power Concentrate Set 3x2ml', preis: '10,50 €' },
+    { name: 'Power Effect Bi-Phase 3er Ampullen Collagen', preis: '11,80 €' },
+    { name: 'Power Effect Bi-Phase 3er Ampullen Hyaluron', preis: '11,80 €' },
+    { name: 'Power Effect Bi-Phase 3er Ampullen Oxygen', preis: '11,80 €' },
+    { name: 'Power Effect Bi-Phase 3er Ampullen Regestril', preis: '11,80 €' },
+    { name: 'Power Effect Bi-Phase 3er Ampullen Retinol', preis: '11,80 €' },
+    { name: 'Power Effect Bi-Phase 3er Ampullen Vitamin C', preis: '11,80 €' },
+    { name: 'PSC Active Sebum Reducer Tonic 125 ml', preis: '21,60 €' },
+    { name: 'PSC Anti Septic Lotion 125 ml', preis: '17,90 €' },
+    { name: 'PSC Oil Free Lotion 30 ml', preis: '21,60 €' },
+    { name: 'PSC Sebum Cleansing Lotion 125 ml', preis: '21,60 €' },
+    { name: 'Purify & Balance Xmas Set', preis: '99,90 €' },
+    { name: 'Recharge Set', preis: '31,90 €' },
+    { name: 'Reduce Anti Couperose Ampullen', preis: '19,90 €' },
+    { name: 'REPAGEN BODY AHA Body Exfoliator 200 ml', preis: '34,70 €' },
+    { name: 'REPAGEN BODY Anti-Aging Moisturizing Hand Mask 3x', preis: '20,50 €' },
+    { name: 'REPAGEN BODY Body Box Deluxe', preis: '57,80 €' },
+    { name: 'REPAGEN BODY Body Box Shape', preis: '57,80 €' },
+    { name: 'REPAGEN BODY Body Box Slim', preis: '62,00 €' },
+    { name: 'REPAGEN BODY Body Scrub 200 ml', preis: '34,70 €' },
+    { name: 'REPAGEN BODY Cinnamon Cream 200 ml', preis: '49,90 €' },
+    { name: 'REPAGEN BODY Firming Lotion 200 ml', preis: '50,40 €' },
+    { name: 'Repagen Body Hand Maske 1 Stück', preis: '7,50 €' },
+    { name: 'REPAGEN BODY Ionic Brush', preis: '47,30 €' },
+    { name: 'REPAGEN BODY Luxury Cream 200 ml', preis: '50,40 €' },
+    { name: 'REPAGEN BODY Moisturizing Foot Mask 3 Stück', preis: '20,50 €' },
+    { name: 'REPAGEN BODY Thermo Gel 200 ml', preis: '47,30 €' },
+    { name: 'Repagen Exclusiv Serum 15ml', preis: '29,90 €' },
+    { name: 'Repagen Exclusiv Set', preis: '83,90 €' },
+    { name: 'REPAGEN EXCLUSIVE Cream Global Anti-Age 50 ml', preis: '121,30 €' },
+    { name: 'REPAGEN EXCLUSIVE Cream Rich Eye Care 15 ml', preis: '55,50 €' },
+    { name: 'Repagen Exclusive Face Care Set', preis: '75,00 €' },
+    { name: 'REPAGEN EXCLUSIVE Hand Care Cream 75 ml', preis: '24,90 €' },
+    { name: 'REPAGEN EXCLUSIVE Serum 50 ml', preis: '128,60 €' },
+    { name: 'REPAGEN® HS7_Hydra Eye Care Cream 20ml', preis: '72,50 €' },
+    { name: 'REPAGEN® HYALURON SELECTION 7_24h Hydra Cream 50ml', preis: '97,90 €' },
+    { name: 'REPAGEN® HYALURON SELECTION 7_Hydra Fluid 30 ml', preis: '62,00 €' },
+    { name: 'Resist Aging Retinol Xmas Set', preis: '109,90 €' },
+    { name: 'Retinol Pro Age Booster', preis: '59,90 €' },
+    { name: 'Retinol Renewal  Edition', preis: '28,90 €' },
+    { name: 'SanyShield Hygiene Handgel 100 ml', preis: '7,90 €' },
+    { name: 'SEA DELIGHT - Eye Care Mousse 15 ml', preis: '42,60 €' },
+    { name: 'SEA DELIGHT - Serum 50 ml', preis: '53,50 €' },
+    { name: 'SEA DELIGHT - Soft Body Peeling Blue-Lagoon 150 ml', preis: '16,30 €' },
+    { name: 'Skin Boost Aloe Vera 5 Ampullen Set', preis: '19,90 €' },
+    { name: 'Skin Boost Anti-Age Overnight 5 Ampullen', preis: '21,90 €' },
+    { name: 'Skin Boost Caviar 5 Ampullen Set', preis: '21,90 €' },
+    { name: 'Skin Boost Clarify 5 Ampullen Set', preis: '19,90 €' },
+    { name: 'Skin Boost Exo/Gen Vitality Elixier', preis: '21,90 €' },
+    { name: 'Skin Boost Filler 5 Ampullen Set', preis: '21,90 €' },
+    { name: 'Skin Boost Hyaluron 5 Ampullen Set', preis: '19,90 €' },
+    { name: 'Skin Boost Illuminate 5 Ampullen Set', preis: '19,90 €' },
+    { name: 'Skin Boost Niaciamide 5 Ampullen Set', preis: '19,90 €' },
+    { name: 'Skin Boost Retinol 5 Ampullen Set', preis: '19,90 €' },
+    { name: 'Skin Boost Vitamin C 5 Ampullen Set', preis: '19,90 €' },
+    { name: 'SKIN BOOSTER Collagen Serum 15 ml', preis: '32,20 €' },
+    { name: 'SKIN BOOSTER Moisturizer Serum 15 ml', preis: '32,20 €' },
+    { name: 'SKIN BOOSTER Peptide Serum 15 ml', preis: '32,20 €' },
+    { name: 'SKIN BOOSTER Stem Cell Serum 15 ml', preis: '32,20 €' },
+    { name: 'SKIN NATURAL Aloe Vera Cream 50 ml', preis: '43,60 €' },
+    { name: 'SKIN NATURAL Aloe Vera Gel 50 ml', preis: '40,40 €' },
+    { name: 'SKIN NATURAL Aloe Vera Mousse Mask 50 ml', preis: '37,60 €' },
+    { name: 'SKIN NATURAL Power Set', preis: '12,90 €' },
+    { name: 'Skin Nature Aloe Vera Ampules Set', preis: '10,90 €' },
+    { name: 'Skin Perfection BHA Tonic', preis: '36,20 €' },
+    { name: 'SKINCONCELLULAR CARE Concentrate 30 ml', preis: '23,90 €' },
+    { name: 'SKINCONCELLULAR CARE Cream Lipid 50 ml', preis: '23,90 €' },
+    { name: 'SKINCONCELLULAR CARE Cream Moist 50 ml', preis: '32,00 €' },
+    { name: 'SKINCONCELLULAR CARE Gel Eye Care 15 ml', preis: '17,40 €' },
+    { name: 'Sommer Hyaluron Set', preis: '39,00 €' },
+    { name: 'Sonnenschutzcreme Body Lotion SPF 30 , Tube 200 ml', preis: '34,90 €' },
+    { name: 'Sonnenschutzcreme Body Spray SPF 50 200ml', preis: '35,90 €' },
+    { name: 'Sonnenschutzcreme Face getönt SPF 50, Tube 50 ml', preis: '29,50 €' },
+    { name: 'Sonnenschutzcreme Face SPF 30, Tube 50 ml', preis: '27,50 €' },
+    { name: 'Sonnenschutzcreme Face SPF 50, Tube 50 ml', preis: '29,50 €' },
+    { name: 'STRI-PEXAN Cream Neck & Décolleté Lifting 70 ml', preis: '80,30 €' },
+    { name: 'STRI-PEXAN Daily Power Concentrate 1 x 6 ml', preis: '16,40 €' },
+    { name: 'STRI-PEXAN Daily Power Concentrate 4 x 6 ml', preis: '53,50 €' },
+    { name: 'STRI-PEXAN Intensivecream 70 ml', preis: '88,60 €' },
+    { name: 'STRI-PEXAN Intensivecream Eye Care 20 ml', preis: '48,50 €' },
+    { name: 'STRI-PEXAN Serum Serpentine 30 ml', preis: '77,40 €' },
+    { name: 'Stripexan Face Care Set', preis: '27,40 €' },
+    { name: 'Summer Travel Set Aloe Vera', preis: '40,00 €' },
+    { name: 'Summer Travel Set Hyaluronic', preis: '40,00 €' },
+    { name: 'Sun Body lotion 50SPF 200ml', preis: '38,30 €' },
+    { name: 'Tonic without Alcohol 75ml', preis: '7,90 €' },
+    { name: 'Triple Action Moisture Hyaluronic Serum 30 ml', preis: '54,90 €' },
+    { name: 'Triple Action Moisturizing DISCOVERY SET', preis: '20,90 €' },
+    { name: 'Triple Action Pro Age Face Cream', preis: '89,90 €' },
+    { name: 'Triple Action Pro Age Overnight Mask', preis: '74,90 €' },
+    { name: 'Triple Action Pro Age Serum', preis: '72,90 €' },
+    { name: 'Triple Action Radiance Vitamin C Sheet Mask', preis: '32,90 €' },
+    { name: 'Ultimate Skincare Anti-Wrinkle Serum', preis: '59,00 €' },
+    { name: 'Ultimate Skincare Skin Calming Serum', preis: '58,80 €' },
+    { name: 'Vitamin A Skin Care Set Xmas', preis: '99,90 €' },
+    { name: 'Vitamin C Capsules', preis: '44,90 €' },
+    { name: 'Vitamin.A Face Care Set', preis: '99,90 €' },
+    { name: 'X-Mas Hyaluronic Multi Level Exclusive Box', preis: '89,90 €' },
+    { name: 'X-Mas Set A Classic Skin Care Set', preis: '65,90 €' },
+    { name: 'X-Mas Set Aloe Vera Skin Care Set', preis: '43,90 €' },
+    { name: 'X-Mas Set Caviar', preis: '107,90 €' },
+    { name: 'X-Mas Set Cell Pro  Body Daily', preis: '35,90 €' },
+    { name: 'X-Mas Set Cell Pro Firming Set', preis: '104,90 €' },
+    { name: 'X-Mas Set Cell Pro Lifting Set', preis: '129,90 €' },
+    { name: 'X-Mas Set Cleanse&Care', preis: '21,90 €' },
+    { name: 'X-Mas Set Intense Glow Skin Care Set', preis: '61,90 €' },
+    { name: 'X-Mas Set RepagenExclusive Set', preis: '99,90 €' },
+    { name: 'X-Mas Set Resist Aging', preis: '121,90 €' },
+    { name: 'X-Mas Triple Action Moisturizing Sheet Mask 2St.', preis: '19,90 €' },
+    { name: 'X-TREME Cream Lifting Day & Night 50 ml', preis: '79,30 €' },
+    { name: 'X-TREME Cream Super Lipid 50 ml', preis: '76,70 €' },
+    { name: 'X-TREME Cream Whitening Age Stop SPF25 30 ml', preis: '54,50 €' },
+    { name: 'X-TREME Cream-Gel Hydra Complete 50 ml', preis: '61,10 €' },
+    { name: 'X-TREME Fluid Top Finish 30 ml', preis: '50,10 €' },
+    { name: 'X-TREME Mask Skin Renovator 50 ml', preis: '41,30 €' },
+    { name: 'X-TREME Mattifying Cream 50 ml', preis: '48,60 €' },
+    { name: 'X-TREME REFINING GEL 200 ml', preis: '21,30 €' },
+    { name: 'X-TREME Serum Whitening Intensive 30 ml', preis: '61,60 €' },
+    { name: 'X-TREME Skin Balm Classic Beige 30 ml', preis: '26,70 €' },
+    { name: 'X-TREME Skin Balm Light Beige 30 ml', preis: '26,70 €' }
+  ];
+
   // Werden beim Start ggf. durch Sheet-Daten ersetzt (siehe loadSheetData unten).
   var ZIELE = DEFAULT_ZIELE;
   var PAIN_POINTS = DEFAULT_PAIN_POINTS;
@@ -612,6 +1011,9 @@
     { name: 'Janine', img: '../assets/team/janine.jpg' }
   ];
   var BOOKING_URL = 'https://www.studiobookr.com/beauty-lounge-66137?rwg_token=AE37R_hn_NJgm7K5jfMEpQphd98TRv0aNa2GEf75TCmpJanNi3KcmREKr3J17eEnC2-flqQdsq-pFJ5qD-W9jG2TJ-A51-wXhQ%3D%3D';
+  // Ein einziger Ort für den Logo-Pfad — beim Artifact-Publish wird NUR diese eine Zeile
+  // auf eine data:-URI umgestellt (self-contained), im Repo bleibt es ein Dateiverweis.
+  var LOGO_SRC = '../assets/logo/beauty-lounge-logo.png';
   var BESTEHENDE_KUNDINNEN = ['Anna Weber', 'Julia Sommer'];
 
   // ---------- CSV laden & parsen ----------
@@ -720,8 +1122,19 @@
     lifestyle: {},
     sicherheit: {},
     analyse: {},
-    rec: { phase1: 'aktiv', phase2: 'aktiv', watch: 'aktiv', homecare: 'aktiv' }
+    rec: {
+      phase1: 'aktiv', phase2: 'aktiv', watch: 'aktiv',
+      homecare: {
+        am: { status: 'aktiv', product: null, searchOpen: false },
+        pm: { status: 'aktiv', product: null, searchOpen: false }
+      }
+    }
   };
+
+  // Ergebnisliste der zuletzt getippten Produktsuche je Slot (am/pm) — hält die
+  // Objekte vor, damit die Ergebnis-Buttons per Index statt per Name referenzieren
+  // (Namen können Sonderzeichen enthalten, die im onclick-Attribut Probleme machen).
+  var PRODUCT_SEARCH_RESULTS = { am: [], pm: [] };
 
   var path = ['login'];
   var pointer = 0;
@@ -739,7 +1152,10 @@
     path[pointer] = id;
     render();
   }
-  window.__bb = { goTo: goTo, goBack: goBack, replaceTop: replaceTop, state: STATE, select: selectHandler, input: inputHandler };
+  window.__bb = {
+    goTo: goTo, goBack: goBack, replaceTop: replaceTop, state: STATE, select: selectHandler, input: inputHandler,
+    filterProducts: filterProducts, pickProduct: pickProduct
+  };
 
   function selectHandler(kind, key, extra) {
     if (kind === 'mitarbeiterin') { STATE.mitarbeiterin = key; goTo('kunde-wahl'); }
@@ -761,8 +1177,55 @@
       STATE.rec[key] = next;
       render();
     }
+    else if (kind === 'homecare-toggle-status') {
+      var slot = STATE.rec.homecare[key];
+      slot.status = slot.status === 'entfernt' ? 'aktiv' : 'entfernt';
+      slot.searchOpen = false;
+      render();
+    }
+    else if (kind === 'homecare-toggle-search') {
+      var s = STATE.rec.homecare[key];
+      s.searchOpen = !s.searchOpen;
+      render();
+    }
+    else if (kind === 'homecare-reset-product') {
+      STATE.rec.homecare[key].product = null;
+      STATE.rec.homecare[key].searchOpen = false;
+      render();
+    }
   }
   function inputHandler() {}
+
+  // Filtert ALL_PRODUCTS live nach Tippen und schreibt nur die Ergebnisliste neu
+  // (statt die ganze Seite über render() neu zu zeichnen) — sonst würde das
+  // Eingabefeld bei jedem Tastendruck den Fokus verlieren.
+  function filterProducts(slot, query) {
+    var q = (query || '').trim().toLowerCase();
+    var results = q.length < 2 ? [] : ALL_PRODUCTS.filter(function (p) {
+      return p.name.toLowerCase().indexOf(q) > -1;
+    }).slice(0, 8);
+    PRODUCT_SEARCH_RESULTS[slot] = results;
+    var box = document.getElementById('product-results-' + slot);
+    if (!box) return;
+    if (!q.length || q.length < 2) {
+      box.innerHTML = '<p class="sub" style="margin:.4rem 0 0;font-size:.75rem">Mindestens 2 Zeichen eingeben …</p>';
+    } else if (!results.length) {
+      box.innerHTML = '<p class="sub" style="margin:.4rem 0 0;font-size:.75rem">Keine Treffer.</p>';
+    } else {
+      box.innerHTML = results.map(function (p, i) {
+        return '<button type="button" class="product-result" onclick="__bb.pickProduct(\'' + slot + '\',' + i + ')">' +
+          '<span>' + esc(p.name) + '</span><span class="k" style="font-size:.75rem">' + esc(p.preis) + '</span></button>';
+      }).join('');
+    }
+  }
+
+  function pickProduct(slot, idx) {
+    var p = PRODUCT_SEARCH_RESULTS[slot][idx];
+    if (!p) return;
+    STATE.rec.homecare[slot].product = p;
+    STATE.rec.homecare[slot].searchOpen = false;
+    render();
+  }
 
   function toggleMulti(arr, key) {
     var idx = arr.indexOf(key);
@@ -783,14 +1246,46 @@
 
   function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
 
+  // Ordnet den Screen einer von 5 sichtbaren Stufen zu (Kundenauswahl-Screens zeigen
+  // bewusst keinen Stepper — die eigentliche Beratung beginnt erst bei "Ziel").
+  function stepInfo(screenId) {
+    if (screenId === 'ziel') return { index: 1, total: 5 };
+    if (screenId === 'painpoint' || screenId === 'anlass' || screenId.indexOf('lifestyle:') === 0) return { index: 2, total: 5 };
+    if (screenId.indexOf('sicherheit') === 0) return { index: 3, total: 5 };
+    if (screenId.indexOf('analyse:') === 0) return { index: 4, total: 5 };
+    if (['auswertung', 'strategy', 'empfehlungen', 'blueprint', 'abschluss'].indexOf(screenId) > -1) return { index: 5, total: 5 };
+    return null;
+  }
+
+  function stepperHtml(step) {
+    var dots = '';
+    for (var i = 1; i <= step.total; i++) {
+      var cls = i < step.index ? 'done' : (i === step.index ? 'current' : '');
+      dots += '<span class="step-dot ' + cls + '"></span>';
+      if (i < step.total) dots += '<span class="seg"></span>';
+    }
+    return '<div class="stepper">' + dots + '</div>';
+  }
+
+  // Diese Screens haben bereits ein eigenes, zentriertes Logo im Inhalt —
+  // dort entfällt das kleine Kopfzeilen-Logo, damit es nicht doppelt erscheint.
+  var SCREENS_WITH_OWN_LOGO = ['login', 'kunde-wahl', 'blueprint', 'abschluss'];
+
   function topbar(mode, percent, contextText) {
     var backDisabled = pointer === 0 ? 'disabled' : '';
-    return '' +
+    var step = stepInfo(path[pointer]);
+    var showLogo = SCREENS_WITH_OWN_LOGO.indexOf(path[pointer]) === -1;
+    var header = '' +
       '<div class="topbar">' +
         '<button class="back-btn" ' + backDisabled + ' onclick="__bb.goBack()" aria-label="Zurück">&#8592;</button>' +
-        '<div class="progress-track"><div class="progress-fill" style="width:' + percent + '%"></div></div>' +
-        '<div class="context-label">' + esc(contextText || '') + '</div>' +
+        (showLogo ? '<img class="topbar-logo" src="' + LOGO_SRC + '" alt="Beauty Lounge" />' : '') +
+        '<div class="topbar-spacer"></div>' +
+        '<div class="topbar-right">' +
+          (step ? '<div class="step-label">Schritt ' + step.index + '</div>' : '') +
+          (contextText ? '<div class="context-label">' + esc(contextText) + '</div>' : '') +
+        '</div>' +
       '</div>';
+    return header + (step ? stepperHtml(step) : '');
   }
 
   function screenWrap(mode, percent, contextText, bodyHtml, center) {
@@ -816,7 +1311,7 @@
 
   function renderLogin() {
     var body = '' +
-      '<img class="brand-logo lg" src="../assets/logo/beauty-lounge-logo.png" alt="Beauty Lounge" />' +
+      '<img class="brand-logo lg" src="' + LOGO_SRC + '" alt="Beauty Lounge" />' +
       '<p class="eyebrow" style="text-align:center">Anmeldung</p>' +
       '<h1 class="q" style="text-align:center">Wer berät heute?</h1>' +
       '<div class="avatar-row">' +
@@ -832,7 +1327,7 @@
 
   function renderKundeWahl() {
     var body = '' +
-      '<img class="brand-logo md" src="../assets/logo/beauty-lounge-logo.png" alt="Beauty Lounge" />' +
+      '<img class="brand-logo md" src="' + LOGO_SRC + '" alt="Beauty Lounge" />' +
       '<p class="welcome-title">Willkommen, ' + esc(STATE.mitarbeiterin || '') + '</p>' +
       '<div class="stack">' +
         '<button class="stack-btn primary" onclick="__bb.goTo(\'kunde-neu\')">Neue Beratung</button>' +
@@ -867,7 +1362,7 @@
 
   function renderZiel() {
     var body = '' +
-      '<p class="eyebrow">Schritt 1 · Ziel</p>' +
+      '<p class="eyebrow">Ziel</p>' +
       '<h1 class="q">Was möchte ' + (STATE.kundeName ? esc(STATE.kundeName) : 'die Kundin') + ' erreichen?</h1>' +
       '<p class="sub">Mehrfachauswahl möglich — antippen zum Auswählen.</p>' +
       '<div class="grid cols-3">' +
@@ -884,7 +1379,7 @@
 
   function renderPainpoint() {
     var body = '' +
-      '<p class="eyebrow">Schritt 2 · Pain Point</p>' +
+      '<p class="eyebrow">Pain Point</p>' +
       '<h1 class="q">Was stört sie daran besonders?</h1>' +
       '<div class="grid cols-3">' +
       PAIN_POINTS.map(function (p) {
@@ -900,7 +1395,7 @@
 
   function renderAnlass() {
     var body = '' +
-      '<p class="eyebrow">Schritt 3 · Anlass & Zeitrahmen</p>' +
+      '<p class="eyebrow">Anlass & Zeitrahmen</p>' +
       '<h1 class="q">Gibt es einen bestimmten Anlass?</h1>' +
       '<div class="grid cols-3">' +
       ANLASS.map(function (a) {
@@ -1062,8 +1557,8 @@
       lines.push('Ebenfalls beobachten: ' + treatLine(displayInfo(plan.watch)));
     }
     lines.push('');
-    var homeAM = homecareInfoFor(plan, i1);
-    var homePM = homecareInfoFor(plan, i2);
+    var homeAM = homecareInfoFor('am', i1);
+    var homePM = homecareInfoFor('pm', i2);
     if (homeAM) lines.push('Homecare morgens: Reinigung, ' + productLine(homeAM) + ', Tagespflege, SPF');
     if (homePM) lines.push('Homecare abends: Reinigung, ' + productLine(homePM) + ', Serum, Nachtpflege');
     if (!homeAM && !homePM) lines.push('Homecare: von der Mitarbeiterin entfernt');
@@ -1154,16 +1649,16 @@
       else if (watch) { phase1 = watch; watch = null; }
       else phase1 = { need: p.phase1.need, info: NEED_INFO[p.phase1.need], replaced: false };
     }
-    return {
-      family: p.family, phase1: phase1, phase2: phase2, watch: watch,
-      homecareRemoved: STATE.rec.homecare === 'entfernt',
-      homecareReplaced: STATE.rec.homecare === 'ersetzt'
-    };
+    return { family: p.family, phase1: phase1, phase2: phase2, watch: watch };
   }
 
-  function homecareInfoFor(plan, baseInfo) {
-    if (plan.homecareRemoved) return null;
-    if (plan.homecareReplaced) return { product: REPLACED_LABEL, produktpreis: '' };
+  // Löst den tatsächlich anzuzeigenden Homecare-Eintrag für "am" (morgens) oder
+  // "pm" (abends) auf: entfernt -> null, von der Mitarbeiterin ausgewählt -> dieses
+  // Produkt, sonst der System-Vorschlag (baseInfo, z.B. aus NEED_INFO).
+  function homecareInfoFor(slot, baseInfo) {
+    var s = STATE.rec.homecare[slot];
+    if (s.status === 'entfernt') return null;
+    if (s.product) return { product: s.product.name, produktpreis: s.product.preis };
     return baseInfo;
   }
 
@@ -1212,20 +1707,27 @@
         '</div></div>';
     }
 
-    function homecareCard() {
-      var st = STATE.rec.homecare;
-      var abendsInfo = i2 || i1;
-      var sameProduct = productLine(i1) === productLine(abendsInfo);
+    // Homecare-Produkt für Morgens/Abends: das System schlägt das zur Priorität passende
+    // Produkt schon vor (baseInfo), die Mitarbeiterin kann es aber über die Suche gegen
+    // jedes der 364 echten KLAPP-Produkte austauschen oder den Schritt ganz entfernen.
+    function homecareSlotCard(slot, label, baseInfo) {
+      var s = STATE.rec.homecare[slot];
+      var removed = s.status === 'entfernt';
+      var display = s.product ? { product: s.product.name, produktpreis: s.product.preis } : baseInfo;
       return '<div class="rec-card">' +
-        '<span class="rec-kicker">Homecare</span>' +
-        '<span class="rec-name" style="' + (st === 'entfernt' ? 'text-decoration:line-through;opacity:.5' : '') + '">' + esc(productLine(i1)) + '</span>' +
-        '<p class="sub" style="margin:0;font-size:.8125rem">Morgens' + (sameProduct ? ' & abends' : '') + '</p>' +
-        (sameProduct ? '' :
-          '<span class="rec-name" style="font-size:1rem;' + (st === 'entfernt' ? 'text-decoration:line-through;opacity:.5' : '') + '">' + esc(productLine(abendsInfo)) + '</span>' +
-          '<p class="sub" style="margin:0;font-size:.8125rem">Abends</p>') +
-        '<div class="rec-toggle">' +
-          '<button class="' + (st === 'aktiv' ? 'active' : '') + '" onclick="__bb.select(\'rec-toggle\',\'homecare\')">' + (st === 'aktiv' ? 'Übernommen' : st === 'ersetzt' ? 'Ausgetauscht' : 'Entfernt') + '</button>' +
-        '</div></div>';
+        '<span class="rec-kicker">Homecare · ' + label + '</span>' +
+        '<span class="rec-name" style="' + (removed ? 'text-decoration:line-through;opacity:.5' : '') + '">' + esc(productLine(display)) + '</span>' +
+        (s.product && !removed ? '<p class="sub" style="margin:0;font-size:.75rem">Von dir ausgewählt — <a href="#" onclick="__bb.select(\'homecare-reset-product\',\'' + slot + '\');return false;" style="color:var(--rose-deep)">Systemvorschlag verwenden</a></p>' : '') +
+        '<div class="rec-toggle" style="flex-wrap:wrap">' +
+          (removed ? '' : '<button onclick="__bb.select(\'homecare-toggle-search\',\'' + slot + '\')">' + (s.searchOpen ? 'Suche schließen' : 'Anderes Produkt wählen') + '</button>') +
+          '<button class="' + (removed ? '' : 'active') + '" onclick="__bb.select(\'homecare-toggle-status\',\'' + slot + '\')">' + (removed ? 'Entfernt — wiederherstellen' : 'Übernommen') + '</button>' +
+        '</div>' +
+        (s.searchOpen && !removed ?
+          '<div class="product-search">' +
+            '<input type="text" class="text-input" placeholder="Produkt suchen …" oninput="__bb.filterProducts(\'' + slot + '\', this.value)" />' +
+            '<div class="product-results" id="product-results-' + slot + '"></div>' +
+          '</div>' : '') +
+      '</div>';
     }
 
     var body = '' +
@@ -1239,8 +1741,10 @@
         (p.watch ? phaseCard('Ebenfalls beobachten', 'Separates Thema, nicht Teil dieses Programms', p.watch.need, iw, 'watch') : '') +
       '</div>' +
       '<h3 class="section-label">Homecare-Produkte</h3>' +
+      '<p class="sub" style="margin-top:-.4rem">Vorschlag passend zur Priorität — bei Bedarf über die Suche austauschen.</p>' +
       '<div class="grid cols-2">' +
-        homecareCard() +
+        homecareSlotCard('am', 'Morgens', i1) +
+        homecareSlotCard('pm', 'Abends', i2 || i1) +
       '</div>' +
       '<div class="footer-actions">' +
         '<button class="btn-primary" onclick="__bb.goTo(\'blueprint\')">Beauty Blueprint erstellen</button>' +
@@ -1252,12 +1756,12 @@
     var plan = getPlan();
     var i1 = displayInfo(plan.phase1);
     var i2 = plan.phase2 ? displayInfo(plan.phase2) : i1;
-    var homeAM = homecareInfoFor(plan, i1);
-    var homePM = homecareInfoFor(plan, i2);
+    var homeAM = homecareInfoFor('am', i1);
+    var homePM = homecareInfoFor('pm', i2);
     var homecareRow = !homeAM && !homePM ? 'Entfernt' :
       (productLine(homeAM) === productLine(homePM) ? productLine(homeAM) : productLine(homeAM) + ' + ' + productLine(homePM));
     var body = '' +
-      '<img class="brand-logo md" src="../assets/logo/beauty-lounge-logo.png" alt="Beauty Lounge" />' +
+      '<img class="brand-logo md" src="' + LOGO_SRC + '" alt="Beauty Lounge" />' +
       '<p class="eyebrow" style="text-align:center">Beauty Blueprint</p>' +
       '<p class="blueprint-hero" style="text-align:center">' + esc(STATE.kundeName || 'Kundin') + '</p>' +
       '<p class="sub" style="margin-top:0;text-align:center">' + esc(zielText()) + '</p>' +
@@ -1286,7 +1790,7 @@
 
   function renderAbschluss() {
     var body = '' +
-      '<img class="brand-logo md" src="../assets/logo/beauty-lounge-logo.png" alt="Beauty Lounge" />' +
+      '<img class="brand-logo md" src="' + LOGO_SRC + '" alt="Beauty Lounge" />' +
       '<p class="eyebrow" style="text-align:center">Abgeschlossen</p>' +
       '<h1 class="q" style="text-align:center">Beauty Blueprint gespeichert</h1>' +
       '<p class="sub" style="text-align:center">' + esc(STATE.kundeName || 'Die Kundin') + ' erhält ihren persönlichen Plan. Ein Bericht kann optional erstellt werden.</p>' +
