@@ -1181,23 +1181,6 @@
     { name: 'Anti-Aging & Straffung', needs: ['Firmness', 'Elasticity'] }
   ];
 
-  // Deutsche Anzeige-Namen der 9 internen Need-Schlüssel — auf der "Fachliche Strategie"-Seite
-  // sollen keine englischen Kategorie-Namen (Hydration, Barrier Repair, ...) auftauchen.
-  var NEED_LABELS_DE = {
-    'Hydration': 'Feuchtigkeit',
-    'Barrier Repair': 'Hautbarriere',
-    'Calming': 'Beruhigung',
-    'Pigment Control': 'Pigmentierung',
-    'Sebum Balance': 'Talgregulierung',
-    'Texture Improvement': 'Hautstruktur',
-    'Firmness': 'Festigkeit',
-    'Elasticity': 'Elastizität',
-    'Radiance': 'Ausstrahlung'
-  };
-  function needLabel(need) {
-    return NEED_LABELS_DE[need] || need;
-  }
-
   var MITARBEITERINNEN = [
     { name: 'Svenja', img: '../assets/team/svenja.jpg' },
     { name: 'Viktoria', img: '../assets/team/viktoria.jpg' },
@@ -1515,7 +1498,7 @@
     if (screenId === 'painpoint' || screenId === 'anlass' || screenId.indexOf('lifestyle:') === 0) return { index: 2, total: 5 };
     if (screenId.indexOf('sicherheit') === 0) return { index: 3, total: 5 };
     if (screenId.indexOf('analyse:') === 0) return { index: 4, total: 5 };
-    if (['auswertung', 'strategy', 'empfehlungen', 'blueprint', 'abschluss'].indexOf(screenId) > -1) return { index: 5, total: 5 };
+    if (['auswertung', 'empfehlungen', 'blueprint', 'abschluss'].indexOf(screenId) > -1) return { index: 5, total: 5 };
     return null;
   }
 
@@ -1788,8 +1771,8 @@
 
   function renderAuswertung() {
     screenWrap('dezent', phasePercent('ergebnis', 0, 5), contextLabel(),
-      '<div class="loading-wrap"><div class="spinner"></div><p style="font-size:.875rem;color:var(--text-soft)">Strategie wird erstellt …</p></div>', true);
-    setTimeout(function () { if (path[pointer] === 'auswertung') goTo('strategy'); }, 1400);
+      '<div class="loading-wrap"><div class="spinner"></div><p style="font-size:.875rem;color:var(--text-soft)">Behandlungsplan wird erstellt …</p></div>', true);
+    setTimeout(function () { if (path[pointer] === 'auswertung') goTo('empfehlungen'); }, 1400);
   }
 
   function computeNeeds() {
@@ -2021,24 +2004,6 @@
     }).join(', ');
   }
 
-  function renderStrategy() {
-    var plan = getPlan();
-    var body = '' +
-      '<p class="eyebrow">Strategie</p>' +
-      '<h1 class="q">Die fachliche Strategie</h1>' +
-      '<div class="summary-list">' +
-        '<div class="summary-row"><span class="k">Kundenziel</span><span class="v">' + esc(zielText()) + '</span></div>' +
-        '<div class="summary-row"><span class="k">Programm</span><span class="v">' + esc(plan.family.name) + '</span></div>' +
-        plan.ranked.map(function (r) {
-          return '<div class="summary-row"><span class="k">Prio ' + r.prio + '</span><span class="v">' + esc(needLabel(r.need)) + '</span></div>';
-        }).join('') +
-      '</div>' +
-      '<p class="sub">Begründung Hauptpriorität: ' + esc(needReason(plan.ranked[0].need)) + '</p>' +
-      '<div class="footer-actions">' +
-        '<button class="btn-primary" onclick="__bb.goTo(\'empfehlungen\')">Weiter zu den Empfehlungen</button>' +
-      '</div>';
-    screenWrap('dezent', phasePercent('ergebnis', 2, 5), contextLabel(), body);
-  }
 
   function renderEmpfehlungen() {
     var plan = getPlan();
@@ -2239,7 +2204,6 @@
     if (id === 'sicherheit-summary') return renderSicherheitSummary();
     if (id.indexOf('analyse:') === 0) return renderAnalyseStep();
     if (id === 'auswertung') return renderAuswertung();
-    if (id === 'strategy') return renderStrategy();
     if (id === 'empfehlungen') return renderEmpfehlungen();
     if (id === 'blueprint') return renderBlueprint();
     if (id === 'abschluss') return renderAbschluss();
