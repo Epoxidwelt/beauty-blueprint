@@ -413,12 +413,32 @@
   .rec-card.selected { border-color: var(--rose-deep); }
   .rec-kicker { font-size: 0.6875rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--rose-deep); }
   .rec-number-badge {
-    display: flex; align-items: center; justify-content: center;
-    width: 24px; height: 24px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 24px; height: 24px; padding: 0 0.4rem; border-radius: 999px;
     background: var(--rose-deep); color: var(--warmweiss);
-    font-family: var(--font-body); font-weight: 700; font-size: 0.8125rem;
+    font-family: var(--font-body); font-weight: 700; font-size: 0.75rem;
+    white-space: nowrap;
     flex-shrink: 0;
   }
+
+  .rec-round-row { display: flex; gap: 0.6rem; align-items: center; margin-top: 0.1rem; }
+  .rec-round-btn {
+    display: flex; align-items: center; justify-content: center;
+    width: 38px; height: 38px; border-radius: 50%;
+    border: 1.5px solid var(--border-strong);
+    background: var(--surface-raised);
+    color: var(--text);
+    font-family: var(--font-body); font-size: 1.25rem; font-weight: 500; line-height: 1;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background-color .15s ease, border-color .15s ease, transform .1s ease;
+  }
+  .rec-round-btn:active { transform: scale(0.94); }
+  .rec-round-btn.add { color: var(--rose-deep); border-color: var(--rose-deep); }
+  .rec-round-btn.add:hover { background: var(--rose-pale); }
+  .rec-round-btn.add.active { background: var(--anthrazit); border-color: var(--anthrazit); color: var(--warmweiss); }
+  .rec-round-btn.remove { color: var(--danger); border-color: var(--danger); }
+  .rec-round-btn.remove:hover { background: rgba(166,71,62,0.1); }
   .rec-name { font-family: var(--font-display); font-size: 1.15rem; color: var(--text); }
   .rec-toggle {
     display: flex; gap: 0.4rem; margin-top: 0.2rem;
@@ -2063,9 +2083,9 @@
         '<span class="rec-name">' + esc(r.behandlung) + '</span>' +
         '<span style="font-size:.8125rem;color:var(--text-soft)">' + esc([r.dauer, r.preis].filter(Boolean).join(' · ')) + '</span>' +
         '<p class="sub" style="margin:0;font-size:.8125rem">' + esc(needReason(r.need)) + '</p>' +
-        '<div class="rec-toggle" style="flex-wrap:wrap">' +
-          '<button class="' + (selected ? 'active' : '') + '" onclick="__bb.select(\'behandlung-add\',\'' + r.need + '\')">' + (selected ? 'Nochmal wählen' : 'Auswählen') + '</button>' +
-          (selected ? '<button onclick="__bb.select(\'behandlung-remove\',\'' + r.need + '\')">Entfernen</button>' : '') +
+        '<div class="rec-round-row">' +
+          '<button class="rec-round-btn add' + (selected ? ' active' : '') + '" onclick="__bb.select(\'behandlung-add\',\'' + r.need + '\')" title="' + (selected ? 'Nochmal wählen' : 'Auswählen') + '" aria-label="' + (selected ? 'Nochmal wählen' : 'Auswählen') + '">+</button>' +
+          (selected ? '<button class="rec-round-btn remove" onclick="__bb.select(\'behandlung-remove\',\'' + r.need + '\')" title="Entfernen" aria-label="Entfernen">−</button>' : '') +
         '</div></div>';
     }
 
