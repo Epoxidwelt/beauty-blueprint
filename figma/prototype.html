@@ -410,7 +410,15 @@
     flex-direction: column;
     gap: 0.6rem;
   }
+  .rec-card.selected { border-color: var(--rose-deep); }
   .rec-kicker { font-size: 0.6875rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--rose-deep); }
+  .rec-number-badge {
+    display: flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--rose-deep); color: var(--warmweiss);
+    font-family: var(--font-body); font-weight: 700; font-size: 0.8125rem;
+    flex-shrink: 0;
+  }
   .rec-name { font-family: var(--font-display); font-size: 1.15rem; color: var(--text); }
   .rec-toggle {
     display: flex; gap: 0.4rem; margin-top: 0.2rem;
@@ -1309,10 +1317,10 @@
     sicherheit: {},
     analyse: {},
     rec: {
-      // Übernehmen/Entfernen je Beauty Need (Schlüssel = need-Name), ohne erzwungene
-      // Phase-Zuordnung — jede zur Hautanalyse passende Behandlung steht gleichwertig
-      // zur Wahl, die Mitarbeiterin entscheidet frei. Fehlt ein Eintrag, gilt 'aktiv'.
-      behandlung: {},
+      // Reihenfolge, in der die Mitarbeiterin Behandlungen anklickt (Schlüssel = need-Name).
+      // Die Position im Array bestimmt die angezeigte Nummer — kein System-Ranking, sondern
+      // die von der Mitarbeiterin selbst gewählte Behandlungsreihenfolge.
+      behandlungOrder: [],
       homecare: {
         am: { status: 'aktiv', product: null, searchOpen: false },
         pm: { status: 'aktiv', product: null, searchOpen: false },
@@ -1368,8 +1376,10 @@
     else if (kind === 'sicherheit') { STATE.sicherheit[key] = extra; advanceFlow('sicherheit', SAFETY_ITEMS, 'sicherheit-summary'); }
     else if (kind === 'analyse') { STATE.analyse[key] = extra; advanceFlow('analyse', ANALYSE_ITEMS, 'auswertung'); }
     else if (kind === 'behandlung-toggle') {
-      var curSt = STATE.rec.behandlung[key] || 'aktiv';
-      STATE.rec.behandlung[key] = curSt === 'entfernt' ? 'aktiv' : 'entfernt';
+      var order = STATE.rec.behandlungOrder;
+      var pos = order.indexOf(key);
+      if (pos > -1) order.splice(pos, 1);
+      else order.push(key);
       render();
     }
     else if (kind === 'homecare-toggle-status') {
@@ -1885,16 +1895,23 @@
   // Status einer Behandlung (Schlüssel = need-Name) — ohne Eintrag gilt 'aktiv', d.h. jede
   // zur Hautanalyse passende Behandlung ist standardmäßig übernommen, bis die Mitarbeiterin
   // sie explizit entfernt.
-  function behandlungStatus(need) {
-    return STATE.rec.behandlung[need] || 'aktiv';
+  // Position (0-basiert) eines Need in der von der Mitarbeiterin angeklickten
+  // Behandlungsreihenfolge, oder -1 wenn (noch) nicht ausgewählt.
+  function behandlungOrderPos(need) {
+    return STATE.rec.behandlungOrder.indexOf(need);
   }
 
-  // Der komplette Plan: alle passenden Behandlungen (rankedTreatmentOptions, garantiert nicht
-  // leer) gefiltert auf die von der Mitarbeiterin tatsächlich übernommenen — ohne erzwungene
-  // Phase-1/Phase-2/Beobachten-Zuordnung. "Programm" dient nur noch als grober Kontext-Name.
+  // Der komplette Plan: "active" sind die von der Mitarbeiterin per Klick ausgewählten
+  // Behandlungen, in genau der Reihenfolge, in der sie angeklickt wurden (nicht nach
+  // System-Priorität) — das treibt die Nummerierung auf den Karten, den 6-Monats-Kurplan,
+  // das Beauty Blueprint und die E-Mail. "ranked" bleibt die (auf 5 gedeckelte) Vorschlagsliste
+  // zur Auswahl. "Programm" dient nur noch als grober Kontext-Name.
   function getPlan() {
     var ranked = rankedTreatmentOptions();
-    var active = ranked.filter(function (r) { return behandlungStatus(r.need) !== 'entfernt'; });
+    var active = STATE.rec.behandlungOrder.map(function (need, i) {
+      var info = NEED_INFO[need];
+      return { prio: i + 1, need: need, behandlung: info.behandlung, dauer: info.dauer, preis: info.preis };
+    });
     var family = familyFor((active[0] || ranked[0]).need);
     return { family: family, active: active, ranked: ranked };
   }
@@ -1958,6 +1975,10 @@
   // Alle Beauty-Needs, für die in der Hautanalyse tatsächlich etwas beobachtet wurde (avg > 0),
   // als priorisierte Liste geeigneter Behandlungen — Grundlage für die Schnellauswahl im
   // Kurplan, damit die Mitarbeiterin nicht erst tippen muss, um die passenden Optionen zu sehen.
+  // Wie viele Behandlungsoptionen der Empfehlungen-Screen maximal zur Auswahl anbietet —
+  // bewusst knapp gehalten, statt bis zu 9 Needs auf einmal zu zeigen.
+  var MAX_BEHANDLUNGS_OPTIONEN = 5;
+
   function rankedTreatmentOptions() {
     var needs = computeNeeds();
     var list = needs.filter(function (n) { return n.avg > 0; });
@@ -1965,7 +1986,7 @@
     // relativ höchste Priorität wird trotzdem als Ausgangspunkt gezeigt, statt eine leere
     // Liste — needReason() markiert diesen Fall bereits als "geringe Ausprägung".
     if (!list.length) list = needs[0] ? [needs[0]] : [{ need: 'Hydration', avg: 0 }];
-    return list.map(function (n, i) {
+    return list.slice(0, MAX_BEHANDLUNGS_OPTIONEN).map(function (n, i) {
       var info = NEED_INFO[n.need];
       return { prio: i + 1, need: n.need, behandlung: info.behandlung, dauer: info.dauer, preis: info.preis };
     });
@@ -2028,15 +2049,17 @@
     // Phase-1/Phase-2/Beobachten-Rolle — die Mitarbeiterin entscheidet per Klick, welche
     // davon tatsächlich übernommen werden.
     function behandlungCard(r) {
-      var st = behandlungStatus(r.need);
-      var removed = st === 'entfernt';
-      return '<div class="rec-card">' +
-        '<span class="rec-kicker">Prio ' + r.prio + '</span>' +
-        '<span class="rec-name" style="' + (removed ? 'text-decoration:line-through;opacity:.5' : '') + '">' + esc(r.behandlung) + '</span>' +
+      var pos = behandlungOrderPos(r.need);
+      var selected = pos > -1;
+      return '<div class="rec-card' + (selected ? ' selected' : '') + '">' +
+        (selected
+          ? '<span class="rec-number-badge">' + (pos + 1) + '</span>'
+          : '<span class="rec-kicker">Nicht ausgewählt</span>') +
+        '<span class="rec-name">' + esc(r.behandlung) + '</span>' +
         '<span style="font-size:.8125rem;color:var(--text-soft)">' + esc([r.dauer, r.preis].filter(Boolean).join(' · ')) + '</span>' +
         '<p class="sub" style="margin:0;font-size:.8125rem">' + esc(needReason(r.need)) + '</p>' +
         '<div class="rec-toggle">' +
-          '<button class="' + (removed ? '' : 'active') + '" onclick="__bb.select(\'behandlung-toggle\',\'' + r.need + '\')">' + (removed ? 'Entfernt' : 'Übernommen') + '</button>' +
+          '<button class="' + (selected ? 'active' : '') + '" onclick="__bb.select(\'behandlung-toggle\',\'' + r.need + '\')">' + (selected ? 'Entfernen' : 'Auswählen') + '</button>' +
         '</div></div>';
     }
 
@@ -2104,7 +2127,7 @@
     var body = '' +
       '<p class="eyebrow">Empfehlungen · Programm: ' + esc(plan.family.name) + '</p>' +
       '<h1 class="q">Behandlungsplan zur Prüfung</h1>' +
-      '<p class="sub">Alle zur Hautanalyse passenden Behandlungen — antippen zum Übernehmen/Entfernen. Du entscheidest, welche gewählt werden.</p>' +
+      '<p class="sub">Zur Hautanalyse passende Behandlungen — antippen zum Auswählen. Die Nummer zeigt deine gewählte Reihenfolge, erneutes Antippen entfernt die Behandlung wieder.</p>' +
       '<h3 class="section-label">Behandlungen</h3>' +
       '<div class="grid cols-3">' +
         ranked.map(behandlungCard).join('') +
