@@ -1999,13 +1999,20 @@
   // Baut den kompletten Bericht als PDF-Bytes. Layout entspricht dem Beauty-Blueprint-Screen:
   // Logo/Kundenname/Ziel, Behandlungsplan, 6-Monats-Kurplan mit Gesamtpreis, Homecare-Routine,
   // Terminbuchungs-Link. Fußzeile mit echten Studio-Stammdaten auf jeder Seite.
+  function formatDateDE(d) {
+    var months = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+    return d.getDate() + '. ' + months[d.getMonth()] + ' ' + d.getFullYear();
+  }
+
   function buildBeautyBlueprintPdfBytes() {
     var PAGE_W = 595.28, PAGE_H = 841.89;
     var MARGIN = 54;
     var BOTTOM = 74; // Platz für Fußzeile reservieren
-    var LINE_H = 15;
+    var LINE_H = 16;
     var COL_X = MARGIN + 190;
     var COL_W = PAGE_W - MARGIN - COL_X;
+    var INK = '3F3F41', ROSE_DEEP = '9A4B66', ROSE_LIGHT = 'C4879C', MUTED = '7A7A7C', MUTED2 = '8A8A8C';
+    var HAIRLINE = 'D8CFC9', BLUSH = 'F8EEEC', WHITE = 'FFFFFF';
 
     var plan = getPlan();
     var i1 = NEED_INFO[(plan.active[0] || plan.ranked[0]).need];
@@ -2025,11 +2032,17 @@
     var curOps = [];
     var y = PAGE_H - MARGIN;
     var linkTargets = []; // { page, x, y, w, h, url }
+    var FRAME_INSET = 20;
 
+    function pageBorder() {
+      curOps.push('0.82 0.75 0.73 RG 0.75 w ' + FRAME_INSET + ' ' + FRAME_INSET + ' ' +
+        (PAGE_W - 2 * FRAME_INSET).toFixed(2) + ' ' + (PAGE_H - 2 * FRAME_INSET).toFixed(2) + ' re S');
+    }
     function newPage() {
       pages.push(curOps);
       curOps = [];
       y = PAGE_H - MARGIN;
+      pageBorder();
     }
     function ensureSpace(h) {
       if (y - h < BOTTOM) newPage();
@@ -2038,44 +2051,118 @@
       var r = parseInt(hex.substr(0, 2), 16) / 255, g = parseInt(hex.substr(2, 2), 16) / 255, b = parseInt(hex.substr(4, 2), 16) / 255;
       curOps.push(r.toFixed(3) + ' ' + g.toFixed(3) + ' ' + b.toFixed(3) + ' rg');
     }
-    function text(str, x, size, font, hex) {
+    function textAt(str, xPos, yPos, size, font, hex) {
       setFill(hex);
-      curOps.push('BT /' + font + ' ' + size.toFixed(1) + ' Tf ' + x.toFixed(2) + ' ' + y.toFixed(2) + ' Td (' + pdfEscape(str) + ') Tj ET');
+      curOps.push('BT /' + font + ' ' + size.toFixed(1) + ' Tf ' + xPos.toFixed(2) + ' ' + yPos.toFixed(2) + ' Td (' + pdfEscape(str) + ') Tj ET');
+    }
+    function text(str, x, size, font, hex) {
+      textAt(str, x, y, size, font, hex);
+    }
+    function trackedTextAt(str, xPos, yPos, size, font, hex, spacing) {
+      setFill(hex);
+      // Tc (Zeichenabstand) ist Teil des Grafikstatus und bleibt über BT/ET hinweg aktiv —
+      // muss danach explizit zurückgesetzt werden, sonst "erbt" jeder folgende text()-Aufruf
+      // auf derselben Seite denselben Abstand.
+      curOps.push('BT /' + font + ' ' + size.toFixed(1) + ' Tf ' + spacing.toFixed(2) + ' Tc ' + xPos.toFixed(2) + ' ' + yPos.toFixed(2) + ' Td (' + pdfEscape(str) + ') Tj 0 Tc ET');
+    }
+    function trackedWidth(str, size, spacing) {
+      return str.length * size * 0.5 + Math.max(0, str.length - 1) * spacing;
+    }
+    function trackedTextCentered(str, size, font, hex, spacing) {
+      var w = trackedWidth(str, size, spacing);
+      trackedTextAt(str, (PAGE_W - w) / 2, y, size, font, hex, spacing);
     }
     function textCentered(str, size, font, hex) {
       var w = str.length * size * 0.5;
       text(str, (PAGE_W - w) / 2, size, font, hex);
     }
+    function centeredWrapped(str, maxW, size, font, hex) {
+      var lines = pdfWrapText(str, maxW, size);
+      lines.forEach(function (l, i) {
+        textCentered(l, size, font, hex);
+        if (i < lines.length - 1) y -= (size + 6);
+      });
+    }
     function rect(x, ry, w, h, hex) {
       setFill(hex);
       curOps.push(x.toFixed(2) + ' ' + ry.toFixed(2) + ' ' + w.toFixed(2) + ' ' + h.toFixed(2) + ' re f');
+    }
+    function circle(cx, cy, r, hex) {
+      var k = 0.5522847498;
+      setFill(hex);
+      curOps.push(
+        (cx + r).toFixed(2) + ' ' + cy.toFixed(2) + ' m ' +
+        (cx + r).toFixed(2) + ' ' + (cy + r * k).toFixed(2) + ' ' + (cx + r * k).toFixed(2) + ' ' + (cy + r).toFixed(2) + ' ' + cx.toFixed(2) + ' ' + (cy + r).toFixed(2) + ' c ' +
+        (cx - r * k).toFixed(2) + ' ' + (cy + r).toFixed(2) + ' ' + (cx - r).toFixed(2) + ' ' + (cy + r * k).toFixed(2) + ' ' + (cx - r).toFixed(2) + ' ' + cy.toFixed(2) + ' c ' +
+        (cx - r).toFixed(2) + ' ' + (cy - r * k).toFixed(2) + ' ' + (cx - r * k).toFixed(2) + ' ' + (cy - r).toFixed(2) + ' ' + cx.toFixed(2) + ' ' + (cy - r).toFixed(2) + ' c ' +
+        (cx + r * k).toFixed(2) + ' ' + (cy - r).toFixed(2) + ' ' + (cx + r).toFixed(2) + ' ' + (cy - r * k).toFixed(2) + ' ' + (cx + r).toFixed(2) + ' ' + cy.toFixed(2) + ' c h f'
+      );
     }
     function ruleLine() {
       ensureSpace(14);
       curOps.push('0.82 0.78 0.75 RG 0.7 w ' + MARGIN.toFixed(2) + ' ' + y.toFixed(2) + ' m ' + (PAGE_W - MARGIN).toFixed(2) + ' ' + y.toFixed(2) + ' l S');
       y -= 18;
     }
+    function sectionEyebrow(str) {
+      ensureSpace(18);
+      trackedTextAt(str.toUpperCase(), MARGIN, y, 8.5, 'F1', ROSE_DEEP, 1.6);
+      y -= 15;
+    }
     function heading(str) {
-      ensureSpace(26);
-      text(str, MARGIN, 13, 'F2', '9A4B66');
-      y -= 22;
+      ensureSpace(30);
+      text(str, MARGIN, 18, 'F3', INK);
+      y -= 12;
+      rect(MARGIN, y, 34, 2.2, ROSE_DEEP);
+      y -= 16;
     }
     function row(label, value) {
       var valueLines = pdfWrapText(value, COL_W, 10.5);
       var h = Math.max(1, valueLines.length) * LINE_H;
       ensureSpace(h);
-      text(label, MARGIN, 9.5, 'F1', '7A7A7C');
+      text(label, MARGIN, 9.5, 'F1', MUTED);
       valueLines.forEach(function (vl, i) {
-        text(vl, COL_X, 10.5, 'F2', '3F3F41');
+        text(vl, COL_X, 10.5, 'F2', INK);
         if (i < valueLines.length - 1) y -= LINE_H;
       });
       y -= LINE_H;
+    }
+    function priorityRow(num, str) {
+      var badgeR = 9.5;
+      var textX = MARGIN + badgeR * 2 + 14;
+      var maxW = PAGE_W - MARGIN - textX;
+      var lines = pdfWrapText(str, maxW, 10.5);
+      var rowH = lines.length * LINE_H;
+      ensureSpace(rowH + 6);
+      var badgeCy = y - 3.5;
+      circle(MARGIN + badgeR, badgeCy, badgeR, ROSE_DEEP);
+      var numStr = String(num);
+      textAt(numStr, MARGIN + badgeR - numStr.length * 2.7, badgeCy - 3, 8.5, 'F2', WHITE);
+      lines.forEach(function (l, i) {
+        text(l, textX, 10.5, 'F2', INK);
+        if (i < lines.length - 1) y -= LINE_H;
+      });
+      y -= (rowH + 8);
+    }
+    function bulletLine(str, opts) {
+      opts = opts || {};
+      var size = opts.size || 10.5;
+      var font = opts.font || 'F1';
+      var hex = opts.color || INK;
+      var indent = opts.indent || 14;
+      var maxW = PAGE_W - MARGIN - MARGIN - indent;
+      var lines = pdfWrapText(str, maxW, size);
+      lines.forEach(function (l, i) {
+        ensureSpace(LINE_H);
+        if (i === 0) circle(MARGIN + indent / 2 - 2, y + 3, 1.6, ROSE_LIGHT);
+        text(l, MARGIN + indent, size, font, hex);
+        y -= LINE_H;
+      });
     }
     function plainLine(str, opts) {
       opts = opts || {};
       var size = opts.size || 10.5;
       var font = opts.font || 'F1';
-      var hex = opts.color || '3F3F41';
+      var hex = opts.color || INK;
       var indent = opts.indent || 0;
       var lines = pdfWrapText(str, PAGE_W - MARGIN - MARGIN - indent, size);
       lines.forEach(function (l) {
@@ -2086,85 +2173,143 @@
     }
     function footer(pageIndex, pageCount) {
       var fy = 42;
-      pages[pageIndex].push('0.48 0.48 0.48 rg BT /F1 8 Tf ' + MARGIN.toFixed(2) + ' ' + fy + ' Td (' +
+      pages[pageIndex].push('0.65 0.60 0.59 RG 0.6 w ' + MARGIN.toFixed(2) + ' ' + (fy + 14) + ' m ' + (PAGE_W - MARGIN).toFixed(2) + ' ' + (fy + 14) + ' l S');
+      pages[pageIndex].push('0.48 0.48 0.48 rg BT /F1 7.5 Tf ' + MARGIN.toFixed(2) + ' ' + fy + ' Td (' +
         pdfEscape('Beauty Lounge · Inh. Svenja Gampp · Hoistener Straße 15 · 41466 Neuss · 02131 4506806') + ') Tj ET');
       var pageLabel = 'Seite ' + (pageIndex + 1) + ' von ' + pageCount;
-      var px = PAGE_W - MARGIN - pageLabel.length * 8 * 0.5;
-      pages[pageIndex].push('0.48 0.48 0.48 rg BT /F1 8 Tf ' + px.toFixed(2) + ' ' + fy + ' Td (' + pdfEscape(pageLabel) + ') Tj ET');
+      var px = PAGE_W - MARGIN - pageLabel.length * 7.5 * 0.5;
+      pages[pageIndex].push('0.48 0.48 0.48 rg BT /F1 7.5 Tf ' + px.toFixed(2) + ' ' + fy + ' Td (' + pdfEscape(pageLabel) + ') Tj ET');
     }
 
-    // Kopfbereich (Logo + Kundenname + Ziel)
-    var logoW = 130, logoH = logoW * (LOGO_PDF_H / LOGO_PDF_W);
-    y -= 4;
-    curOps.push('q ' + logoW.toFixed(2) + ' 0 0 ' + logoH.toFixed(2) + ' ' + ((PAGE_W - logoW) / 2).toFixed(2) + ' ' + (y - logoH).toFixed(2) + ' cm /Im1 Do Q');
-    y -= (logoH + 22);
-    textCentered('Beauty Blueprint', 12, 'F1', '9A4B66');
-    y -= 24;
-    textCentered(STATE.kundeName || 'Kundin', 21, 'F2', '3F3F41');
-    y -= 22;
-    textCentered(zielText(), 10.5, 'F1', '7A7A7C');
-    y -= 14;
-    ruleLine();
+    // ---------- Titelseite ----------
+    var panelH = 300;
+    rect(0, PAGE_H - panelH, PAGE_W, panelH, BLUSH);
+    pageBorder(); // nach dem Panel gezeichnet, damit der Rahmen darüber sichtbar bleibt
+    var logoW = 168, logoH = logoW * (LOGO_PDF_H / LOGO_PDF_W);
+    var logoY = PAGE_H - panelH / 2 - logoH / 2 + 6;
+    curOps.push('q ' + logoW.toFixed(2) + ' 0 0 ' + logoH.toFixed(2) + ' ' + ((PAGE_W - logoW) / 2).toFixed(2) + ' ' + logoY.toFixed(2) + ' cm /Im1 Do Q');
+
+    y = PAGE_H - panelH - 100;
+    trackedTextCentered('BEAUTY BLUEPRINT', 10.5, 'F1', ROSE_DEEP, 2.2);
+    y -= 34;
+    textCentered(STATE.kundeName || 'Kundin', 29, 'F3', INK);
+    y -= 20;
+    rect((PAGE_W - 34) / 2, y, 34, 2.2, ROSE_DEEP);
+    y -= 26;
+    centeredWrapped(zielText(), 360, 12.5, 'F4', MUTED);
+    y -= 40;
+    trackedTextCentered('IHR PERSÖNLICHER PFLEGE- UND BEHANDLUNGSPLAN', 8, 'F1', MUTED2, 1.4);
+
+    y = (y + 172) / 2;
+    rect((PAGE_W - 24) / 2, y, 24, 1.4, ROSE_LIGHT);
+
+    y = 172;
+    var metaLine = formatDateDE(new Date()) + (STATE.mitarbeiterin ? ' · Ihre Beraterin: ' + STATE.mitarbeiterin : '');
+    textCentered(metaLine, 9, 'F1', MUTED2);
+
+    newPage();
 
     // Übersicht
+    sectionEyebrow('Ihr Programm');
     heading('Übersicht');
     row('Programm', plan.family.name);
+    row('Nächster Checkpoint', 'in 4 Wochen');
+    y -= 8;
     var behandlungRows = groupedActive(plan);
     if (behandlungRows.length) {
       behandlungRows.forEach(function (r, i) {
-        row('Priorität ' + (i + 1), treatLine(r) + (r.count > 1 ? ' — ' + r.count + 'x im Kurplan' : ''));
+        priorityRow(i + 1, treatLine(r) + (r.count > 1 ? ' — ' + r.count + 'x im Kurplan' : ''));
       });
     } else {
-      row('Behandlung', 'Keine ausgewählt');
+      plainLine('Noch keine Behandlung ausgewählt.', { color: MUTED });
     }
-    row('Nächster Checkpoint', 'in 4 Wochen');
-    y -= 6;
+    y -= 10;
 
-    // 6-Monats-Kurplan
+    // 6-Monats-Kurplan als Tabelle
+    sectionEyebrow('Ihr Fahrplan');
     heading('6-Monats-Kurplan');
+    var tableX = MARGIN, tableW = PAGE_W - 2 * MARGIN;
+    var monatColW = 60, priceColW = 70, nameColW = tableW - monatColW - priceColW;
+    ensureSpace(22);
+    text('Monat', tableX, 8.5, 'F1', MUTED2);
+    text('Behandlung', tableX + monatColW, 8.5, 'F1', MUTED2);
+    text('Preis', tableX + monatColW + nameColW, 8.5, 'F1', MUTED2);
+    y -= 8;
+    ruleLine();
     kurDefaultSlots(plan).forEach(function (baseInfo, idx) {
       var info = kurInfoFor(idx, baseInfo);
-      row('Monat ' + (idx + 1), info ? treatLine(info) : 'Entfernt');
+      var nameStr = info ? (info.behandlung + (info.dauer ? ' (' + info.dauer + ')' : '')) : 'Entfernt';
+      var priceStr = info ? (info.preis || '') : '';
+      var lines = pdfWrapText(nameStr, nameColW - 8, 10);
+      var rowH = Math.max(1, lines.length) * LINE_H;
+      ensureSpace(rowH + 6);
+      if (idx % 2 === 1) rect(tableX - 8, y - rowH + 12, tableW + 16, rowH, BLUSH);
+      text('Monat ' + (idx + 1), tableX, 9.5, 'F1', MUTED);
+      lines.forEach(function (l, i) {
+        text(l, tableX + monatColW, 10, 'F2', INK);
+        if (i === 0 && priceStr) {
+          var priceX = tableX + tableW - priceStr.length * 10 * 0.55;
+          text(priceStr, priceX, 10, 'F2', ROSE_DEEP);
+        }
+        if (i < lines.length - 1) y -= LINE_H;
+      });
+      y -= rowH;
     });
-    ensureSpace(LINE_H + 6);
-    text('Kur-Gesamtpreis (6 Monate)', MARGIN, 10.5, 'F2', '3F3F41');
-    text(kurGesamt, COL_X, 10.5, 'F2', '9A4B66');
-    y -= (LINE_H + 10);
+    y -= 6;
+    ensureSpace(36);
+    var totalBarH = 32;
+    rect(tableX - 8, y - totalBarH + 10, tableW + 16, totalBarH, ROSE_DEEP);
+    y -= (totalBarH - 21);
+    text('Kur-Gesamtpreis (6 Monate)', tableX, 11.5, 'F2', WHITE);
+    var totalX = tableX + tableW - kurGesamt.length * 11.5 * 0.55;
+    text(kurGesamt, totalX, 11.5, 'F2', WHITE);
+    y -= (totalBarH - 8);
 
     // Homecare-Routine
+    sectionEyebrow('Für zuhause');
     heading('Homecare-Routine');
-    plainLine('Morgens', { font: 'F2', size: 10.5, color: '9A4B66' });
+    plainLine('Morgens', { font: 'F2', size: 11, color: ROSE_DEEP });
     [reinigungInfo, tonicInfo, serumInfo, augencremeInfo, homeAM, sonnenschutzInfo].forEach(function (info) {
-      if (info) plainLine('– ' + productLine(info), { indent: 10 });
+      if (info) bulletLine(productLine(info));
     });
-    y -= 4;
-    plainLine('Abends', { font: 'F2', size: 10.5, color: '9A4B66' });
+    y -= 6;
+    plainLine('Abends', { font: 'F2', size: 11, color: ROSE_DEEP });
     [reinigungInfo, tonicInfo, serumInfo, augencremeInfo, homePM].forEach(function (info) {
-      if (info) plainLine('– ' + productLine(info), { indent: 10 });
+      if (info) bulletLine(productLine(info));
     });
     if (peelingInfo || maskeInfo) {
-      y -= 4;
-      plainLine('1-2x wöchentlich', { font: 'F2', size: 10.5, color: '9A4B66' });
-      if (peelingInfo) plainLine('– Peeling: ' + productLine(peelingInfo), { indent: 10 });
-      if (maskeInfo) plainLine('– Maske: ' + productLine(maskeInfo), { indent: 10 });
+      y -= 6;
+      plainLine('1-2x wöchentlich', { font: 'F2', size: 11, color: ROSE_DEEP });
+      if (peelingInfo) bulletLine('Peeling: ' + productLine(peelingInfo));
+      if (maskeInfo) bulletLine('Maske: ' + productLine(maskeInfo));
     }
-    y -= 14;
+    y -= 12;
 
-    // Terminbuchung als Link-Button
-    ensureSpace(46);
-    var btnW = 220, btnH = 30, btnX = (PAGE_W - btnW) / 2, btnY = y - btnH;
-    rect(btnX, btnY, btnW, btnH, '3F3F41');
+    // Terminbuchung als CTA-Panel
+    var pagesBeforeCta = pages.length;
+    ensureSpace(104);
+    var ctaH = 104;
+    // Springt der Block auf eine frische, sonst leere Seite, wirkt er als ruhiger
+    // Abschluss mittig auf der Seite statt oben klebend mit viel Leerraum darunter.
+    if (pages.length > pagesBeforeCta) y = PAGE_H / 2 + ctaH / 2 + 60;
+    var ctaTop = y, ctaBottom = ctaTop - ctaH;
+    rect(tableX - 8, ctaBottom, tableW + 16, ctaH, BLUSH);
+    y = ctaTop - 32;
+    textCentered('Bereit für den nächsten Schritt?', 13, 'F4', ROSE_DEEP);
+    y -= 38;
+    var btnW = 220, btnH = 32, btnX = (PAGE_W - btnW) / 2, btnY = y - btnH;
+    rect(btnX, btnY, btnW, btnH, INK);
     var btnLabel = 'Termin online buchen';
     var btnFontSize = 10.5;
     var btnLabelW = btnLabel.length * btnFontSize * 0.5;
     y = btnY + (btnH - btnFontSize * 0.7) / 2;
-    text(btnLabel, (PAGE_W - btnLabelW) / 2, btnFontSize, 'F2', 'FFFFFF');
+    text(btnLabel, (PAGE_W - btnLabelW) / 2, btnFontSize, 'F2', WHITE);
     linkTargets.push({ page: pages.length, x: btnX, y: btnY, w: btnW, h: btnH, url: BOOKING_URL });
-    y = btnY - 18;
+    y = ctaBottom - 20;
 
     newPage();
     var pageCount = pages.length;
-    for (var p = 0; p < pageCount; p++) footer(p, pageCount);
+    for (var p = 1; p < pageCount; p++) footer(p, pageCount);
 
     // ---------- Serialisierung ----------
     var objs = [];
@@ -2172,6 +2317,8 @@
 
     var fontRegNum = addObj('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');
     var fontBoldNum = addObj('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
+    var fontSerifBoldNum = addObj('<< /Type /Font /Subtype /Type1 /BaseFont /Times-Bold /Encoding /WinAnsiEncoding >>');
+    var fontSerifItalicNum = addObj('<< /Type /Font /Subtype /Type1 /BaseFont /Times-Italic /Encoding /WinAnsiEncoding >>');
     var logoBytes = base64ToBytes(LOGO_PDF_JPEG_B64);
     var imgNum = addObj({
       stream: logoBytes,
@@ -2181,6 +2328,7 @@
 
     var pagesNum = objs.length + 1; objs.push(null); // reserviert, wird unten befüllt
 
+    var fontsDict = '<< /F1 ' + fontRegNum + ' 0 R /F2 ' + fontBoldNum + ' 0 R /F3 ' + fontSerifBoldNum + ' 0 R /F4 ' + fontSerifItalicNum + ' 0 R >>';
     var pageNums = [];
     pages.forEach(function (ops, idx) {
       var contentStr = ops.join('\n') + '\n';
@@ -2192,7 +2340,7 @@
             (l.x + l.w).toFixed(2) + ' ' + (l.y + l.h).toFixed(2) + '] /Border [0 0 0] /A ' + actionNum + ' 0 R >>');
         });
       var pageDict = '<< /Type /Page /Parent ' + pagesNum + ' 0 R /MediaBox [0 0 ' + PAGE_W.toFixed(2) + ' ' + PAGE_H.toFixed(2) +
-        '] /Resources << /Font << /F1 ' + fontRegNum + ' 0 R /F2 ' + fontBoldNum + ' 0 R >> /XObject << /Im1 ' + imgNum + ' 0 R >> >>' +
+        '] /Resources << /Font ' + fontsDict + ' /XObject << /Im1 ' + imgNum + ' 0 R >> >>' +
         ' /Contents ' + cNum + ' 0 R' +
         (annotNums.length ? ' /Annots [' + annotNums.map(function (n) { return n + ' 0 R'; }).join(' ') + ']' : '') + ' >>';
       pageNums.push(addObj(pageDict));
