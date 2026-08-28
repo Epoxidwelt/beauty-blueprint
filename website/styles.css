@@ -22,6 +22,10 @@
 
 *,*::before,*::after{box-sizing:border-box;}
 html{scroll-behavior:smooth;}
+button{
+  -webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent;
+  font-family:inherit;background:none;border:none;color:inherit;
+}
 body{
   margin:0;
   background:var(--white);
@@ -81,8 +85,10 @@ svg{display:block;}
   cursor:pointer;
   overflow:hidden;
   isolation:isolate;
+  -webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent;
   transition:transform .35s var(--ease),box-shadow .35s var(--ease),border-color .35s var(--ease),background .35s var(--ease),color .35s var(--ease);
 }
+button.btn{font:inherit;letter-spacing:inherit;text-transform:inherit;}
 .btn-primary{background:var(--black);color:var(--white);}
 .btn-primary::before{
   content:'';position:absolute;inset:0;
