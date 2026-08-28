@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/img/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/img/apple-touch-icon.png">
+<title>Specials – Beauty Lounge Neuss</title>
+<meta name="description" content="Aktuelle Aktionen und zeitlich begrenzte Angebote der Beauty Lounge Neuss.">
+<link rel="canonical" href="https://www.beautylounge-neuss.de/specials.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Specials – Beauty Lounge Neuss">
+<meta property="og:description" content="Aktuelle Aktionen der Beauty Lounge Neuss.">
+<meta property="og:url" content="https://www.beautylounge-neuss.de/specials.html">
+<meta property="og:image" content="https://www.beautylounge-neuss.de/assets/img/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Libre+Caslon+Display&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<header class="site-header" id="siteHeader">
+  <div class="header-inner">
+    <a href="index.html" class="brand">
+      <img src="assets/img/logo.png" alt="Beauty Lounge Neuss">
+    </a>
+    <nav class="main-nav" id="mainNav">
+      <a href="index.html">Home</a>
+      <a href="behandlungen.html">Behandlungen</a>
+      <a href="preise.html">Preise</a>
+      <a href="specials.html">Specials</a>
+      <a href="ueber-uns.html">Über mich</a>
+      <a href="kontakt.html">Kontakt</a>
+      <a href="https://www.studiobookr.com/beauty-lounge-66137" target="_blank" rel="noopener" class="nav-cta">Termin buchen</a>
+    </nav>
+    <button class="nav-toggle" id="navToggle" aria-label="Menü öffnen" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<main>
+
+  <section class="page-hero">
+    <div class="page-hero-inner">
+      <p class="mark center reveal">Specials</p>
+      <h1 class="reveal">Aktuelle Aktionen</h1>
+      <p class="reveal">Zeitlich begrenzte Angebote &mdash; schauen Sie hier regelmäßig vorbei, oder fragen Sie einfach direkt nach.</p>
+    </div>
+  </section>
+
+  <!-- SPECIALS / AKTIONEN — hier lassen sich Angebote einfach austauschen: special-card kopieren, Bild/Text/Link anpassen, oder Karte löschen, wenn kein Angebot aktiv ist. -->
+  <section class="section" style="padding-top:0;">
+    <div class="section-inner">
+      <div class="specials-grid reveal">
+        <div class="special-card">
+          <div class="special-media"><img src="assets/img/svenja.jpg" alt="Vitamin Frische Kick Aktion"></div>
+          <div class="special-body">
+            <span class="special-badge">Zeitlich begrenzt</span>
+            <h3>Vitamin Frische Kick</h3>
+            <p>Unsere sanft abtragende Kombination mit hochdosiertem Vitamin C bringt müde, fahle Haut wieder zum Strahlen &mdash; für ein frisches, ebenmäßiges Hautbild.</p>
+            <a href="https://www.studiobookr.com/beauty-lounge-66137" target="_blank" rel="noopener" class="btn btn-ghost">Termin buchen</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GUTSCHEIN -->
+  <section class="voucher-banner">
+    <div class="voucher-inner reveal">
+      <h2>Verschenken Sie Wohlbefinden!</h2>
+      <p>Ein Gutschein der Beauty Lounge passt zu beinahe jedem Anlass &mdash; ob Hochzeit, Geburtstag oder einfach als kleine Aufmerksamkeit zwischendurch.</p>
+      <a href="kontakt.html" class="btn btn-outline-light">Jetzt anfragen</a>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <img src="assets/img/logo.png" alt="Beauty Lounge Neuss" class="footer-logo">
+    <p>&copy; <span id="year"></span> Beauty Lounge Neuss. Alle Rechte vorbehalten.</p>
+    <div class="footer-links">
+      <a class="link-btn" href="datenschutz.html">Datenschutz</a>
+      <button class="link-btn" id="impressumToggle" aria-expanded="false">Impressum</button>
+    </div>
+  </div>
+  <div class="impressum" id="impressumPanel" hidden>
+    <div class="impressum-inner">
+      <h3>Betreiberinformationen</h3>
+      <p>Inhaber und verantwortlich für den Inhalt dieser Webseite ist gemäß § 5 TMG und § 55 Abs. 2 RStV: Svenja Gampp, Neuss.</p>
+      <h3>Haftungshinweis</h3>
+      <p>Trotz sorgfältiger inhaltlicher Kontrolle übernimmt der Betreiber keine Haftung für die Inhalte externer Links. Für den Inhalt verlinkter Seiten sind ausschließlich deren Betreiber verantwortlich.</p>
+      <h3>Kontaktdaten</h3>
+      <p>Beauty Lounge Neuss, Inh. Svenja Gampp, Hoistener Str. 15, 41466 Neuss<br>
+      Telefon: 02131&nbsp;&ndash;&nbsp;4506806<br>
+      E-Mail: info@beautylounge-neuss.de<br>
+      Web: beautylounge-neuss.de</p>
+    </div>
+  </div>
+</footer>
+
+<!-- BEHANDLUNGSFINDER -->
+<div class="finder-overlay" id="finderOverlay" hidden>
+  <div class="finder-modal" role="dialog" aria-modal="true" aria-labelledby="finderStepHeading">
+    <div class="finder-head">
+      <button type="button" class="finder-back" id="finderBack" aria-label="Zurück" hidden>
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M15 5 L8 12 L15 19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="finder-progress" aria-hidden="true"><span id="finderProgressFill"></span></div>
+      <button type="button" class="finder-close" id="finderClose" aria-label="Behandlungsfinder schließen">&times;</button>
+    </div>
+    <div class="finder-body" id="finderBody"></div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

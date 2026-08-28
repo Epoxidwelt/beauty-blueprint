@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/img/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/img/apple-touch-icon.png">
+<title>Seite nicht gefunden – Beauty Lounge Neuss</title>
+<meta name="robots" content="noindex, follow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Libre+Caslon+Display&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<header class="site-header" id="siteHeader">
+  <div class="header-inner">
+    <a href="index.html" class="brand">
+      <img src="assets/img/logo.png" alt="Beauty Lounge Neuss">
+    </a>
+    <nav class="main-nav" id="mainNav">
+      <a href="index.html">Home</a>
+      <a href="behandlungen.html">Behandlungen</a>
+      <a href="preise.html">Preise</a>
+      <a href="specials.html">Specials</a>
+      <a href="ueber-uns.html">Über mich</a>
+      <a href="kontakt.html">Kontakt</a>
+      <a href="https://www.studiobookr.com/beauty-lounge-66137" target="_blank" rel="noopener" class="nav-cta">Termin buchen</a>
+    </nav>
+    <button class="nav-toggle" id="navToggle" aria-label="Menü öffnen" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<main>
+  <section class="page-hero" style="min-height:70vh;display:flex;align-items:center;">
+    <div class="page-hero-inner">
+      <p class="mark center">Seite nicht gefunden</p>
+      <h1>Hier ist wohl etwas verwoben.</h1>
+      <p>Die gesuchte Seite existiert nicht oder wurde verschoben. Vielleicht hilft Ihnen einer dieser Wege weiter:</p>
+      <div class="teaser-grid" style="margin-top:2.4rem;text-align:left;">
+        <a class="teaser-card" href="index.html">
+          <h3>Zur Startseite</h3>
+          <p>Zurück zum Anfang &mdash; alle Bereiche im Überblick.</p>
+          <span class="teaser-link">Home &rarr;</span>
+        </a>
+        <a class="teaser-card" href="behandlungen.html">
+          <h3>Behandlungen entdecken</h3>
+          <p>Gesicht, FORMA, DIOLAZE, Wimpern, Hände &amp; Füße.</p>
+          <span class="teaser-link">Ansehen &rarr;</span>
+        </a>
+        <a class="teaser-card" href="kontakt.html">
+          <h3>Kontakt aufnehmen</h3>
+          <p>Rufen Sie uns an oder schreiben Sie uns direkt.</p>
+          <span class="teaser-link">Kontakt &rarr;</span>
+        </a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <img src="assets/img/logo.png" alt="Beauty Lounge Neuss" class="footer-logo">
+    <p>&copy; <span id="year"></span> Beauty Lounge Neuss. Alle Rechte vorbehalten.</p>
+    <div class="footer-links">
+      <a class="link-btn" href="datenschutz.html">Datenschutz</a>
+      <button class="link-btn" id="impressumToggle" aria-expanded="false">Impressum</button>
+    </div>
+  </div>
+  <div class="impressum" id="impressumPanel" hidden>
+    <div class="impressum-inner">
+      <h3>Betreiberinformationen</h3>
+      <p>Inhaber und verantwortlich für den Inhalt dieser Webseite ist gemäß § 5 TMG und § 55 Abs. 2 RStV: Svenja Gampp, Neuss.</p>
+      <h3>Kontaktdaten</h3>
+      <p>Beauty Lounge Neuss, Inh. Svenja Gampp, Hoistener Str. 15, 41466 Neuss<br>
+      Telefon: 02131&nbsp;&ndash;&nbsp;4506806<br>
+      E-Mail: info@beautylounge-neuss.de</p>
+    </div>
+  </div>
+</footer>
+
+<!-- BEHANDLUNGSFINDER (leer gehalten — Finder wird auf dieser Seite nicht angeboten, aber script.js erwartet das Overlay-Element) -->
+<div class="finder-overlay" id="finderOverlay" hidden>
+  <div class="finder-modal" role="dialog" aria-modal="true" aria-labelledby="finderStepHeading">
+    <div class="finder-head">
+      <button type="button" class="finder-back" id="finderBack" aria-label="Zurück" hidden>
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M15 5 L8 12 L15 19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="finder-progress" aria-hidden="true"><span id="finderProgressFill"></span></div>
+      <button type="button" class="finder-close" id="finderClose" aria-label="Behandlungsfinder schließen">&times;</button>
+    </div>
+    <div class="finder-body" id="finderBody"></div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
