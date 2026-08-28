@@ -1887,12 +1887,13 @@
       lines.push('- keine ausgewählt');
     }
     lines.push('');
-    lines.push('6-Monats-Kurplan:');
-    kurDefaultSlots(plan).forEach(function (baseInfo, idx) {
+    var kurSlotsForEmail = kurDefaultSlots(plan);
+    lines.push(kurSlotsForEmail.length + '-Monats-Kurplan:');
+    kurSlotsForEmail.forEach(function (baseInfo, idx) {
       var info = kurInfoFor(idx, baseInfo);
       lines.push('Monat ' + (idx + 1) + ': ' + (info ? treatLine(info) : 'entfernt'));
     });
-    lines.push('Kur-Gesamtpreis (6 Monate): ' + formatPrice(kurTotal(plan)));
+    lines.push('Kur-Gesamtpreis (' + kurSlotsForEmail.length + ' Monate): ' + formatPrice(kurTotal(plan)));
     lines.push('');
     lines.push('Homecare-Produkte:');
     var homeAM = homecareInfoFor('am', i1);
@@ -2278,9 +2279,10 @@
     }
     y -= 10;
 
-    // 6-Monats-Kurplan als Tabelle
+    // Kurplan als Tabelle
+    var kurSlotsForPdf = kurDefaultSlots(plan);
     sectionEyebrow('Ihr Fahrplan');
-    heading('6-Monats-Kurplan');
+    heading(kurSlotsForPdf.length + '-Monats-Kurplan');
     var tableX = MARGIN, tableW = PAGE_W - 2 * MARGIN;
     var monatColW = 60, priceColW = 70, nameColW = tableW - monatColW - priceColW;
     ensureSpace(22);
@@ -2289,7 +2291,7 @@
     text('Preis', tableX + monatColW + nameColW, 8.5, 'F1', MUTED2);
     y -= 8;
     ruleLine();
-    kurDefaultSlots(plan).forEach(function (baseInfo, idx) {
+    kurSlotsForPdf.forEach(function (baseInfo, idx) {
       var info = kurInfoFor(idx, baseInfo);
       var nameStr = info ? (info.behandlung + (info.dauer ? ' (' + info.dauer + ')' : '')) : 'Entfernt';
       var priceStr = info ? (info.preis || '') : '';
@@ -2313,7 +2315,7 @@
     var totalBarH = 32;
     rect(tableX - 8, y - totalBarH + 10, tableW + 16, totalBarH, ROSE_DEEP);
     y -= (totalBarH - 21);
-    text('Kur-Gesamtpreis (6 Monate)', tableX, 11.5, 'F2', WHITE);
+    text('Kur-Gesamtpreis (' + kurSlotsForPdf.length + ' Monate)', tableX, 11.5, 'F2', WHITE);
     var totalX = tableX + tableW - kurGesamt.length * 11.5 * 0.55;
     text(kurGesamt, totalX, 11.5, 'F2', WHITE);
     y -= (totalBarH - 8);
@@ -2531,15 +2533,33 @@
   }
 
   // 6-Monats-Kurplan: alle im Behandlungsplan ausgewählten Behandlungen werden im Kreis auf die
-  // 6 Monate verteilt, in genau der Klick-Reihenfolge der Mitarbeiterin — wählt sie eine
+  // Monate verteilt, in genau der Klick-Reihenfolge der Mitarbeiterin — wählt sie eine
   // Behandlung mehrfach an (z. B. ASA gleich 3x), taucht sie entsprechend öfter im Kurplan auf.
+  // Der Plan hat immer mindestens KUR_MONTHS_MIN Monate (repeat-fill bei wenigen Behandlungen);
+  // sind mehr Behandlungen ausgewählt, wächst der Plan auf genau diese Anzahl Monate mit —
+  // jede ausgewählte Behandlung bekommt dann ihren eigenen Monat statt aus dem Plan zu fallen.
   // Jeder Termin bleibt einzeln editierbar (Suche, Zurücksetzen, Entfernen).
-  var KUR_MONTHS = 6;
+  var KUR_MONTHS_MIN = 6;
+
+  function kurMonthsCount(plan) {
+    return Math.max(KUR_MONTHS_MIN, plan.active.length || 1);
+  }
+
+  // Wächst STATE.rec.kur bei Bedarf nach, ohne bestehende Termine (inkl. manueller
+  // Überschreibungen) anzutasten — nur Schrumpfen findet nie statt, überzählige Slots
+  // bleiben einfach ungenutzt liegen, falls später wieder weniger Behandlungen aktiv sind.
+  function ensureKurSlots(months) {
+    while (STATE.rec.kur.length < months) {
+      STATE.rec.kur.push({ status: 'aktiv', override: null, searchOpen: false });
+    }
+  }
 
   function kurDefaultSlots(plan) {
     var pool = plan.active.length ? plan.active : [plan.ranked[0]];
+    var months = kurMonthsCount(plan);
+    ensureKurSlots(months);
     var slots = [];
-    for (var m = 0; m < KUR_MONTHS; m++) {
+    for (var m = 0; m < months; m++) {
       slots.push(pool[m % pool.length]);
     }
     return slots;
@@ -2723,14 +2743,14 @@
       '<div class="grid cols-3">' +
         ranked.map(behandlungCard).join('') +
       '</div>' +
-      '<h3 class="section-label">6-Monats-Kurplan</h3>' +
+      '<h3 class="section-label">' + kurSlots.length + '-Monats-Kurplan</h3>' +
       '<p class="sub" style="margin-top:-.4rem">Ein Termin pro Monat — Hauptbehandlung als Rückgrat, an zwei Terminen zur Auflockerung die zweite Priorität. Struktur, Häufigkeit und Reihenfolge frei anpassbar.</p>' +
       (asaWarning ? '<div class="kur-warning">⚠ ' + esc(asaWarning) + '</div>' : '') +
       '<div class="grid cols-3">' +
         kurSlots.map(function (info, idx) { return kurSlotCard(idx, info, ranked); }).join('') +
       '</div>' +
       '<div class="summary-list" style="margin-top:.7rem">' +
-        '<div class="summary-row"><span class="k">Kur-Gesamtpreis (6 Monate)</span><span class="v">' + esc(formatPrice(kurGesamtpreis)) + '</span></div>' +
+        '<div class="summary-row"><span class="k">Kur-Gesamtpreis (' + kurSlots.length + ' Monate)</span><span class="v">' + esc(formatPrice(kurGesamtpreis)) + '</span></div>' +
       '</div>' +
       '<h3 class="section-label">Homecare-Produkte</h3>' +
       '<p class="sub" style="margin-top:-.4rem">Komplette Routine passend zur Priorität vorgeschlagen — bei Bedarf über die Suche austauschen oder entfernen.</p>' +
@@ -2766,7 +2786,8 @@
     var sonnenschutzInfo = homecareInfoFor('sonnenschutz', { product: i1.sonnenschutz, produktpreis: i1.sonnenschutzpreis });
     var homecareRow = !homeAM && !homePM ? 'Entfernt' :
       (productLine(homeAM) === productLine(homePM) ? productLine(homeAM) : productLine(homeAM) + ' + ' + productLine(homePM));
-    var kurRows = kurDefaultSlots(plan).map(function (baseInfo, idx) {
+    var kurSlotsForBlueprint = kurDefaultSlots(plan);
+    var kurRows = kurSlotsForBlueprint.map(function (baseInfo, idx) {
       var info = kurInfoFor(idx, baseInfo);
       return '<div class="summary-row"><span class="k">Monat ' + (idx + 1) + '</span><span class="v">' + esc(info ? treatLine(info) : 'Entfernt') + '</span></div>';
     }).join('');
@@ -2786,9 +2807,9 @@
         '<div class="summary-row"><span class="k">Nächster Checkpoint</span><span class="v">in 4 Wochen</span></div>' +
         '<div class="summary-row"><span class="k">Homecare</span><span class="v">' + esc(homecareRow) + '</span></div>' +
       '</div>' +
-      '<h3 class="section-label">6-Monats-Kurplan</h3>' +
+      '<h3 class="section-label">' + kurSlotsForBlueprint.length + '-Monats-Kurplan</h3>' +
       '<div class="summary-list">' + kurRows +
-        '<div class="summary-row"><span class="k" style="font-weight:700">Kur-Gesamtpreis (6 Monate)</span><span class="v" style="font-weight:700">' + esc(formatPrice(kurTotal(plan))) + '</span></div>' +
+        '<div class="summary-row"><span class="k" style="font-weight:700">Kur-Gesamtpreis (' + kurSlotsForBlueprint.length + ' Monate)</span><span class="v" style="font-weight:700">' + esc(formatPrice(kurTotal(plan))) + '</span></div>' +
       '</div>' +
       (homeAM || homePM ? '' +
         '<h3 class="section-label">Homecare-Routine</h3>' +
