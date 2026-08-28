@@ -423,3 +423,187 @@ document.querySelectorAll('.faq-item').forEach((item) => {
     if (stepIdx > 0) { stepIdx -= 1; renderCurrentStep(); }
   });
 })();
+
+// eignungscheck — behandlungsspezifischer "Passt das zu mir?"-Kurzfragebogen.
+// Rein informativ: ersetzt kein Beratungsgespräch, sondern bereitet es vor.
+// Bei jeder "Ja"-Antwort wird auf das kostenlose Beratungsgespräch verwiesen statt
+// automatisch eine medizinische Einschätzung abzugeben.
+(function () {
+  const SUITABILITY_DATA = {
+    forma: {
+      name: 'FORMA Hautstraffung',
+      questions: [
+        'Sind Sie aktuell schwanger?',
+        'Tragen Sie einen Herzschrittmacher oder andere elektronische Implantate?',
+        'Haben Sie Metallimplantate im zu behandelnden Bereich (z. B. feste Zahnspange)?',
+        'Liegen aktuell Hautinfektionen, offene Wunden oder Entzündungen im Behandlungsbereich vor?',
+        'Besteht bei Ihnen aktuell eine Krebserkrankung oder wurde eine solche im Behandlungsbereich behandelt?'
+      ]
+    },
+    diolaze: {
+      name: 'DIOLAZE Haarentfernung',
+      questions: [
+        'Sind Sie aktuell schwanger?',
+        'Waren Sie in den letzten 2–3 Wochen intensiv in der Sonne oder im Solarium (aktuell gebräunte Haut)?',
+        'Nehmen Sie photosensibilisierende Medikamente ein (z. B. bestimmte Antibiotika oder Isotretinoin)?',
+        'Haben Sie Tattoos oder Permanent Make-up im zu behandelnden Bereich?',
+        'Neigen Sie zu Keloiden (stark wuchernder Narbenbildung) oder Pigmentstörungen?'
+      ]
+    },
+    gesicht: {
+      name: 'Gesichtsbehandlungen',
+      questions: [
+        'Haben Sie aktuell einen Sonnenbrand, akute Hautreizungen oder offene Wunden im Gesicht?',
+        'Sind Ihnen Allergien gegen Kosmetikinhaltsstoffe bekannt?',
+        'Verwenden Sie aktuell hochdosiertes Retinol/Vitamin A oder hatten Sie kürzlich ein chemisches Peeling?',
+        'Neigen Sie zu Herpes im Gesichtsbereich?'
+      ]
+    },
+    wimpern: {
+      name: 'Wimpernlifting',
+      questions: [
+        'Haben Sie aktuell eine Augenreizung oder -infektion (z. B. Bindehautentzündung)?',
+        'Sind Ihnen Allergien gegen Wimpern- oder Kosmetikprodukte bekannt?',
+        'Hatten Sie kürzlich eine Augen-OP oder -behandlung?',
+        'Sind Ihre Wimpern aktuell stark geschwächt oder sehr dünn?'
+      ]
+    },
+    haende: {
+      name: 'Hand & Nagelpflege',
+      questions: [
+        'Haben Sie akute Hautinfektionen, Nagelpilz oder offene Wunden an Händen oder Nägeln?',
+        'Sind Ihnen Allergien gegen Nagellack- oder Gel-Inhaltsstoffe bekannt?',
+        'Ist Ihre Nagelhaut aktuell verletzt oder frisch behandelt?'
+      ]
+    },
+    fuesse: {
+      name: 'Fußpflege',
+      questions: [
+        'Haben Sie Diabetes mellitus?',
+        'Liegen offene Wunden oder akute Pilzinfektionen an den Füßen vor?',
+        'Sind Ihnen Durchblutungsstörungen in Beinen oder Füßen bekannt?'
+      ]
+    }
+  };
+
+  const overlay = document.getElementById('finderOverlay');
+  if (!overlay) return;
+  const modal = overlay.querySelector('.finder-modal');
+  const body = document.getElementById('finderBody');
+  const progressFill = document.getElementById('finderProgressFill');
+  const backBtn = document.getElementById('finderBack');
+  const closeBtn = document.getElementById('finderClose');
+  const triggers = document.querySelectorAll('.js-open-suitability');
+  if (!triggers.length) return;
+
+  let current = null;
+  let answers = {};
+  let lastFocused = null;
+
+  function renderQuestions() {
+    backBtn.hidden = true;
+    progressFill.style.width = '35%';
+    const allAnswered = current.questions.every((_, i) => answers[i] !== undefined);
+    body.innerHTML =
+      '<p class="finder-step-label">Eignungscheck</p>' +
+      '<h3>Passt ' + current.name + ' zu Ihnen?</h3>' +
+      '<p class="sub" style="margin:0 0 1.3rem;font-size:0.92rem;">Beantworten Sie kurz diese Fragen — so können wir uns optimal auf Ihren Termin vorbereiten. Das ersetzt kein Beratungsgespräch, hilft uns aber, Sie gezielt zu beraten.</p>' +
+      '<div class="suitability-list">' +
+      current.questions.map((q, i) =>
+        '<div class="suitability-item">' +
+          '<p>' + q + '</p>' +
+          '<div class="suitability-toggle" data-idx="' + i + '">' +
+            '<button type="button" class="' + (answers[i] === true ? 'active' : '') + '" data-val="yes">Ja</button>' +
+            '<button type="button" class="' + (answers[i] === false ? 'active' : '') + '" data-val="no">Nein</button>' +
+          '</div>' +
+        '</div>'
+      ).join('') +
+      '</div>' +
+      '<button type="button" class="btn btn-primary" id="suitabilitySubmit" style="margin-top:1.5rem;width:100%;justify-content:center;"' + (allAnswered ? '' : ' disabled') + '>Auswertung ansehen</button>';
+
+    body.querySelectorAll('.suitability-toggle').forEach((toggle) => {
+      const idx = Number(toggle.getAttribute('data-idx'));
+      toggle.querySelectorAll('button').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          answers[idx] = btn.getAttribute('data-val') === 'yes';
+          renderQuestions();
+        });
+      });
+    });
+    const submitBtn = document.getElementById('suitabilitySubmit');
+    if (submitBtn) submitBtn.addEventListener('click', renderResult);
+  }
+
+  function renderResult() {
+    progressFill.style.width = '100%';
+    const flagged = current.questions.filter((_, i) => answers[i] === true);
+    const positive = flagged.length === 0;
+    body.innerHTML =
+      '<div class="finder-result">' +
+      '<p class="finder-eyebrow">Ihr Eignungscheck</p>' +
+      '<h3>' + (positive ? 'Nach Ihren Angaben spricht nichts dagegen' : 'Das besprechen wir am besten persönlich') + '</h3>' +
+      '<p class="finder-result-sub">' + (positive
+        ? 'Schön — nach Ihren Angaben steht ' + current.name + ' nichts im Wege. Wir freuen uns, Sie bald bei uns begrüßen zu dürfen.'
+        : 'Bei ' + flagged.length + ' ' + (flagged.length === 1 ? 'Ihrer Angaben' : 'Ihrer Angaben') + ' schauen wir am besten gemeinsam genauer hin, damit ' + current.name + ' sicher und passend für Sie ist.') + '</p>' +
+      (positive ? '' :
+        '<dl class="finder-strategy">' +
+          flagged.map((q) => '<dt>Bitte ansprechen</dt><dd>' + q + '</dd>').join('') +
+        '</dl>'
+      ) +
+      '<p class="finder-booking-label">' + (positive ? 'So können Sie direkt buchen' : 'So geht es weiter') + '</p>' +
+      '<div class="finder-result-actions">' +
+      (positive
+        ? '<a href="https://www.studiobookr.com/beauty-lounge-66137" target="_blank" rel="noopener" class="btn btn-primary">Jetzt online buchen</a>' +
+          '<a href="tel:+4921314506806" class="btn btn-ghost">Jetzt anrufen</a>'
+        : '<a href="tel:+4921314506806" class="btn btn-primary">Kostenloses Beratungsgespräch anrufen</a>' +
+          '<a href="https://www.studiobookr.com/beauty-lounge-66137" target="_blank" rel="noopener" class="btn btn-ghost">Trotzdem online buchen</a>'
+      ) +
+      '</div>' +
+      '<button type="button" class="finder-restart" id="suitabilityRestart">Nochmal ausfüllen</button>' +
+      '</div>';
+    document.getElementById('suitabilityRestart').addEventListener('click', () => {
+      answers = {};
+      renderQuestions();
+    });
+  }
+
+  function onKeydown(e) {
+    if (e.key === 'Escape') { close(); return; }
+    if (e.key === 'Tab') {
+      const focusable = Array.from(modal.querySelectorAll('button, a[href], input, [tabindex]:not([tabindex="-1"])'))
+        .filter((el) => el.offsetParent !== null);
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault(); last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault(); first.focus();
+      }
+    }
+  }
+
+  function open(treatmentKey) {
+    current = SUITABILITY_DATA[treatmentKey];
+    if (!current) return;
+    answers = {};
+    lastFocused = document.activeElement;
+    renderQuestions();
+    overlay.hidden = false;
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', onKeydown);
+  }
+
+  function close() {
+    overlay.hidden = true;
+    document.body.style.overflow = '';
+    document.removeEventListener('keydown', onKeydown);
+    if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
+  }
+
+  triggers.forEach((btn) => {
+    btn.addEventListener('click', () => open(btn.getAttribute('data-treatment')));
+  });
+  closeBtn.addEventListener('click', close);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+})();

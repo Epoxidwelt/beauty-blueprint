@@ -213,18 +213,16 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
 /* compact treatment teaser grid — homepage overview linking out to full treatment pages */
 .teaser-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.4rem;margin-top:2.6rem;}
 .teaser-card{
-  display:flex;flex-direction:column;gap:0.9rem;padding:2rem 1.6rem;
+  display:flex;flex-direction:column;
   background:var(--white);border:1px solid var(--line);text-align:left;
-  transition:all .35s var(--ease);
+  overflow:hidden;transition:all .35s var(--ease);
 }
 .section.alt .teaser-card{background:var(--white);}
 .teaser-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-soft);border-color:transparent;}
-.teaser-icon{
-  width:48px;height:48px;border-radius:50%;flex:none;
-  background:radial-gradient(circle at 30% 25%,#fbeeec,var(--rose) 60%,var(--rose-soft) 100%);
-  display:flex;align-items:center;justify-content:center;
-}
-.teaser-icon svg{width:22px;height:22px;color:var(--wine);}
+.teaser-media{aspect-ratio:4/3;overflow:hidden;background:var(--gray-light);}
+.teaser-media img{width:100%;height:100%;object-fit:cover;transition:transform .5s var(--ease);}
+.teaser-card:hover .teaser-media img{transform:scale(1.05);}
+.teaser-body{display:flex;flex-direction:column;gap:0.7rem;padding:1.5rem 1.6rem 1.7rem;flex:1;}
 .teaser-card h3{margin-bottom:0;}
 .teaser-card p{font-size:0.92rem;margin-bottom:0;flex:1;}
 .teaser-card span.teaser-link{font-size:0.78rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--wine);}
@@ -302,16 +300,18 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
 .stat-num{display:block;font-family:'Libre Caslon Display',serif;font-size:2.2rem;color:var(--wine);font-variant-numeric:tabular-nums;}
 .stat-label{display:block;font-size:0.7rem;letter-spacing:0.09em;text-transform:uppercase;color:var(--text-soft);margin-top:0.3rem;}
 
-.team-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:1.6rem;margin-top:4.4rem;}
-.team-card{text-align:center;}
+.team-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:2.2rem;margin-top:2.4rem;}
+.team-card{text-align:center;max-width:220px;margin:0 auto;}
 .team-card .ring{
-  width:100%;aspect-ratio:1/1;border-radius:50%;padding:2.5px;
+  width:100%;max-width:150px;aspect-ratio:1/1;border-radius:50%;padding:2.5px;margin-left:auto;margin-right:auto;
   background:linear-gradient(135deg,var(--rose-soft),var(--rose-deep) 55%,var(--wine));
-  margin-bottom:0.9rem;transition:transform .4s var(--ease),box-shadow .4s var(--ease);
+  margin-bottom:1rem;transition:transform .4s var(--ease),box-shadow .4s var(--ease);
 }
 .team-card:hover .ring{transform:translateY(-5px);box-shadow:0 16px 30px -18px rgba(156,122,60,0.5);}
 .team-card img{width:100%;height:100%;object-fit:cover;border-radius:50%;border:3px solid var(--white);}
-.team-card span{font-size:0.78rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-soft);}
+.team-card span{font-size:0.78rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--black);font-weight:600;}
+.team-role{font-size:0.7rem;letter-spacing:0.07em;text-transform:uppercase;color:var(--wine);margin:0.3rem 0 0;}
+.team-bio{font-size:0.86rem;color:var(--text-soft);margin:0.5rem 0 0;max-width:none;}
 
 .hours-card{
   margin-top:4.4rem;padding:2.6rem 3rem;
@@ -397,7 +397,7 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
 }
 
 /* specials / aktionen */
-.specials-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.6rem;margin-top:2.6rem;}
+.specials-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,380px));gap:1.6rem;margin-top:2.6rem;justify-content:center;}
 .special-card{
   background:var(--white);border:1px solid var(--line);overflow:hidden;
   display:flex;flex-direction:column;transition:all .35s var(--ease);
@@ -552,6 +552,23 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
 .finder-option svg{flex:none;width:14px;height:14px;color:var(--rose-deep);opacity:0;transition:opacity .2s;}
 .finder-option:hover svg,.finder-option.selected svg{opacity:1;}
 
+/* eignungscheck — "Passt das zu mir?" Kurzfragebogen je Behandlung */
+.suitability-list{display:flex;flex-direction:column;gap:0.9rem;}
+.suitability-item{
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  padding:0.9em 0 0.9em 0;border-bottom:1px solid var(--line);
+}
+.suitability-item:last-child{border-bottom:none;}
+.suitability-item p{margin:0;font-size:0.92rem;color:var(--black);max-width:none;flex:1;}
+.suitability-toggle{display:flex;gap:0.5rem;flex:none;}
+.suitability-toggle button{
+  padding:0.5em 1.1em;border-radius:999px;border:1px solid var(--line);background:none;
+  font-family:'Inter',sans-serif;font-size:0.82rem;font-weight:600;color:var(--text-soft);cursor:pointer;
+  transition:all .2s var(--ease);
+}
+.suitability-toggle button:hover{border-color:var(--wine);color:var(--wine);}
+.suitability-toggle button.active{background:var(--wine);border-color:var(--wine);color:var(--white);}
+
 /* behandlungsfinder — result */
 .finder-result{
   margin:-2rem -1.8rem -2.4rem;padding:2.4rem 1.8rem 2.2rem;
@@ -642,18 +659,12 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
 }
 .treatment-hero-inner{
   position:relative;z-index:1;max-width:1220px;margin:0 auto;
-  display:grid;grid-template-columns:1fr auto;gap:2.5rem;align-items:end;
+  display:grid;grid-template-columns:1.05fr 0.95fr;gap:2.8rem;align-items:center;
 }
 .treatment-hero h1{margin-bottom:0.4em;}
 .treatment-hero-sub{max-width:58ch;font-size:1.08rem;margin:0 0 1.5em;}
 .treatment-hero-actions{display:flex;gap:1rem;flex-wrap:wrap;}
-.treatment-hero-badge{
-  width:110px;height:110px;border-radius:50%;flex:none;
-  background:radial-gradient(circle at 30% 25%,#fbeeec,var(--rose) 55%,var(--rose-soft) 100%);
-  box-shadow:0 20px 40px -22px rgba(156,122,60,0.35);
-  display:flex;align-items:center;justify-content:center;
-}
-.treatment-hero-badge svg{width:48px;height:48px;color:var(--wine);}
+.treatment-hero-visual .hero-portrait{aspect-ratio:4/3;}
 
 /* treatment landing pages — content */
 .treatment-section{padding:4rem 2rem;}
@@ -727,8 +738,8 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
 
 @media (max-width:900px){
   .treatment-hero-inner{grid-template-columns:1fr;align-items:start;}
-  .treatment-hero-badge{width:76px;height:76px;}
-  .treatment-hero-badge svg{width:34px;height:34px;}
+  .treatment-hero-visual{order:-1;}
+  .treatment-hero-visual .hero-portrait{aspect-ratio:16/10;}
   .treatment-columns{grid-template-columns:1fr;gap:2rem;}
   .related-grid{grid-template-columns:repeat(2,1fr);}
 }
