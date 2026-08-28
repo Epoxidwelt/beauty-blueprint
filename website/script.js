@@ -93,19 +93,6 @@ if (quoteViewport && dotsWrap) {
   startAutoplay();
 }
 
-// impressum toggle
-const impressumToggle = document.getElementById('impressumToggle');
-const impressumPanel = document.getElementById('impressumPanel');
-impressumToggle.addEventListener('click', () => {
-  const isHidden = impressumPanel.hasAttribute('hidden');
-  if (isHidden) {
-    impressumPanel.removeAttribute('hidden');
-  } else {
-    impressumPanel.setAttribute('hidden', '');
-  }
-  impressumToggle.setAttribute('aria-expanded', String(isHidden));
-});
-
 // contact form (static — no backend wired up; only present on the homepage)
 const form = document.getElementById('contactForm');
 const formSuccess = document.getElementById('formSuccess');
