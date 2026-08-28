@@ -332,6 +332,8 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
 .hours-card h3{color:var(--white);margin-bottom:0.2em;font-family:'Libre Caslon Display',serif;position:relative;z-index:1;}
 .hours-card p{color:rgba(255,255,255,0.65);margin:0;position:relative;z-index:1;}
 .hours-card .btn{position:relative;z-index:1;}
+.hours-card .btn-primary{background:var(--white);color:var(--black);}
+.hours-card .btn-primary:hover{background:var(--rose);color:var(--black);}
 
 /* services grid (secondary treatments) */
 .services-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:2.6rem;}
@@ -725,6 +727,8 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
 .treatment-cta h2{color:var(--white);}
 .treatment-cta p{color:rgba(255,255,255,0.68);margin-left:auto;margin-right:auto;}
 .treatment-cta .btn-group{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:1.7rem;}
+.treatment-cta .btn-primary{background:var(--white);color:var(--black);}
+.treatment-cta .btn-primary:hover{background:var(--rose);color:var(--black);}
 
 /* inline mid-page CTA */
 .inline-cta{
