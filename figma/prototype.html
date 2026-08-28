@@ -1422,7 +1422,11 @@
       render();
     }
     else if (kind === 'behandlung-remove') {
-      STATE.rec.behandlungOrder = STATE.rec.behandlungOrder.filter(function (n) { return n !== key; });
+      // Nimmt nur die zuletzt hinzugefügte Auswahl dieser Behandlung wieder raus (eine
+      // Zählung runter), nicht alle Vorkommen auf einmal — bei z. B. 3x ASA bleiben nach
+      // einem Klick auf "−" noch 2x ASA im Plan.
+      var lastIdx = STATE.rec.behandlungOrder.lastIndexOf(key);
+      if (lastIdx > -1) STATE.rec.behandlungOrder.splice(lastIdx, 1);
       render();
     }
     else if (kind === 'homecare-toggle-status') {
