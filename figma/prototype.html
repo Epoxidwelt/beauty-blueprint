@@ -2724,7 +2724,7 @@
               '<div class="product-results">' +
                 ranked.map(function (r, i) {
                   return '<button type="button" class="product-result" onclick="__bb.pickKurOption(' + idx + ',' + i + ')">' +
-                    '<span>Prio ' + r.prio + ' · ' + esc(r.behandlung) + '</span><span class="k" style="font-size:.75rem">' + esc([r.dauer, r.preis].filter(Boolean).join(' · ')) + '</span></button>';
+                    '<span>Behandlung ' + r.prio + ' · ' + esc(r.behandlung) + '</span><span class="k" style="font-size:.75rem">' + esc([r.dauer, r.preis].filter(Boolean).join(' · ')) + '</span></button>';
                 }).join('') +
               '</div>' : '') +
             '<input type="text" class="text-input" placeholder="Oder andere Behandlung suchen …" style="margin-top:.5rem" oninput="__bb.filterTreatments(' + idx + ', this.value)" />' +
@@ -2797,7 +2797,7 @@
     }).join('');
     var behandlungRows = groupedActive(plan).map(function (r, i) {
       var label = treatLine(r) + (r.count > 1 ? ' — ' + r.count + 'x im Kurplan' : '');
-      return '<div class="summary-row"><span class="k">Priorität ' + (i + 1) + '</span><span class="v">' + esc(label) + '</span></div>';
+      return '<div class="summary-row"><span class="k">Behandlung ' + (i + 1) + '</span><span class="v">' + esc(label) + '</span></div>';
     }).join('');
     var body = '' +
       '<img class="brand-logo md" src="' + LOGO_SRC + '" alt="Beauty Lounge" />' +
