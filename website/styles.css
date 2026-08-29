@@ -277,7 +277,7 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
 }
 .cinematic-quote cite{
   font-family:'Inter',sans-serif;font-size:0.76rem;letter-spacing:0.1em;text-transform:uppercase;
-  font-style:normal;color:var(--rose-deep);
+  font-style:normal;color:var(--wine);
 }
 @media (min-width:801px){
   .cinematic{display:grid;grid-template-columns:1fr 1fr;align-items:stretch;}
@@ -380,7 +380,7 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
 .showcase-tag{
   display:inline-flex;align-items:center;gap:0.5rem;
   font-size:0.72rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;
-  color:var(--rose-deep);margin-bottom:1rem;
+  color:var(--wine);margin-bottom:1rem;
 }
 .showcase-tag.featured{color:var(--rose-soft);}
 .showcase-row.on-dark{
@@ -442,7 +442,7 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
   font-family:'Libre Caslon Display',serif;font-size:clamp(1.25rem,2.4vw,1.6rem);font-style:italic;
   color:var(--black);margin:0 auto 1.1rem;max-width:56ch;line-height:1.42;
 }
-.quote-slide cite{font-size:0.76rem;letter-spacing:0.09em;text-transform:uppercase;color:var(--rose-deep);font-style:normal;font-family:'Inter',sans-serif;font-weight:600;}
+.quote-slide cite{font-size:0.76rem;letter-spacing:0.09em;text-transform:uppercase;color:var(--wine);font-style:normal;font-family:'Inter',sans-serif;font-weight:600;}
 .quote-controls{display:flex;align-items:center;justify-content:center;gap:1.5rem;margin-top:2rem;}
 .quote-nav{
   width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:none;
@@ -501,7 +501,7 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
   border-bottom:1px solid var(--line);padding-bottom:2px;
 }
 .hero-finder-link .leaf-ico{display:none;}
-.hero-finder-link:hover{border-color:var(--rose-deep);color:var(--rose-deep);}
+.hero-finder-link:hover{border-color:var(--wine);color:var(--wine);}
 
 /* behandlungsfinder — modal */
 .finder-overlay{
@@ -541,7 +541,7 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
 
 .finder-step-label{
   display:flex;align-items:center;gap:0.6rem;
-  font-size:0.72rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--rose-deep);
+  font-size:0.72rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--wine);
   margin-bottom:0.6rem;
 }
 .finder-step-label .leaf-ico{display:none;}
@@ -583,18 +583,18 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
   background:var(--gray-light);
 }
 .finder-result-mark{display:none;}
-.finder-eyebrow{text-align:center;font-size:0.72rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--rose-deep);margin-bottom:0.5rem;}
+.finder-eyebrow{text-align:center;font-size:0.72rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--wine);margin-bottom:0.5rem;}
 .finder-result h3{text-align:center;font-size:clamp(1.5rem,3.2vw,1.9rem);margin-bottom:0.3em;}
 .finder-result-sub{text-align:center;color:var(--text-soft);max-width:44ch;margin:0 auto 1.7rem;font-size:0.94rem;}
 .finder-strategy{background:var(--white);border:1px solid var(--line);padding:1.4rem 1.5rem;margin-bottom:1.2rem;}
-.finder-strategy dt{font-size:0.7rem;letter-spacing:0.09em;text-transform:uppercase;color:var(--rose-deep);font-weight:600;margin-top:0.9rem;}
+.finder-strategy dt{font-size:0.7rem;letter-spacing:0.09em;text-transform:uppercase;color:var(--wine);font-weight:600;margin-top:0.9rem;}
 .finder-strategy dt:first-child{margin-top:0;}
 .finder-strategy dd{margin:0.15rem 0 0;color:var(--black);}
 .finder-treatment-card{background:var(--black);color:var(--white);padding:1.7rem 1.6rem;margin-bottom:1.5rem;position:relative;}
 .finder-treatment-card .finder-treatment-label{font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--rose-soft);margin-bottom:0.4rem;}
 .finder-treatment-card h4{font-family:'Libre Caslon Display',serif;font-weight:400;font-size:1.4rem;color:var(--white);margin:0 0 0.4rem;}
 .finder-treatment-card p{color:rgba(255,255,255,0.72);margin:0;font-size:0.9rem;max-width:none;}
-.finder-booking-label{text-align:center;font-size:0.74rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--rose-deep);margin:0 0 0.9rem;}
+.finder-booking-label{text-align:center;font-size:0.74rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--wine);margin:0 0 0.9rem;}
 .finder-result-actions{display:flex;gap:0.8rem;flex-wrap:wrap;justify-content:center;}
 .finder-secondary-link,.finder-restart{
   display:block;margin:0.9rem auto 0;background:none;border:none;color:var(--text-soft);
@@ -657,7 +657,7 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
   font-size:0.8rem;color:var(--text-soft);
 }
 .breadcrumb a{color:var(--black);}
-.breadcrumb a:hover{color:var(--rose-deep);}
+.breadcrumb a:hover{color:var(--wine);}
 .breadcrumb span[aria-hidden]{color:var(--line);}
 .breadcrumb .current{color:var(--text-soft);}
 
@@ -762,16 +762,16 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
 
 /* kontakt */
 .contact-list{display:grid;gap:1.5rem;margin:2.1rem 0;}
-.contact-list dt{font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--rose-deep);margin-bottom:0.25rem;font-weight:600;}
+.contact-list dt{font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--wine);margin-bottom:0.25rem;font-weight:600;}
 .contact-list dd{margin:0;font-size:1.03rem;}
-.contact-list a:hover{color:var(--rose-deep);}
+.contact-list a:hover{color:var(--wine);}
 .social-row{display:flex;gap:1.5rem;flex-wrap:wrap;}
 .social-row a{
   display:inline-flex;align-items:center;gap:0.4em;
   font-size:0.8rem;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;
   border-bottom:1px solid var(--black);padding-bottom:2px;
 }
-.social-row a:hover{color:var(--rose-deep);border-color:var(--rose-deep);}
+.social-row a:hover{color:var(--wine);border-color:var(--wine);}
 .link-external::after{
   content:'↗';font-size:0.85em;display:inline-block;
 }
@@ -788,7 +788,7 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
 }
 .kontakt-form input:focus,.kontakt-form textarea:focus{outline:none;border-color:var(--black);}
 .kontakt-form button{align-self:flex-start;}
-.form-success{color:var(--rose-deep);font-size:0.9rem;margin:0;}
+.form-success{color:var(--wine);font-size:0.9rem;margin:0;}
 
 .map-frame{
   max-width:1220px;margin:4.8rem auto 0;height:380px;
