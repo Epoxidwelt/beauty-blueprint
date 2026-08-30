@@ -218,6 +218,13 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
     radial-gradient(ellipse 50% 45% at 8% 100%,rgba(185,123,129,0.08),transparent 60%),
     var(--white);
 }
+.page-hero::before{
+  content:'';position:absolute;top:-4%;right:-3%;width:340px;height:280px;max-width:42vw;
+  -webkit-mask-image:url('assets/img/leaf-motif.svg');mask-image:url('assets/img/leaf-motif.svg');
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-size:contain;mask-size:contain;
+  -webkit-mask-position:top right;mask-position:top right;
+  background:var(--rose-soft);opacity:0.55;transform:scaleX(-1) rotate(8deg);pointer-events:none;
+}
 .page-hero-inner{position:relative;z-index:1;max-width:720px;margin:0 auto;}
 .page-hero h1{margin-bottom:0.4em;}
 .page-hero p{max-width:56ch;margin:0 auto;}
@@ -331,7 +338,7 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
   color:var(--white);
   border:1px solid rgba(124,69,80,0.25);
   border-radius:var(--radius);display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap;
-  position:relative;
+  position:relative;overflow:hidden;
 }
 .hours-card .mark{color:var(--rose-soft);position:relative;z-index:1;}
 .hours-card .mark::before{background:var(--wine-line);}
@@ -466,6 +473,7 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
 /* voucher */
 .voucher-banner{
   padding:6.5rem 2rem;text-align:center;color:var(--white);
+  position:relative;overflow:hidden;
   background:
     radial-gradient(ellipse 55% 65% at 15% 100%,rgba(124,69,80,0.14),transparent 60%),
     radial-gradient(ellipse 55% 65% at 85% 0%,rgba(185,123,129,0.12),transparent 60%),
@@ -487,10 +495,10 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
 /* behandlungsfinder — teaser banner */
 .finder-teaser{
   background:radial-gradient(ellipse 60% 90% at 90% 50%,rgba(124,69,80,0.14),transparent 60%),var(--black);
-  color:var(--white);padding:3.8rem 2rem;position:relative;
+  color:var(--white);padding:3.8rem 2rem;position:relative;overflow:hidden;
 }
 .finder-teaser-inner{
-  position:relative;max-width:1100px;margin:0 auto;
+  position:relative;z-index:1;max-width:1100px;margin:0 auto;
   display:flex;align-items:center;justify-content:space-between;gap:2.5rem;flex-wrap:wrap;
 }
 .finder-teaser .mark{color:var(--rose-soft);}
@@ -499,6 +507,16 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
 .finder-teaser-text p:not(.mark){color:rgba(255,255,255,0.7);margin:0;max-width:46ch;}
 .finder-teaser .btn-primary{background:var(--white);color:var(--black);flex:none;}
 .finder-teaser .btn-primary:hover{background:var(--rose);color:var(--black);transform:translateY(-2px);}
+
+/* recurring brand watermark — the logo's own leaf spray, echoed faintly on dark banners */
+.hours-card::before,.finder-teaser::before,.voucher-banner::before{
+  content:'';position:absolute;bottom:-18%;right:-4%;width:260px;height:220px;max-width:38%;
+  -webkit-mask-image:url('assets/img/leaf-motif.svg');mask-image:url('assets/img/leaf-motif.svg');
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-size:contain;mask-size:contain;
+  -webkit-mask-position:bottom right;mask-position:bottom right;
+  background:rgba(255,255,255,0.07);pointer-events:none;
+}
+.voucher-banner::before{bottom:-24%;right:-2%;width:300px;height:250px;}
 
 .hero-finder-link{
   display:inline-flex;align-items:center;gap:0.55rem;margin-top:1.6rem;
