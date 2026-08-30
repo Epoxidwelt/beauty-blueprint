@@ -219,11 +219,11 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
     var(--white);
 }
 .page-hero::before{
-  content:'';position:absolute;top:-4%;right:-3%;width:340px;height:280px;max-width:42vw;
-  -webkit-mask-image:url('assets/img/leaf-motif.svg');mask-image:url('assets/img/leaf-motif.svg');
+  content:'';position:absolute;top:6%;right:-2%;width:380px;height:156px;max-width:48vw;
+  -webkit-mask-image:url('assets/img/leaf-motif.png');mask-image:url('assets/img/leaf-motif.png');
   -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-size:contain;mask-size:contain;
   -webkit-mask-position:top right;mask-position:top right;
-  background:var(--rose-soft);opacity:0.55;transform:scaleX(-1) rotate(8deg);pointer-events:none;
+  background:var(--rose-soft);opacity:0.6;transform:rotate(6deg);pointer-events:none;
 }
 .page-hero-inner{position:relative;z-index:1;max-width:720px;margin:0 auto;}
 .page-hero h1{margin-bottom:0.4em;}
@@ -510,13 +510,13 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
 
 /* recurring brand watermark — the logo's own leaf spray, echoed faintly on dark banners */
 .hours-card::before,.finder-teaser::before,.voucher-banner::before{
-  content:'';position:absolute;bottom:-18%;right:-4%;width:260px;height:220px;max-width:38%;
-  -webkit-mask-image:url('assets/img/leaf-motif.svg');mask-image:url('assets/img/leaf-motif.svg');
+  content:'';position:absolute;bottom:8%;right:-3%;width:300px;height:124px;max-width:42%;
+  -webkit-mask-image:url('assets/img/leaf-motif.png');mask-image:url('assets/img/leaf-motif.png');
   -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-size:contain;mask-size:contain;
   -webkit-mask-position:bottom right;mask-position:bottom right;
-  background:rgba(255,255,255,0.07);pointer-events:none;
+  background:rgba(255,255,255,0.09);pointer-events:none;
 }
-.voucher-banner::before{bottom:-24%;right:-2%;width:300px;height:250px;}
+.voucher-banner::before{bottom:12%;right:-1%;width:340px;height:140px;}
 
 .hero-finder-link{
   display:inline-flex;align-items:center;gap:0.55rem;margin-top:1.6rem;
