@@ -71,6 +71,21 @@ svg{display:block;}
 .reveal{opacity:0;transform:translateY(22px);transition:opacity .8s var(--ease),transform .8s var(--ease);}
 .reveal.in{opacity:1;transform:translateY(0);}
 
+/* reveal-grid: the grid itself is always visible; its direct children fade in one by one
+   instead of as a single block, for a more considered, less "all-at-once" entrance. */
+.reveal-grid{opacity:1 !important;transform:none !important;}
+.reveal-grid > *{opacity:0;transform:translateY(18px);transition:opacity .6s var(--ease),transform .6s var(--ease);}
+.reveal-grid.in > *{opacity:1;transform:translateY(0);}
+.reveal-grid.in > *:nth-child(1){transition-delay:.03s;}
+.reveal-grid.in > *:nth-child(2){transition-delay:.1s;}
+.reveal-grid.in > *:nth-child(3){transition-delay:.17s;}
+.reveal-grid.in > *:nth-child(4){transition-delay:.24s;}
+.reveal-grid.in > *:nth-child(5){transition-delay:.31s;}
+.reveal-grid.in > *:nth-child(6){transition-delay:.38s;}
+@media (prefers-reduced-motion:reduce){
+  .reveal-grid > *{transition-delay:0s !important;}
+}
+
 /* buttons */
 .btn{
   position:relative;
