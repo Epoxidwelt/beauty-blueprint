@@ -104,6 +104,12 @@ button.btn{font:inherit;letter-spacing:inherit;text-transform:inherit;}
 a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,.nav-toggle:focus-visible,.main-nav a:focus-visible{
   outline:2px solid var(--wine);outline-offset:3px;
 }
+/* on dark cards/banners, a wine outline is too close to the black background (fails WCAG
+   non-text contrast) — swap to white so keyboard focus stays visible there. */
+.hours-card :focus-visible,.treatment-cta :focus-visible,.finder-teaser :focus-visible,
+.voucher-banner :focus-visible,.showcase-row.on-dark :focus-visible,.feature-banner :focus-visible{
+  outline-color:var(--white);
+}
 
 /* nav CTA pill */
 .nav-cta{
