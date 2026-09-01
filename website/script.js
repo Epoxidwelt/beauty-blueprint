@@ -49,6 +49,34 @@ const revealObserver = new IntersectionObserver((entries) => {
 }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
 revealEls.forEach(el => revealObserver.observe(el));
 
+// animated stat counters (e.g. "seit 2004", "100 m²") — count up once when scrolled into view
+const countEls = document.querySelectorAll('[data-count-to]');
+if (countEls.length) {
+  const reduceMotionCount = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const countObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const el = entry.target;
+      const target = parseInt(el.getAttribute('data-count-to'), 10);
+      countObserver.unobserve(el);
+      if (reduceMotionCount || !target) {
+        el.textContent = target;
+        return;
+      }
+      const duration = 1400;
+      const start = performance.now();
+      const tick = (now) => {
+        const progress = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.round(target * eased);
+        if (progress < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
+  }, { threshold: 0.4 });
+  countEls.forEach(el => countObserver.observe(el));
+}
+
 // testimonial carousel — single quote, crossfade
 const quoteViewport = document.getElementById('quoteViewport');
 const dotsWrap = document.getElementById('testimonialDots');
