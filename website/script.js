@@ -184,77 +184,123 @@ document.querySelectorAll('.faq-item').forEach((item) => {
 
   const ROOT_PREFIX = window.location.pathname.indexOf('/behandlungen/') !== -1 ? '../' : '';
 
+  // Frage 1 wählt den Bereich, Frage 2 das konkrete Anliegen — und *erst das Anliegen*
+  // bestimmt die Behandlung (innerhalb eines Bereichs kann das unterschiedlich ausfallen,
+  // z. B. "fahle Haut" -> Gesichtsbehandlung, "nachlassende Spannkraft" -> FORMA).
+  // Frage 3 ist eine bereichsspezifische Detailfrage, die die Empfehlung weiter schärft.
   const FINDER_DATA = [
     {
-      id: 'glow', label: 'Mehr Glow & Feuchtigkeit', treatment: 'gesicht',
-      painPoints: [
-        { id: 'fahl', label: 'Meine Haut wirkt oft fahl und müde' },
-        { id: 'spannt', label: 'Meine Haut spannt und fühlt sich trocken an' },
-        { id: 'makeup', label: 'Make-up hält bei mir schlecht' }
-      ]
+      id: 'haut', label: 'Meine Gesichtshaut',
+      concerns: [
+        { id: 'fahl', label: 'Wirkt fahl, müde und ohne Frische', treatment: 'gesicht' },
+        { id: 'trocken', label: 'Spannt, ist trocken oder empfindlich', treatment: 'gesicht' },
+        { id: 'unrein', label: 'Unreinheiten, Mitesser oder große Poren', treatment: 'gesicht' },
+        { id: 'linien', label: 'Erste Linien, weniger Spannkraft', treatment: 'forma' },
+        { id: 'kontur', label: 'Konturen an Jawline oder Hals', treatment: 'forma' }
+      ],
+      detail: {
+        question: 'Und wie fühlt sich Ihre Haut meistens an?',
+        options: [
+          { id: 'eher-trocken', label: 'Eher trocken' },
+          { id: 'eher-fettig', label: 'Eher fettig oder glänzend' },
+          { id: 'mischhaut', label: 'Mischhaut — je nach Zone' },
+          { id: 'empfindlich', label: 'Schnell gereizt und empfindlich' },
+          { id: 'unsicher', label: 'Das weiß ich nicht genau' }
+        ]
+      }
     },
     {
-      id: 'antiaging', label: 'Anti-Aging & Straffung', treatment: 'forma',
-      painPoints: [
-        { id: 'linien', label: 'Erste feine Linien und Fältchen' },
-        { id: 'spannkraft', label: 'Weniger Spannkraft als früher' },
-        { id: 'muede', label: 'Mein Ausdruck wirkt müde' }
-      ]
+      id: 'augen', label: 'Augen & Brauen',
+      concerns: [
+        { id: 'kurz', label: 'Meine Wimpern wirken kurz und gerade', treatment: 'wimpern' },
+        { id: 'mascara', label: 'Ich möchte ohne Mascara auskommen', treatment: 'wimpern' },
+        { id: 'brauen', label: 'Meine Brauen sollen in Form gebracht werden', treatment: 'wimpern' },
+        { id: 'haerchen', label: 'Störende Härchen an Oberlippe oder Kinn', treatment: 'diolaze' }
+      ],
+      detail: {
+        question: 'Worauf legen Sie dabei den Schwerpunkt?',
+        options: [
+          { id: 'wimpern-only', label: 'Vor allem die Wimpern' },
+          { id: 'brauen-only', label: 'Vor allem die Brauen' },
+          { id: 'beides', label: 'Beides zusammen' }
+        ]
+      }
     },
     {
-      id: 'rein', label: 'Reine, klare Haut', treatment: 'gesicht',
-      painPoints: [
-        { id: 'unrein', label: 'Unreinheiten und Mitesser' },
-        { id: 'poren', label: 'Sichtbare, große Poren' },
-        { id: 'unruhig', label: 'Unruhiges, unregelmäßiges Hautbild' }
-      ]
+      id: 'haende', label: 'Hände & Nägel',
+      concerns: [
+        { id: 'brueckig', label: 'Brüchige oder unregelmäßige Nägel', treatment: 'haende' },
+        { id: 'rau', label: 'Trockene, raue Hände', treatment: 'haende' },
+        { id: 'anlass-naegel', label: 'Schöne Nägel für einen besonderen Anlass', treatment: 'haende' }
+      ],
+      detail: {
+        question: 'Was schwebt Ihnen vor?',
+        options: [
+          { id: 'natur', label: 'Gepflegter Naturnagel' },
+          { id: 'gel', label: 'Gel-Modellage, auch mit Verlängerung' },
+          { id: 'pflege', label: 'Nur Pflege, ohne Lack' },
+          { id: 'beraten', label: 'Beraten Sie mich gern' }
+        ]
+      }
     },
     {
-      id: 'wimpern', label: 'Perfekter Augenaufschlag', treatment: 'wimpern',
-      painPoints: [
-        { id: 'kurz', label: 'Meine Wimpern wirken kurz und gerade' },
-        { id: 'mascara', label: 'Ich möchte auf Mascara verzichten können' },
-        { id: 'anlass2', label: 'Ein besonderer Anlass steht bevor' }
-      ]
+      id: 'fuesse', label: 'Füße',
+      concerns: [
+        { id: 'hornhaut', label: 'Hornhaut und raue Stellen', treatment: 'fuesse' },
+        { id: 'muede-fuesse', label: 'Müde, schwere Füße', treatment: 'fuesse' },
+        { id: 'sandale', label: 'Ich möchte sandalenbereit sein', treatment: 'fuesse' },
+        { id: 'beine-glatt', label: 'Dauerhaft glatte Beine ohne Rasur', treatment: 'diolaze' }
+      ],
+      detail: {
+        question: 'Was ist Ihnen dabei am wichtigsten?',
+        options: [
+          { id: 'pflege-fuss', label: 'Gründliche Pflege' },
+          { id: 'entspannung-fuss', label: 'Entspannung und Wohlgefühl' },
+          { id: 'optik-fuss', label: 'Gepflegte Optik inkl. Lack' }
+        ]
+      }
     },
     {
-      id: 'haende', label: 'Gepflegte Hände & Nägel', treatment: 'haende',
-      painPoints: [
-        { id: 'rau', label: 'Raue, trockene Hände' },
-        { id: 'brueckig', label: 'Brüchige oder unregelmäßige Nägel' },
-        { id: 'goennen', label: 'Ich möchte mir einfach etwas gönnen' }
-      ]
+      id: 'haarentfernung', label: 'Dauerhafte Haarentfernung',
+      concerns: [
+        { id: 'rasur-leid', label: 'Ich bin das ständige Rasieren leid', treatment: 'diolaze' },
+        { id: 'reizung', label: 'Rasur reizt meine Haut oder verursacht Pickelchen', treatment: 'diolaze' },
+        { id: 'zeit', label: 'Ich möchte langfristig Zeit sparen', treatment: 'diolaze' }
+      ],
+      detail: {
+        question: 'Welche Zone möchten Sie behandeln lassen?',
+        options: [
+          { id: 'gesicht-zone', label: 'Gesicht (Oberlippe, Kinn)' },
+          { id: 'achseln', label: 'Achseln' },
+          { id: 'beine', label: 'Beine' },
+          { id: 'bikini', label: 'Bikinizone' },
+          { id: 'mehrere', label: 'Mehrere Zonen' }
+        ]
+      }
     },
     {
-      id: 'fuesse', label: 'Gepflegte Füße', treatment: 'fuesse',
-      painPoints: [
-        { id: 'hornhaut', label: 'Hornhaut und raue Stellen' },
-        { id: 'muede2', label: 'Müde, schwere Füße und Beine' },
-        { id: 'sandale', label: 'Ich möchte sandalenbereit sein' }
-      ]
-    },
-    {
-      id: 'glatt', label: 'Dauerhaft glatte Haut', treatment: 'diolaze',
-      painPoints: [
-        { id: 'rasur', label: 'Ich bin das ständige Rasieren leid' },
-        { id: 'reizung', label: 'Rasur reizt meine Haut' },
-        { id: 'zeit', label: 'Ich möchte einfach Zeit sparen' }
-      ]
-    },
-    {
-      id: 'entspannen', label: 'Einfach entspannen & abschalten', treatment: 'gesicht',
-      painPoints: [
-        { id: 'stress', label: 'Der Alltag lässt mir kaum Zeit für mich' },
-        { id: 'auszeit', label: 'Ich hatte lange keine richtige Auszeit' },
-        { id: 'verwoehnen', label: 'Ich möchte mich einfach verwöhnen lassen' }
-      ]
+      id: 'entspannen', label: 'Einfach mal Zeit für mich',
+      concerns: [
+        { id: 'auszeit', label: 'Ich hatte lange keine richtige Auszeit', treatment: 'gesicht' },
+        { id: 'verwoehnen', label: 'Ich möchte mich rundum verwöhnen lassen', treatment: 'gesicht' },
+        { id: 'geschenk', label: 'Als Geschenk für mich selbst', treatment: 'gesicht' }
+      ],
+      detail: {
+        question: 'Wobei entspannen Sie am besten?',
+        options: [
+          { id: 'gesicht-relax', label: 'Bei einer Gesichtsbehandlung' },
+          { id: 'fuss-relax', label: 'Bei einer Fußpflege' },
+          { id: 'kombi-relax', label: 'Am liebsten beides kombiniert' }
+        ]
+      }
     }
   ];
 
   const OCCASIONS = [
-    { id: 'alltag', label: 'Alltag & regelmäßige Pflege' },
-    { id: 'anlass', label: 'Besonderer Anlass (Hochzeit, Event, Urlaub)' },
-    { id: 'neu', label: 'Ich probiere es einfach mal aus' }
+    { id: 'zeitnah', label: 'So bald wie möglich' },
+    { id: 'wochen', label: 'In den nächsten Wochen' },
+    { id: 'anlass', label: 'Vor einem besonderen Anlass' },
+    { id: 'info', label: 'Erstmal nur informieren' }
   ];
 
   const overlay = document.getElementById('finderOverlay');
@@ -266,9 +312,10 @@ document.querySelectorAll('.faq-item').forEach((item) => {
   const closeBtn = document.getElementById('finderClose');
   const openTriggers = document.querySelectorAll('.js-open-finder');
 
-  const STEP_ORDER = ['goal', 'pain', 'occasion', 'result'];
+  const STEP_ORDER = ['area', 'concern', 'detail', 'occasion', 'result'];
+  const TOTAL_STEPS = 4;
   let stepIdx = 0;
-  let selection = { goal: null, pain: null, occasion: null };
+  let selection = { area: null, concern: null, detail: null, occasion: null };
   let lastFocused = null;
 
   const leafIcon = () => '<svg class="leaf-ico" viewBox="0 0 40 100"><use href="#leaf"></use></svg>';
@@ -288,38 +335,104 @@ document.querySelectorAll('.faq-item').forEach((item) => {
     return wrap;
   }
 
-  function renderGoalStep() {
-    finderBody.innerHTML = '<p class="finder-step-label">' + leafIcon() + 'Schritt 1 von 3</p><h3>Was möchten Sie erreichen?</h3>';
-    finderBody.appendChild(buildOptions(FINDER_DATA, selection.goal && selection.goal.id, (goal) => {
-      selection.goal = goal;
-      selection.pain = null;
+  function stepLabel(n) {
+    return '<p class="finder-step-label">' + leafIcon() + 'Schritt ' + n + ' von ' + TOTAL_STEPS + '</p>';
+  }
+
+  function renderAreaStep() {
+    finderBody.innerHTML = stepLabel(1) + '<h3>Worum geht es Ihnen heute?</h3>';
+    finderBody.appendChild(buildOptions(FINDER_DATA, selection.area && selection.area.id, (area) => {
+      selection.area = area;
+      selection.concern = null;
+      selection.detail = null;
       stepIdx = 1;
       renderCurrentStep();
     }));
   }
 
-  function renderPainStep() {
-    finderBody.innerHTML = '<p class="finder-step-label">' + leafIcon() + 'Schritt 2 von 3</p><h3>Was stört Sie daran aktuell am meisten?</h3>';
-    finderBody.appendChild(buildOptions(selection.goal.painPoints, selection.pain && selection.pain.id, (pain) => {
-      selection.pain = pain;
+  function renderConcernStep() {
+    finderBody.innerHTML = stepLabel(2) + '<h3>Was beschreibt Ihr Anliegen am besten?</h3>';
+    finderBody.appendChild(buildOptions(selection.area.concerns, selection.concern && selection.concern.id, (concern) => {
+      selection.concern = concern;
+      selection.detail = null;
       stepIdx = 2;
       renderCurrentStep();
     }));
   }
 
-  function renderOccasionStep() {
-    finderBody.innerHTML = '<p class="finder-step-label">' + leafIcon() + 'Schritt 3 von 3</p><h3>Für welchen Anlass?</h3>';
-    finderBody.appendChild(buildOptions(OCCASIONS, selection.occasion && selection.occasion.id, (occasion) => {
-      selection.occasion = occasion;
+  function renderDetailStep() {
+    const detail = selection.area.detail;
+    finderBody.innerHTML = stepLabel(3) + '<h3>' + detail.question + '</h3>';
+    finderBody.appendChild(buildOptions(detail.options, selection.detail && selection.detail.id, (opt) => {
+      selection.detail = opt;
       stepIdx = 3;
       renderCurrentStep();
     }));
   }
 
+  function renderOccasionStep() {
+    finderBody.innerHTML = stepLabel(4) + '<h3>Wann möchten Sie starten?</h3>';
+    finderBody.appendChild(buildOptions(OCCASIONS, selection.occasion && selection.occasion.id, (occasion) => {
+      selection.occasion = occasion;
+      stepIdx = 4;
+      renderCurrentStep();
+    }));
+  }
+
   function occasionSentence(id) {
-    if (id === 'anlass') return 'rechtzeitig vor Ihrem besonderen Anlass';
-    if (id === 'neu') return 'zum unverbindlichen Kennenlernen';
-    return 'als fester Bestandteil Ihrer regelmäßigen Pflege';
+    if (id === 'zeitnah') return 'Wir schauen nach einem Termin, der zeitnah passt.';
+    if (id === 'anlass') return 'Wir planen so, dass Sie rechtzeitig vor Ihrem Anlass fertig sind.';
+    if (id === 'info') return 'Sie können sich in Ruhe informieren — ganz unverbindlich.';
+    return 'Wir finden gemeinsam einen Termin in den nächsten Wochen.';
+  }
+
+  // Die Detailantwort (Frage 3) schärft die Empfehlung, statt nur abgefragt zu werden:
+  // je nach Auswahl ergänzen wir einen konkreten Hinweis für das Beratungsgespräch.
+  function detailNote(areaId, detailId) {
+    const notes = {
+      'eher-trocken': 'Wir setzen den Schwerpunkt auf Feuchtigkeit und eine reichhaltige Pflege.',
+      'eher-fettig': 'Wir arbeiten klärend und porenverfeinernd, ohne die Haut auszutrocknen.',
+      'mischhaut': 'Wir behandeln die Zonen unterschiedlich — klärend in der T-Zone, pflegend an den Wangen.',
+      'empfindlich': 'Wir wählen besonders milde Wirkstoffe und arbeiten behutsam.',
+      'unsicher': 'Kein Problem — wir starten mit einer kurzen Hautanalyse vor Ort.',
+      'wimpern-only': 'Wir konzentrieren uns auf das Wimpernlifting.',
+      'brauen-only': 'Für Sie kommt vor allem der Browlift in Frage.',
+      'beides': 'Wimpernlifting und Browlift lassen sich gut in einem Termin kombinieren.',
+      'natur': 'Wir pflegen Ihren Naturnagel und bringen ihn in Form.',
+      'gel': 'Eine Gel-Modellage gibt Halt und lässt sich auch mit Verlängerung umsetzen.',
+      'pflege': 'Eine reine Pflegebehandlung ohne Lack ist gut möglich.',
+      'beraten': 'Wir schauen vor Ort gemeinsam, was zu Ihren Nägeln passt.',
+      'pflege-fuss': 'Der Schwerpunkt liegt auf Hornhaut und gründlicher Pflege.',
+      'entspannung-fuss': 'Eine SPA-Fußpflege mit Massage passt hier besonders gut.',
+      'optik-fuss': 'Wir runden die Behandlung mit Lack oder UV-Lack ab.',
+      'gesicht-zone': 'Kleine Zonen wie Oberlippe oder Kinn sind schnell behandelt.',
+      'achseln': 'Die Achseln gehören zu den beliebtesten und schnellsten Zonen.',
+      'beine': 'Für die Beine planen wir etwas mehr Zeit pro Sitzung ein.',
+      'bikini': 'Wir besprechen den gewünschten Umfang diskret und in Ruhe.',
+      'mehrere': 'Für mehrere Zonen lohnt sich ein gemeinsamer Behandlungsplan.',
+      'gesicht-relax': 'Eine Gesichtsbehandlung bietet die längste Entspannungszeit.',
+      'fuss-relax': 'Eine SPA-Fußpflege ist dafür ideal.',
+      'kombi-relax': 'Gesichtsbehandlung und Fußpflege lassen sich gut kombinieren.'
+    };
+    return notes[detailId] || null;
+  }
+
+  // Manche Detailantworten verschieben die Empfehlung sinnvoll (z. B. "Entspannen" +
+  // "am liebsten bei einer Fußpflege" -> Fußpflege statt Gesichtsbehandlung).
+  function resolveTreatment() {
+    const base = selection.concern.treatment;
+    const d = selection.detail && selection.detail.id;
+    if (d === 'fuss-relax') return 'fuesse';
+    if (d === 'kombi-relax') return 'gesicht';
+    return base;
+  }
+
+  function resolveSecondary(primaryKey) {
+    const d = selection.detail && selection.detail.id;
+    if (d === 'kombi-relax') return 'fuesse';
+    if (d === 'beides') return null;
+    const t = TREATMENTS[primaryKey];
+    return t && t.secondary ? t.secondary : null;
   }
 
   function buildBookingMailto(treatmentName, goalLabel) {
@@ -334,23 +447,27 @@ document.querySelectorAll('.faq-item').forEach((item) => {
   }
 
   function renderResult() {
-    const goal = selection.goal;
-    const pain = selection.pain;
+    const concern = selection.concern;
+    const detail = selection.detail;
     const occasion = selection.occasion;
-    const treatment = TREATMENTS[goal.treatment];
-    const secondary = treatment.secondary ? TREATMENTS[treatment.secondary] : null;
-    const mailtoHref = buildBookingMailto(treatment.name, goal.label);
+    const primaryKey = resolveTreatment();
+    const treatment = TREATMENTS[primaryKey];
+    const secondaryKey = resolveSecondary(primaryKey);
+    const secondary = secondaryKey ? TREATMENTS[secondaryKey] : null;
+    const note = detailNote(selection.area.id, detail && detail.id);
+    const mailtoHref = buildBookingMailto(treatment.name, concern.label);
 
     finderBody.innerHTML =
       '<div class="finder-result">' +
       '<svg class="finder-result-mark" viewBox="0 0 40 100"><use href="#leaf"></use></svg>' +
       '<p class="finder-eyebrow">Ihre Empfehlung</p>' +
       '<h3>Das passt zu Ihnen</h3>' +
-      '<p class="finder-result-sub">Basierend auf Ihren Antworten empfehlen wir Ihnen diese Behandlung.</p>' +
+      '<p class="finder-result-sub">Basierend auf Ihren vier Antworten empfehlen wir Ihnen diese Behandlung.</p>' +
       '<dl class="finder-strategy">' +
-      '<dt>Ihr Ziel</dt><dd>' + goal.label + '</dd>' +
-      '<dt>Ihr Hauptanliegen</dt><dd>' + pain.label + '</dd>' +
-      '<dt>Strategie</dt><dd>Wir setzen gezielt bei &bdquo;' + goal.label + '&ldquo; an &ndash; ' + occasionSentence(occasion.id) + '.</dd>' +
+      '<dt>Ihr Anliegen</dt><dd>' + concern.label + '</dd>' +
+      (detail ? '<dt>Ihr Schwerpunkt</dt><dd>' + detail.label + '</dd>' : '') +
+      (note ? '<dt>Was das für Sie bedeutet</dt><dd>' + note + '</dd>' : '') +
+      '<dt>Zeitrahmen</dt><dd>' + occasionSentence(occasion.id) + '</dd>' +
       '</dl>' +
       '<div class="finder-treatment-card">' +
       '<p class="finder-treatment-label">Hauptempfehlung</p>' +
@@ -372,14 +489,14 @@ document.querySelectorAll('.faq-item').forEach((item) => {
       window.location.href = ROOT_PREFIX + treatment.page;
     });
     document.getElementById('finderRestart').addEventListener('click', () => {
-      selection = { goal: null, pain: null, occasion: null };
+      selection = { area: null, concern: null, detail: null, occasion: null };
       stepIdx = 0;
       renderCurrentStep();
     });
   }
 
   function setProgress() {
-    const pct = (Math.min(stepIdx, 3) / 3) * 100;
+    const pct = (Math.min(stepIdx, TOTAL_STEPS) / TOTAL_STEPS) * 100;
     progressFill.style.width = pct + '%';
     backBtn.hidden = stepIdx === 0;
   }
@@ -387,8 +504,9 @@ document.querySelectorAll('.faq-item').forEach((item) => {
   function renderCurrentStep() {
     setProgress();
     const name = STEP_ORDER[stepIdx];
-    if (name === 'goal') renderGoalStep();
-    else if (name === 'pain') renderPainStep();
+    if (name === 'area') renderAreaStep();
+    else if (name === 'concern') renderConcernStep();
+    else if (name === 'detail') renderDetailStep();
     else if (name === 'occasion') renderOccasionStep();
     else renderResult();
     finderBody.scrollTop = 0;
@@ -412,7 +530,7 @@ document.querySelectorAll('.faq-item').forEach((item) => {
 
   function openFinder() {
     lastFocused = document.activeElement;
-    selection = { goal: null, pain: null, occasion: null };
+    selection = { area: null, concern: null, detail: null, occasion: null };
     stepIdx = 0;
     renderCurrentStep();
     overlay.hidden = false;
