@@ -121,12 +121,24 @@ if (quoteViewport && dotsWrap) {
   startAutoplay();
 }
 
-// contact form (static — no backend wired up; only present on the homepage)
+// contact form (kontakt.html only) — no backend, so it hands off to the visitor's own
+// mail client via mailto: (same pattern as the Behandlungsfinder result screen) instead of
+// silently discarding the message with a fake "submitted" confirmation.
 const form = document.getElementById('contactForm');
 const formSuccess = document.getElementById('formSuccess');
 if (form) {
   form.addEventListener('submit', (e) => {
     e.preventDefault();
+    const name = form.elements.name.value.trim();
+    const email = form.elements.email.value.trim();
+    const message = form.elements.message.value.trim();
+    const subject = 'Nachricht von der Website — ' + name;
+    const body =
+      'Name: ' + name + '\n' +
+      'E-Mail: ' + email + '\n\n' +
+      message;
+    const mailtoHref = 'mailto:info@beautylounge-neuss.de?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+    window.location.href = mailtoHref;
     formSuccess.hidden = false;
     form.reset();
   });
