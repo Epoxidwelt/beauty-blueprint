@@ -14,9 +14,8 @@
 <meta property="og:description" content="Kontakt und Anfahrt zur Beauty Lounge Neuss.">
 <meta property="og:url" content="https://www.beautylounge-neuss.de/kontakt.html">
 <meta property="og:image" content="https://www.beautylounge-neuss.de/assets/img/logo.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Libre+Caslon+Display&display=swap" rel="stylesheet">
+<link rel="preload" href="assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/libre-caslon-display-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -103,13 +102,22 @@
       </form>
     </div>
 
-    <div class="map-frame reveal">
-      <iframe
-        title="Anfahrt Beauty Lounge Neuss"
-        src="https://www.google.com/maps?q=Hoistener+Str.+15,+41466+Neuss&output=embed"
-        loading="lazy"
-        referrerpolicy="no-referrer-when-downgrade">
-      </iframe>
+    <!-- Zwei-Klick-Lösung: Google Maps wird erst nach ausdrücklichem Klick geladen.
+         Vorher geht keine Verbindung (und damit keine IP-Adresse) an Google. -->
+    <div class="map-frame reveal" id="mapFrame"
+         data-map-src="https://www.google.com/maps?q=Hoistener+Str.+15,+41466+Neuss&amp;output=embed">
+      <div class="map-consent">
+        <svg class="map-consent-pin" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7Z" fill="none" stroke="currentColor" stroke-width="1.4"/>
+          <circle cx="12" cy="9" r="2.4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+        </svg>
+        <p class="map-consent-address">Hoistener Str. 15 &middot; 41466 Neuss</p>
+        <p class="map-consent-note">Beim Laden der Karte wird eine Verbindung zu Google hergestellt und Ihre IP-Adresse an Google übertragen. Details dazu in unserer <a href="datenschutz.html">Datenschutzerklärung</a>.</p>
+        <div class="map-consent-actions">
+          <button type="button" class="btn btn-primary" id="mapLoadBtn">Karte laden</button>
+          <a href="https://www.google.com/maps?q=Hoistener+Str.+15,+41466+Neuss" target="_blank" rel="noopener" class="btn btn-ghost">In Google Maps öffnen</a>
+        </div>
+      </div>
     </div>
   </section>
 

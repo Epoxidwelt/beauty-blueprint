@@ -144,6 +144,22 @@ if (form) {
   });
 }
 
+// Google Maps — Zwei-Klick-Lösung (kontakt.html): der iframe wird erst nach
+// ausdrücklichem Klick eingesetzt, vorher geht keine Anfrage an Google raus.
+const mapFrame = document.getElementById('mapFrame');
+const mapLoadBtn = document.getElementById('mapLoadBtn');
+if (mapFrame && mapLoadBtn) {
+  mapLoadBtn.addEventListener('click', () => {
+    const iframe = document.createElement('iframe');
+    iframe.title = 'Anfahrt Beauty Lounge Neuss';
+    iframe.src = mapFrame.getAttribute('data-map-src');
+    iframe.loading = 'lazy';
+    iframe.referrerPolicy = 'no-referrer-when-downgrade';
+    mapFrame.innerHTML = '';
+    mapFrame.appendChild(iframe);
+  });
+}
+
 // FAQ accordion (treatment landing pages)
 document.querySelectorAll('.faq-item').forEach((item) => {
   const question = item.querySelector('.faq-question');

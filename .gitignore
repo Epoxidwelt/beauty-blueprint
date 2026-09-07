@@ -44,3 +44,6 @@ supabase/.temp/
 
 # Claude Code interne Session-Dateien
 .claude/
+
+# Eigenständiges Projekt mit eigenem Repository (Essens App)
+essens-app/
