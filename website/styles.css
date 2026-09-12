@@ -274,7 +274,20 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
 /* <picture> ist nur ein Container für die Formatauswahl und soll das Layout nicht
    beeinflussen: display:contents nimmt es aus dem Box-Modell, damit Regeln wie
    height:100% weiterhin gegen .teaser-media/.hero-portrait/.showcase-media greifen. */
-.teaser-media picture,.showcase-media picture,.hero-portrait picture{display:contents;}
+.teaser-media picture,.showcase-media picture,.hero-portrait picture,.special-media picture{display:contents;}
+
+/* Sprunglink: für Tastatur- und Screenreader-Nutzung. Bleibt unsichtbar, bis er
+   den Fokus bekommt — dann springt er sichtbar oben links ins Bild. */
+.skip-link{
+  position:absolute;top:0;left:0;z-index:1000;
+  transform:translateY(-120%);
+  background:var(--black);color:var(--white);
+  padding:0.85rem 1.4rem;font-size:0.85rem;font-weight:600;
+  letter-spacing:0.04em;text-decoration:none;
+  border-bottom-right-radius:var(--radius);
+  transition:transform .2s var(--ease);
+}
+.skip-link:focus{transform:translateY(0);outline:2px solid var(--wine-soft);outline-offset:2px;}
 
 /* hero entrance — a small sequence instead of everything fading in at once:
    eyebrow, then headline, subtext, actions and finder link, image slightly offset. */

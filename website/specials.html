@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#fffdfa">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="assets/img/favicon-16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/img/apple-touch-icon.png">
@@ -13,12 +14,20 @@
 <meta property="og:title" content="Specials – Beauty Lounge Neuss">
 <meta property="og:description" content="Aktuelle Aktionen der Beauty Lounge Neuss.">
 <meta property="og:url" content="https://www.beautylounge-neuss.de/specials.html">
-<meta property="og:image" content="https://www.beautylounge-neuss.de/assets/img/logo.png">
+<meta property="og:image" content="https://www.beautylounge-neuss.de/assets/img/og-default.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Gesichtsbehandlung in der Beauty Lounge Neuss">
+<meta property="og:locale" content="de_DE">
+<meta property="og:site_name" content="Beauty Lounge Neuss">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preload" href="assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/libre-caslon-display-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
+<a class="skip-link" href="#main">Zum Inhalt springen</a>
 
 <div class="progress-bar" id="progressBar"></div>
 
@@ -43,7 +52,7 @@
   </div>
 </header>
 
-<main>
+<main id="main">
 
   <section class="page-hero">
     <div class="page-hero-inner">
@@ -58,7 +67,10 @@
     <div class="section-inner">
       <div class="specials-grid reveal reveal-grid">
         <div class="special-card">
-          <div class="special-media"><img src="assets/img/svenja.jpg" alt="Vitamin Frische Kick Aktion"></div>
+          <div class="special-media"><picture>
+            <source type="image/webp" srcset="assets/img/treatments/gesicht-760.webp 760w, assets/img/treatments/gesicht-1400.webp 1400w" sizes="(max-width:600px) 100vw, (max-width:900px) 50vw, 400px">
+            <img src="assets/img/treatments/gesicht-1400.jpg" srcset="assets/img/treatments/gesicht-760.jpg 760w, assets/img/treatments/gesicht-1400.jpg 1400w" sizes="(max-width:600px) 100vw, (max-width:900px) 50vw, 400px" width="1400" height="933" alt="Gesichtsbehandlung mit Vitamin-C-Wirkstoffen" loading="lazy" decoding="async">
+          </picture></div>
           <div class="special-body">
             <span class="special-badge">Zeitlich begrenzt</span>
             <h3>Vitamin Frische Kick</h3>
