@@ -1745,6 +1745,7 @@
     filterProducts: filterProducts, pickProduct: pickProduct,
     filterTreatments: filterTreatments, pickTreatment: pickTreatment, pickKurOption: pickKurOption,
     downloadPdfReport: downloadPdfReport,
+    sendKundeEmail: sendKundeEmail,
     handleMitarbeiterFotoChange: handleMitarbeiterFotoChange,
     filterAktionVerknuepfung: filterAktionVerknuepfung,
     pickAktionVerknuepfung: pickAktionVerknuepfung,
@@ -2487,27 +2488,19 @@
     return '<a class="btn-link" href="' + BOOKING_URL + '" target="_blank" rel="noopener noreferrer">Termin online buchen ↗</a>';
   }
 
-  // Öffnet das lokale Mailprogramm mit vorausgefüllter Zusammenfassung (mailto:) —
-  // die Mitarbeiterin sieht die E-Mail vor dem Versand und kann Empfänger/Text noch anpassen.
-  // Kein automatischer Versand im Hintergrund.
-  // Bewusst schlank gehalten: nur Aufzählung von Behandlungen/Produkten mit Preis und
-  // Behandlungszeit, keine internen Begründungen/Kontext — das ist für die Kundin bzw. die
-  // Kundenkartei gedacht, nicht für die interne fachliche Nachvollziehbarkeit (dafür gibt es
-  // den Strategie-Screen). Der Buchungslink steht allein auf seiner eigenen Zeile ohne
-  // weiteren Text davor/danach, damit ihn möglichst jedes Mailprogramm automatisch verlinkt —
-  // eine "echte" HTML-Schaltfläche ist über mailto: technisch nicht möglich (reiner Text).
-  function emailSummaryHref() {
-    var plan = getPlan();
+  // Textbausteine (Behandlungen, Kurplan, Homecare), die sowohl die interne CRM-Mail als
+  // auch der Klartext-Fallback der Kunden-Mail gemeinsam nutzen. "mitBegruendung" hängt bei
+  // den Behandlungen zusätzlich die fachliche Begründung an (nur für die interne CRM-Mail
+  // gedacht — die Kundin bekommt diesen Kontext bewusst nicht).
+  function planSummaryLines(plan, mitBegruendung) {
     var i1 = NEED_INFO[(plan.active[0] || plan.ranked[0]).need];
     var i2 = plan.active[1] ? NEED_INFO[plan.active[1].need] : i1;
-    var lines = [
-      'Beauty Blueprint — ' + (STATE.kundeName || 'Kundin'),
-      ''
-    ];
-    lines.push('Behandlungen:');
+    var lines = ['Behandlungen:'];
     if (plan.active.length) {
       groupedActive(plan).forEach(function (r) {
-        lines.push('- ' + treatLine(r) + (r.count > 1 ? ' — ' + r.count + 'x im Kurplan' : ''));
+        var line = '- ' + treatLine(r) + (r.count > 1 ? ' — ' + r.count + 'x im Kurplan' : '');
+        if (mitBegruendung) line += ' [Begründung: ' + needReason(r.need) + ']';
+        lines.push(line);
       });
     } else {
       lines.push('- keine ausgewählt');
@@ -2541,12 +2534,205 @@
     if (peelingInfo) lines.push('- Peeling (1-2x/Woche): ' + productLine(peelingInfo));
     if (maskeInfo) lines.push('- Maske (1-2x/Woche): ' + productLine(maskeInfo));
     if (!reinigungInfo && !tonicInfo && !homeAM && !peelingInfo && !serumInfo && !augencremeInfo && !homePM && !maskeInfo && !sonnenschutzInfo) lines.push('- keine ausgewählt');
+    return lines;
+  }
+
+  // Interne Notiz für die eigene Kundenkartei/CRM: geht standardmäßig ans Studio selbst
+  // (nicht an die Kundin) und enthält bewusst genau den Kontext, den die Kunden-Mail
+  // auslässt — Anlass, Ziele, Sicherheitscheck-Ergebnis und die fachliche Begründung je
+  // Behandlung. Reiner Klartext per mailto:, da das für eine interne Notiz völlig reicht.
+  function emailCrmHref() {
+    var plan = getPlan();
+    var risk = computeRiskDetails();
+    var riskLabel = { gruen: 'Grundsätzlich geeignet', gelb: 'Fachlich prüfen', rot: 'Keine automatische Freigabe' }[risk.level];
+    var lines = [
+      'Beauty Blueprint — CRM-Eintrag',
+      '',
+      'Datum: ' + formatDateDE(new Date()),
+      'Beraterin: ' + (STATE.mitarbeiterin || '—'),
+      'Kundin: ' + (STATE.kundeName || '—'),
+      'Anlass: ' + (anlassText() || '—'),
+      'Ziele: ' + zielText()
+    ];
+    if (painpointText()) lines.push('Genannte Anliegen: ' + painpointText());
     lines.push('');
-    lines.push('Termin online buchen:');
+    lines.push('Sicherheitscheck: ' + riskLabel);
+    if (risk.triggers.length) {
+      risk.triggers.forEach(function (t) { lines.push('- ' + t.frage); });
+    } else {
+      lines.push('- keine Punkte bejaht');
+    }
+    lines.push('');
+    lines = lines.concat(planSummaryLines(plan, true));
+    lines.push('');
+    lines.push('Buchungslink:');
     lines.push(BOOKING_URL);
     var body = lines.join('\n');
-    var subject = 'Beauty Blueprint — ' + (STATE.kundeName || 'Kundin');
-    return 'mailto:info@epoxidwelt.de?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+    var subject = '[CRM] Beauty Blueprint – ' + (STATE.kundeName || 'Kundin') + ' – ' + formatDateDE(new Date());
+    return 'mailto:info@beautylounge-neuss.de?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  }
+
+  function kundeEmailSubject() {
+    return 'Ihr persönlicher Beauty Blueprint – Beauty Lounge Neuss';
+  }
+
+  // Klartext-Fallback der Kunden-Mail (falls die Zwischenablage die HTML-Version nicht
+  // annimmt) — schlank gehalten wie bisher: nur Behandlungen/Produkte mit Preis und
+  // Behandlungszeit, keine internen Begründungen. Der Buchungslink steht allein auf seiner
+  // eigenen Zeile, damit ihn möglichst jedes Mailprogramm automatisch verlinkt.
+  function buildKundeEmailPlain() {
+    var plan = getPlan();
+    var lines = [
+      'Hallo' + (STATE.kundeName ? ' ' + STATE.kundeName : '') + ',',
+      '',
+      'vielen Dank für Ihren Besuch in der Beauty Lounge Neuss — hier ist Ihr persönlicher Beauty Blueprint.',
+      ''
+    ];
+    lines = lines.concat(planSummaryLines(plan, false));
+    lines.push('');
+    lines.push('Jetzt Termin buchen:');
+    lines.push(BOOKING_URL);
+    lines.push('');
+    lines.push(STATE.mitarbeiterin ? 'Ihre ' + STATE.mitarbeiterin + ' und das Team der Beauty Lounge' : 'Ihr Team der Beauty Lounge');
+    lines.push('Beauty Lounge · Hoistener Str. 15 · 41466 Neuss · 02131 4506806');
+    return lines.join('\n');
+  }
+
+  // Formatierte HTML-Version der Kunden-Mail (tabellenbasiert, Inline-Styles — e-mail-sicher,
+  // siehe email-vorlage-beispiel.html) fürs Kopieren in die Zwischenablage. Der Buchungslink
+  // steckt hier als echter Hyperlink hinter einer Schaltfläche ("Jetzt Termin buchen") statt
+  // als sichtbare nackte URL — das geht nur über HTML, nicht über einen reinen mailto:-Body.
+  function buildKundeEmailHtml() {
+    var plan = getPlan();
+    var i1 = NEED_INFO[(plan.active[0] || plan.ranked[0]).need];
+    var i2 = plan.active[1] ? NEED_INFO[plan.active[1].need] : i1;
+    var name = STATE.kundeName ? esc(STATE.kundeName) : '';
+    var kurSlots = kurDefaultSlots(plan);
+
+    var behandlungenRows = plan.active.length ? groupedActive(plan).map(function (r) {
+      return '<tr><td style="padding:8px 0;border-bottom:1px solid #F2E9EC;color:#3F3F41;font-family:Arial,Helvetica,sans-serif;font-size:14px;">' +
+        esc(r.behandlung) + (r.count > 1 ? ' <span style="color:#9A4B66;">×' + r.count + '</span>' : '') +
+        '</td><td style="padding:8px 0;border-bottom:1px solid #F2E9EC;text-align:right;color:#7A7A7C;font-family:Arial,Helvetica,sans-serif;font-size:13px;white-space:nowrap;">' +
+        esc([r.dauer, r.preis].filter(Boolean).join(' · ')) + '</td></tr>';
+    }).join('') : '<tr><td style="padding:8px 0;color:#7A7A7C;font-family:Arial,Helvetica,sans-serif;font-size:14px;">Individuelle Beratung</td></tr>';
+
+    var kurRows = kurSlots.map(function (baseInfo, idx) {
+      var info = kurInfoFor(idx, baseInfo);
+      return '<tr><td style="padding:6px 0;color:#7A7A7C;font-family:Arial,Helvetica,sans-serif;font-size:13px;">Monat ' + (idx + 1) + '</td>' +
+        '<td style="padding:6px 0;text-align:right;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#3F3F41;">' + (info ? esc(treatLine(info)) : '–') + '</td></tr>';
+    }).join('');
+
+    function homecareRow(label, info) {
+      if (!info) return '';
+      return '<p style="margin:0 0 4px;font-size:13px;line-height:1.6;color:#3F3F41;font-family:Arial,Helvetica,sans-serif;"><strong>' + label + ':</strong> ' + esc(productLine(info)) + '</p>';
+    }
+    var homeAM = homecareInfoFor('am', i1);
+    var homePM = homecareInfoFor('pm', i2);
+    var reinigungInfo = homecareInfoFor('reinigung', { product: i1.reinigung, produktpreis: i1.reinigungpreis });
+    var tonicInfo = homecareInfoFor('tonic', { product: i1.tonic, produktpreis: i1.tonicpreis });
+    var peelingInfo = homecareInfoFor('peeling', { product: i1.peeling, produktpreis: i1.peelingpreis });
+    var serumInfo = homecareInfoFor('serum', { product: i1.serum, produktpreis: i1.serumpreis });
+    var augencremeInfo = homecareInfoFor('augencreme', { product: i1.augencreme, produktpreis: i1.augencremepreis });
+    var maskeInfo = homecareInfoFor('maske', { product: i1.maske, produktpreis: i1.maskepreis });
+    var sonnenschutzInfo = homecareInfoFor('sonnenschutz', { product: i1.sonnenschutz, produktpreis: i1.sonnenschutzpreis });
+    var homecareHtml = [
+      homecareRow('Reinigung', reinigungInfo),
+      homecareRow('Tonic', tonicInfo),
+      homecareRow('Serum', serumInfo),
+      homecareRow('Augencreme', augencremeInfo),
+      homecareRow('Morgens', homeAM),
+      homecareRow('Abends', homePM),
+      homecareRow('Sonnenschutz', sonnenschutzInfo),
+      homecareRow('Peeling (1–2×/Woche)', peelingInfo),
+      homecareRow('Maske (1–2×/Woche)', maskeInfo)
+    ].join('');
+    if (!homecareHtml) homecareHtml = '<p style="margin:0;font-size:13px;color:#7A7A7C;font-family:Arial,Helvetica,sans-serif;">Keine Homecare-Produkte ausgewählt.</p>';
+
+    var beraterin = STATE.mitarbeiterin ? esc(STATE.mitarbeiterin) : null;
+
+    return '' +
+      '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;max-width:600px;margin:0 auto;">' +
+        '<tr><td style="padding:40px 40px 0 40px;text-align:center;">' +
+          '<img src="' + LOGO_SRC + '" width="140" alt="Beauty Lounge" style="display:block;margin:0 auto;" />' +
+        '</td></tr>' +
+        '<tr><td style="padding:28px 40px 0 40px;text-align:center;">' +
+          '<p style="margin:0 0 6px;font-family:Georgia,\'Times New Roman\',serif;font-style:italic;font-size:30px;color:#3F3F41;">Hallo' + (name ? ' ' + name : '') + ',</p>' +
+          '<p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#7A7A7C;">vielen Dank für Ihren Besuch in der Beauty Lounge Neuss — hier ist Ihr persönlicher Beauty Blueprint.</p>' +
+        '</td></tr>' +
+        '<tr><td style="padding:28px 40px 0 40px;"><hr style="border:none;border-top:1px solid #ECD9DF;margin:0;" /></td></tr>' +
+
+        '<tr><td style="padding:28px 40px 0 40px;">' +
+          '<p style="margin:0 0 12px;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;color:#9A4B66;">Ihr Behandlungsplan</p>' +
+          '<table role="presentation" width="100%" cellpadding="0" cellspacing="0">' + behandlungenRows + '</table>' +
+        '</td></tr>' +
+
+        '<tr><td style="padding:28px 40px 0 40px;">' +
+          '<p style="margin:0 0 12px;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;color:#9A4B66;">Ihr ' + kurSlots.length + '-Monats-Kurplan</p>' +
+          '<table role="presentation" width="100%" cellpadding="0" cellspacing="0">' + kurRows +
+            '<tr><td style="padding:10px 0 0;font-weight:bold;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#3F3F41;">Gesamtpreis</td>' +
+            '<td style="padding:10px 0 0;text-align:right;font-weight:bold;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#3F3F41;">' + esc(formatPrice(kurTotal(plan))) + '</td></tr>' +
+          '</table>' +
+        '</td></tr>' +
+
+        '<tr><td style="padding:28px 40px 0 40px;">' +
+          '<p style="margin:0 0 12px;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;color:#9A4B66;">Ihre Homecare-Routine</p>' +
+          homecareHtml +
+        '</td></tr>' +
+
+        '<tr><td style="padding:34px 40px 0 40px;text-align:center;">' +
+          '<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">' +
+            '<tr><td style="background:#3F3F41;border-radius:6px;">' +
+              '<a href="' + BOOKING_URL + '" style="display:inline-block;padding:14px 30px;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:600;color:#ffffff;text-decoration:none;">Jetzt Termin buchen →</a>' +
+            '</td></tr>' +
+          '</table>' +
+        '</td></tr>' +
+
+        '<tr><td style="padding:36px 40px 40px 40px;text-align:center;">' +
+          '<hr style="border:none;border-top:1px solid #ECD9DF;margin:0 0 20px;" />' +
+          '<p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#3F3F41;">Wir freuen uns auf Sie!</p>' +
+          '<p style="margin:4px 0 20px;font-family:Georgia,\'Times New Roman\',serif;font-style:italic;font-size:16px;color:#3F3F41;">' +
+            (beraterin ? 'Ihre ' + beraterin + ' und das Team der Beauty Lounge' : 'Ihr Team der Beauty Lounge') +
+          '</p>' +
+          '<p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#7A7A7C;line-height:1.7;">Beauty Lounge · Hoistener Str. 15 · 41466 Neuss<br/>02131 4506806 · beautylounge-neuss.de</p>' +
+        '</td></tr>' +
+      '</table>';
+  }
+
+  // Kopiert die formatierte Kunden-Mail (inkl. echtem Hyperlink hinter dem Buchungs-Button)
+  // als HTML in die Zwischenablage und öffnet danach das Mailprogramm mit vorausgefülltem
+  // Betreff — die Mitarbeiterin muss dort nur noch die Kundin als Empfänger eintragen und
+  // den Text einfügen (⌘V/Strg+V). Ist die Clipboard-API nicht verfügbar oder lehnt sie ab,
+  // fällt die Funktion automatisch auf den bisherigen Klartext-mailto:-Weg zurück (dann
+  // erscheint der Buchungslink wieder als sichtbare URL statt als Hyperlink).
+  function sendKundeEmail(btn) {
+    var html = buildKundeEmailHtml();
+    var plain = buildKundeEmailPlain();
+    var mailtoBlank = 'mailto:?subject=' + encodeURIComponent(kundeEmailSubject());
+    var mailtoWithBody = mailtoBlank + '&body=' + encodeURIComponent(plain);
+    var originalLabel = btn ? btn.textContent : null;
+    function showLabel(text) {
+      if (!btn) return;
+      btn.textContent = text;
+      setTimeout(function () { btn.textContent = originalLabel; }, 3000);
+    }
+    if (navigator.clipboard && window.ClipboardItem) {
+      try {
+        var item = new ClipboardItem({
+          'text/html': new Blob([html], { type: 'text/html' }),
+          'text/plain': new Blob([plain], { type: 'text/plain' })
+        });
+        navigator.clipboard.write([item]).then(function () {
+          showLabel('In Zwischenablage kopiert ✓');
+          window.location.href = mailtoBlank;
+        }, function () {
+          window.location.href = mailtoWithBody;
+        });
+        return;
+      } catch (e) {
+        // fällt durch zum Klartext-Fallback unten
+      }
+    }
+    window.location.href = mailtoWithBody;
   }
 
   // ---------- PDF-Bericht: eigener, minimaler PDF-Schreiber ----------
@@ -3269,6 +3455,20 @@
     }).join(', ');
   }
 
+  function painpointText() {
+    if (!STATE.painpoint.length) return '';
+    return STATE.painpoint.map(function (k) {
+      var p = PAIN_POINTS.filter(function (p) { return p.key === k; })[0];
+      return p ? p.label : k;
+    }).join(', ');
+  }
+
+  function anlassText() {
+    if (!STATE.anlass) return '';
+    var a = ANLASS.filter(function (a) { return a.key === STATE.anlass; })[0];
+    return a ? a.label : STATE.anlass;
+  }
+
 
   function renderEmpfehlungen() {
     var plan = getPlan();
@@ -3497,10 +3697,12 @@
       '<div style="text-align:center">' + bookingCaption() + '</div>' +
       '<div class="footer-actions">' +
         bookingButton() +
-        '<a class="btn-link" href="' + emailSummaryHref() + '">Per E-Mail versenden ✉</a>' +
+        '<button type="button" class="btn-link" onclick="__bb.sendKundeEmail(this)">Kunden-E-Mail kopieren ✉</button>' +
+        '<a class="btn-link" href="' + emailCrmHref() + '">Interne CRM-Notiz senden ✉</a>' +
         '<button class="btn-ghost" onclick="__bb.downloadPdfReport(this)">Bericht als PDF herunterladen</button>' +
         '<button class="btn-primary" onclick="__bb.goTo(\'kunde-wahl\')">Neue Beratung starten</button>' +
-      '</div>';
+      '</div>' +
+      '<p class="sub" style="text-align:center;margin-top:.7rem;font-size:.8125rem">„Kunden-E-Mail kopieren“ kopiert eine formatierte Nachricht mit Buchungs-Button in die Zwischenablage und öffnet danach Ihr Mailprogramm — dort nur noch Empfänger eintragen und einfügen (⌘V/Strg+V). „Interne CRM-Notiz senden“ öffnet eine Notiz mit allen Beratungsdetails für die eigene Kundenkartei.</p>';
     screenWrap('brand', 100, contextLabel(), body, true);
   }
 
