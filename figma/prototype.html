@@ -621,6 +621,26 @@
   }
   .aktion-popup p.aktion-popup-text { font-size: 0.9rem; color: var(--text); margin: 0 0 0.6rem; }
   .aktion-popup-zeitraum { font-size: 0.75rem; color: var(--text-soft); margin: 0 0 1.2rem; }
+
+  /* Dezenter, nicht-blockierender Hinweis direkt beim Auswählen der Behandlung (im
+     Gegensatz zum Popup auf dem Beauty-Blueprint-Screen) — erscheint/verschwindet live,
+     je nachdem was gerade ausgewählt ist. */
+  .aktion-banner {
+    background: var(--rose-pale); border: 1px solid var(--rose-deep); border-radius: 10px;
+    padding: 0.75rem 1rem; margin: 0 0 1rem; font-size: 0.85rem; line-height: 1.5;
+    color: var(--rose-deep);
+  }
+  .aktion-banner strong { color: var(--rose-deep); }
+
+  /* Übersichtsliste der aktuellen Aktionen für Mitarbeiterinnen (read-only, im Gegensatz
+     zur Admin-Verwaltung) — erreichbar über den Button auf dem Kunde-Wahl-Screen. */
+  .aktion-status-badge {
+    display: inline-block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.04em; padding: 0.2rem 0.55rem; border-radius: 999px; margin-bottom: 0.4rem;
+  }
+  .aktion-status-badge.laeuft { background: rgba(82,112,79,0.14); color: var(--good); }
+  .aktion-status-badge.bevorstehend { background: rgba(169,122,46,0.14); color: var(--warn); }
+  .aktion-status-badge.beendet { background: rgba(63,63,65,0.1); color: var(--text-soft); }
 </style>
 
 <div class="device"><div class="screen" id="screen"></div></div>
@@ -1409,6 +1429,18 @@
     return matches.length ? matches[0] : null;
   }
 
+  // Für die (read-only) Aktionsübersicht der Mitarbeiterinnen: läuft eine Aktion gerade,
+  // beginnt sie erst noch, oder ist ihr Zeitraum schon vorbei?
+  function aktionStatus(a) {
+    var today = dateOnly(new Date()).getTime();
+    var von = parseIsoDate(a.von);
+    var bis = parseIsoDate(a.bis);
+    if (von && today < von.getTime()) return 'bevorstehend';
+    if (bis && today > bis.getTime()) return 'beendet';
+    return 'laeuft';
+  }
+  var AKTION_STATUS_LABEL = { laeuft: 'Läuft gerade', bevorstehend: 'Bevorstehend', beendet: 'Beendet' };
+
   // Aus dem Dateiauswahl-Feld im Admin-Formular gelesenes Foto einer neuen Mitarbeiterin,
   // als data:-URI zwischengespeichert, bis auf "Hinzufügen" getippt wird.
   var pendingMitarbeiterFoto = null;
@@ -2082,6 +2114,39 @@
         '<button class="stack-btn primary" onclick="__bb.goTo(\'kunde-neu\')">Neue Beratung</button>' +
         '<button class="stack-btn" onclick="__bb.goTo(\'kunde-bestehend\')">Kundin auswählen</button>' +
         '<button class="stack-btn" disabled>Beratung fortsetzen<span class="hint">Keine offene Beratung vorhanden</span></button>' +
+      '</div>' +
+      // Damit eine Mitarbeiterin schon VOR der ersten Beratung kurz nachsehen kann, welche
+      // Aktion gerade läuft — unabhängig vom Hinweis-Banner, der erst bei einer passenden
+      // Behandlungsauswahl erscheint.
+      '<div style="margin-top:0.9rem">' +
+        '<button class="btn-ghost" onclick="__bb.goTo(\'aktionen-uebersicht\')">Aktionen ansehen</button>' +
+      '</div>';
+    screenWrap('dezent', phasePercent('kunde', 0, 3), contextLabel(), body);
+  }
+
+  function renderAktionenUebersicht() {
+    var list = ADMIN_DATA.aktionen.length ? ADMIN_DATA.aktionen.map(function (a) {
+      var status = aktionStatus(a);
+      var von = parseIsoDate(a.von), bis = parseIsoDate(a.bis);
+      var zeitraum = (von ? formatDateDE(von) : '?') + ' – ' + (bis ? formatDateDE(bis) : '?');
+      var katLabel = a.kategorie === 'alle' ? 'Alle Behandlungen' : a.kategorie;
+      return '<div class="admin-item">' +
+          '<div class="admin-item-body">' +
+            '<span class="aktion-status-badge ' + status + '">' + AKTION_STATUS_LABEL[status] + '</span>' +
+            '<div class="admin-item-title">' + esc(a.titel) + '</div>' +
+            (a.beschreibung ? '<div class="admin-item-meta">' + esc(a.beschreibung) + '</div>' : '') +
+            '<div class="admin-item-meta">' + esc(katLabel) + ' &middot; ' + esc(zeitraum) + '</div>' +
+          '</div>' +
+        '</div>';
+    }).join('') : '<p class="admin-hint">Aktuell ist keine Aktion hinterlegt.</p>';
+
+    var body = '' +
+      '<p class="eyebrow">Aktionen</p>' +
+      '<h1 class="q">Aktuelle & geplante Aktionen</h1>' +
+      '<p class="sub">Läuft eine Aktion und passt zur ausgewählten Behandlung, weist die Beratung automatisch darauf hin — hier siehst du unabhängig davon jederzeit alle hinterlegten Aktionen.</p>' +
+      '<div class="admin-list">' + list + '</div>' +
+      '<div class="footer-actions">' +
+        '<button class="btn-primary" onclick="__bb.goBack()">Zurück</button>' +
       '</div>';
     screenWrap('dezent', phasePercent('kunde', 0, 3), contextLabel(), body);
   }
@@ -3065,6 +3130,10 @@
 
   function renderEmpfehlungen() {
     var plan = getPlan();
+    // Live-Hinweis, sobald die aktuelle Auswahl zu einer laufenden Aktion passt — anders
+    // als das Popup auf dem Beauty-Blueprint-Screen kein Dialog zum Wegklicken, sondern ein
+    // Banner, das mit jeder Auswahländerung erscheint oder wieder verschwindet.
+    var relevantAktionEmpf = findRelevantAktion(plan);
     var i1 = NEED_INFO[(plan.active[0] || plan.ranked[0]).need];
     var i2 = plan.active[1] ? NEED_INFO[plan.active[1].need] : i1;
 
@@ -3158,6 +3227,7 @@
       '<p class="eyebrow">Empfehlungen · Programm: ' + esc(plan.family.name) + '</p>' +
       '<h1 class="q">Behandlungsplan zur Prüfung</h1>' +
       '<p class="sub">Zur Hautanalyse passende Behandlungen — antippen zum Auswählen. Die Nummer zeigt deine gewählte Reihenfolge, erneutes Antippen entfernt die Behandlung wieder.</p>' +
+      (relevantAktionEmpf ? '<div class="aktion-banner">⚠ <strong>ACHTUNG:</strong> Aktion bitte ansprechen — <strong>' + esc(relevantAktionEmpf.titel) + '</strong>' + (relevantAktionEmpf.beschreibung ? ': ' + esc(relevantAktionEmpf.beschreibung) : '') + ' (gültig bis ' + esc(relevantAktionEmpf.bis ? formatDateDE(parseIsoDate(relevantAktionEmpf.bis)) : 'auf Weiteres') + ')</div>' : '') +
       '<h3 class="section-label">Behandlungen</h3>' +
       '<div class="grid cols-3">' +
         ranked.map(behandlungCard).join('') +
@@ -3296,6 +3366,7 @@
     var id = path[pointer];
     if (id === 'login') return renderLogin();
     if (id === 'kunde-wahl') return renderKundeWahl();
+    if (id === 'aktionen-uebersicht') return renderAktionenUebersicht();
     if (id === 'kunde-bestehend') return renderKundeBestehend();
     if (id === 'kunde-neu') return renderKundeNeu();
     if (id === 'ziel') return renderZiel();
