@@ -641,6 +641,20 @@
   .aktion-status-badge.laeuft { background: rgba(82,112,79,0.14); color: var(--good); }
   .aktion-status-badge.bevorstehend { background: rgba(169,122,46,0.14); color: var(--warn); }
   .aktion-status-badge.beendet { background: rgba(63,63,65,0.1); color: var(--text-soft); }
+
+  /* Nicht schließbarer Hinweis direkt nach dem Login (Kunde-Wahl-Screen) — läuft gerade
+     eine Aktion oder beginnt eine innerhalb der nächsten 7 Tage, erscheint er ohne
+     Möglichkeit zum Wegklicken, damit er garantiert wahrgenommen wird. */
+  .aktion-login-hinweis {
+    background: var(--rose-pale); border: 1.5px solid var(--rose-deep); border-radius: 10px;
+    padding: 0.8rem 1rem; margin: 0 0 1rem; font-size: 0.85rem; line-height: 1.5;
+    color: var(--rose-deep);
+  }
+  .aktion-login-hinweis.countdown { background: rgba(169,122,46,0.12); border-color: var(--warn); color: var(--warn); }
+  .aktion-login-hinweis strong { color: inherit; }
+
+  /* Admin: Löschen-Bestätigung / doppeltes Nachfragen für Aktions- und Mitarbeiter-Formulare */
+  .admin-item.ausgeblendet { opacity: 0.5; }
 </style>
 
 <div class="device"><div class="screen" id="screen"></div></div>
@@ -1420,13 +1434,51 @@
   // Hinweis "Aktion bitte beachten" auf dem Beauty-Blueprint-Screen.
   function findRelevantAktion(plan) {
     var needs = plan.active.map(function (r) { return r.need; });
+    // Namen der tatsächlich ausgewählten Behandlungen und der zu den aktiven Needs
+    // vorgeschlagenen Homecare-Produkte — ermöglicht eine Aktion exakt an eine einzelne
+    // Behandlung/ein einzelnes Produkt zu binden (admin's "Verknüpfung"), statt nur an die
+    // grobe Beauty-Need-Kategorie.
+    var behandlungNamen = plan.active.map(function (r) { return r.behandlung; });
+    var produktNamen = [];
+    needs.forEach(function (need) {
+      var info = NEED_INFO[need];
+      if (!info) return;
+      ['product', 'reinigung', 'tonic', 'peeling', 'serum', 'augencreme', 'maske', 'sonnenschutz'].forEach(function (f) {
+        if (info[f]) produktNamen.push(info[f]);
+      });
+    });
     var today = new Date();
     var matches = ADMIN_DATA.aktionen.filter(function (a) {
       if (!a.aktiv) return false;
       if (!isDateInRange(today, a.von, a.bis)) return false;
-      return a.kategorie === 'alle' || needs.indexOf(a.kategorie) > -1;
+      var kategoriePasst = a.kategorie === 'alle' || needs.indexOf(a.kategorie) > -1;
+      var verknuepfungPasst = !!a.verknuepfterName && (
+        (a.verknuepfterTyp === 'behandlung' && behandlungNamen.indexOf(a.verknuepfterName) > -1) ||
+        (a.verknuepfterTyp === 'produkt' && produktNamen.indexOf(a.verknuepfterName) > -1)
+      );
+      return kategoriePasst || verknuepfungPasst;
     });
     return matches.length ? matches[0] : null;
+  }
+
+  // Nicht schließbarer Login-Hinweis: alle gerade laufenden Aktionen, plus alle, die
+  // innerhalb der nächsten 7 Tage beginnen (Countdown), damit Mitarbeiterinnen eine Aktion
+  // schon vorab ankündigen können, bevor sie offiziell startet.
+  function aktivOderBaldStartendeAktionen() {
+    var today = dateOnly(new Date());
+    var ergebnis = [];
+    ADMIN_DATA.aktionen.forEach(function (a) {
+      if (!a.aktiv) return;
+      var von = parseIsoDate(a.von);
+      var bis = parseIsoDate(a.bis);
+      if (von && bis && today.getTime() >= von.getTime() && today.getTime() <= bis.getTime()) {
+        ergebnis.push({ aktion: a, status: 'laeuft' });
+      } else if (von) {
+        var tage = Math.round((von.getTime() - today.getTime()) / 86400000);
+        if (tage > 0 && tage <= 7) ergebnis.push({ aktion: a, status: 'countdown', tage: tage });
+      }
+    });
+    return ergebnis;
   }
 
   // Für die (read-only) Aktionsübersicht der Mitarbeiterinnen: läuft eine Aktion gerade,
@@ -1450,6 +1502,59 @@
     var reader = new FileReader();
     reader.onload = function (e) { pendingMitarbeiterFoto = e.target.result; };
     reader.readAsDataURL(file);
+  }
+
+  // Verknüpfung einer Aktion mit einer echten Behandlung oder einem echten Produkt, damit
+  // die Erkennung exakt statt nur über die grobe Beauty-Need-Kategorie funktioniert.
+  // Durchsucht beide echten Kataloge gemeinsam (152 Behandlungen + 364 Produkte).
+  var pendingAktionVerknuepfung = null; // { name, typ: 'behandlung'|'produkt' } oder null
+  var AKTION_VERKNUEPFUNG_RESULTS = [];
+  function filterAktionVerknuepfung(query) {
+    var q = (query || '').trim().toLowerCase();
+    pendingAktionVerknuepfung = null;
+    var box = document.getElementById('aktion-verknuepfung-results');
+    if (!box) return;
+    if (q.length < 2) {
+      AKTION_VERKNUEPFUNG_RESULTS = [];
+      box.innerHTML = '<p class="sub" style="margin:.4rem 0 0;font-size:.75rem">Mindestens 2 Zeichen eingeben …</p>';
+      return;
+    }
+    var treffer = [];
+    ALL_TREATMENTS.forEach(function (t) {
+      if (t.name.toLowerCase().indexOf(q) > -1) treffer.push({ name: t.name, typ: 'behandlung' });
+    });
+    ALL_PRODUCTS.forEach(function (p) {
+      if (p.name.toLowerCase().indexOf(q) > -1) treffer.push({ name: p.name, typ: 'produkt' });
+    });
+    treffer = treffer.slice(0, 8);
+    AKTION_VERKNUEPFUNG_RESULTS = treffer;
+    if (!treffer.length) {
+      box.innerHTML = '<p class="sub" style="margin:.4rem 0 0;font-size:.75rem">Keine Treffer.</p>';
+      return;
+    }
+    box.innerHTML = treffer.map(function (t, i) {
+      return '<button type="button" class="product-result" onclick="__bb.pickAktionVerknuepfung(' + i + ')"><span>' + esc(t.name) + '</span><span class="k" style="font-size:.75rem">' + (t.typ === 'behandlung' ? 'Behandlung' : 'Produkt') + '</span></button>';
+    }).join('');
+  }
+  function pickAktionVerknuepfung(i) {
+    var t = AKTION_VERKNUEPFUNG_RESULTS[i];
+    if (!t) return;
+    pendingAktionVerknuepfung = t;
+    var input = document.getElementById('aktion-verknuepfung-input');
+    if (input) input.value = t.name;
+    var box = document.getElementById('aktion-verknuepfung-results');
+    if (box) box.innerHTML = '';
+  }
+
+  // Löschen ist absichtlich aufwändiger als Ausblenden: erst eine native Rückfrage, dann
+  // eine zweite mit Passworteingabe — erst wenn beides passt, wird STATE tatsächlich
+  // geändert. So ist ein versehentliches Löschen praktisch ausgeschlossen.
+  function confirmMitarbeiterDelete(index, name) {
+    if (!window.confirm('„' + name + '" wirklich endgültig löschen? Das kann nicht rückgängig gemacht werden — zum vorübergehenden Verstecken gibt es „Ausblenden".')) return;
+    var pw = window.prompt('Zur Bestätigung bitte das Admin-Passwort eingeben:');
+    if (pw === null) return;
+    if (pw !== ADMIN_CREDENTIALS.pass) { window.alert('Falsches Passwort — Löschen abgebrochen.'); return; }
+    selectHandler('mitarbeiter-delete', index);
   }
 
   function adminLogout() {
@@ -1640,7 +1745,10 @@
     filterProducts: filterProducts, pickProduct: pickProduct,
     filterTreatments: filterTreatments, pickTreatment: pickTreatment, pickKurOption: pickKurOption,
     downloadPdfReport: downloadPdfReport,
-    handleMitarbeiterFotoChange: handleMitarbeiterFotoChange
+    handleMitarbeiterFotoChange: handleMitarbeiterFotoChange,
+    filterAktionVerknuepfung: filterAktionVerknuepfung,
+    pickAktionVerknuepfung: pickAktionVerknuepfung,
+    confirmMitarbeiterDelete: confirmMitarbeiterDelete
   };
 
   function selectHandler(kind, key, extra) {
@@ -1735,8 +1843,11 @@
         kategorie: katEl ? katEl.value : 'alle',
         von: vonEl ? vonEl.value : '',
         bis: bisEl ? bisEl.value : '',
-        aktiv: true
+        aktiv: true,
+        verknuepfterName: pendingAktionVerknuepfung ? pendingAktionVerknuepfung.name : null,
+        verknuepfterTyp: pendingAktionVerknuepfung ? pendingAktionVerknuepfung.typ : null
       });
+      pendingAktionVerknuepfung = null;
       saveAdminData();
       render();
     }
@@ -1759,9 +1870,19 @@
       render();
     }
     else if (kind === 'mitarbeiter-delete') {
+      // Wird nur nach der doppelten Rückfrage samt Passwort in confirmMitarbeiterDelete()
+      // erreicht — hier selbst findet keine weitere Prüfung mehr statt.
       ADMIN_DATA.team.splice(key, 1);
       saveAdminData();
       render();
+    }
+    else if (kind === 'mitarbeiter-toggle-sichtbar') {
+      var mitarbeiterEintrag = ADMIN_DATA.team[key];
+      if (mitarbeiterEintrag) {
+        mitarbeiterEintrag.sichtbar = mitarbeiterEintrag.sichtbar === false ? true : false;
+        saveAdminData();
+        render();
+      }
     }
     else if (kind === 'mitarbeiter-reset') {
       ADMIN_DATA.team = MITARBEITERINNEN.slice();
@@ -1974,7 +2095,7 @@
       '<p class="eyebrow" style="text-align:center">Anmeldung</p>' +
       '<h1 class="q" style="text-align:center">Wer berät heute?</h1>' +
       '<div class="avatar-row">' +
-      ADMIN_DATA.team.map(function (m) {
+      ADMIN_DATA.team.filter(function (m) { return m.sichtbar !== false; }).map(function (m) {
         return '<button class="avatar-card" onclick="__bb.select(\'mitarbeiterin\',\'' + esc(m.name) + '\')">' +
           '<span class="avatar-circle">' + avatarInner(m) + '</span>' +
           '<span class="avatar-name">' + esc(m.name) + '</span>' +
@@ -2012,6 +2133,7 @@
           '<div class="admin-item-body">' +
             '<div class="admin-item-title">' + esc(a.titel) + '</div>' +
             '<div class="admin-item-meta">' + esc(katLabel) + ' &middot; ' + esc(zeitraum) + (a.aktiv ? '' : ' &middot; pausiert') + '</div>' +
+            (a.verknuepfterName ? '<div class="admin-item-meta">Verknüpft mit ' + (a.verknuepfterTyp === 'produkt' ? 'Produkt' : 'Behandlung') + ': ' + esc(a.verknuepfterName) + '</div>' : '') +
           '</div>' +
           '<div class="admin-item-actions">' +
             '<button type="button" class="admin-icon-btn' + (a.aktiv ? '' : ' good') + '" onclick="__bb.select(\'aktion-toggle\',\'' + a.id + '\')">' + (a.aktiv ? 'Pausieren' : 'Aktivieren') + '</button>' +
@@ -2027,7 +2149,7 @@
       '<p class="admin-section-title">Laufende &amp; geplante Aktionen</p>' +
       '<div class="admin-list">' + list + '</div>' +
       '<p class="admin-section-title">Neue Aktion anlegen</p>' +
-      '<p class="admin-hint">Passt eine ausgewählte Behandlung in ihrem Zeitraum zur hinterlegten Kategorie, erscheint im Beauty Blueprint automatisch der Hinweis „Aktion bitte beachten“.</p>' +
+      '<p class="admin-hint">Passt eine ausgewählte Behandlung in ihrem Zeitraum zur hinterlegten Kategorie <em>oder</em> zur unten verknüpften Behandlung/zum Produkt, erscheint schon auf dem Empfehlungen-Screen ein Hinweis-Banner und zusätzlich im Beauty Blueprint der Hinweis „Aktion bitte beachten“.</p>' +
       '<div class="admin-form">' +
         '<input id="aktion-titel-input" class="text-input" type="text" placeholder="Titel, z. B. Frühjahrs-Kur" />' +
         '<input id="aktion-beschreibung-input" class="text-input" type="text" placeholder="Kurzbeschreibung für die Kollegin" />' +
@@ -2036,23 +2158,32 @@
           '<label class="file-label">Von<input id="aktion-von-input" class="text-input" type="date" /></label>' +
           '<label class="file-label">Bis<input id="aktion-bis-input" class="text-input" type="date" /></label>' +
         '</div>' +
+        '<label class="file-label">Genaue Verknüpfung (optional) — Behandlung oder Produkt aus dem echten Katalog' +
+          '<input id="aktion-verknuepfung-input" class="text-input" type="text" placeholder="Tippen zum Suchen, z. B. FORMA oder HYALURONIC …" oninput="__bb.filterAktionVerknuepfung(this.value)" />' +
+        '</label>' +
+        '<div class="product-results" id="aktion-verknuepfung-results"></div>' +
         '<button class="btn-primary" onclick="__bb.select(\'aktion-add\')">Aktion hinzufügen</button>' +
       '</div>';
   }
 
   function renderAdminMitarbeiterTab() {
     var list = ADMIN_DATA.team.map(function (m, i) {
-      return '<div class="admin-item">' +
+      var ausgeblendet = m.sichtbar === false;
+      return '<div class="admin-item' + (ausgeblendet ? ' ausgeblendet' : '') + '">' +
           '<div class="admin-item-avatar">' + avatarInner(m) + '</div>' +
-          '<div class="admin-item-body"><div class="admin-item-title">' + esc(m.name) + '</div></div>' +
+          '<div class="admin-item-body"><div class="admin-item-title">' + esc(m.name) + '</div>' +
+            (ausgeblendet ? '<div class="admin-item-meta">Ausgeblendet — erscheint nicht auf dem Login-Screen</div>' : '') +
+          '</div>' +
           '<div class="admin-item-actions">' +
-            '<button type="button" class="admin-icon-btn danger" onclick="__bb.select(\'mitarbeiter-delete\',' + i + ')">Löschen</button>' +
+            '<button type="button" class="admin-icon-btn' + (ausgeblendet ? ' good' : '') + '" onclick="__bb.select(\'mitarbeiter-toggle-sichtbar\',' + i + ')">' + (ausgeblendet ? 'Einblenden' : 'Ausblenden') + '</button>' +
+            '<button type="button" class="admin-icon-btn danger" onclick="__bb.confirmMitarbeiterDelete(' + i + ',\'' + esc(m.name).replace(/'/g, "\\'") + '\')">Löschen</button>' +
           '</div>' +
         '</div>';
     }).join('');
 
     return '' +
       '<p class="admin-section-title">Team</p>' +
+      '<p class="admin-hint">„Ausblenden" nimmt eine Mitarbeiterin nur vom Login-Screen — alle Daten bleiben erhalten. „Löschen" entfernt sie endgültig und fragt deshalb zweifach nach (inkl. Admin-Passwort).</p>' +
       '<div class="admin-list">' + list + '</div>' +
       '<p class="admin-section-title">Neue Mitarbeiterin anlegen</p>' +
       '<div class="admin-form">' +
@@ -2107,9 +2238,20 @@
   }
 
   function renderKundeWahl() {
+    // Läuft gerade eine Aktion oder startet sie in Kürze, wird direkt nach dem Login
+    // ein Hinweis eingeblendet — bewusst ohne Schließen-Möglichkeit, damit er nicht
+    // übersehen werden kann.
+    var loginHinweise = aktivOderBaldStartendeAktionen().map(function (h) {
+      if (h.status === 'laeuft') {
+        return '<div class="aktion-login-hinweis"><strong>Aktion läuft:</strong> ' + esc(h.aktion.titel) +
+          (h.aktion.beschreibung ? ' — ' + esc(h.aktion.beschreibung) : '') + '</div>';
+      }
+      return '<div class="aktion-login-hinweis countdown"><strong>Startet in ' + h.tage + ' Tag' + (h.tage === 1 ? '' : 'en') + ':</strong> ' + esc(h.aktion.titel) + '</div>';
+    }).join('');
     var body = '' +
       '<img class="brand-logo md" src="' + LOGO_SRC + '" alt="Beauty Lounge" />' +
       '<p class="welcome-title">Willkommen, ' + esc(STATE.mitarbeiterin || '') + '</p>' +
+      loginHinweise +
       '<div class="stack">' +
         '<button class="stack-btn primary" onclick="__bb.goTo(\'kunde-neu\')">Neue Beratung</button>' +
         '<button class="stack-btn" onclick="__bb.goTo(\'kunde-bestehend\')">Kundin auswählen</button>' +
