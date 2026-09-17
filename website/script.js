@@ -212,6 +212,27 @@ document.querySelectorAll('.faq-item').forEach((item) => {
 
   const ROOT_PREFIX = window.location.pathname.indexOf('/behandlungen/') !== -1 ? '../' : '';
 
+  // Bildmaße je Behandlung — dieselben Dateien wie in behandlungen.html/index.html,
+  // hier klein für die Ergebniskarte im Finder-Modal.
+  const TREATMENT_IMG_DIMS = {
+    gesicht: { w: 1400, h: 933 },
+    forma: { w: 1400, h: 933 },
+    fuesse: { w: 1400, h: 933 },
+    haende: { w: 1400, h: 933 },
+    diolaze: { w: 1400, h: 1750 },
+    wimpern: { w: 1400, h: 2100 }
+  };
+
+  function treatmentPictureHtml(key, name) {
+    const dims = TREATMENT_IMG_DIMS[key];
+    if (!dims) return '';
+    const base = ROOT_PREFIX + 'assets/img/treatments/' + key;
+    return '<div class="finder-treatment-media"><picture>' +
+      '<source type="image/webp" srcset="' + base + '-760.webp 760w, ' + base + '-1400.webp 1400w" sizes="(max-width:640px) 92vw, 540px">' +
+      '<img src="' + base + '-760.jpg" srcset="' + base + '-760.jpg 760w, ' + base + '-1400.jpg 1400w" sizes="(max-width:640px) 92vw, 540px" width="' + dims.w + '" height="' + dims.h + '" alt="' + name + '" loading="lazy" decoding="async">' +
+      '</picture></div>';
+  }
+
   // Frage 1 wählt den Bereich, Frage 2 das konkrete Anliegen — und *erst das Anliegen*
   // bestimmt die Behandlung (innerhalb eines Bereichs kann das unterschiedlich ausfallen,
   // z. B. "fahle Haut" -> Gesichtsbehandlung, "nachlassende Spannkraft" -> FORMA).
@@ -498,11 +519,13 @@ document.querySelectorAll('.faq-item').forEach((item) => {
       '<dt>Zeitrahmen</dt><dd>' + occasionSentence(occasion.id) + '</dd>' +
       '</dl>' +
       '<div class="finder-treatment-card">' +
+      treatmentPictureHtml(primaryKey, treatment.name) +
+      '<div class="finder-treatment-body">' +
       '<p class="finder-treatment-label">Hauptempfehlung</p>' +
       '<h4>' + treatment.name + '</h4>' +
       '<p>' + treatment.desc + '</p>' +
-      '</div>' +
-      (secondary ? '<div class="finder-treatment-card"><p class="finder-treatment-label">Sinnvolle Ergänzung</p><h4>' + secondary.name + '</h4><p>' + secondary.desc + '</p></div>' : '') +
+      '</div></div>' +
+      (secondary ? '<div class="finder-treatment-card">' + treatmentPictureHtml(secondaryKey, secondary.name) + '<div class="finder-treatment-body"><p class="finder-treatment-label">Sinnvolle Ergänzung</p><h4>' + secondary.name + '</h4><p>' + secondary.desc + '</p></div></div>' : '') +
       '<p class="finder-booking-label">So können Sie diese Behandlung buchen</p>' +
       '<div class="finder-result-actions">' +
       '<a href="https://www.studiobookr.com/beauty-lounge-66137" target="_blank" rel="noopener" class="btn btn-primary">Jetzt online buchen</a>' +

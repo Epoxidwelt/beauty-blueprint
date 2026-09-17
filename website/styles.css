@@ -703,7 +703,10 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
 .finder-strategy dt{font-size:0.7rem;letter-spacing:0.09em;text-transform:uppercase;color:var(--wine);font-weight:600;margin-top:0.9rem;}
 .finder-strategy dt:first-child{margin-top:0;}
 .finder-strategy dd{margin:0.15rem 0 0;color:var(--black);}
-.finder-treatment-card{background:var(--black);color:var(--white);padding:1.7rem 1.6rem;margin-bottom:1.5rem;position:relative;}
+.finder-treatment-card{background:var(--black);color:var(--white);margin-bottom:1.5rem;position:relative;border-radius:var(--radius);overflow:hidden;}
+.finder-treatment-media{aspect-ratio:4/3;overflow:hidden;background:var(--gray-mid);}
+.finder-treatment-media img{width:100%;height:100%;object-fit:cover;display:block;}
+.finder-treatment-body{padding:1.5rem 1.6rem 1.7rem;}
 .finder-treatment-card .finder-treatment-label{font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--rose-soft);margin-bottom:0.4rem;}
 .finder-treatment-card h4{font-family:'Libre Caslon Display',serif;font-weight:400;font-size:1.4rem;color:var(--white);margin:0 0 0.4rem;}
 .finder-treatment-card p{color:rgba(255,255,255,0.72);margin:0;font-size:0.9rem;max-width:none;}
