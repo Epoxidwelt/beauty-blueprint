@@ -534,6 +534,93 @@
     .avatar-circle { width: 96px; height: 96px; }
     .card .dot { width: 10px; height: 10px; }
   }
+
+  /* ---------- Admin-Bereich ---------- */
+  /* Bewusst unauffällig: kleiner, blasser Text unten auf dem Login-Screen statt eines
+     eigenen Buttons — Mitarbeiterinnen sollen ihn beim normalen Einloggen nicht bemerken. */
+  .admin-entry {
+    display: block; margin: 2.2rem auto 0; background: none; border: none;
+    color: var(--border-strong); font-size: 0.75rem; font-family: var(--font-body);
+    cursor: pointer; padding: 0.5rem;
+  }
+  .admin-entry:hover { color: var(--text-soft); }
+
+  .admin-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.2rem; flex-wrap: wrap; }
+  .admin-tab-btn {
+    font-family: var(--font-body); font-size: 0.8125rem; font-weight: 600;
+    padding: 0.55rem 1rem; border-radius: 999px; border: 1.5px solid var(--border);
+    background: var(--surface-raised); color: var(--text-soft); cursor: pointer;
+  }
+  .admin-tab-btn.current { background: var(--anthrazit); color: var(--warmweiss); border-color: var(--anthrazit); }
+
+  .admin-section-title {
+    font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--rose-deep); margin: 1.6rem 0 0.7rem;
+  }
+  .admin-section-title:first-child { margin-top: 0; }
+
+  .admin-form { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 0.4rem; }
+  .admin-form .text-input, .admin-form select { max-width: none; }
+  .admin-form-row { display: flex; gap: 0.6rem; }
+  .admin-form-row > * { flex: 1; min-width: 0; }
+  .admin-form label.file-label {
+    font-size: 0.8125rem; color: var(--text-soft); display: flex; flex-direction: column; gap: 0.3rem;
+  }
+
+  .admin-list { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.2rem; }
+  .admin-item {
+    display: flex; align-items: center; gap: 0.7rem;
+    border: 1px solid var(--border); border-radius: 10px; padding: 0.7rem 0.85rem;
+    background: var(--surface-raised);
+  }
+  .admin-item.inaktiv { opacity: 0.5; }
+  .admin-item-avatar {
+    width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0; overflow: hidden;
+    background: var(--rose-pale); display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-size: 1rem; color: var(--rose-deep);
+  }
+  .admin-item-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .admin-item-body { flex: 1; min-width: 0; }
+  .admin-item-title { font-weight: 600; font-size: 0.9rem; color: var(--text); }
+  .admin-item-meta { font-size: 0.75rem; color: var(--text-soft); margin-top: 0.15rem; }
+  .admin-item-actions { display: flex; gap: 0.4rem; flex-shrink: 0; }
+  .admin-icon-btn {
+    font-family: var(--font-body); font-size: 0.7rem; font-weight: 600;
+    padding: 0.4rem 0.65rem; border-radius: 7px; border: 1.5px solid var(--border);
+    background: transparent; color: var(--text-soft); cursor: pointer; white-space: nowrap;
+  }
+  .admin-icon-btn:hover { border-color: var(--border-strong); color: var(--text); }
+  .admin-icon-btn.danger { color: var(--danger); border-color: rgba(166,71,62,0.35); }
+  .admin-icon-btn.danger:hover { background: rgba(166,71,62,0.08); }
+  .admin-icon-btn.good { color: var(--good); border-color: rgba(82,112,79,0.35); }
+
+  .admin-error {
+    background: rgba(166,71,62,0.1); color: var(--danger); border: 1px solid rgba(166,71,62,0.3);
+    border-radius: 8px; padding: 0.65rem 0.85rem; font-size: 0.8125rem; margin: 0.6rem 0 0;
+  }
+  .admin-hint { font-size: 0.75rem; color: var(--text-soft); margin: -0.2rem 0 0.4rem; }
+
+  /* Popup "Aktion bitte beachten" — erscheint auf dem Beauty-Blueprint-Screen, wenn eine
+     laufende Aktion zu einer der ausgewählten Behandlungen passt. */
+  .aktion-popup-overlay {
+    position: fixed; inset: 0; background: rgba(63,63,65,0.5);
+    display: flex; align-items: center; justify-content: center; padding: 1.4rem;
+    z-index: 500;
+  }
+  .aktion-popup {
+    background: var(--surface-raised); border-radius: 16px; padding: 1.6rem 1.5rem;
+    max-width: 22rem; width: 100%; box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+    text-align: center;
+  }
+  .aktion-popup-eyebrow {
+    font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--rose-deep); margin: 0 0 0.5rem;
+  }
+  .aktion-popup h3 {
+    font-family: var(--font-display); font-size: 1.3rem; color: var(--text); margin: 0 0 0.6rem;
+  }
+  .aktion-popup p.aktion-popup-text { font-size: 0.9rem; color: var(--text); margin: 0 0 0.6rem; }
+  .aktion-popup-zeitraum { font-size: 0.75rem; color: var(--text-soft); margin: 0 0 1.2rem; }
 </style>
 
 <div class="device"><div class="screen" id="screen"></div></div>
@@ -1225,6 +1312,122 @@
     { name: 'Eleni', img: '../assets/team/eleni.jpg' },
     { name: 'Janine', img: '../assets/team/janine.jpg' }
   ];
+
+  // ---------- Admin-Bereich: Zugang, Aktionen, Team ----------
+  // Reines Demo-Login für den Prototyp (kein echtes Backend) — Zugangsdaten bewusst
+  // einfach und sichtbar im Code, wie vom Studio für den Test gewünscht.
+  var ADMIN_CREDENTIALS = { user: 'Admin', pass: '1234' };
+
+  // Dieselben 9 Beauty-Need-Kategorien wie NEED_INFO/PROGRAM_FAMILIES — eine Aktion wird
+  // gegen genau eine dieser Kategorien (oder "alle") gehalten, um zu prüfen, ob sie zur
+  // gerade empfohlenen Behandlung passt.
+  var AKTION_KATEGORIEN = Object.keys(DEFAULT_NEED_INFO);
+
+  var ADMIN_STORAGE_KEY = 'bb_admin_data_v1';
+
+  // Team, Aktionen und admin-editierte Ziele liegen in localStorage, damit eine einmal
+  // vom Admin angelegte Aktion oder ein neuer Mitarbeiter über einen Reload bzw. für alle
+  // Mitarbeiterinnen auf demselben Gerät erhalten bleiben (dieser Prototyp hat kein
+  // eigenes Backend, localStorage ist hier die einfachste passende Lösung).
+  function defaultAdminData() {
+    return {
+      team: MITARBEITERINNEN.slice(),
+      // Eine Beispiel-Aktion ist von Anfang an aktiv, damit sich der komplette Ablauf
+      // (Hinweis-Popup im Beauty Blueprint) sofort ausprobieren lässt.
+      aktionen: [
+        {
+          id: 'demo-fruehjahrskur',
+          titel: 'Frühjahrs-Kur',
+          beschreibung: 'Auf die Hydration-Kur gibt es aktuell 15% Rabatt auf die komplette Homecare-Routine.',
+          kategorie: 'Hydration',
+          von: '2027-03-01',
+          bis: '2027-05-31',
+          aktiv: true
+        }
+      ],
+      ziele: null // null = Standard-Ziele (DEFAULT_ZIELE) verwenden
+    };
+  }
+  function loadAdminData() {
+    try {
+      var raw = window.localStorage.getItem(ADMIN_STORAGE_KEY);
+      if (!raw) return defaultAdminData();
+      var parsed = JSON.parse(raw);
+      if (!parsed || !Array.isArray(parsed.team) || !Array.isArray(parsed.aktionen)) return defaultAdminData();
+      return parsed;
+    } catch (e) {
+      return defaultAdminData();
+    }
+  }
+  function saveAdminData() {
+    try { window.localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(ADMIN_DATA)); } catch (e) { /* z.B. Safari privat/voll — Änderung bleibt für diese Sitzung trotzdem aktiv */ }
+  }
+  var ADMIN_DATA = loadAdminData();
+  // Von Sheets geladene Ziele (falls konfiguriert) haben Vorrang vor den DEFAULT_ZIELE,
+  // eine vom Admin gespeicherte Liste hat aber das letzte Wort — wird ganz unten im Skript
+  // direkt vor dem allerersten render() angewendet (siehe applyAdminOverrides()).
+  function applyAdminOverrides() {
+    if (ADMIN_DATA.ziele && ADMIN_DATA.ziele.length) ZIELE = ADMIN_DATA.ziele;
+  }
+
+  // Zeigt entweder das Foto einer Mitarbeiterin oder — falls keins hinterlegt ist,
+  // z.B. bei einer über den Admin-Bereich neu angelegten Person — den Anfangsbuchstaben
+  // des Namens als Platzhalter.
+  function avatarInner(m) {
+    if (m.img) return '<img src="' + m.img + '" alt="' + esc(m.name) + '" />';
+    var initial = (m.name || '?').trim().charAt(0).toUpperCase() || '?';
+    return '<span>' + esc(initial) + '</span>';
+  }
+
+  function dateOnly(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+  function parseIsoDate(str) {
+    if (!str) return null;
+    var parts = str.split('-');
+    if (parts.length !== 3) return null;
+    return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+  }
+  function isDateInRange(date, vonStr, bisStr) {
+    var t = dateOnly(date).getTime();
+    var von = parseIsoDate(vonStr);
+    var bis = parseIsoDate(bisStr);
+    if (von && t < von.getTime()) return false;
+    if (bis && t > bis.getTime()) return false;
+    return true;
+  }
+
+  // Findet die erste aktive, zeitlich passende Aktion, deren Kategorie zu mindestens
+  // einer der im Behandlungsplan ausgewählten Behandlungen passt — Grundlage für den
+  // Hinweis "Aktion bitte beachten" auf dem Beauty-Blueprint-Screen.
+  function findRelevantAktion(plan) {
+    var needs = plan.active.map(function (r) { return r.need; });
+    var today = new Date();
+    var matches = ADMIN_DATA.aktionen.filter(function (a) {
+      if (!a.aktiv) return false;
+      if (!isDateInRange(today, a.von, a.bis)) return false;
+      return a.kategorie === 'alle' || needs.indexOf(a.kategorie) > -1;
+    });
+    return matches.length ? matches[0] : null;
+  }
+
+  // Aus dem Dateiauswahl-Feld im Admin-Formular gelesenes Foto einer neuen Mitarbeiterin,
+  // als data:-URI zwischengespeichert, bis auf "Hinzufügen" getippt wird.
+  var pendingMitarbeiterFoto = null;
+  function handleMitarbeiterFotoChange(input) {
+    var file = input.files && input.files[0];
+    if (!file) { pendingMitarbeiterFoto = null; return; }
+    var reader = new FileReader();
+    reader.onload = function (e) { pendingMitarbeiterFoto = e.target.result; };
+    reader.readAsDataURL(file);
+  }
+
+  function adminLogout() {
+    STATE.isAdmin = false;
+    STATE.adminLoginError = '';
+    path = ['login'];
+    pointer = 0;
+    render();
+  }
+
   var BOOKING_URL = 'https://www.studiobookr.com/beauty-lounge-66137?rwg_token=AE37R_hn_NJgm7K5jfMEpQphd98TRv0aNa2GEf75TCmpJanNi3KcmREKr3J17eEnC2-flqQdsq-pFJ5qD-W9jG2TJ-A51-wXhQ%3D%3D';
   // Ein einziger Ort für den Logo-Pfad — beim Artifact-Publish wird NUR diese eine Zeile
   // auf eine data:-URI umgestellt (self-contained), im Repo bleibt es ein Dateiverweis.
@@ -1345,6 +1548,11 @@
   var STATE = {
     mitarbeiterin: null,
     kundeName: '',
+    // Admin-Bereich: nicht Teil einer Kundenberatung, deshalb eigene, oben angesiedelte Felder.
+    isAdmin: false,
+    adminTab: 'aktionen',
+    adminLoginError: '',
+    aktionHinweisDismissed: false,
     ziel: [],
     painpoint: [],
     anlass: null,
@@ -1399,15 +1607,16 @@
     goTo: goTo, goBack: goBack, replaceTop: replaceTop, state: STATE, select: selectHandler, input: inputHandler,
     filterProducts: filterProducts, pickProduct: pickProduct,
     filterTreatments: filterTreatments, pickTreatment: pickTreatment, pickKurOption: pickKurOption,
-    downloadPdfReport: downloadPdfReport
+    downloadPdfReport: downloadPdfReport,
+    handleMitarbeiterFotoChange: handleMitarbeiterFotoChange
   };
 
   function selectHandler(kind, key, extra) {
     if (kind === 'mitarbeiterin') { STATE.mitarbeiterin = key; goTo('kunde-wahl'); }
-    else if (kind === 'kunde-bestehend') { STATE.kundeName = key; goTo('ziel'); }
+    else if (kind === 'kunde-bestehend') { STATE.kundeName = key; STATE.aktionHinweisDismissed = false; goTo('ziel'); }
     else if (kind === 'kunde-neu-weiter') {
       var val = document.getElementById('kunde-name-input');
-      if (val && val.value.trim()) { STATE.kundeName = val.value.trim(); goTo('ziel'); }
+      if (val && val.value.trim()) { STATE.kundeName = val.value.trim(); STATE.aktionHinweisDismissed = false; goTo('ziel'); }
     }
     else if (kind === 'ziel') { toggleMulti(STATE.ziel, key); render(); }
     else if (kind === 'painpoint') { toggleMulti(STATE.painpoint, key); render(); }
@@ -1459,6 +1668,90 @@
     else if (kind === 'kur-reset-treatment') {
       STATE.rec.kur[key].override = null;
       STATE.rec.kur[key].searchOpen = false;
+      render();
+    }
+    else if (kind === 'aktion-hinweis-schliessen') { STATE.aktionHinweisDismissed = true; render(); }
+    // ---------- Admin ----------
+    else if (kind === 'admin-login-submit') {
+      var userEl = document.getElementById('admin-user-input');
+      var passEl = document.getElementById('admin-pass-input');
+      var userVal = userEl ? userEl.value.trim() : '';
+      var passVal = passEl ? passEl.value : '';
+      if (userVal === ADMIN_CREDENTIALS.user && passVal === ADMIN_CREDENTIALS.pass) {
+        STATE.isAdmin = true;
+        STATE.adminLoginError = '';
+        goTo('admin-dashboard');
+      } else {
+        STATE.adminLoginError = 'Benutzername oder Passwort falsch.';
+        render();
+      }
+    }
+    else if (kind === 'admin-logout') { adminLogout(); }
+    else if (kind === 'admin-tab') { STATE.adminTab = key; render(); }
+    else if (kind === 'aktion-add') {
+      var titelEl = document.getElementById('aktion-titel-input');
+      var beschrEl = document.getElementById('aktion-beschreibung-input');
+      var katEl = document.getElementById('aktion-kategorie-select');
+      var vonEl = document.getElementById('aktion-von-input');
+      var bisEl = document.getElementById('aktion-bis-input');
+      var titel = titelEl ? titelEl.value.trim() : '';
+      if (!titel) { render(); return; }
+      ADMIN_DATA.aktionen.push({
+        id: 'aktion-' + Date.now().toString(36),
+        titel: titel,
+        beschreibung: beschrEl ? beschrEl.value.trim() : '',
+        kategorie: katEl ? katEl.value : 'alle',
+        von: vonEl ? vonEl.value : '',
+        bis: bisEl ? bisEl.value : '',
+        aktiv: true
+      });
+      saveAdminData();
+      render();
+    }
+    else if (kind === 'aktion-toggle') {
+      var akt = ADMIN_DATA.aktionen.filter(function (a) { return a.id === key; })[0];
+      if (akt) { akt.aktiv = !akt.aktiv; saveAdminData(); render(); }
+    }
+    else if (kind === 'aktion-delete') {
+      ADMIN_DATA.aktionen = ADMIN_DATA.aktionen.filter(function (a) { return a.id !== key; });
+      saveAdminData();
+      render();
+    }
+    else if (kind === 'mitarbeiter-add') {
+      var nameEl = document.getElementById('mitarbeiter-name-input');
+      var nameVal = nameEl ? nameEl.value.trim() : '';
+      if (!nameVal) { render(); return; }
+      ADMIN_DATA.team.push({ name: nameVal, img: pendingMitarbeiterFoto || null });
+      pendingMitarbeiterFoto = null;
+      saveAdminData();
+      render();
+    }
+    else if (kind === 'mitarbeiter-delete') {
+      ADMIN_DATA.team.splice(key, 1);
+      saveAdminData();
+      render();
+    }
+    else if (kind === 'mitarbeiter-reset') {
+      ADMIN_DATA.team = MITARBEITERINNEN.slice();
+      saveAdminData();
+      render();
+    }
+    else if (kind === 'ziel-admin-add') {
+      var labelEl = document.getElementById('ziel-label-input');
+      var labelVal = labelEl ? labelEl.value.trim() : '';
+      if (!labelVal) { render(); return; }
+      var slug = labelVal.toLowerCase()
+        .replace(/[äöüß]/g, function (c) { return { 'ä': 'ae', 'ö': 'oe', 'ü': 'ue', 'ß': 'ss' }[c]; })
+        .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || ('ziel-' + Date.now().toString(36));
+      ZIELE.push({ key: slug, label: labelVal });
+      ADMIN_DATA.ziele = ZIELE;
+      saveAdminData();
+      render();
+    }
+    else if (kind === 'ziel-admin-delete') {
+      ZIELE.splice(key, 1);
+      ADMIN_DATA.ziele = ZIELE;
+      saveAdminData();
       render();
     }
   }
@@ -1649,14 +1942,136 @@
       '<p class="eyebrow" style="text-align:center">Anmeldung</p>' +
       '<h1 class="q" style="text-align:center">Wer berät heute?</h1>' +
       '<div class="avatar-row">' +
-      MITARBEITERINNEN.map(function (m) {
-        return '<button class="avatar-card" onclick="__bb.select(\'mitarbeiterin\',\'' + m.name + '\')">' +
-          '<span class="avatar-circle"><img src="' + m.img + '" alt="' + m.name + '" /></span>' +
-          '<span class="avatar-name">' + m.name + '</span>' +
+      ADMIN_DATA.team.map(function (m) {
+        return '<button class="avatar-card" onclick="__bb.select(\'mitarbeiterin\',\'' + esc(m.name) + '\')">' +
+          '<span class="avatar-circle">' + avatarInner(m) + '</span>' +
+          '<span class="avatar-name">' + esc(m.name) + '</span>' +
         '</button>';
       }).join('') +
-      '</div>';
+      '</div>' +
+      // Bewusst dezent gehalten (siehe .admin-entry: blass, klein, unten) — im normalen
+      // Login-Flow der Mitarbeiterinnen soll das kaum auffallen, aber für den Admin
+      // trotzdem auffindbar und beschriftet bleiben.
+      '<button type="button" class="admin-entry" onclick="__bb.goTo(\'admin-login\')">Admin</button>';
     screenWrap('brand', 0, '', body, true);
+  }
+
+  function renderAdminLogin() {
+    var body = '' +
+      '<p class="eyebrow" style="text-align:center">Admin</p>' +
+      '<h1 class="q" style="text-align:center">Admin-Anmeldung</h1>' +
+      '<div style="max-width:22rem;margin:0 auto;display:flex;flex-direction:column;gap:0.6rem;">' +
+        '<input id="admin-user-input" class="text-input" type="text" placeholder="Benutzername" style="max-width:none" autocapitalize="off" />' +
+        '<input id="admin-pass-input" class="text-input" type="password" placeholder="Passwort" style="max-width:none" onkeydown="if(event.key===\'Enter\'){__bb.select(\'admin-login-submit\');}" />' +
+        (STATE.adminLoginError ? '<p class="admin-error">' + esc(STATE.adminLoginError) + '</p>' : '') +
+      '</div>' +
+      '<div class="footer-actions" style="max-width:22rem;margin:1.4rem auto 0">' +
+        '<button class="btn-primary" onclick="__bb.select(\'admin-login-submit\')">Anmelden</button>' +
+      '</div>';
+    screenWrap('neutral', 0, '', body, true);
+  }
+
+  function renderAdminAktionenTab() {
+    var list = ADMIN_DATA.aktionen.length ? ADMIN_DATA.aktionen.map(function (a) {
+      var von = parseIsoDate(a.von), bis = parseIsoDate(a.bis);
+      var zeitraum = (von ? formatDateDE(von) : '?') + ' – ' + (bis ? formatDateDE(bis) : '?');
+      var katLabel = a.kategorie === 'alle' ? 'Alle Behandlungen' : a.kategorie;
+      return '<div class="admin-item' + (a.aktiv ? '' : ' inaktiv') + '">' +
+          '<div class="admin-item-body">' +
+            '<div class="admin-item-title">' + esc(a.titel) + '</div>' +
+            '<div class="admin-item-meta">' + esc(katLabel) + ' &middot; ' + esc(zeitraum) + (a.aktiv ? '' : ' &middot; pausiert') + '</div>' +
+          '</div>' +
+          '<div class="admin-item-actions">' +
+            '<button type="button" class="admin-icon-btn' + (a.aktiv ? '' : ' good') + '" onclick="__bb.select(\'aktion-toggle\',\'' + a.id + '\')">' + (a.aktiv ? 'Pausieren' : 'Aktivieren') + '</button>' +
+            '<button type="button" class="admin-icon-btn danger" onclick="__bb.select(\'aktion-delete\',\'' + a.id + '\')">Löschen</button>' +
+          '</div>' +
+        '</div>';
+    }).join('') : '<p class="admin-hint">Noch keine Aktion angelegt.</p>';
+
+    var kategorieOptions = '<option value="alle">Alle Behandlungen</option>' +
+      AKTION_KATEGORIEN.map(function (k) { return '<option value="' + esc(k) + '">' + esc(k) + '</option>'; }).join('');
+
+    return '' +
+      '<p class="admin-section-title">Laufende &amp; geplante Aktionen</p>' +
+      '<div class="admin-list">' + list + '</div>' +
+      '<p class="admin-section-title">Neue Aktion anlegen</p>' +
+      '<p class="admin-hint">Passt eine ausgewählte Behandlung in ihrem Zeitraum zur hinterlegten Kategorie, erscheint im Beauty Blueprint automatisch der Hinweis „Aktion bitte beachten“.</p>' +
+      '<div class="admin-form">' +
+        '<input id="aktion-titel-input" class="text-input" type="text" placeholder="Titel, z. B. Frühjahrs-Kur" />' +
+        '<input id="aktion-beschreibung-input" class="text-input" type="text" placeholder="Kurzbeschreibung für die Kollegin" />' +
+        '<select id="aktion-kategorie-select" class="text-input">' + kategorieOptions + '</select>' +
+        '<div class="admin-form-row">' +
+          '<label class="file-label">Von<input id="aktion-von-input" class="text-input" type="date" /></label>' +
+          '<label class="file-label">Bis<input id="aktion-bis-input" class="text-input" type="date" /></label>' +
+        '</div>' +
+        '<button class="btn-primary" onclick="__bb.select(\'aktion-add\')">Aktion hinzufügen</button>' +
+      '</div>';
+  }
+
+  function renderAdminMitarbeiterTab() {
+    var list = ADMIN_DATA.team.map(function (m, i) {
+      return '<div class="admin-item">' +
+          '<div class="admin-item-avatar">' + avatarInner(m) + '</div>' +
+          '<div class="admin-item-body"><div class="admin-item-title">' + esc(m.name) + '</div></div>' +
+          '<div class="admin-item-actions">' +
+            '<button type="button" class="admin-icon-btn danger" onclick="__bb.select(\'mitarbeiter-delete\',' + i + ')">Löschen</button>' +
+          '</div>' +
+        '</div>';
+    }).join('');
+
+    return '' +
+      '<p class="admin-section-title">Team</p>' +
+      '<div class="admin-list">' + list + '</div>' +
+      '<p class="admin-section-title">Neue Mitarbeiterin anlegen</p>' +
+      '<div class="admin-form">' +
+        '<input id="mitarbeiter-name-input" class="text-input" type="text" placeholder="Name" />' +
+        '<label class="file-label">Foto (optional)<input type="file" accept="image/*" class="text-input" onchange="__bb.handleMitarbeiterFotoChange(this)" /></label>' +
+        '<button class="btn-primary" onclick="__bb.select(\'mitarbeiter-add\')">Hinzufügen</button>' +
+      '</div>' +
+      '<button type="button" class="admin-icon-btn" style="margin-top:0.6rem" onclick="__bb.select(\'mitarbeiter-reset\')">Team auf Standard zurücksetzen</button>';
+  }
+
+  function renderAdminFragenTab() {
+    var list = ZIELE.length ? ZIELE.map(function (z, i) {
+      return '<div class="admin-item">' +
+          '<div class="admin-item-body"><div class="admin-item-title">' + esc(z.label) + '</div></div>' +
+          '<div class="admin-item-actions">' +
+            '<button type="button" class="admin-icon-btn danger" onclick="__bb.select(\'ziel-admin-delete\',' + i + ')">Löschen</button>' +
+          '</div>' +
+        '</div>';
+    }).join('') : '<p class="admin-hint">Keine Ziele mehr vorhanden.</p>';
+
+    return '' +
+      '<p class="admin-section-title">Ziele im Beratungsflow (Schritt „Was möchte die Kundin erreichen?“)</p>' +
+      '<div class="admin-list">' + list + '</div>' +
+      '<p class="admin-section-title">Neues Ziel hinzufügen</p>' +
+      '<div class="admin-form">' +
+        '<input id="ziel-label-input" class="text-input" type="text" placeholder="z. B. Rötungen reduzieren" />' +
+        '<button class="btn-primary" onclick="__bb.select(\'ziel-admin-add\')">Hinzufügen</button>' +
+      '</div>';
+  }
+
+  function renderAdminDashboard() {
+    var tabs = [
+      { key: 'aktionen', label: 'Aktionen' },
+      { key: 'mitarbeiter', label: 'Mitarbeiter' },
+      { key: 'fragen', label: 'Ziele' }
+    ];
+    var tabBtns = tabs.map(function (t) {
+      return '<button type="button" class="admin-tab-btn' + (STATE.adminTab === t.key ? ' current' : '') + '" onclick="__bb.select(\'admin-tab\',\'' + t.key + '\')">' + t.label + '</button>';
+    }).join('');
+    var content = STATE.adminTab === 'mitarbeiter' ? renderAdminMitarbeiterTab()
+      : STATE.adminTab === 'fragen' ? renderAdminFragenTab()
+      : renderAdminAktionenTab();
+    var body = '' +
+      '<p class="eyebrow">Admin-Bereich</p>' +
+      '<h1 class="q">Verwaltung</h1>' +
+      '<div class="admin-tabs">' + tabBtns + '</div>' +
+      content +
+      '<div class="footer-actions">' +
+        '<button class="btn-ghost" onclick="__bb.select(\'admin-logout\')">Abmelden</button>' +
+      '</div>';
+    screenWrap('neutral', 0, 'Admin', body);
   }
 
   function renderKundeWahl() {
@@ -2777,6 +3192,7 @@
 
   function renderBlueprint() {
     var plan = getPlan();
+    var relevantAktion = STATE.aktionHinweisDismissed ? null : findRelevantAktion(plan);
     var i1 = NEED_INFO[(plan.active[0] || plan.ranked[0]).need];
     var i2 = plan.active[1] ? NEED_INFO[plan.active[1].need] : i1;
     var homeAM = homecareInfoFor('am', i1);
@@ -2843,7 +3259,20 @@
       '<div class="footer-actions">' +
         bookingButton() +
         '<button class="btn-primary" onclick="__bb.goTo(\'abschluss\')">Freigeben & abschließen</button>' +
-      '</div>';
+      '</div>' +
+      // Hinweis-Popup auf laufende Aktionen: erscheint hier auf dem Beauty-Blueprint-
+      // Screen (Abschluss der Empfehlung), sofern eine vom Admin angelegte, aktuell
+      // laufende Aktion zu einer der ausgewählten Behandlungen passt.
+      (relevantAktion ? '' +
+        '<div class="aktion-popup-overlay">' +
+          '<div class="aktion-popup">' +
+            '<p class="aktion-popup-eyebrow">Aktion bitte beachten</p>' +
+            '<h3>' + esc(relevantAktion.titel) + '</h3>' +
+            (relevantAktion.beschreibung ? '<p class="aktion-popup-text">' + esc(relevantAktion.beschreibung) + '</p>' : '') +
+            '<p class="aktion-popup-zeitraum">Gültig bis ' + esc(relevantAktion.bis ? formatDateDE(parseIsoDate(relevantAktion.bis)) : 'auf Weiteres') + '</p>' +
+            '<button class="btn-primary" onclick="__bb.select(\'aktion-hinweis-schliessen\')">Verstanden</button>' +
+          '</div>' +
+        '</div>' : '');
     screenWrap('brand', phasePercent('ergebnis', 4, 5), contextLabel(), body);
   }
 
@@ -2880,6 +3309,8 @@
     if (id === 'empfehlungen') return renderEmpfehlungen();
     if (id === 'blueprint') return renderBlueprint();
     if (id === 'abschluss') return renderAbschluss();
+    if (id === 'admin-login') return renderAdminLogin();
+    if (id === 'admin-dashboard') return STATE.isAdmin ? renderAdminDashboard() : renderAdminLogin();
   }
 
   function renderInitialLoading() {
@@ -2891,8 +3322,11 @@
 
   var sheetsConfigured = Object.keys(SHEET_CONFIG).some(function (k) { return SHEET_CONFIG[k]; });
   if (sheetsConfigured) renderInitialLoading();
-  loadSheetData().then(render).catch(function (e) {
+  // applyAdminOverrides() erst NACH einem eventuellen Sheet-Load, damit eine vom Admin
+  // gespeicherte Ziele-Liste in jedem Fall das letzte Wort hat (siehe Kommentar dort).
+  loadSheetData().then(function () { applyAdminOverrides(); render(); }).catch(function (e) {
     console.warn('Sheet-Daten konnten nicht vollständig geladen werden, nutze Standardwerte.', e);
+    applyAdminOverrides();
     render();
   });
 })();
