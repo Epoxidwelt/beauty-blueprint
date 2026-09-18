@@ -722,10 +722,11 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
 /* preisliste */
 .price-intro{max-width:56ch;margin-left:auto;margin-right:auto;}
 .price-table{
-  display:grid;grid-template-columns:repeat(2,1fr);gap:2.4rem 3.2rem;
-  margin:3rem 0 1.6rem;max-width:920px;margin-left:auto;margin-right:auto;text-align:left;
+  column-count:2;column-gap:3.2rem;
+  margin:3rem 0 1.6rem;max-width:980px;margin-left:auto;margin-right:auto;text-align:left;
 }
 .price-group{
+  break-inside:avoid;margin-bottom:2.4rem;
   padding:1.7rem 1.8rem;background:var(--white);border:1px solid var(--line);
   transition:box-shadow .35s var(--ease),border-color .35s var(--ease),transform .35s var(--ease);
 }
@@ -985,7 +986,7 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
   .trust-row{flex-direction:column;align-items:flex-start;gap:1.2rem;}
   .trust-item{flex-direction:column;align-items:flex-start;gap:0.15rem;}
   .services-grid{grid-template-columns:1fr;}
-  .price-table{grid-template-columns:1fr;gap:2rem;}
+  .price-table{column-count:1;}
   .team-strip{grid-template-columns:1fr 1fr;}
   .hours-card{flex-direction:column;align-items:flex-start;}
   .brands-row{gap:1.6rem;}
