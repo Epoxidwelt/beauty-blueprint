@@ -639,7 +639,7 @@
     letter-spacing: 0.04em; padding: 0.2rem 0.55rem; border-radius: 999px; margin-bottom: 0.4rem;
   }
   .aktion-status-badge.laeuft { background: rgba(82,112,79,0.14); color: var(--good); }
-  .aktion-status-badge.bevorstehend { background: rgba(169,122,46,0.14); color: var(--warn); }
+  .aktion-status-badge.bevorstehend { background: rgba(166,71,62,0.14); color: var(--danger); }
   .aktion-status-badge.beendet { background: rgba(63,63,65,0.1); color: var(--text-soft); }
 
   /* Nicht schließbarer Hinweis direkt nach dem Login (Kunde-Wahl-Screen) — läuft gerade
@@ -1493,6 +1493,22 @@
   }
   var AKTION_STATUS_LABEL = { laeuft: 'Läuft gerade', bevorstehend: 'Bevorstehend', beendet: 'Beendet' };
 
+  // Ampel-Prinzip für jede Aktionen-Liste (Admin-Verwaltung wie Mitarbeiter-Übersicht):
+  // laufende (grün) zuerst, dann bevorstehende (rot), zuletzt beendete (grau) — auf einen
+  // Blick sofort erkennbar, was gerade zählt. Innerhalb einer Gruppe nach Startdatum sortiert.
+  var AKTION_STATUS_ORDER = { laeuft: 0, bevorstehend: 1, beendet: 2 };
+  function sortedAktionenMitStatus() {
+    return ADMIN_DATA.aktionen.map(function (a) {
+      return { aktion: a, status: aktionStatus(a) };
+    }).sort(function (x, y) {
+      var orderDiff = AKTION_STATUS_ORDER[x.status] - AKTION_STATUS_ORDER[y.status];
+      if (orderDiff !== 0) return orderDiff;
+      var xVon = parseIsoDate(x.aktion.von);
+      var yVon = parseIsoDate(y.aktion.von);
+      return (xVon ? xVon.getTime() : 0) - (yVon ? yVon.getTime() : 0);
+    });
+  }
+
   // Aus dem Dateiauswahl-Feld im Admin-Formular gelesenes Foto einer neuen Mitarbeiterin,
   // als data:-URI zwischengespeichert, bis auf "Hinzufügen" getippt wird.
   var pendingMitarbeiterFoto = null;
@@ -2126,12 +2142,14 @@
   }
 
   function renderAdminAktionenTab() {
-    var list = ADMIN_DATA.aktionen.length ? ADMIN_DATA.aktionen.map(function (a) {
+    var list = ADMIN_DATA.aktionen.length ? sortedAktionenMitStatus().map(function (entry) {
+      var a = entry.aktion, status = entry.status;
       var von = parseIsoDate(a.von), bis = parseIsoDate(a.bis);
       var zeitraum = (von ? formatDateDE(von) : '?') + ' – ' + (bis ? formatDateDE(bis) : '?');
       var katLabel = a.kategorie === 'alle' ? 'Alle Behandlungen' : a.kategorie;
       return '<div class="admin-item' + (a.aktiv ? '' : ' inaktiv') + '">' +
           '<div class="admin-item-body">' +
+            '<span class="aktion-status-badge ' + status + '">' + AKTION_STATUS_LABEL[status] + '</span>' +
             '<div class="admin-item-title">' + esc(a.titel) + '</div>' +
             '<div class="admin-item-meta">' + esc(katLabel) + ' &middot; ' + esc(zeitraum) + (a.aktiv ? '' : ' &middot; pausiert') + '</div>' +
             (a.verknuepfterName ? '<div class="admin-item-meta">Verknüpft mit ' + (a.verknuepfterTyp === 'produkt' ? 'Produkt' : 'Behandlung') + ': ' + esc(a.verknuepfterName) + '</div>' : '') +
@@ -2148,6 +2166,7 @@
 
     return '' +
       '<p class="admin-section-title">Laufende &amp; geplante Aktionen</p>' +
+      '<p class="admin-hint">Nach dem Ampel-Prinzip sortiert: <strong style="color:var(--good)">grün = läuft gerade</strong>, <strong style="color:var(--danger)">rot = bevorstehend</strong>, grau = beendet.</p>' +
       '<div class="admin-list">' + list + '</div>' +
       '<p class="admin-section-title">Neue Aktion anlegen</p>' +
       '<p class="admin-hint">Passt eine ausgewählte Behandlung in ihrem Zeitraum zur hinterlegten Kategorie <em>oder</em> zur unten verknüpften Behandlung/zum Produkt, erscheint schon auf dem Empfehlungen-Screen ein Hinweis-Banner und zusätzlich im Beauty Blueprint der Hinweis „Aktion bitte beachten“.</p>' +
@@ -2268,8 +2287,8 @@
   }
 
   function renderAktionenUebersicht() {
-    var list = ADMIN_DATA.aktionen.length ? ADMIN_DATA.aktionen.map(function (a) {
-      var status = aktionStatus(a);
+    var list = ADMIN_DATA.aktionen.length ? sortedAktionenMitStatus().map(function (entry) {
+      var a = entry.aktion, status = entry.status;
       var von = parseIsoDate(a.von), bis = parseIsoDate(a.bis);
       var zeitraum = (von ? formatDateDE(von) : '?') + ' – ' + (bis ? formatDateDE(bis) : '?');
       var katLabel = a.kategorie === 'alle' ? 'Alle Behandlungen' : a.kategorie;
