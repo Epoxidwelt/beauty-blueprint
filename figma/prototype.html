@@ -1469,19 +1469,24 @@
   // schon vorab ankündigen können, bevor sie offiziell startet.
   function aktivOderBaldStartendeAktionen() {
     var today = dateOnly(new Date());
-    var ergebnis = [];
+    var laufend = [];
+    var bald = [];
     ADMIN_DATA.aktionen.forEach(function (a) {
       if (!a.aktiv) return;
       var von = parseIsoDate(a.von);
       var bis = parseIsoDate(a.bis);
       if (von && bis && today.getTime() >= von.getTime() && today.getTime() <= bis.getTime()) {
-        ergebnis.push({ aktion: a, status: 'laeuft' });
+        laufend.push({ aktion: a, status: 'laeuft' });
       } else if (von) {
         var tage = Math.round((von.getTime() - today.getTime()) / 86400000);
-        if (tage > 0 && tage <= 7) ergebnis.push({ aktion: a, status: 'countdown', tage: tage });
+        if (tage > 0 && tage <= 7) bald.push({ aktion: a, status: 'countdown', tage: tage });
       }
     });
-    return ergebnis;
+    // Aufbau wie beim Ampel-Prinzip der Listen: erst was gerade läuft, danach was demnächst
+    // startet (dort die dringlichsten zuerst) — nie umgekehrt, egal in welcher Reihenfolge
+    // die Aktionen angelegt wurden.
+    bald.sort(function (x, y) { return x.tage - y.tage; });
+    return laufend.concat(bald);
   }
 
   // Für die (read-only) Aktionsübersicht der Mitarbeiterinnen: läuft eine Aktion gerade,
