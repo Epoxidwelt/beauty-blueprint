@@ -1576,6 +1576,7 @@
   function adminLogout() {
     STATE.isAdmin = false;
     STATE.adminLoginError = '';
+    STATE.aktionEditId = null;
     path = ['login'];
     pointer = 0;
     render();
@@ -1705,6 +1706,7 @@
     isAdmin: false,
     adminTab: 'aktionen',
     adminLoginError: '',
+    aktionEditId: null,
     aktionHinweisDismissed: false,
     ziel: [],
     painpoint: [],
@@ -1844,7 +1846,7 @@
       }
     }
     else if (kind === 'admin-logout') { adminLogout(); }
-    else if (kind === 'admin-tab') { STATE.adminTab = key; render(); }
+    else if (kind === 'admin-tab') { STATE.adminTab = key; STATE.aktionEditId = null; render(); }
     else if (kind === 'aktion-add') {
       var titelEl = document.getElementById('aktion-titel-input');
       var beschrEl = document.getElementById('aktion-beschreibung-input');
@@ -1875,6 +1877,44 @@
     else if (kind === 'aktion-delete') {
       ADMIN_DATA.aktionen = ADMIN_DATA.aktionen.filter(function (a) { return a.id !== key; });
       saveAdminData();
+      render();
+    }
+    else if (kind === 'aktion-edit-start') {
+      STATE.aktionEditId = key;
+      pendingAktionVerknuepfung = null;
+      render();
+    }
+    else if (kind === 'aktion-edit-cancel') {
+      STATE.aktionEditId = null;
+      pendingAktionVerknuepfung = null;
+      render();
+    }
+    else if (kind === 'aktion-edit-save') {
+      var editAkt = ADMIN_DATA.aktionen.filter(function (a) { return a.id === key; })[0];
+      if (editAkt) {
+        var editTitelEl = document.getElementById('aktion-titel-input');
+        var editBeschrEl = document.getElementById('aktion-beschreibung-input');
+        var editKatEl = document.getElementById('aktion-kategorie-select');
+        var editVonEl = document.getElementById('aktion-von-input');
+        var editBisEl = document.getElementById('aktion-bis-input');
+        var editTitel = editTitelEl ? editTitelEl.value.trim() : '';
+        if (editTitel) {
+          editAkt.titel = editTitel;
+          editAkt.beschreibung = editBeschrEl ? editBeschrEl.value.trim() : '';
+          editAkt.kategorie = editKatEl ? editKatEl.value : 'alle';
+          editAkt.von = editVonEl ? editVonEl.value : '';
+          editAkt.bis = editBisEl ? editBisEl.value : '';
+          // Eine neu ausgewählte Verknüpfung ersetzt die bisherige — wurde beim Bearbeiten
+          // nicht erneut gesucht, bleibt die vorhandene Verknüpfung unverändert erhalten.
+          if (pendingAktionVerknuepfung) {
+            editAkt.verknuepfterName = pendingAktionVerknuepfung.name;
+            editAkt.verknuepfterTyp = pendingAktionVerknuepfung.typ;
+          }
+          STATE.aktionEditId = null;
+          pendingAktionVerknuepfung = null;
+          saveAdminData();
+        }
+      }
       render();
     }
     else if (kind === 'mitarbeiter-add') {
@@ -2142,8 +2182,38 @@
   }
 
   function renderAdminAktionenTab() {
+    var kategorieOptionsShared = '<option value="alle">Alle Behandlungen</option>' +
+      AKTION_KATEGORIEN.map(function (k) { return '<option value="' + esc(k) + '">' + esc(k) + '</option>'; }).join('');
+    var editingId = STATE.aktionEditId;
+
+    // Beendete Aktionen zeigt nur der Admin — er kann sie hier per "Bearbeiten" (z. B. neuer
+    // Zeitraum) auch wieder aktiv werden lassen; Mitarbeiterinnen sehen sie in ihrer eigenen
+    // Übersicht (renderAktionenUebersicht) nicht mehr.
     var list = ADMIN_DATA.aktionen.length ? sortedAktionenMitStatus().map(function (entry) {
       var a = entry.aktion, status = entry.status;
+      if (a.id === editingId) {
+        var editKategorieOptions = '<option value="alle"' + (a.kategorie === 'alle' ? ' selected' : '') + '>Alle Behandlungen</option>' +
+          AKTION_KATEGORIEN.map(function (k) { return '<option value="' + esc(k) + '"' + (a.kategorie === k ? ' selected' : '') + '>' + esc(k) + '</option>'; }).join('');
+        return '<div class="admin-item">' +
+            '<div class="admin-form" style="width:100%">' +
+              '<input id="aktion-titel-input" class="text-input" type="text" placeholder="Titel" value="' + esc(a.titel) + '" />' +
+              '<input id="aktion-beschreibung-input" class="text-input" type="text" placeholder="Kurzbeschreibung für die Kollegin" value="' + esc(a.beschreibung || '') + '" />' +
+              '<select id="aktion-kategorie-select" class="text-input">' + editKategorieOptions + '</select>' +
+              '<div class="admin-form-row">' +
+                '<label class="file-label">Von<input id="aktion-von-input" class="text-input" type="date" value="' + esc(a.von || '') + '" /></label>' +
+                '<label class="file-label">Bis<input id="aktion-bis-input" class="text-input" type="date" value="' + esc(a.bis || '') + '" /></label>' +
+              '</div>' +
+              '<label class="file-label">Genaue Verknüpfung (optional) — Behandlung oder Produkt aus dem echten Katalog' +
+                '<input id="aktion-verknuepfung-input" class="text-input" type="text" placeholder="Tippen zum Suchen …" value="' + esc(a.verknuepfterName || '') + '" oninput="__bb.filterAktionVerknuepfung(this.value)" />' +
+              '</label>' +
+              '<div class="product-results" id="aktion-verknuepfung-results"></div>' +
+              '<div class="admin-form-row">' +
+                '<button class="btn-primary" onclick="__bb.select(\'aktion-edit-save\',\'' + a.id + '\')">Speichern</button>' +
+                '<button class="admin-icon-btn" onclick="__bb.select(\'aktion-edit-cancel\')">Abbrechen</button>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+      }
       var von = parseIsoDate(a.von), bis = parseIsoDate(a.bis);
       var zeitraum = (von ? formatDateDE(von) : '?') + ' – ' + (bis ? formatDateDE(bis) : '?');
       var katLabel = a.kategorie === 'alle' ? 'Alle Behandlungen' : a.kategorie;
@@ -2155,18 +2225,28 @@
             (a.verknuepfterName ? '<div class="admin-item-meta">Verknüpft mit ' + (a.verknuepfterTyp === 'produkt' ? 'Produkt' : 'Behandlung') + ': ' + esc(a.verknuepfterName) + '</div>' : '') +
           '</div>' +
           '<div class="admin-item-actions">' +
+            '<button type="button" class="admin-icon-btn" onclick="__bb.select(\'aktion-edit-start\',\'' + a.id + '\')">Bearbeiten</button>' +
             '<button type="button" class="admin-icon-btn' + (a.aktiv ? '' : ' good') + '" onclick="__bb.select(\'aktion-toggle\',\'' + a.id + '\')">' + (a.aktiv ? 'Pausieren' : 'Aktivieren') + '</button>' +
             '<button type="button" class="admin-icon-btn danger" onclick="__bb.select(\'aktion-delete\',\'' + a.id + '\')">Löschen</button>' +
           '</div>' +
         '</div>';
     }).join('') : '<p class="admin-hint">Noch keine Aktion angelegt.</p>';
 
-    var kategorieOptions = '<option value="alle">Alle Behandlungen</option>' +
-      AKTION_KATEGORIEN.map(function (k) { return '<option value="' + esc(k) + '">' + esc(k) + '</option>'; }).join('');
+    var kategorieOptions = kategorieOptionsShared;
+
+    // Beim Bearbeiten einer bestehenden Aktion verschwindet das "Neue Aktion anlegen"-Formular
+    // vorübergehend — beide teilen sich dieselben Feld-IDs, damit Verknüpfungssuche &
+    // Kategorie-Liste nicht doppelt gepflegt werden müssen.
+    if (editingId) {
+      return '' +
+        '<p class="admin-section-title">Laufende &amp; geplante Aktionen</p>' +
+        '<p class="admin-hint">Nach dem Ampel-Prinzip sortiert: <strong style="color:var(--good)">grün = läuft gerade</strong>, <strong style="color:var(--danger)">rot = bevorstehend</strong>, grau = beendet (nur hier im Admin-Bereich sichtbar).</p>' +
+        '<div class="admin-list">' + list + '</div>';
+    }
 
     return '' +
       '<p class="admin-section-title">Laufende &amp; geplante Aktionen</p>' +
-      '<p class="admin-hint">Nach dem Ampel-Prinzip sortiert: <strong style="color:var(--good)">grün = läuft gerade</strong>, <strong style="color:var(--danger)">rot = bevorstehend</strong>, grau = beendet.</p>' +
+      '<p class="admin-hint">Nach dem Ampel-Prinzip sortiert: <strong style="color:var(--good)">grün = läuft gerade</strong>, <strong style="color:var(--danger)">rot = bevorstehend</strong>, grau = beendet (nur hier im Admin-Bereich sichtbar — Mitarbeiterinnen sehen beendete Aktionen in ihrer eigenen Übersicht nicht mehr). Über „Bearbeiten“ lässt sich z. B. der Zeitraum einer beendeten Aktion anpassen, um sie wieder laufen zu lassen.</p>' +
       '<div class="admin-list">' + list + '</div>' +
       '<p class="admin-section-title">Neue Aktion anlegen</p>' +
       '<p class="admin-hint">Passt eine ausgewählte Behandlung in ihrem Zeitraum zur hinterlegten Kategorie <em>oder</em> zur unten verknüpften Behandlung/zum Produkt, erscheint schon auf dem Empfehlungen-Screen ein Hinweis-Banner und zusätzlich im Beauty Blueprint der Hinweis „Aktion bitte beachten“.</p>' +
@@ -2287,7 +2367,10 @@
   }
 
   function renderAktionenUebersicht() {
-    var list = ADMIN_DATA.aktionen.length ? sortedAktionenMitStatus().map(function (entry) {
+    // Beendete Aktionen sind hier bewusst nicht zu sehen — das bleibt dem Admin-Bereich
+    // vorbehalten (dort lassen sie sich über "Bearbeiten" auch wieder aktiv setzen).
+    var sichtbareAktionen = sortedAktionenMitStatus().filter(function (entry) { return entry.status !== 'beendet'; });
+    var list = sichtbareAktionen.length ? sichtbareAktionen.map(function (entry) {
       var a = entry.aktion, status = entry.status;
       var von = parseIsoDate(a.von), bis = parseIsoDate(a.bis);
       var zeitraum = (von ? formatDateDE(von) : '?') + ' – ' + (bis ? formatDateDE(bis) : '?');
@@ -2300,7 +2383,7 @@
             '<div class="admin-item-meta">' + esc(katLabel) + ' &middot; ' + esc(zeitraum) + '</div>' +
           '</div>' +
         '</div>';
-    }).join('') : '<p class="admin-hint">Aktuell ist keine Aktion hinterlegt.</p>';
+    }).join('') : '<p class="admin-hint">Aktuell ist keine laufende oder bevorstehende Aktion hinterlegt.</p>';
 
     var body = '' +
       '<p class="eyebrow">Aktionen</p>' +
