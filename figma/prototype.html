@@ -614,7 +614,7 @@
   }
   .aktion-popup-eyebrow {
     font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
-    color: var(--rose-deep); margin: 0 0 0.5rem;
+    color: var(--good); margin: 0 0 0.5rem;
   }
   .aktion-popup h3 {
     font-family: var(--font-display); font-size: 1.3rem; color: var(--text); margin: 0 0 0.6rem;
@@ -626,11 +626,11 @@
      Gegensatz zum Popup auf dem Beauty-Blueprint-Screen) — erscheint/verschwindet live,
      je nachdem was gerade ausgewählt ist. */
   .aktion-banner {
-    background: var(--rose-pale); border: 1px solid var(--rose-deep); border-radius: 10px;
+    background: rgba(82,112,79,0.12); border: 1px solid var(--good); border-radius: 10px;
     padding: 0.75rem 1rem; margin: 0 0 1rem; font-size: 0.85rem; line-height: 1.5;
-    color: var(--rose-deep);
+    color: var(--good);
   }
-  .aktion-banner strong { color: var(--rose-deep); }
+  .aktion-banner strong { color: var(--good); }
 
   /* Übersichtsliste der aktuellen Aktionen für Mitarbeiterinnen (read-only, im Gegensatz
      zur Admin-Verwaltung) — erreichbar über den Button auf dem Kunde-Wahl-Screen. */
@@ -645,12 +645,15 @@
   /* Nicht schließbarer Hinweis direkt nach dem Login (Kunde-Wahl-Screen) — läuft gerade
      eine Aktion oder beginnt eine innerhalb der nächsten 7 Tage, erscheint er ohne
      Möglichkeit zum Wegklicken, damit er garantiert wahrgenommen wird. */
+  /* Ampel-Prinzip wie bei den Aktionen-Listen: läuft = grün, bevorstehend = rot, in den
+     letzten 2 Tagen davor zusätzlich orange als dringlichere Zwischenstufe. */
   .aktion-login-hinweis {
-    background: var(--rose-pale); border: 1.5px solid var(--rose-deep); border-radius: 10px;
+    background: rgba(82,112,79,0.12); border: 1.5px solid var(--good); border-radius: 10px;
     padding: 0.8rem 1rem; margin: 0 0 1rem; font-size: 0.85rem; line-height: 1.5;
-    color: var(--rose-deep);
+    color: var(--good);
   }
-  .aktion-login-hinweis.countdown { background: rgba(169,122,46,0.12); border-color: var(--warn); color: var(--warn); }
+  .aktion-login-hinweis.countdown { background: rgba(166,71,62,0.12); border-color: var(--danger); color: var(--danger); }
+  .aktion-login-hinweis.countdown-bald { background: rgba(169,122,46,0.14); border-color: var(--warn); color: var(--warn); }
   .aktion-login-hinweis strong { color: inherit; }
 
   /* Admin: Löschen-Bestätigung / doppeltes Nachfragen für Aktions- und Mitarbeiter-Formulare */
@@ -2346,7 +2349,9 @@
         return '<div class="aktion-login-hinweis"><strong>Aktion läuft:</strong> ' + esc(h.aktion.titel) +
           (h.aktion.beschreibung ? ' — ' + esc(h.aktion.beschreibung) : '') + '</div>';
       }
-      return '<div class="aktion-login-hinweis countdown"><strong>Startet in ' + h.tage + ' Tag' + (h.tage === 1 ? '' : 'en') + ':</strong> ' + esc(h.aktion.titel) + '</div>';
+      // Ab 2 Tagen vor Start wird aus dem Rot ein dringlicheres Orange.
+      var countdownKlasse = h.tage <= 2 ? 'countdown-bald' : 'countdown';
+      return '<div class="aktion-login-hinweis ' + countdownKlasse + '"><strong>Startet in ' + h.tage + ' Tag' + (h.tage === 1 ? '' : 'en') + ':</strong> ' + esc(h.aktion.titel) + '</div>';
     }).join('');
     var body = '' +
       '<img class="brand-logo md" src="' + LOGO_SRC + '" alt="Beauty Lounge" />' +
