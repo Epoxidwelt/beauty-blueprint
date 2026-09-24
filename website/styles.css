@@ -607,14 +607,18 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
 }
 .voucher-banner::before{bottom:12%;right:-1%;width:340px;height:140px;}
 
+/* Selbsttest-Einstieg im Hero: bewusst als sichtbarer Button (rosé Fläche + Pfeil) statt als Textlink,
+   damit Unentschlossene ihn nicht übersehen. */
 .hero-finder-link{
-  display:inline-flex;align-items:center;gap:0.55rem;margin-top:1.6rem;
-  background:none;border:none;padding:0;cursor:pointer;
-  font-family:'Inter',sans-serif;font-size:0.82rem;color:var(--black);
-  border-bottom:1px solid var(--line);padding-bottom:2px;
+  display:inline-flex;align-items:center;gap:0.9rem;margin-top:1.6rem;
+  background:var(--rose);border:1px solid var(--rose-soft);border-radius:var(--radius);
+  padding:0.85em 1.3em;cursor:pointer;text-align:left;line-height:1.35;
+  font-family:'Inter',sans-serif;font-size:0.86rem;font-weight:500;color:var(--black);
 }
+.hero-finder-link::after{content:'\2192';flex:none;color:var(--wine);font-size:1.05rem;transition:transform .3s var(--ease);}
 .hero-finder-link .leaf-ico{display:none;}
-.hero-finder-link:hover{border-color:var(--wine);color:var(--wine);}
+.hero-finder-link:hover{background:var(--rose-soft);border-color:var(--wine-soft);}
+.hero-finder-link:hover::after{transform:translateX(4px);}
 
 /* behandlungsfinder — modal */
 .finder-overlay{
@@ -710,7 +714,32 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
 .finder-treatment-card .finder-treatment-label{font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--rose-soft);margin-bottom:0.4rem;}
 .finder-treatment-card h4{font-family:'Libre Caslon Display',serif;font-weight:400;font-size:1.4rem;color:var(--white);margin:0 0 0.4rem;}
 .finder-treatment-card p{color:rgba(255,255,255,0.72);margin:0;font-size:0.9rem;max-width:none;}
+.finder-strategy dd .finder-note{display:block;}
+.finder-strategy dd .finder-note + .finder-note{margin-top:0.4rem;}
+
+/* selbsttest — konkrete Leistungen mit Dauer und Preis */
+.finder-services{background:var(--white);border:1px solid var(--line);padding:1.4rem 1.5rem;margin-bottom:1.5rem;}
+.finder-services-title{font-size:0.7rem;letter-spacing:0.09em;text-transform:uppercase;color:var(--wine);font-weight:600;margin:0;}
+.fs-list{list-style:none;margin:0.6rem 0 0;padding:0;}
+.fs-list li{
+  display:grid;grid-template-columns:1fr auto;column-gap:1rem;align-items:center;
+  padding:0.7rem 0;border-top:1px solid var(--line-soft);
+}
+.fs-list li:first-child{border-top:none;}
+.fs-name{grid-column:1;color:var(--black);font-weight:500;line-height:1.35;}
+.fs-tag{display:block;font-size:0.66rem;letter-spacing:0.09em;text-transform:uppercase;color:var(--wine);font-weight:600;margin-bottom:0.1rem;}
+.fs-meta{grid-column:1;grid-row:2;color:var(--text-soft);font-size:0.82rem;}
+.fs-price{grid-column:2;grid-row:1 / span 2;font-variant-numeric:tabular-nums;font-weight:600;color:var(--black);white-space:nowrap;text-align:right;}
+.fs-total{margin:0.4rem 0 0;padding-top:0.8rem;border-top:1px solid var(--line);font-size:0.92rem;color:var(--text-soft);text-align:right;}
+.fs-total strong{color:var(--black);}
+.fs-alt-title{margin-top:1.3rem;}
+.fs-alt li{padding:0.55rem 0;}
+.fs-alt .fs-name{font-weight:400;color:var(--text-soft);}
+.fs-alt .fs-price{font-weight:500;color:var(--text-soft);}
+.fs-foot{margin:1.1rem 0 0;font-size:0.76rem;color:var(--text-soft);}
+.fs-foot a{color:var(--wine);text-underline-offset:3px;}
 .finder-booking-label{text-align:center;font-size:0.74rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--wine);margin:0 0 0.9rem;}
+.finder-booking-hint{text-align:center;font-size:0.88rem;color:var(--text-soft);max-width:46ch;margin:-0.2rem auto 1.1rem;}
 .finder-result-actions{display:flex;gap:0.8rem;flex-wrap:wrap;justify-content:center;}
 .finder-secondary-link,.finder-restart{
   display:block;margin:0.9rem auto 0;background:none;border:none;color:var(--text-soft);
@@ -966,6 +995,14 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
   .two-col,.studio-grid{grid-template-columns:1fr;gap:2.6rem;}
   .services-grid{grid-template-columns:1fr 1fr;}
   .team-strip{grid-template-columns:1fr 1fr;}
+}
+/* Navigation: acht Einträge brauchen ca. 1090px — darunter zuerst enger setzen, dann als Menü einklappen,
+   statt dass einzelne Einträge umbrechen. */
+.main-nav a,.main-nav button.js-open-finder{white-space:nowrap;}
+@media (max-width:1180px){
+  .main-nav{gap:1.5rem;}
+}
+@media (max-width:1060px){
   .main-nav{
     position:fixed;top:0;right:0;height:100vh;height:100dvh;width:min(320px,80vw);
     background:var(--white);flex-direction:column;justify-content:center;
