@@ -172,6 +172,25 @@ document.querySelectorAll('.faq-item').forEach((item) => {
   });
 });
 
+// lokale Navigation (Behandlungsseiten): den Abschnitt hervorheben, in dem man gerade liest
+const localNav = document.querySelector('.local-nav');
+if (localNav) {
+  const navLinks = Array.from(localNav.querySelectorAll('a[href^="#"]'));
+  const byTarget = new Map();
+  navLinks.forEach((a) => {
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) byTarget.set(target, a);
+  });
+  const spy = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      const active = byTarget.get(entry.target);
+      navLinks.forEach((l) => l.classList.toggle('active', l === active));
+    });
+  }, { rootMargin: '-35% 0px -55% 0px' });
+  byTarget.forEach((_, target) => spy.observe(target));
+}
+
 // selbsttest (früher "Behandlungsfinder") — geführte Behandlungsempfehlung.
 // Fünf Fragen: Bereich -> Anliegen -> zwei Vertiefungsfragen (je nach Anliegen) -> Zeitrahmen.
 // Das Ergebnis nennt neben der Behandlungsgruppe die konkrete Leistung mit Dauer und Preis.

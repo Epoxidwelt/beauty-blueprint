@@ -96,13 +96,16 @@
           Unsicher, was zu Ihnen passt? Machen Sie den Selbsttest
         </button>
       </div>
-      <div class="hero-visual reveal">
+    </div>
+    <div class="hero-visual reveal">
         <!-- Hero-Medium: aktuell ein Bild. Für ein Hintergrundvideo hier stattdessen einsetzen:
              <video autoplay muted loop playsinline poster="assets/img/svenja.jpg"><source src="assets/video/hero.mp4" type="video/mp4"></video> -->
         <div class="hero-portrait">
-          <img src="assets/img/svenja.jpg" alt="Svenja Gampp in der Beauty Lounge">
+          <picture>
+            <source type="image/webp" srcset="assets/img/treatments/gesicht-760.webp 760w, assets/img/treatments/gesicht-1400.webp 1400w" sizes="(max-width:1240px) 100vw, 1240px">
+            <img src="assets/img/treatments/gesicht-1400.jpg" srcset="assets/img/treatments/gesicht-760.jpg 760w, assets/img/treatments/gesicht-1400.jpg 1400w" sizes="(max-width:1240px) 100vw, 1240px" width="1400" height="933" alt="Entspannende Gesichtsbehandlung in der Beauty Lounge Neuss" fetchpriority="high" decoding="async">
+          </picture>
         </div>
-      </div>
     </div>
     <div class="trust-row reveal">
       <div class="trust-item"><strong>Seit 2004</strong>Familiengeführtes Kosmetikstudio</div>
@@ -115,79 +118,85 @@
   <section class="section" id="behandlungen">
     <div class="section-inner center">
       <p class="mark center reveal">Unsere Behandlungen</p>
-      <h2 class="reveal">Was möchten Sie erreichen?</h2>
+      <h2 class="reveal">Was möchten Sie <em>erreichen</em>?</h2>
       <p class="reveal" style="max-width:52ch;margin:0 auto;">Ein kurzer Überblick &mdash; für Ablauf, Vorteile und Preise besuchen Sie einfach die jeweilige Behandlungsseite.</p>
     </div>
     <div class="section-inner">
-      <div class="teaser-grid reveal reveal-grid">
-        <a class="teaser-card" href="behandlungen/forma-hautstraffung.html">
-          <div class="teaser-media"><picture>
-            <source type="image/webp" srcset="assets/img/treatments/forma-760.webp 760w, assets/img/treatments/forma-1400.webp 1400w" sizes="(max-width:600px) 100vw, (max-width:900px) 50vw, 400px">
-            <img src="assets/img/treatments/forma-1400.jpg" srcset="assets/img/treatments/forma-760.jpg 760w, assets/img/treatments/forma-1400.jpg 1400w" sizes="(max-width:600px) 100vw, (max-width:900px) 50vw, 400px" width="1400" height="933" alt="FORMA Hautstraffung" loading="lazy" decoding="async">
-          </picture></div>
-          <div class="teaser-body">
+      <div class="bento reveal reveal-grid">
+        <a class="bento-tile big" href="behandlungen/forma-hautstraffung.html">
+          <picture>
+            <source type="image/webp" srcset="assets/img/treatments/forma-760.webp 760w, assets/img/treatments/forma-1400.webp 1400w" sizes="(max-width:900px) 100vw, 820px">
+            <img src="assets/img/treatments/forma-1400.jpg" srcset="assets/img/treatments/forma-760.jpg 760w, assets/img/treatments/forma-1400.jpg 1400w" sizes="(max-width:900px) 100vw, 820px" width="1400" height="933" alt="FORMA Hautstraffung" loading="lazy" decoding="async">
+          </picture>
+          <div class="bento-body">
+            <span class="bento-tag">Neu · Radiofrequenz</span>
             <h3>FORMA Hautstraffung</h3>
             <p>Kollagenaufbau in der Tiefe &mdash; straffere Haut ganz ohne OP.</p>
-            <span class="teaser-link">Mehr erfahren &rarr;</span>
+            <span class="link-arrow">Mehr erfahren</span>
           </div>
         </a>
-        <a class="teaser-card" href="behandlungen/diolaze-haarentfernung.html">
-          <div class="teaser-media"><picture>
-            <source type="image/webp" srcset="assets/img/treatments/diolaze-760.webp 760w, assets/img/treatments/diolaze-1400.webp 1400w" sizes="(max-width:600px) 100vw, (max-width:900px) 50vw, 400px">
-            <img src="assets/img/treatments/diolaze-1400.jpg" srcset="assets/img/treatments/diolaze-760.jpg 760w, assets/img/treatments/diolaze-1400.jpg 1400w" sizes="(max-width:600px) 100vw, (max-width:900px) 50vw, 400px" width="1400" height="1750" alt="DIOLAZE Haarentfernung" loading="lazy" decoding="async">
-          </picture></div>
-          <div class="teaser-body">
+        <a class="bento-tile" href="behandlungen/diolaze-haarentfernung.html">
+          <picture>
+            <source type="image/webp" srcset="assets/img/treatments/diolaze-760.webp 760w, assets/img/treatments/diolaze-1400.webp 1400w" sizes="(max-width:600px) 100vw, (max-width:900px) 50vw, 410px">
+            <img src="assets/img/treatments/diolaze-1400.jpg" srcset="assets/img/treatments/diolaze-760.jpg 760w, assets/img/treatments/diolaze-1400.jpg 1400w" sizes="(max-width:600px) 100vw, (max-width:900px) 50vw, 410px" width="1400" height="1750" alt="DIOLAZE Haarentfernung" loading="lazy" decoding="async">
+          </picture>
+          <div class="bento-body">
+            <span class="bento-tag">Für Damen und Herren</span>
             <h3>DIOLAZE Haarentfernung</h3>
             <p>Dauerhaft glatte Haut mit dem Alexandrit-Dioden-Laser.</p>
-            <span class="teaser-link">Mehr erfahren &rarr;</span>
+            <span class="link-arrow">Mehr erfahren</span>
           </div>
         </a>
-        <a class="teaser-card" href="behandlungen/gesichtsbehandlungen.html">
-          <div class="teaser-media"><picture>
-            <source type="image/webp" srcset="assets/img/treatments/gesicht-760.webp 760w, assets/img/treatments/gesicht-1400.webp 1400w" sizes="(max-width:600px) 100vw, (max-width:900px) 50vw, 400px">
-            <img src="assets/img/treatments/gesicht-1400.jpg" srcset="assets/img/treatments/gesicht-760.jpg 760w, assets/img/treatments/gesicht-1400.jpg 1400w" sizes="(max-width:600px) 100vw, (max-width:900px) 50vw, 400px" width="1400" height="933" alt="Gesichtsbehandlungen" loading="lazy" decoding="async">
-          </picture></div>
-          <div class="teaser-body">
+        <a class="bento-tile" href="behandlungen/gesichtsbehandlungen.html">
+          <picture>
+            <source type="image/webp" srcset="assets/img/treatments/gesicht-760.webp 760w, assets/img/treatments/gesicht-1400.webp 1400w" sizes="(max-width:600px) 100vw, (max-width:900px) 50vw, 410px">
+            <img src="assets/img/treatments/gesicht-1400.jpg" srcset="assets/img/treatments/gesicht-760.jpg 760w, assets/img/treatments/gesicht-1400.jpg 1400w" sizes="(max-width:600px) 100vw, (max-width:900px) 50vw, 410px" width="1400" height="933" alt="Gesichtsbehandlungen" loading="lazy" decoding="async">
+          </picture>
+          <div class="bento-body">
+            <span class="bento-tag">Individuell</span>
             <h3>Gesichtsbehandlungen</h3>
-            <p>Individuell abgestimmte Pflege für strahlende, gesunde Haut.</p>
-            <span class="teaser-link">Mehr erfahren &rarr;</span>
+            <p>Pflege für strahlende, gesunde Haut.</p>
+            <span class="link-arrow">Mehr erfahren</span>
           </div>
         </a>
-        <a class="teaser-card" href="behandlungen/wimpernlifting.html">
-          <div class="teaser-media"><picture>
-            <source type="image/webp" srcset="assets/img/treatments/wimpern-760.webp 760w, assets/img/treatments/wimpern-1400.webp 1400w" sizes="(max-width:600px) 100vw, (max-width:900px) 50vw, 400px">
-            <img src="assets/img/treatments/wimpern-1400.jpg" srcset="assets/img/treatments/wimpern-760.jpg 760w, assets/img/treatments/wimpern-1400.jpg 1400w" sizes="(max-width:600px) 100vw, (max-width:900px) 50vw, 400px" width="1400" height="2100" alt="Wimpernlifting & Browlift" loading="lazy" decoding="async">
-          </picture></div>
-          <div class="teaser-body">
+        <a class="bento-tile" href="behandlungen/wimpernlifting.html">
+          <picture>
+            <source type="image/webp" srcset="assets/img/treatments/wimpern-760.webp 760w, assets/img/treatments/wimpern-1400.webp 1400w" sizes="(max-width:600px) 100vw, (max-width:900px) 50vw, 410px">
+            <img src="assets/img/treatments/wimpern-1400.jpg" srcset="assets/img/treatments/wimpern-760.jpg 760w, assets/img/treatments/wimpern-1400.jpg 1400w" sizes="(max-width:600px) 100vw, (max-width:900px) 50vw, 410px" width="1400" height="2100" alt="Wimpernlifting &amp; Browlift" loading="lazy" decoding="async">
+          </picture>
+          <div class="bento-body">
+            <span class="bento-tag">4–8 Wochen Schwung</span>
             <h3>Wimpernlifting &amp; Browlift</h3>
             <p>Der perfekte Augenaufschlag, ganz ohne Extensions.</p>
-            <span class="teaser-link">Mehr erfahren &rarr;</span>
+            <span class="link-arrow">Mehr erfahren</span>
           </div>
         </a>
-        <a class="teaser-card" href="behandlungen/hand-nagelpflege.html">
-          <div class="teaser-media"><picture>
-            <source type="image/webp" srcset="assets/img/treatments/haende-760.webp 760w, assets/img/treatments/haende-1400.webp 1400w" sizes="(max-width:600px) 100vw, (max-width:900px) 50vw, 400px">
-            <img src="assets/img/treatments/haende-1400.jpg" srcset="assets/img/treatments/haende-760.jpg 760w, assets/img/treatments/haende-1400.jpg 1400w" sizes="(max-width:600px) 100vw, (max-width:900px) 50vw, 400px" width="1400" height="933" alt="Hand & Nagelpflege" loading="lazy" decoding="async">
-          </picture></div>
-          <div class="teaser-body">
+        <a class="bento-tile" href="behandlungen/hand-nagelpflege.html">
+          <picture>
+            <source type="image/webp" srcset="assets/img/treatments/haende-760.webp 760w, assets/img/treatments/haende-1400.webp 1400w" sizes="(max-width:600px) 100vw, (max-width:900px) 50vw, 410px">
+            <img src="assets/img/treatments/haende-1400.jpg" srcset="assets/img/treatments/haende-760.jpg 760w, assets/img/treatments/haende-1400.jpg 1400w" sizes="(max-width:600px) 100vw, (max-width:900px) 50vw, 410px" width="1400" height="933" alt="Hand &amp; Nagelpflege" loading="lazy" decoding="async">
+          </picture>
+          <div class="bento-body">
+            <span class="bento-tag">Mit Alessandro</span>
             <h3>Hand &amp; Nagelpflege</h3>
-            <p>Maniküre und Nageldesign mit hochwertigen Alessandro-Produkten.</p>
-            <span class="teaser-link">Mehr erfahren &rarr;</span>
+            <p>Maniküre und Nageldesign mit hochwertigen Produkten.</p>
+            <span class="link-arrow">Mehr erfahren</span>
           </div>
         </a>
-        <a class="teaser-card" href="behandlungen/fusspflege.html">
-          <div class="teaser-media"><picture>
-            <source type="image/webp" srcset="assets/img/treatments/fuesse-760.webp 760w, assets/img/treatments/fuesse-1400.webp 1400w" sizes="(max-width:600px) 100vw, (max-width:900px) 50vw, 400px">
-            <img src="assets/img/treatments/fuesse-1400.jpg" srcset="assets/img/treatments/fuesse-760.jpg 760w, assets/img/treatments/fuesse-1400.jpg 1400w" sizes="(max-width:600px) 100vw, (max-width:900px) 50vw, 400px" width="1400" height="933" alt="Fußpflege" loading="lazy" decoding="async">
-          </picture></div>
-          <div class="teaser-body">
+        <a class="bento-tile" href="behandlungen/fusspflege.html">
+          <picture>
+            <source type="image/webp" srcset="assets/img/treatments/fuesse-760.webp 760w, assets/img/treatments/fuesse-1400.webp 1400w" sizes="(max-width:600px) 100vw, (max-width:900px) 50vw, 410px">
+            <img src="assets/img/treatments/fuesse-1400.jpg" srcset="assets/img/treatments/fuesse-760.jpg 760w, assets/img/treatments/fuesse-1400.jpg 1400w" sizes="(max-width:600px) 100vw, (max-width:900px) 50vw, 410px" width="1400" height="933" alt="Fußpflege" loading="lazy" decoding="async">
+          </picture>
+          <div class="bento-body">
+            <span class="bento-tag">Mit Gehwol</span>
             <h3>Fußpflege</h3>
-            <p>Wohltuende Pflege mit Gehwol-Produkten, das ganze Jahr über.</p>
-            <span class="teaser-link">Mehr erfahren &rarr;</span>
+            <p>Wohltuende Pflege, das ganze Jahr über.</p>
+            <span class="link-arrow">Mehr erfahren</span>
           </div>
         </a>
       </div>
-      <div style="text-align:center;margin-top:2.4rem;">
+      <div class="bento-more">
         <a href="behandlungen.html" class="btn btn-ghost">Alle Behandlungen im Überblick</a>
       </div>
     </div>
@@ -199,7 +208,7 @@
     <div class="finder-teaser-inner reveal">
       <div class="finder-teaser-text">
         <p class="mark">Unsicher, welche passt?</p>
-        <h2>In fünf Fragen zu Ihrer Behandlung</h2>
+        <h2>In fünf Fragen zu Ihrer <em>Behandlung</em></h2>
         <p>Sagen Sie uns kurz, worum es Ihnen geht &mdash; wir zeigen Ihnen die passende Behandlung, die konkrete Leistung und was sie kostet.</p>
       </div>
       <button type="button" class="btn btn-primary js-open-finder">Selbsttest starten</button>
@@ -208,7 +217,7 @@
 
   <!-- ÜBER UNS TEASER -->
   <section class="cinematic">
-    <div class="cinematic-media"><img src="assets/img/svenja.jpg" alt="Svenja Gampp in der Beauty Lounge"></div>
+    <div class="cinematic-media"><img src="assets/img/svenja.jpg" alt="Svenja Gampp, Gründerin der Beauty Lounge" width="166" height="166"></div>
     <blockquote class="cinematic-quote reveal">
       <p>„Schönheit beginnt mit Vertrauen &mdash; und der Zeit, die wir uns für Sie nehmen.“</p>
       <cite>Svenja Gampp &middot; Gründerin der Beauty Lounge</cite>
