@@ -172,6 +172,15 @@ document.querySelectorAll('.faq-item').forEach((item) => {
   });
 });
 
+// Schnellleiste (nur Handy, per CSS): Anrufen und Termin buchen
+if (!document.querySelector('.quickbar')) {
+  const bar = document.createElement('div');
+  bar.className = 'quickbar';
+  bar.innerHTML = '<a class="btn btn-ghost" href="tel:+4921314506806">Anrufen</a>' +
+    '<a class="btn btn-primary" href="https://www.studiobookr.com/beauty-lounge-66137" target="_blank" rel="noopener">Termin buchen</a>';
+  document.body.appendChild(bar);
+}
+
 // lokale Navigation (Behandlungsseiten): den Abschnitt hervorheben, in dem man gerade liest
 const localNav = document.querySelector('.local-nav');
 if (localNav) {
