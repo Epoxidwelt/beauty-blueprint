@@ -1262,3 +1262,4 @@ h1.reveal.in,h2.reveal.in{filter:blur(0);}
 .herren-cards .way-wide{grid-column:1/-1;}
 @media (min-width:901px){.herren-cards{grid-template-columns:repeat(3,1fr);}.herren-cards .way-wide{grid-column:1/-1;}}
 @media (prefers-reduced-motion:reduce){.way-img:hover .way-media img{transform:none;}}
+.herren-cards .way-wide{order:2;}
