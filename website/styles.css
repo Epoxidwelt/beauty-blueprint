@@ -1263,3 +1263,27 @@ h1.reveal.in,h2.reveal.in{filter:blur(0);}
 @media (min-width:901px){.herren-cards{grid-template-columns:repeat(3,1fr);}.herren-cards .way-wide{grid-column:1/-1;}}
 @media (prefers-reduced-motion:reduce){.way-img:hover .way-media img{transform:none;}}
 .herren-cards .way-wide{order:2;}
+
+/* Mobil: Behandlungen als große Bildkarten — das Bild trägt die Aussage, Text liegt darauf */
+@media (max-width:760px){
+  .showcase{display:flex;flex-direction:column;gap:.9rem;padding:0 1rem;}
+  .showcase-row,.showcase-row.on-dark{
+    position:relative;display:flex;align-items:flex-end;
+    min-height:min(112vw,520px);
+    border-radius:var(--radius-lg);overflow:hidden;
+    background:var(--black);color:var(--white);
+  }
+  .showcase-media,.showcase-row.reverse .showcase-media{position:absolute;inset:0;aspect-ratio:auto;order:0;}
+  .showcase-row::after{
+    content:'';position:absolute;inset:0;z-index:1;pointer-events:none;
+    background:linear-gradient(to top,rgba(14,11,10,.92) 0%,rgba(14,11,10,.72) 38%,rgba(14,11,10,.08) 72%);
+  }
+  .showcase-text{position:relative;z-index:2;padding:1.6rem 1.4rem 1.5rem;width:100%;}
+  .showcase-text h2,.showcase-row.on-dark .showcase-text h2{color:#fff;font-size:clamp(1.6rem,7vw,2rem);text-shadow:0 1px 14px rgba(0,0,0,.35);}
+  .showcase-text p,.showcase-row.on-dark .showcase-text p{color:rgba(255,255,255,.88);font-size:.98rem;margin-bottom:1.1em;}
+  .showcase-tag,.showcase-tag.featured{color:var(--rose-soft);}
+  .showcase-row .btn-ghost{border-color:rgba(255,255,255,.5);color:#fff;}
+  .showcase-row .btn-primary{background:#fff;color:var(--black);}
+  .showcase-actions{gap:.6rem;}
+  .showcase-actions .btn{padding:.7em 1.2em;font-size:.95rem;}
+}
