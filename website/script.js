@@ -198,6 +198,51 @@ if (filterBar) {
   });
 }
 
+// Preisliste: Suche + Kategorie-Filter
+const priceTools = document.getElementById('priceTools');
+if (priceTools) {
+  const groups = Array.from(document.querySelectorAll('.price-group'));
+  const input = document.getElementById('priceSearch');
+  const status = document.getElementById('priceStatus');
+  const empty = document.getElementById('priceEmpty');
+  const chips = Array.from(priceTools.querySelectorAll('.chip'));
+  const norm = (t) => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ß/g, 'ss').replace(/\s+/g, ' ').trim();
+  const index = groups.map((g) => ({
+    el: g,
+    cat: g.getAttribute('data-cat'),
+    title: norm(g.querySelector('h3').textContent),
+    rows: Array.from(g.querySelectorAll('.price-row')).map((r) => ({ el: r, text: norm(r.textContent) }))
+  }));
+  let filter = 'alle';
+  function apply() {
+    const terms = norm(input.value).split(' ').filter(Boolean);
+    let shownRows = 0;
+    let shownGroups = 0;
+    index.forEach((g) => {
+      const inCat = filter === 'alle' || g.cat === filter;
+      let visible = 0;
+      g.rows.forEach((r) => {
+        // ein Suchbegriff passt, wenn er in der Zeile oder im Gruppentitel steht
+        const ok = inCat && terms.every((t) => r.text.indexOf(t) !== -1 || g.title.indexOf(t) !== -1);
+        r.el.hidden = !ok;
+        if (ok) visible += 1;
+      });
+      g.el.hidden = visible === 0;
+      if (visible) { shownGroups += 1; shownRows += visible; }
+    });
+    empty.hidden = shownRows !== 0;
+    status.textContent = (terms.length || filter !== 'alle') && shownRows
+      ? shownRows + (shownRows === 1 ? ' Leistung' : ' Leistungen') + ' in ' + shownGroups + (shownGroups === 1 ? ' Kategorie' : ' Kategorien')
+      : '';
+  }
+  chips.forEach((chip) => chip.addEventListener('click', () => {
+    filter = chip.getAttribute('data-filter');
+    chips.forEach((c) => { const on = c === chip; c.classList.toggle('active', on); c.setAttribute('aria-pressed', String(on)); });
+    apply();
+  }));
+  input.addEventListener('input', apply);
+}
+
 // lokale Navigation (Behandlungsseiten): den Abschnitt hervorheben, in dem man gerade liest
 const localNav = document.querySelector('.local-nav');
 if (localNav) {

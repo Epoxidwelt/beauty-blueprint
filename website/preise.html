@@ -66,8 +66,29 @@
 
   <section class="section" style="padding-top:0;">
     <div class="section-inner">
+      <div class="price-tools" id="priceTools">
+        <label class="price-search">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M16 16l4.5 4.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="visually-hidden">Preisliste durchsuchen</span>
+          <input type="search" id="priceSearch" placeholder="Behandlung suchen, z.&nbsp;B. Wimpern, Rücken, Peeling" autocomplete="off" enterkeyhint="search">
+        </label>
+        <div class="chip-row price-chips" role="group" aria-label="Preisliste filtern">
+          <button type="button" class="chip active" data-filter="alle" aria-pressed="true">Alle</button>
+          <button type="button" class="chip" data-filter="haut" aria-pressed="false">Gesicht &amp; Haut</button>
+          <button type="button" class="chip" data-filter="augen" aria-pressed="false">Augen &amp; Brauen</button>
+          <button type="button" class="chip" data-filter="haende-fuesse" aria-pressed="false">Hände &amp; Füße</button>
+          <button type="button" class="chip" data-filter="damen" aria-pressed="false">Haarentfernung Damen</button>
+          <button type="button" class="chip" data-filter="herren" aria-pressed="false">Haarentfernung Herren</button>
+          <button type="button" class="chip" data-filter="extras" aria-pressed="false">Massage &amp; Angebote</button>
+        </div>
+        <p class="price-status" id="priceStatus" role="status" aria-live="polite"></p>
+      </div>
+      <div class="price-empty" id="priceEmpty" hidden>
+        <p>Dazu finden wir keinen Eintrag. Versuchen Sie einen anderen Begriff oder starten Sie den Selbsttest.</p>
+        <button type="button" class="btn btn-ghost js-open-finder">Zum Selbsttest</button>
+      </div>
       <div class="price-table">
-        <div class="price-group">
+        <div class="price-group" data-cat="haut">
           <h3>Gesichtsbehandlungen</h3>
           <div class="price-row"><span>Start Up Behandlung</span><span class="price-dots"></span><span class="price-value">149&nbsp;€</span></div>
           <div class="price-row"><span>Clean &amp; Activ Behandlung</span><span class="price-dots"></span><span class="price-value">93&nbsp;€</span></div>
@@ -75,19 +96,19 @@
           <div class="price-row"><span>Extra Zeit Clean Beh.</span><span class="price-dots"></span><span class="price-value">9,50&nbsp;€</span></div>
         </div>
 
-        <div class="price-group">
+        <div class="price-group" data-cat="haut">
           <h3>AquaDerm (Aqua-Dermabrasion)</h3>
           <div class="price-row"><span>AquaDerm</span><span class="price-dots"></span><span class="price-value">159&nbsp;€</span></div>
           <div class="price-row"><span>AquaDerm — nur Serum oder Peeling</span><span class="price-dots"></span><span class="price-value">69&nbsp;€</span></div>
         </div>
 
-        <div class="price-group">
+        <div class="price-group" data-cat="haut">
           <h3>ASA Fruchtsäure-Peeling</h3>
           <div class="price-row"><span>ASA PEEL Fruchtsäure</span><span class="price-dots"></span><span class="price-value">149&nbsp;€</span></div>
           <div class="price-row"><span>ASA Fruchtsäure KUR</span><span class="price-dots"></span><span class="price-value">447&nbsp;€</span></div>
         </div>
 
-        <div class="price-group">
+        <div class="price-group" data-cat="haut">
           <h3>Micro Needling</h3>
           <div class="price-row"><span>Micro Needling</span><span class="price-dots"></span><span class="price-value">149&nbsp;€</span></div>
           <div class="price-row"><span>+ Hals</span><span class="price-dots"></span><span class="price-value">20&nbsp;€</span></div>
@@ -95,7 +116,7 @@
           <div class="price-row"><span>+ Exosome</span><span class="price-dots"></span><span class="price-value">15&nbsp;€</span></div>
         </div>
 
-        <div class="price-group">
+        <div class="price-group" data-cat="haut">
           <h3>Soft Needling</h3>
           <div class="price-row"><span>Soft Needling</span><span class="price-dots"></span><span class="price-value">149&nbsp;€</span></div>
           <div class="price-row"><span>+ Exosome</span><span class="price-dots"></span><span class="price-value">15&nbsp;€</span></div>
@@ -104,7 +125,7 @@
           <div class="price-row"><span>+ Massage</span><span class="price-dots"></span><span class="price-value">25&nbsp;€</span></div>
         </div>
 
-        <div class="price-group">
+        <div class="price-group" data-cat="haut">
           <h3>MicroDerm (Mikrodermabrasion)</h3>
           <div class="price-row"><span>MicroDerm</span><span class="price-dots"></span><span class="price-value">149&nbsp;€</span></div>
           <div class="price-row"><span>+ Hals</span><span class="price-dots"></span><span class="price-value">20&nbsp;€</span></div>
@@ -113,21 +134,21 @@
           <div class="price-row"><span>+ Massage</span><span class="price-dots"></span><span class="price-value">25&nbsp;€</span></div>
         </div>
 
-        <div class="price-group">
+        <div class="price-group" data-cat="haut">
           <h3>VIP Treatments (Klapp SkinCare)</h3>
           <div class="price-row"><span>Luxus Treatments</span><span class="price-dots"></span><span class="price-value">179&nbsp;€</span></div>
           <div class="price-row"><span>Repagen Exclusive Treatment</span><span class="price-dots"></span><span class="price-value">229&nbsp;€</span></div>
           <div class="price-row"><span>Deluxe Treatments</span><span class="price-dots"></span><span class="price-value">205&nbsp;€</span></div>
         </div>
 
-        <div class="price-group">
+        <div class="price-group" data-cat="haut">
           <h3>Kombi-Behandlungen</h3>
           <div class="price-row"><span>Beautiful Hand &amp; Fuß</span><span class="price-dots"></span><span class="price-value">169&nbsp;€</span></div>
           <div class="price-row"><span>Soft Needling meets Hyaluron</span><span class="price-dots"></span><span class="price-value">239&nbsp;€</span></div>
           <div class="price-row"><span>MicroDerm meets AquaDerm</span><span class="price-dots"></span><span class="price-value">199&nbsp;€</span></div>
         </div>
 
-        <div class="price-group">
+        <div class="price-group" data-cat="haende-fuesse">
           <h3>Wellness Maniküre</h3>
           <div class="price-row"><span>Wellness Maniküre</span><span class="price-dots"></span><span class="price-value">50&nbsp;€</span></div>
           <div class="price-row"><span>+ Nagellack Maniküre</span><span class="price-dots"></span><span class="price-value">16&nbsp;€</span></div>
@@ -139,7 +160,7 @@
           <div class="price-row"><span>+ Handmassage</span><span class="price-dots"></span><span class="price-value">12&nbsp;€</span></div>
         </div>
 
-        <div class="price-group">
+        <div class="price-group" data-cat="haende-fuesse">
           <h3>Gel-Modellage &amp; Verstärkung</h3>
           <div class="price-row"><span>Natur Nagel Verstärkung NEU</span><span class="price-dots"></span><span class="price-value">94&nbsp;€</span></div>
           <div class="price-row"><span>Neue Gel Modellage mit Verlängerung Tips/Schablone</span><span class="price-dots"></span><span class="price-value">125&nbsp;€</span></div>
@@ -154,7 +175,7 @@
           <div class="price-row"><span>Farbgel inkl. Versiegelung</span><span class="price-dots"></span><span class="price-value">30&nbsp;€</span></div>
         </div>
 
-        <div class="price-group">
+        <div class="price-group" data-cat="haende-fuesse">
           <h3>Fußpflege</h3>
           <div class="price-row"><span>Wellness Fußpflege</span><span class="price-dots"></span><span class="price-value">63&nbsp;€</span></div>
           <div class="price-row"><span>+ Nagellack Fuß</span><span class="price-dots"></span><span class="price-value">16&nbsp;€</span></div>
@@ -167,7 +188,7 @@
           <div class="price-row"><span>+ Fußpeeling GEHWOL Fuß</span><span class="price-dots"></span><span class="price-value">10&nbsp;€</span></div>
         </div>
 
-        <div class="price-group">
+        <div class="price-group" data-cat="augen">
           <h3>Wimpern &amp; Augenbrauen</h3>
           <div class="price-row"><span>Wimpern färben</span><span class="price-dots"></span><span class="price-value">28&nbsp;€</span></div>
           <div class="price-row"><span>Augenbrauen färben</span><span class="price-dots"></span><span class="price-value">18&nbsp;€</span></div>
@@ -176,7 +197,7 @@
           <div class="price-row"><span>Augenbrauen schneiden</span><span class="price-dots"></span><span class="price-value">3,50&nbsp;€</span></div>
         </div>
 
-        <div class="price-group">
+        <div class="price-group" data-cat="augen">
           <h3>Wimpernlifting &amp; Browlift</h3>
           <div class="price-row"><span>Wimpernlifting inkl. Keratin Versiegelung</span><span class="price-dots"></span><span class="price-value">80&nbsp;€</span></div>
           <div class="price-row"><span>Wimpernwelle inkl. Keratin Versiegelung</span><span class="price-dots"></span><span class="price-value">80&nbsp;€</span></div>
@@ -185,7 +206,7 @@
           <div class="price-row"><span>+ Augenbrauen färben Browlift</span><span class="price-dots"></span><span class="price-value">15&nbsp;€</span></div>
         </div>
 
-        <div class="price-group featured">
+        <div class="price-group featured" data-cat="haut">
           <h3>FORMA Hautstraffung (Radiofrequenz)</h3>
           <div class="price-row"><span>FORMA Augen</span><span class="price-dots"></span><span class="price-value">129&nbsp;€</span></div>
           <div class="price-row"><span>FORMA 3 Zonen</span><span class="price-dots"></span><span class="price-value">319&nbsp;€</span></div>
@@ -199,7 +220,7 @@
           <div class="price-row"><span>FORMA 2 Zonen</span><span class="price-dots"></span><span class="price-value">219&nbsp;€</span></div>
         </div>
 
-        <div class="price-group">
+        <div class="price-group" data-cat="damen">
           <h3>DIOLAZE Haarentfernung — Damen</h3>
           <div class="price-row"><span>Achseln</span><span class="price-dots"></span><span class="price-value">89&nbsp;€</span></div>
           <div class="price-row"><span>GRATIS Beratungsgespräch Inkl. Haar- &amp; Hautanalyse</span><span class="price-dots"></span><span class="price-value">0&nbsp;€</span></div>
@@ -216,7 +237,7 @@
           <div class="price-row"><span>Bauch</span><span class="price-dots"></span><span class="price-value">99&nbsp;€</span></div>
         </div>
 
-        <div class="price-group">
+        <div class="price-group" data-cat="herren">
           <h3>DIOLAZE Haarentfernung — Herren</h3>
           <div class="price-row"><span>Herren Brust</span><span class="price-dots"></span><span class="price-value">115&nbsp;€</span></div>
           <div class="price-row"><span>Herren Bauch</span><span class="price-dots"></span><span class="price-value">129&nbsp;€</span></div>
@@ -227,7 +248,7 @@
           <div class="price-row"><span>Herren Achseln</span><span class="price-dots"></span><span class="price-value">95&nbsp;€</span></div>
         </div>
 
-        <div class="price-group">
+        <div class="price-group" data-cat="damen">
           <h3>DIOLAZE Pakete — Damen</h3>
           <div class="price-row"><span>Kinn + Hals</span><span class="price-dots"></span><span class="price-value">89&nbsp;€</span></div>
           <div class="price-row"><span>MUST HAVE Achseln + Bikini</span><span class="price-dots"></span><span class="price-value">155&nbsp;€</span></div>
@@ -239,7 +260,7 @@
           <div class="price-row"><span>MUST HAVE Achseln + Intim Bereich + Beine Komplett</span><span class="price-dots"></span><span class="price-value">439&nbsp;€</span></div>
         </div>
 
-        <div class="price-group">
+        <div class="price-group" data-cat="herren">
           <h3>DIOLAZE Pakete — Herren</h3>
           <div class="price-row"><span>Herren Brust + Bauch</span><span class="price-dots"></span><span class="price-value">199&nbsp;€</span></div>
           <div class="price-row"><span>Herren Rücken + Schulter + Nacken</span><span class="price-dots"></span><span class="price-value">259&nbsp;€</span></div>
@@ -250,7 +271,7 @@
           <div class="price-row"><span>Herren Nacken + Schulter</span><span class="price-dots"></span><span class="price-value">135&nbsp;€</span></div>
         </div>
 
-        <div class="price-group">
+        <div class="price-group" data-cat="extras">
           <h3>Massagen</h3>
           <div class="price-row"><span>Aroma Relax Rücken Massage</span><span class="price-dots"></span><span class="price-value">57&nbsp;€</span></div>
           <div class="price-row"><span>Aroma Relax Ganzkörper</span><span class="price-dots"></span><span class="price-value">114&nbsp;€</span></div>
@@ -258,14 +279,14 @@
           <div class="price-row"><span>Lomi Lomi Ganzkörper Massage</span><span class="price-dots"></span><span class="price-value">112&nbsp;€</span></div>
         </div>
 
-        <div class="price-group">
+        <div class="price-group" data-cat="haut">
           <h3>Digitale Hautanalyse (KI)</h3>
           <div class="price-row"><span>Hautsprechstunde Hautanalyse</span><span class="price-dots"></span><span class="price-value">79&nbsp;€</span></div>
           <div class="price-row"><span>Gratis Hautanalyse Gutschein</span><span class="price-dots"></span><span class="price-value">0&nbsp;€</span></div>
           <div class="price-row"><span>+ Digitale Hautanalyse</span><span class="price-dots"></span><span class="price-value">39&nbsp;€</span></div>
         </div>
 
-        <div class="price-group">
+        <div class="price-group" data-cat="extras">
           <h3>Aktuelle Angebote</h3>
           <div class="price-row"><span>Vitamin C Fresh Up Power</span><span class="price-dots"></span><span class="price-value">159&nbsp;€</span></div>
           <div class="price-row"><span>Wellness Fußpflege SPA</span><span class="price-dots"></span><span class="price-value">61&nbsp;€</span></div>
