@@ -181,6 +181,23 @@ if (!document.querySelector('.quickbar')) {
   document.body.appendChild(bar);
 }
 
+// Filter auf der Behandlungsübersicht
+const filterBar = document.querySelector('.filter-bar');
+if (filterBar) {
+  const rows = Array.from(document.querySelectorAll('.showcase-row[data-cat]'));
+  filterBar.querySelectorAll('.chip').forEach((chip) => {
+    chip.addEventListener('click', () => {
+      const f = chip.getAttribute('data-filter');
+      filterBar.querySelectorAll('.chip').forEach((c) => {
+        const on = c === chip;
+        c.classList.toggle('active', on);
+        c.setAttribute('aria-pressed', String(on));
+      });
+      rows.forEach((row) => { row.hidden = f !== 'alle' && row.getAttribute('data-cat') !== f; });
+    });
+  });
+}
+
 // lokale Navigation (Behandlungsseiten): den Abschnitt hervorheben, in dem man gerade liest
 const localNav = document.querySelector('.local-nav');
 if (localNav) {

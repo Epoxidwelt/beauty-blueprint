@@ -63,13 +63,21 @@
     </div>
   </section>
 
+  <div class="filter-bar reveal" role="group" aria-label="Behandlungen filtern">
+    <button type="button" class="chip active" data-filter="alle" aria-pressed="true">Alle</button>
+    <button type="button" class="chip" data-filter="haut" aria-pressed="false">Gesicht &amp; Haut</button>
+    <button type="button" class="chip" data-filter="haar" aria-pressed="false">Haarentfernung</button>
+    <button type="button" class="chip" data-filter="augen" aria-pressed="false">Augen &amp; Brauen</button>
+    <button type="button" class="chip" data-filter="haende-fuesse" aria-pressed="false">Hände &amp; Füße</button>
+  </div>
+
   <!-- SHOWCASE: alternierende Behandlungs-Teaser. Bild-Panel links↔rechts wechselnd.
        Die Bilder in assets/img/treatments/ sind KI-generierte Illustrationen (Originale in assets/img/ai/); Hinweis dazu steht im Impressum.
        Zum Austauschen: .showcase-media > img (oder <video>) einsetzen. -->
   <div class="showcase">
 
     <!-- FEATURED: FORMA -->
-    <div class="showcase-row on-dark">
+    <div class="showcase-row on-dark" data-cat="haut">
       <div class="showcase-media">
         <picture>
           <source type="image/webp" srcset="assets/img/treatments/forma-760.webp 760w, assets/img/treatments/forma-1400.webp 1400w" sizes="(max-width:900px) 100vw, 50vw">
@@ -88,7 +96,7 @@
     </div>
 
     <!-- FEATURED: DIOLAZE -->
-    <div class="showcase-row on-dark reverse">
+    <div class="showcase-row on-dark reverse" data-cat="haar">
       <div class="showcase-media">
         <picture>
           <source type="image/webp" srcset="assets/img/treatments/diolaze-760.webp 760w, assets/img/treatments/diolaze-1400.webp 1400w" sizes="(max-width:900px) 100vw, 50vw">
@@ -107,7 +115,7 @@
     </div>
 
     <!-- Gesichtsbehandlungen -->
-    <div class="showcase-row">
+    <div class="showcase-row" data-cat="haut">
       <div class="showcase-media">
         <picture>
           <source type="image/webp" srcset="assets/img/treatments/gesicht-760.webp 760w, assets/img/treatments/gesicht-1400.webp 1400w" sizes="(max-width:900px) 100vw, 50vw">
@@ -126,7 +134,7 @@
     </div>
 
     <!-- Wimpernlifting -->
-    <div class="showcase-row reverse" style="background:var(--gray-light);">
+    <div class="showcase-row reverse" data-cat="augen" style="background:var(--gray-light);">
       <div class="showcase-media">
         <picture>
           <source type="image/webp" srcset="assets/img/treatments/wimpern-760.webp 760w, assets/img/treatments/wimpern-1400.webp 1400w" sizes="(max-width:900px) 100vw, 50vw">
@@ -145,7 +153,7 @@
     </div>
 
     <!-- Hand & Nagelpflege -->
-    <div class="showcase-row">
+    <div class="showcase-row" data-cat="haende-fuesse">
       <div class="showcase-media">
         <picture>
           <source type="image/webp" srcset="assets/img/treatments/haende-760.webp 760w, assets/img/treatments/haende-1400.webp 1400w" sizes="(max-width:900px) 100vw, 50vw">
@@ -164,7 +172,7 @@
     </div>
 
     <!-- Fußpflege -->
-    <div class="showcase-row reverse" style="background:var(--gray-light);">
+    <div class="showcase-row reverse" data-cat="haende-fuesse" style="background:var(--gray-light);">
       <div class="showcase-media">
         <picture>
           <source type="image/webp" srcset="assets/img/treatments/fuesse-760.webp 760w, assets/img/treatments/fuesse-1400.webp 1400w" sizes="(max-width:900px) 100vw, 50vw">

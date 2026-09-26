@@ -1165,3 +1165,23 @@ h1.reveal.in,h2.reveal.in{filter:blur(0);}
   .steps::-webkit-scrollbar{display:none;}
   .step{scroll-snap-align:center;}
 }
+
+/* Filter (Behandlungen) */
+.filter-bar{display:flex;flex-wrap:wrap;justify-content:center;gap:0.6rem;padding:0 1.5rem 3rem;}
+.chip{
+  padding:0.55em 1.15em;border-radius:999px;border:1px solid rgba(18,16,14,0.16);background:var(--white);
+  font-family:'Inter',sans-serif;font-size:0.95rem;font-weight:500;color:var(--black);cursor:pointer;
+  transition:background .25s var(--ease),color .25s var(--ease),border-color .25s var(--ease);
+}
+.chip:hover{border-color:var(--wine);color:var(--wine);}
+.chip.active{background:var(--wine);border-color:var(--wine);color:#fff;}
+.showcase-row[hidden]{display:none;}
+
+/* Besuch: drei Wege zum Termin */
+.ways{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem;margin-top:3rem;}
+.way{display:flex;flex-direction:column;gap:0.7rem;padding:2.2rem 2rem;background:var(--gray-light);border-radius:var(--radius-lg);transition:transform .35s var(--ease),background .35s var(--ease);}
+.way:hover{transform:translateY(-4px);background:var(--gray-mid);}
+.way-title{font-size:1.5rem;font-weight:600;letter-spacing:-0.025em;color:var(--black);}
+.way-text{color:var(--text-soft);flex:1;}
+@media (max-width:900px){.ways{grid-template-columns:1fr;}}
+
