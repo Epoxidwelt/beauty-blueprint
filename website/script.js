@@ -265,6 +265,7 @@ if (localNav) {
     fuesse: { w: 1400, h: 933 },
     haende: { w: 1400, h: 933 },
     diolaze: { w: 1400, h: 933 },
+    'diolaze-herren': { w: 1400, h: 933 },
     wimpern: { w: 1400, h: 933 }
   };
 
@@ -471,6 +472,14 @@ if (localNav) {
         { id: 'mehrere', label: 'Mehrere Zonen' }
       ]
     },
+    hand_m_wish: {
+      text: 'Was ist Ihnen bei der Handpflege wichtig?',
+      options: [
+        { id: 'natur', label: 'Gepflegte Nägel und Nagelhaut — schlicht, ohne Lack' },
+        { id: 'pflege', label: 'Pflege für raue, trockene Hände' },
+        { id: 'beraten', label: 'Beraten Sie mich gern' }
+      ]
+    },
     relax_type: {
       text: 'Wobei entspannen Sie am besten?',
       options: [
@@ -533,6 +542,16 @@ if (localNav) {
         main = 'softneedling';
         alts = [{ id: 'hyaluron', text: 'Intensiver' }];
         notes.push('Soft Needling stärkt die Hautbarriere und aktiviert die Haut in der Tiefe — ganz ohne Ausfallzeit.');
+      }
+    } else if (c === 'rasur') {
+      if (skin === 'empfindlich' || skin === 'eher-trocken') {
+        main = 'aquaderm';
+        alts = [{ id: 'relax', text: 'Beruhigend' }];
+        notes.push('AquaDerm reinigt schonend per Vakuum und versorgt die Haut mit Wirkstoffen — wohltuend nach täglicher Rasur.');
+      } else {
+        main = 'clean';
+        alts = [{ id: 'aquaderm', text: 'Schonender' }];
+        notes.push('Die Clean & Activ Behandlung reinigt tief und beugt Pickelchen und eingewachsenen Haaren vor.');
       }
     } else if (c === 'unrein') {
       main = 'clean';
@@ -646,6 +665,19 @@ if (localNav) {
     return { treatment: 'haende', lines: lines, alts: [], notes: notes, anlass: null };
   }
 
+  function resolveHandsMen(sel) {
+    const wish = sel.a1.id;
+    const pflege = wish === 'pflege' || sel.concern.id === 'rau';
+    const lines = [L('mani', 'Behandlung')];
+    const notes = ['Die Wellness Maniküre umfasst Handbad, Nagel- und Nagelhautpflege sowie eine Handmassage — auf Wunsch ganz ohne Lack.'];
+    if (pflege) {
+      lines.push(L('spa_hand', 'Dazu'));
+      notes.push('Das SPA Hand bringt Peeling, Serum, Handpackung und Handmassage — pure Pflege für trockene, raue Hände.');
+    }
+    if (wish === 'beraten') notes.push('Vor Ort besprechen wir gemeinsam, was Ihre Hände brauchen.');
+    return { treatment: 'haende', lines: lines, alts: [], notes: notes, anlass: null };
+  }
+
   function resolveFeet(sel) {
     const c = sel.concern.id;
     const priority = sel.a1.id;
@@ -673,8 +705,9 @@ if (localNav) {
   }
 
   function resolveHair(sel) {
-    const mann = sel.a1.id === 'mann';
-    const zone = sel.a2.id;
+    const byFlow = sel.concern.flow;
+    const mann = byFlow === 'hair_m' || (byFlow === 'hair' && sel.a1.id === 'mann');
+    const zone = byFlow === 'hair' ? sel.a2.id : sel.a1.id;
     const plan = mann ? {
       brustbauch: { main: 'h_chest_belly', alts: [['h_chest', 'Nur Brust'], ['h_belly', 'Nur Bauch']], note: 'Brust und Bauch behandeln wir gern in einem Termin.' },
       ruecken: { main: 'h_back', alts: [['h_partback', 'Nur Teilrücken'], ['h_back_shoulder', 'Mit Schultern']], note: 'Für den Rücken planen wir etwas mehr Zeit pro Sitzung ein.' },
@@ -744,6 +777,10 @@ if (localNav) {
     brow: { q: ['brow_how', 'tint_brow'], resolve: resolveBrow },
     hands: { q: ['hand_wish', 'color'], resolve: resolveHands },
     feet: { q: ['foot_priority', 'color'], resolve: resolveFeet },
+    hair_f: { q: ['hair_zone_f', 'client'], resolve: resolveHair },
+    hair_m: { q: ['hair_zone_m', 'client'], resolve: resolveHair },
+    hands_m: { q: ['hand_m_wish', 'client'], resolve: resolveHandsMen },
+    feet_m: { q: ['foot_priority', 'client'], resolve: resolveFeet },
     hair: { q: ['hair_who', (sel) => (sel.a1 && sel.a1.id === 'mann' ? 'hair_zone_m' : 'hair_zone_f')], resolve: resolveHair },
     relax: { q: ['relax_type', 'relax_time'], resolve: resolveRelax }
   };
@@ -805,6 +842,52 @@ if (localNav) {
     }
   ];
 
+  // Je nach Angabe (Frau / Mann) zeigt der Selbsttest nur passende Bereiche und Anliegen.
+  // Ohne Angabe ("alle") bleibt die gemeinsame Liste, dort wird beim Thema Haarentfernung nachgefragt.
+  const AREAS_F = AREAS.map((a) => a.id !== 'haarentfernung' ? a : Object.assign({}, a, {
+    concerns: a.concerns.map((c) => Object.assign({}, c, { flow: 'hair_f' }))
+  }));
+  const AREAS_M = [
+    {
+      id: 'haarentfernung', label: 'Dauerhafte Haarentfernung',
+      concerns: [
+        { id: 'koerper', label: 'Haare an Brust, Rücken oder Schultern stören mich', flow: 'hair_m' },
+        { id: 'reizung', label: 'Rasur reizt meine Haut oder Haare wachsen ein', flow: 'hair_m' },
+        { id: 'zeit', label: 'Ich möchte langfristig Zeit sparen', flow: 'hair_m' }
+      ]
+    },
+    {
+      id: 'haut', label: 'Meine Gesichtshaut',
+      concerns: [
+        { id: 'rasur', label: 'Rasurbrand, Rötungen oder Pickelchen nach dem Rasieren', flow: 'face' },
+        { id: 'fahl', label: 'Wirkt müde, fahl und ohne Frische', flow: 'face' },
+        { id: 'trocken', label: 'Spannt, ist trocken oder empfindlich', flow: 'face' },
+        { id: 'unrein', label: 'Unreinheiten, Mitesser oder große Poren', flow: 'face' }
+      ]
+    },
+    {
+      id: 'haende', label: 'Hände & Nägel',
+      concerns: [
+        { id: 'gepflegt', label: 'Gepflegte Hände für Alltag und Beruf', flow: 'hands_m' },
+        { id: 'rau', label: 'Trockene, raue Hände', flow: 'hands_m' }
+      ]
+    },
+    {
+      id: 'fuesse', label: 'Füße',
+      concerns: [
+        { id: 'hornhaut', label: 'Hornhaut und raue Stellen', flow: 'feet_m' },
+        { id: 'muede-fuesse', label: 'Müde, schwere Füße', flow: 'feet_m' },
+        { id: 'gepflegt-fuss', label: 'Einfach gepflegte Füße', flow: 'feet_m' }
+      ]
+    },
+    AREAS.find((a) => a.id === 'entspannen')
+  ];
+  const GENDERS = [
+    { id: 'frau', label: 'Frau', areas: AREAS_F },
+    { id: 'mann', label: 'Mann', areas: AREAS_M },
+    { id: 'alle', label: 'Ich möchte alle Bereiche sehen', areas: AREAS }
+  ];
+
   const OCCASIONS = [
     { id: 'zeitnah', label: 'So bald wie möglich' },
     { id: 'wochen', label: 'In den nächsten Wochen' },
@@ -821,10 +904,10 @@ if (localNav) {
   const closeBtn = document.getElementById('finderClose');
   const openTriggers = document.querySelectorAll('.js-open-finder');
 
-  const STEP_ORDER = ['area', 'concern', 'q1', 'q2', 'occasion', 'result'];
-  const TOTAL_STEPS = 5;
+  const STEP_ORDER = ['gender', 'area', 'concern', 'q1', 'q2', 'occasion', 'result'];
+  const TOTAL_STEPS = 6;
   let stepIdx = 0;
-  const emptySelection = () => ({ area: null, concern: null, a1: null, a2: null, occasion: null });
+  const emptySelection = () => ({ gender: null, area: null, concern: null, a1: null, a2: null, occasion: null });
   let selection = emptySelection();
   let lastFocused = null;
 
@@ -849,26 +932,39 @@ if (localNav) {
     return '<p class="finder-step-label">' + leafIcon() + 'Schritt ' + n + ' von ' + TOTAL_STEPS + '</p>';
   }
 
-  function renderAreaStep() {
-    finderBody.innerHTML = stepLabel(1) + '<h3>Worum geht es Ihnen heute?</h3>';
-    finderBody.appendChild(buildOptions(AREAS, selection.area && selection.area.id, (area) => {
-      if (!selection.area || selection.area.id !== area.id) {
-        selection.concern = null; selection.a1 = null; selection.a2 = null;
+  function renderGenderStep() {
+    finderBody.innerHTML = stepLabel(1) + '<h3>Für wen ist die Behandlung?</h3>' +
+      '<p class="finder-step-hint">Damit zeigen wir Ihnen gleich nur die Behandlungen, die zu Ihnen passen.</p>';
+    finderBody.appendChild(buildOptions(GENDERS, selection.gender && selection.gender.id, (g) => {
+      if (!selection.gender || selection.gender.id !== g.id) {
+        selection.area = null; selection.concern = null; selection.a1 = null; selection.a2 = null;
       }
-      selection.area = area;
+      selection.gender = g;
       stepIdx = 1;
       renderCurrentStep();
     }));
   }
 
+  function renderAreaStep() {
+    finderBody.innerHTML = stepLabel(2) + '<h3>Worum geht es Ihnen heute?</h3>';
+    finderBody.appendChild(buildOptions(selection.gender.areas, selection.area && selection.area.id, (area) => {
+      if (!selection.area || selection.area.id !== area.id) {
+        selection.concern = null; selection.a1 = null; selection.a2 = null;
+      }
+      selection.area = area;
+      stepIdx = 2;
+      renderCurrentStep();
+    }));
+  }
+
   function renderConcernStep() {
-    finderBody.innerHTML = stepLabel(2) + '<h3>Was beschreibt Ihr Anliegen am besten?</h3>';
+    finderBody.innerHTML = stepLabel(3) + '<h3>Was beschreibt Ihr Anliegen am besten?</h3>';
     finderBody.appendChild(buildOptions(selection.area.concerns, selection.concern && selection.concern.id, (concern) => {
       if (!selection.concern || selection.concern.id !== concern.id) {
         selection.a1 = null; selection.a2 = null;
       }
       selection.concern = concern;
-      stepIdx = 2;
+      stepIdx = 3;
       renderCurrentStep();
     }));
   }
@@ -881,25 +977,25 @@ if (localNav) {
   function renderQuestionStep(qIndex) {
     const q = QUESTIONS[questionId(qIndex)];
     const chosen = qIndex === 0 ? selection.a1 : selection.a2;
-    finderBody.innerHTML = stepLabel(qIndex + 3) + '<h3>' + q.text + '</h3>';
+    finderBody.innerHTML = stepLabel(qIndex + 4) + '<h3>' + q.text + '</h3>';
     finderBody.appendChild(buildOptions(q.options, chosen && chosen.id, (opt) => {
       if (qIndex === 0) {
         if (!selection.a1 || selection.a1.id !== opt.id) selection.a2 = null;
         selection.a1 = opt;
-        stepIdx = 3;
+        stepIdx = 4;
       } else {
         selection.a2 = opt;
-        stepIdx = 4;
+        stepIdx = 5;
       }
       renderCurrentStep();
     }));
   }
 
   function renderOccasionStep() {
-    finderBody.innerHTML = stepLabel(5) + '<h3>Wann möchten Sie starten?</h3>';
+    finderBody.innerHTML = stepLabel(6) + '<h3>Wann möchten Sie starten?</h3>';
     finderBody.appendChild(buildOptions(OCCASIONS, selection.occasion && selection.occasion.id, (occasion) => {
       selection.occasion = occasion;
-      stepIdx = 5;
+      stepIdx = 6;
       renderCurrentStep();
     }));
   }
@@ -984,13 +1080,15 @@ if (localNav) {
     const timing = occasionSentence(occasion.id) + (occasion.id === 'anlass' && r.anlass ? ' ' + r.anlass : '');
     const notesHtml = r.notes.slice(0, 4).map((n) => '<span class="finder-note">' + n + '</span>').join('');
     const hint = bookingHint(r);
+    const forMen = r.treatment === 'diolaze' && (selection.concern.flow === 'hair_m' || (selection.concern.flow === 'hair' && selection.a1.id === 'mann'));
+    const mainImg = forMen ? 'diolaze-herren' : r.treatment;
 
     finderBody.innerHTML =
       '<div class="finder-result">' +
       '<svg class="finder-result-mark" viewBox="0 0 40 100"><use href="#leaf"></use></svg>' +
       '<p class="finder-eyebrow">Ihre Empfehlung</p>' +
       '<h3>Das passt zu Ihnen</h3>' +
-      '<p class="finder-result-sub">Basierend auf Ihren fünf Antworten empfehlen wir Ihnen diese Behandlung.</p>' +
+      '<p class="finder-result-sub">Basierend auf Ihren Antworten empfehlen wir Ihnen diese Behandlung.</p>' +
       '<dl class="finder-strategy">' +
       '<dt>Ihr Anliegen</dt><dd>' + selection.concern.label + '</dd>' +
       '<dt>Ihre Angaben</dt><dd>' + r.summary + '</dd>' +
@@ -998,7 +1096,7 @@ if (localNav) {
       '<dt>Zeitrahmen</dt><dd>' + timing + '</dd>' +
       '</dl>' +
       '<div class="finder-treatment-card">' +
-      treatmentPictureHtml(r.treatment, treatment.name) +
+      treatmentPictureHtml(mainImg, treatment.name) +
       '<div class="finder-treatment-body">' +
       '<p class="finder-treatment-label">Hauptempfehlung</p>' +
       '<h4>' + treatment.name + '</h4>' +
@@ -1018,7 +1116,7 @@ if (localNav) {
       '</div>';
 
     document.getElementById('finderGoToTreatment').addEventListener('click', () => {
-      window.location.href = ROOT_PREFIX + treatment.page;
+      window.location.href = ROOT_PREFIX + (forMen ? 'herren.html#haarentfernung' : treatment.page);
     });
     document.getElementById('finderRestart').addEventListener('click', () => {
       selection = emptySelection();
@@ -1036,7 +1134,8 @@ if (localNav) {
   function renderCurrentStep() {
     setProgress();
     const name = STEP_ORDER[stepIdx];
-    if (name === 'area') renderAreaStep();
+    if (name === 'gender') renderGenderStep();
+    else if (name === 'area') renderAreaStep();
     else if (name === 'concern') renderConcernStep();
     else if (name === 'q1') renderQuestionStep(0);
     else if (name === 'q2') renderQuestionStep(1);

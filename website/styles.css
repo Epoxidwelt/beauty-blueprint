@@ -1230,3 +1230,22 @@ h1.reveal.in,h2.reveal.in{filter:blur(0);}
 .herren-teaser .link-arrow{color:#fff;}
 @media (max-width:700px){.herren-teaser{min-height:460px;}.herren-teaser::after{background:linear-gradient(180deg,rgba(12,10,9,0.15),rgba(12,10,9,0.88));}.herren-teaser-body{padding:2rem 1.6rem;}}
 
+
+/* Öffnungszeiten: helle, ruhige Karte statt dunklem Band — passt zu Bento und Trust-Row */
+.hours-card{
+  background:#fff;color:var(--black);
+  border:1px solid rgba(18,16,14,0.08);
+  box-shadow:0 1px 0 rgba(18,16,14,0.03);
+  padding:2rem 2.4rem;
+}
+.hours-card::before{display:none;}
+.hours-card .mark{color:var(--wine);margin-bottom:.5rem;}
+.hours-card h3{
+  color:var(--black);font-family:'Inter',system-ui,sans-serif;font-weight:600;
+  font-size:clamp(1.5rem,3vw,2rem);letter-spacing:-0.03em;margin-bottom:.15em;
+}
+.hours-card p,.hours-card p.muted{color:var(--text-soft);font-size:1rem;}
+.hours-card .btn-primary{background:var(--wine);color:#fff;}
+.hours-card .btn-primary:hover{background:var(--wine-deep);color:#fff;}
+@media (max-width:640px){.hours-card{padding:1.6rem 1.4rem;}}
+.finder-step-hint{color:var(--text-soft);font-size:.95rem;margin:-.2rem 0 1.2rem;}
