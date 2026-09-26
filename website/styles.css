@@ -1185,3 +1185,48 @@ h1.reveal.in,h2.reveal.in{filter:blur(0);}
 .way-text{color:var(--text-soft);flex:1;}
 @media (max-width:900px){.ways{grid-template-columns:1fr;}}
 
+/* ---------------------------------------------------------------------------
+   Herren-Seite: dunkles Kapitel, gleiche Markenfarben
+   --------------------------------------------------------------------------- */
+.herren-hero{
+  position:relative;text-align:center;overflow:hidden;color:var(--white);
+  padding:8.5rem 1.5rem 5rem;
+  background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(124,69,80,0.42),transparent 70%),var(--ink);
+}
+.herren-hero-inner{max-width:900px;margin:0 auto;}
+.herren-hero .mark{color:var(--rose-soft);}
+.herren-hero h1{color:var(--white);margin-bottom:0.3em;}
+.herren-hero h1 em{color:var(--rose-soft);}
+.herren-hero-sub{font-size:clamp(1.1rem,1.8vw,1.3rem);line-height:1.45;color:rgba(255,255,255,0.74);max-width:44ch;margin:0 auto 1.8em;}
+.herren-hero-actions{display:flex;gap:0.8rem;flex-wrap:wrap;justify-content:center;}
+.herren-hero-actions .btn-primary{background:var(--white);color:var(--black);}
+.herren-hero-actions .btn-primary:hover{background:var(--rose);}
+.herren-hero-visual{max-width:1240px;margin:4rem auto 0;}
+.herren-hero-visual .hero-portrait{box-shadow:0 40px 90px -40px rgba(0,0,0,0.7);}
+.herren-prices{display:grid;grid-template-columns:1fr 1fr;gap:2.2rem;margin-top:2.4rem;}
+.herren-prices h3{font-size:1.1rem;margin-bottom:0.2rem;}
+.herren-note{
+  display:flex;flex-direction:column;gap:0.5rem;align-items:flex-start;margin-top:2rem;
+  padding:1.8rem 2rem;border-radius:var(--radius-lg);background:var(--gray-light);
+}
+.herren-note strong{font-size:1.2rem;letter-spacing:-0.02em;}
+.herren-note span{color:var(--text-soft);max-width:60ch;}
+.herren-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:1.1rem;margin-top:2.4rem;}
+.herren-cards .way{background:var(--white);}
+.herren-cards .way:hover{background:var(--white);box-shadow:var(--shadow-soft);}
+.way-meta{font-size:0.9rem;font-weight:600;color:var(--black);}
+@media (max-width:900px){.herren-prices,.herren-cards{grid-template-columns:1fr;}}
+@media (max-width:600px){.herren-hero{padding:7rem 1.4rem 3.5rem;}.herren-hero-visual .hero-portrait{aspect-ratio:4/5;}}
+
+/* Herren-Teaser (Startseite) */
+.herren-teaser{position:relative;display:flex;align-items:flex-end;min-height:420px;overflow:hidden;border-radius:var(--radius-lg);color:#fff;background:var(--ink);isolation:isolate;text-shadow:0 1px 14px rgba(12,10,9,0.35);}
+.herren-teaser picture{display:contents;}
+.herren-teaser img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;transition:scale .9s var(--ease);}
+.herren-teaser::after{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(12,10,9,0.86) 0%,rgba(12,10,9,0.5) 55%,rgba(12,10,9,0.1) 100%);}
+.herren-teaser:hover img{scale:1.04;}
+.herren-teaser-body{padding:2.6rem 2.4rem;max-width:560px;}
+.herren-teaser h3{color:#fff;font-size:clamp(1.6rem,3vw,2.4rem);margin:0 0 0.5rem;}
+.herren-teaser p{color:rgba(255,255,255,0.86);margin:0 0 1rem;}
+.herren-teaser .link-arrow{color:#fff;}
+@media (max-width:700px){.herren-teaser{min-height:460px;}.herren-teaser::after{background:linear-gradient(180deg,rgba(12,10,9,0.15),rgba(12,10,9,0.88));}.herren-teaser-body{padding:2rem 1.6rem;}}
+
