@@ -247,8 +247,8 @@ if (localNav) {
     forma: { w: 1400, h: 933 },
     fuesse: { w: 1400, h: 933 },
     haende: { w: 1400, h: 933 },
-    diolaze: { w: 1400, h: 1750 },
-    wimpern: { w: 1400, h: 2100 }
+    diolaze: { w: 1400, h: 933 },
+    wimpern: { w: 1400, h: 933 }
   };
 
   function treatmentPictureHtml(key, name) {

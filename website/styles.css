@@ -241,7 +241,7 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
   width:100%;aspect-ratio:16/9;overflow:hidden;border-radius:var(--radius-lg);
   box-shadow:var(--shadow-luxe);position:relative;background:var(--gray-light);
 }
-.hero-portrait img,.hero-portrait video{width:100%;height:100%;object-fit:cover;object-position:50% 22%;}
+.hero-portrait img,.hero-portrait video{width:100%;height:100%;object-fit:cover;object-position:50% 58%;}
 /* Scroll-Effekt: das Bild „wächst“ beim Hochscrollen auf volle Größe (nur wo unterstützt) */
 @supports (animation-timeline: view()){
   @keyframes heroLift{from{transform:scale(0.9);}to{transform:scale(1);}}
