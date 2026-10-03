@@ -103,3 +103,5 @@ Einfacheres Hinzufügen (Update): Das **+** legt das Produkt sofort als **Verkau
 Verwendung jederzeit ändern (Update): Der Umschalter **Verkauf | Tester | Kabinenware** steht bei jeder Bestellzeile — in der Produktauswahl und auf dem Prüfen-Screen (`bestPurposeSwitch()`). Bereits ausgewählte Produkte lassen sich also jederzeit von Verkauf auf Tester (oder zurück) stellen; Preis, Tester-Rabatt und WKZ-Basis werden sofort neu berechnet. Auch beim Bearbeiten einer gespeicherten Bestellung verfügbar.
 
 Verwendungs-Buttons (Update): Verkauf / Tester / Kabinenware sind **einzelne, abgesetzte Buttons** (Pillen mit Abstand, ≥ 44 px hoch) statt eines engen Schalters; aktive Verwendung schwarz mit weißer Schrift.
+
+Plus-Reihenfolge (Update): Jedes **+** am Produkt legt der Reihe nach eine Zeile an — erst **Verkauf**, beim nächsten + **Tester**, dann **Kabinenware** (je 1 Stück). Sind alle drei vorhanden, erhöht das + den Verkauf um 1; weitere Mengen je Zeile über den Stepper (− / +).
