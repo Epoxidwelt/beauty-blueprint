@@ -796,6 +796,10 @@
   .bst-collective .who { font-size: .85rem; font-weight: 600; }
   .bst-by { font-size: .78rem; color: var(--text-soft); background: var(--beige); border-radius: 999px; padding: .2rem .6rem; white-space: nowrap; }
   .best-secondary.bst-danger { color: var(--danger); border-color: var(--danger); }
+  .bst-ask { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,.5); display: flex; align-items: center; justify-content: center; padding: 1rem; }
+  .bst-askbox { background: #fff; border-radius: 18px; padding: 1.4rem; max-width: 440px; width: 100%; box-shadow: 0 30px 70px rgba(0,0,0,.35); }
+  .bst-askbox h3 { margin: 0 0 .5rem; font-size: 1.2rem; } .bst-askbox p { margin: 0 0 1.1rem; color: var(--text-soft); }
+  .bst-askyes { background: var(--danger) !important; }
   .bst-editbanner { display: flex; align-items: center; justify-content: space-between; gap: .8rem; }
   .best-img { background: #fff; border: 1px solid var(--rose-pale); border-radius: 14px; display: flex; align-items: center; justify-content: center; padding: 0.5rem; }
   .best-img img { width: 96px; height: 96px; display: block; object-fit: contain; }
@@ -885,7 +889,7 @@
   .best-by .avatar-mini img { width: 100%; height: 100%; object-fit: cover; }
 
   .best-preview { position: fixed; inset: 0; z-index: 600; background: rgba(17,17,17,0.55); overflow-y: auto; padding: 1.2rem; display: flex; justify-content: center; }
-  .best-paper { background: #fff; width: 100%; max-width: 780px; border-radius: 6px; padding: 2rem 2.2rem; box-shadow: 0 30px 70px rgba(0,0,0,0.35); height: fit-content; color: var(--text); font-size: 0.85rem; }
+  .best-paper { background: #fff; width: 210mm; max-width: 100%; box-sizing: border-box; border-radius: 6px; padding: 2rem 2.2rem; box-shadow: 0 30px 70px rgba(0,0,0,0.35); height: fit-content; color: var(--text); font-size: 0.85rem; }
   .best-paper h1 { font-family: var(--font-display); font-size: 1.5rem; margin: 0 0 0.2rem; }
   .best-paper img.logo { height: 64px; display: block; margin-bottom: 0.8rem; }
   .best-previewbar { display: flex; gap: 0.6rem; justify-content: flex-end; margin: 0 0 1rem; flex-wrap: wrap; }
@@ -901,7 +905,14 @@
     .best-overlay { display: none !important; }
     body { height: auto !important; overflow: visible !important; display: block !important; }
     .best-preview { position: static !important; background: none !important; padding: 0 !important; display: block !important; overflow: visible !important; }
-    .best-paper { box-shadow: none !important; max-width: none !important; padding: 0 !important; }
+    @page { size: A4 portrait; margin: 14mm 12mm; }
+    .best-paper { box-shadow: none !important; width: 100% !important; max-width: none !important; padding: 0 !important; font-size: 9.5pt !important; border-radius: 0 !important; }
+    .best-paper h1 { font-size: 15pt !important; }
+    .best-paper img.logo { height: 42px !important; }
+    .best-paper .best-table { font-size: 8.5pt !important; }
+    .best-paper tr { page-break-inside: avoid; }
+    .best-paper thead, .best-paper th { page-break-after: avoid; }
+    .best-paper .best-h2 { page-break-after: avoid; }
     .best-previewbar { display: none !important; }
   }
 
@@ -993,9 +1004,9 @@
   .bst-catgrid-wrap { background: var(--beige); border-radius: 18px; padding: 0.8rem; margin-bottom: 1rem; }
   .bst-cathead { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--rose-deep); margin: 0 0 0.6rem 0.2rem; }
   .bst-cathead small { margin-left: 0.5rem; color: var(--taupe); text-transform: none; letter-spacing: 0; font-weight: 600; }
-  .bst-catgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.5rem; }
-  .bst-tile { font-family: var(--font-body); font-size: 0.95rem; font-weight: 700; color: var(--text); background: #fff; border: 2px solid transparent; border-radius: 14px; padding: 0.7rem 0.8rem; min-height: 64px; text-align: left; cursor: pointer; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-  .bst-tile small { font-weight: 500; font-size: 0.72rem; color: var(--text-soft); margin-top: 0.15rem; }
+  .bst-catgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(150px, 100%), 1fr)); gap: 0.6rem; }
+  .bst-tile { min-width: 0; overflow: hidden; overflow-wrap: anywhere; hyphens: auto; line-height: 1.2; height: 100%; box-sizing: border-box; font-family: var(--font-body); font-size: 0.95rem; font-weight: 700; color: var(--text); background: #fff; border: 2px solid transparent; border-radius: 14px; padding: 0.7rem 0.8rem; min-height: 64px; text-align: left; cursor: pointer; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .bst-tile small { overflow-wrap: normal; white-space: nowrap; font-weight: 500; font-size: 0.72rem; color: var(--text-soft); margin-top: 0.15rem; }
   .bst-tile.all { background: transparent; box-shadow: none; border: 2px dashed var(--beige-deep); }
   .bst-tile.on { background: var(--rose-pale); border-color: var(--rose-deep); color: var(--rose-deep); }
   .bst-catbar { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap; background: var(--rose-pale); border-radius: 16px; padding: 0.5rem 0.8rem; margin-bottom: 1rem; color: var(--rose-deep); }
@@ -2760,6 +2771,7 @@
       '<div class="stack">' +
         '<button class="stack-btn primary" onclick="__bb.goTo(\'kunde-neu\')">Neue Beratung</button>' +
         '<button class="stack-btn" onclick="__bb.goTo(\'kunde-bestehend\')">Kundin auswählen</button>' +
+        '<button class="stack-btn" onclick="__bb.goTo(\'best-pruefen\')">Sammelbestellung öffnen<span class="hint">' + bestCollectiveSummary() + '</span></button>' +
         '<button class="stack-btn" disabled>Beratung fortsetzen<span class="hint">Keine offene Beratung vorhanden</span></button>' +
       '</div>' +
       // Damit eine Mitarbeiterin schon VOR der ersten Beratung kurz nachsehen kann, welche
@@ -4788,6 +4800,7 @@
     var note = over ? '<div class="best-msg warn" style="margin:0 0 .9rem">Der WKZ ist um <b>' + bestMoney(over) + '</b> überschritten — nur zur Info, die Bestellung geht trotzdem raus.</div>'
       : (t.remaining > 0 ? '<div class="best-msg info" style="margin:0 0 .9rem">Noch <b>' + bestMoney(t.remaining) + '</b> WKZ offen — nur eine Randnotiz, die Bestellung geht auch so raus.</div>'
         : '<div class="best-msg info" style="margin:0 0 .9rem">✓ WKZ genau aufgebraucht (0,00 €).</div>');
+    note = '';
     return '<div class="best-wkzbar"><div>WKZ verfügbar<b>' + bestMoney(t.amount) + '</b></div><div>WKZ verwendet<b>' + bestMoney(t.used) + '</b></div>' +
       '<div class="' + (over ? 'over' : '') + '">' + (over ? 'Überschreitung' : 'WKZ übrig') + '<b>' + bestMoney(over ? over : t.remaining) + '</b></div>' +
       '</div>' + note;
@@ -4843,11 +4856,16 @@
       '<button class="best-chip' + (BEST.favOnly ? ' on' : '') + '" onclick="__bb.select(\'best-toggle\',\'favOnly\')">♥ Favoriten</button></div>' +
       catBlock;
   }
+  function bestCollectiveSummary() {
+    var n = BEST.items.reduce(function (a, i) { return a + i.quantityPaid + i.quantityFree; }, 0), ks = Object.keys(bestContributors(BEST.items));
+    return n ? n + ' Artikel · ' + ks.join(', ') : 'noch leer';
+  }
   function bestCollectiveBanner() {
     var n = BEST.items.reduce(function (a, i) { return a + i.quantityPaid + i.quantityFree; }, 0), who = bestContributors(BEST.items), ks = Object.keys(who);
     return (BEST.flash ? '<div class="best-msg info">' + esc(BEST.flash) + '</div>' : '') +
       '<div class="bst-collective"><div><b>Gemeinsame Sammelbestellung</b><small>' + (BEST.items.length ? n + ' Artikel · ' + BEST.items.length + ' Position' + (BEST.items.length === 1 ? '' : 'en') : 'noch leer — neue Sammlung') + ' · alle Mitarbeiter tragen in dieselbe Bestellung ein</small></div>' +
       (ks.length ? '<div class="who">' + ks.map(function (k) { return esc(k) + ' <b>' + who[k] + '</b>'; }).join(' · ') + '</div>' : '') +
+      (BEST.items.length ? '<button class="best-secondary" onclick="__bb.select(\'best-next\')">Gesamte Sammelbestellung öffnen</button>' : '') +
       ((BEST.items.length && bestIsApprover()) ? '<button class="best-secondary bst-danger" onclick="__bb.select(\'best-discard-collective\')">Sammelbestellung verwerfen</button>' : '') + '</div>';
   }
   function bestEditBanner() {
@@ -4908,7 +4926,7 @@
       '<div class="best-h2">Bestellung</div>' + (BEST.items.length ? '<div class="bst-lines">' + bestSortByPurpose(BEST.items).map(function (i) { return bestLineRow(i, false); }).join('') + '</div>' : '<div class="best-msg err">Noch keine Artikel in der Bestellung.</div>') +
       (BEST.wkzItems.length ? '<div class="best-h2">WKZ-Ware</div><div class="bst-lines">' + BEST.wkzItems.map(function (i) { return bestLineRow(i, true); }).join('') + '</div>' : '') +
       bestSummaryBlocks(o) +
-      '<div class="best-actionrow bst-final"><button class="best-secondary" onclick="__bb.goBack()">← Bestellung bearbeiten</button>' +
+      '<div class="best-actionrow bst-final"><button class="best-secondary" onclick="__bb.goBack()">' + (path[pointer - 1] === 'kunde-wahl' ? '← Zurück' : '← Bestellung bearbeiten') + '</button>' +
       (bestIsApprover()
         ? '<button class="best-secondary" onclick="__bb.select(\'best-preview\')">PDF Vorschau</button><button class="best-secondary" onclick="__bb.select(\'best-export\')">Exportieren</button>' +
           '<button class="best-primary grow" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-finish\')">' + (BEST.editingId ? 'Bestellung speichern' : 'Sammelbestellung abschließen') + '</button>'
@@ -4937,7 +4955,7 @@
     return bestOrderBrandsOf(o).map(function (b) {
       var a = bestBrandStats(o, b), agg = bestAggregate(a.items, a.wkz);
       var over = a.remaining < 0 ? round2(-a.remaining) : 0;
-      var note = (!a.hasWkz || !bestIsApprover()) ? '' : over ? '<div class="best-msg warn">Randnotiz: Der WKZ ist um <b>' + bestMoney(over) + '</b> überschritten.</div>'
+      var note = ''; var _unused = (!a.hasWkz || !bestIsApprover()) ? '' : over ? '<div class="best-msg warn">Randnotiz: Der WKZ ist um <b>' + bestMoney(over) + '</b> überschritten.</div>'
         : (a.hasWkz && a.remaining > 0 && a.amount > 0 ? '<div class="best-msg info">Randnotiz: Noch <b>' + bestMoney(a.remaining) + '</b> WKZ offen.</div>' : '');
       return '<div class="best-h2">' + esc(b) + ' — Bestellübersicht</div><div class="best-twocol"><div class="best-sumbox">' +
         (bestShowPrices() ? '<div class="best-sumrow big"><span>Bestellwert ' + esc(b) + '</span><b>' + bestMoney(a.regular) + '</b></div>' : '') +
@@ -4983,6 +5001,16 @@
   // Inhaberin = im Admin (Mitarbeiter) hinterlegt; nur sie sieht WKZ, Preise und Rabatte, gibt frei und löst Hersteller-E-Mails aus.
   // Ist im gespeicherten Team noch niemand markiert (ältere Daten), gilt der Standardname aus BEST_CONFIG.approver.
   function bestOwners() { return ADMIN_DATA.team.filter(function (m) { return m.inhaberin; }).map(function (m) { return m.name; }); }
+  // eigene Sicherheitsabfrage (statt Browser-Dialog): Text + Bestätigen/Abbrechen
+  function bestAsk(title, text, yesLabel, onYes) {
+    var old = document.getElementById('bst-ask'); if (old) old.parentNode.removeChild(old);
+    var el = document.createElement('div'); el.id = 'bst-ask'; el.className = 'bst-ask'; el.setAttribute('role', 'alertdialog');
+    el.innerHTML = '<div class="bst-askbox"><h3>' + esc(title) + '</h3><p>' + esc(text) + '</p><div class="best-actionrow"><button class="best-secondary" id="bst-ask-no">Abbrechen</button><button class="best-primary bst-askyes" id="bst-ask-yes">' + esc(yesLabel) + '</button></div></div>';
+    document.body.appendChild(el);
+    var close = function () { if (el.parentNode) el.parentNode.removeChild(el); };
+    document.getElementById('bst-ask-no').onclick = close;
+    document.getElementById('bst-ask-yes').onclick = function () { close(); onYes(); };
+  }
   function bestIsApprover() { var o = bestOwners(); return o.length ? o.indexOf(STATE.mitarbeiterin) > -1 : STATE.mitarbeiterin === BEST_CONFIG.approver; }
   function bestApproverLabel() { var o = bestOwners(); return o.length ? o.join(' / ') : BEST_CONFIG.approver; }
   // Bestellung ablegen: 'open' = gespeichert, wartet auf Freigabe; 'completed' = von der Freigabe-Person abgeschlossen
@@ -5188,7 +5216,7 @@
     el.id = 'best-preview-root'; el.className = 'best-preview';
     el.innerHTML = '<div style="width:100%;max-width:780px"><div class="best-previewbar"><button class="best-secondary" onclick="__bb.select(\'best-preview-close\')">Schließen</button>' +
       '<button class="best-primary" onclick="__bb.select(\'best-print\')">Drucken / Als PDF sichern</button></div>' +
-      '<div class="best-paper"><img class="logo" src="' + LOGO_SRC + '" alt="Beauty Lounge" /><h1>Bestellung ' + esc(o.id) + '</h1>' +
+      '<div class="best-paper"><img class="logo" src="' + LOGO_SRC + '" alt="Beauty Lounge" /><h1>Bestellformular ' + esc(o.id) + '</h1>' +
       '<p>Bestellt von <b>' + esc(o.besteller || '—') + '</b> · ' + esc(formatDateDE(new Date(o.createdAt))) + ' · Status: ' + (o.status === 'completed' ? 'abgeschlossen' : 'Entwurf') + '</p>' +
       '<div class="best-h2">Positionen</div><table class="best-table"><tr><th class="r">Menge</th><th class="r">Gratis</th><th>Art.-Nr.</th><th>Bezeichnung</th><th>Verwendung</th><th>Aktion</th><th class="r">EK</th><th class="r">Gesamt</th></tr>' + rows + '</table>' +
       (wrows ? '<div class="best-h2">WKZ-Ware</div><table class="best-table"><tr><th class="r">Menge</th><th>Art.-Nr.</th><th>Bezeichnung</th><th class="r">EK</th><th class="r">Gesamt</th></tr>' + wrows + '</table>' : '') +
@@ -5313,15 +5341,17 @@
     else if (kind === 'best-delete-order') {   // nur Inhaberin: abgeschlossene/gespeicherte Bestellung endgültig löschen
       var dord = bestFindOrder(key);
       if (!dord || !bestIsApprover()) return;
-      if (!window.confirm('Bestellung ' + dord.id + ' endgültig löschen? Das kann nicht rückgängig gemacht werden.')) return;
-      bestSave(BEST_KEYS.orders, bestLoad(BEST_KEYS.orders, []).filter(function (x) { return x.id !== dord.id; }));
-      if (BEST.editingId === dord.id) { BEST.editingId = null; BEST.items = []; BEST.wkzItems = []; bestPersist(); }
-      BEST.completedId = null; BEST.flash = 'Bestellung ' + dord.id + ' wurde gelöscht.'; replaceTop('bestellung');
+      bestAsk('Bestellung löschen?', 'Bist du sicher, dass du die Bestellung ' + dord.id + ' löschen möchtest? Das kann nicht rückgängig gemacht werden.', 'Ja, endgültig löschen', function () {
+        bestSave(BEST_KEYS.orders, bestLoad(BEST_KEYS.orders, []).filter(function (x) { return x.id !== dord.id; }));
+        if (BEST.editingId === dord.id) { BEST.editingId = null; BEST.items = []; BEST.wkzItems = []; bestPersist(); }
+        BEST.completedId = null; BEST.flash = 'Bestellung ' + dord.id + ' wurde gelöscht.'; replaceTop('bestellung');
+      });
     }
     else if (kind === 'best-discard-collective') {   // nur Inhaberin: aktuelle Sammelbestellung verwerfen
       if (!bestIsApprover() || !BEST.items.length) return;
-      if (!window.confirm('Die gemeinsame Sammelbestellung mit allen Einträgen verwerfen? Das kann nicht rückgängig gemacht werden.')) return;
-      BEST.items = []; BEST.wkzItems = []; BEST.editingId = null; BEST.wkzOverrunConfirmed = 0; bestPersist(); BEST.flash = 'Sammelbestellung wurde verworfen.'; render();
+      bestAsk('Sammelbestellung verwerfen?', 'Bist du sicher, dass du die gemeinsame Sammelbestellung mit allen Einträgen verwerfen möchtest? Das kann nicht rückgängig gemacht werden.', 'Ja, endgültig verwerfen', function () {
+        BEST.items = []; BEST.wkzItems = []; BEST.editingId = null; BEST.wkzOverrunConfirmed = 0; bestPersist(); BEST.flash = 'Sammelbestellung wurde verworfen.'; render();
+      });
     }
     else if (kind === 'best-save') {   // Mitarbeiterin: Eintrag ist Teil der gemeinsamen Sammelbestellung (liegt schon im gemeinsamen Entwurf)
       bestPersist(); BEST.flash = '✓ Gespeichert — dein Eintrag ist Teil der gemeinsamen Sammelbestellung.'; BEST.tab = 'order';
