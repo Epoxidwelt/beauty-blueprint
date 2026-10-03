@@ -903,9 +903,24 @@
   .best-by .avatar-mini img { width: 100%; height: 100%; object-fit: cover; }
 
   .best-preview { position: fixed; inset: 0; z-index: 600; background: rgba(17,17,17,0.55); overflow-y: auto; padding: 1.2rem; display: flex; justify-content: center; }
-  .best-paper { background: #fff; width: 210mm; max-width: 100%; box-sizing: border-box; border-radius: 6px; padding: 2rem 2.2rem; box-shadow: 0 30px 70px rgba(0,0,0,0.35); height: fit-content; color: var(--text); font-size: 0.85rem; }
-  .best-paper h1 { font-family: var(--font-display); font-size: 1.5rem; margin: 0 0 0.2rem; }
-  .best-paper img.logo { height: 64px; display: block; margin-bottom: 0.8rem; }
+  .a4wrap { width: 210mm; max-width: none; }
+  .a4 { width: 210mm; height: 297mm; box-sizing: border-box; background: #fff; color: #111; padding: 12mm 13mm 8mm; display: flex; flex-direction: column; box-shadow: 0 30px 70px rgba(0,0,0,.35); font-family: var(--font-body); font-size: 10pt; overflow: hidden; }
+  .a4-body { flex: none; height: 262mm; overflow: hidden; } .a4-fit { width: 100%; }
+  .a4-head { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #111; padding-bottom: 4mm; margin-bottom: 4mm; }
+  .a4-head img.logo { height: 16mm; width: auto; display: block; }
+  .a4-title { text-align: right; } .a4-title span { display: block; font-size: 8pt; letter-spacing: .2em; color: #555; } .a4-title b { font-size: 17pt; letter-spacing: .02em; }
+  .a4-meta { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; margin-bottom: 5mm; }
+  .a4-meta div { border: 1px solid #ccc; border-radius: 2mm; padding: 1.6mm 2.4mm; } .a4-meta small, .a4-cells small { display: block; font-size: 7pt; color: #666; text-transform: uppercase; letter-spacing: .06em; } .a4-meta b { font-size: 9.5pt; }
+  .a4-table { width: 100%; border-collapse: collapse; font-size: 9pt; margin-bottom: 4mm; }
+  .a4-table th { text-align: left; font-size: 7pt; text-transform: uppercase; letter-spacing: .06em; color: #555; border-bottom: 1.5px solid #111; padding: 1.2mm 1.5mm; }
+  .a4-table td { padding: 1.4mm 1.5mm; border-bottom: 1px solid #ddd; vertical-align: top; } .a4-table .r, .a4-table th.r { text-align: right; white-space: nowrap; }
+  .a4-table tr.sp td { background: #f1f1f1; font-weight: 700; } .a4-table tr { page-break-inside: avoid; }
+  .a4-sub { font-size: 8pt; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; margin: 4mm 0 1.5mm; }
+  .a4-sum { border: 1px solid #bbb; border-radius: 2mm; padding: 2mm 3mm; margin-bottom: 3mm; }
+  .a4-sumhead { display: flex; justify-content: space-between; font-weight: 800; font-size: 10pt; margin-bottom: 1.5mm; } .a4-sumhead span { font-weight: 400; font-size: 8.5pt; color: #444; }
+  .a4-cells { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5mm 4mm; } .a4-cells b { font-size: 10pt; }
+  .a4-sign { display: flex; gap: 12mm; margin-top: 10mm; font-size: 8.5pt; color: #333; } .a4-sign div { flex: 1; } .a4-sign i { display: block; border-bottom: 1px solid #333; height: 7mm; }
+  .a4-foot { font-size: 7.5pt; color: #666; text-align: center; border-top: 1px solid #ccc; padding-top: 2mm; margin-top: 2mm; }
   .best-previewbar { display: flex; gap: 0.6rem; justify-content: flex-end; margin: 0 0 1rem; flex-wrap: wrap; }
 
   @media (max-width: 900px) {
@@ -919,14 +934,11 @@
     .best-overlay { display: none !important; }
     body { height: auto !important; overflow: visible !important; display: block !important; }
     .best-preview { position: static !important; background: none !important; padding: 0 !important; display: block !important; overflow: visible !important; }
-    @page { size: A4 portrait; margin: 14mm 12mm; }
-    .best-paper { box-shadow: none !important; width: 100% !important; max-width: none !important; padding: 0 !important; font-size: 9.5pt !important; border-radius: 0 !important; }
-    .best-paper h1 { font-size: 15pt !important; }
-    .best-paper img.logo { height: 42px !important; }
-    .best-paper .best-table { font-size: 8.5pt !important; }
-    .best-paper tr { page-break-inside: avoid; }
-    .best-paper thead, .best-paper th { page-break-after: avoid; }
-    .best-paper .best-h2 { page-break-after: avoid; }
+    @page { size: A4 portrait; margin: 0; }
+    html, body { margin: 0 !important; }
+    .best-preview { position: static !important; }
+    .a4wrap { zoom: 1 !important; width: 210mm !important; }
+    .a4 { box-shadow: none !important; page-break-after: avoid; page-break-inside: avoid; }
     .best-previewbar { display: none !important; }
   }
 
@@ -5263,29 +5275,74 @@
     if (!o) return;
     bestDownloadText('Bestellung-' + o.id.replace(/[^\w\-]+/g, '_') + '.csv', bestCsv(o), 'text/csv;charset=utf-8');
   }
+  // DIN-A4-Bestellformular: feste Blattgröße 210 × 297 mm, Inhalt wird automatisch so verkleinert, dass alles auf EINE Seite passt
+  function bestPaperHtml(o) {
+    var m = bestMoney, done = o.status === 'completed';
+    var brands = bestOrderBrandsOf(o);
+    var items = bestSortByPurpose(o.items.slice());
+    var tag = function (k) { return k === 'sale' || !k ? 'Verkauf' : (k === 'tester' ? 'TESTER' : 'KABINENWARE'); };
+    var rows = items.map(function (i) {
+      var k = i.purpose || 'sale';
+      return '<tr class="' + (k !== 'sale' ? 'sp' : '') + '"><td class="r">' + i.quantityPaid + '</td><td class="r">' + (i.quantityFree || '–') + '</td><td>' + esc(i.product.articleNumber) + '</td><td>' + esc(i.product.name) + '</td><td>' + tag(k) + '</td><td>' + (k === 'sale' ? esc(bestPromoLabel(i)) : '–') + '</td><td class="r">' + m(i.unitPurchasePrice) + '</td><td class="r">' + m(calculateLineCost(i)) + '</td></tr>';
+    }).join('');
+    var wrows = bestSortByPurpose(o.wkzItems.slice()).map(function (w) {
+      var k = w.purpose || 'sale';
+      return '<tr class="' + (k !== 'sale' ? 'sp' : '') + '"><td class="r">' + w.quantity + '</td><td>' + esc(w.product.articleNumber) + '</td><td>' + esc(w.product.name) + '</td><td>' + tag(k) + '</td><td class="r">' + m(w.unitPurchasePrice) + '</td><td class="r">' + m(w.quantity * w.unitPurchasePrice) + '</td></tr>';
+    }).join('');
+    var sums = brands.map(function (b) {
+      var a = bestBrandStats(o, b), agg = bestAggregate(a.items, a.wkz);
+      var cells = [['Bestellwert', m(a.regular)]];
+      if (a.testerQty) cells.push(['Tester-Rabatt (−' + BEST_CONFIG.testerDiscountPercent + ' % EK)', '−' + m(a.testerDiscount)]);
+      cells.push(['Gratisware (nicht berechnet)', m(a.free)]);
+      if (a.hasWkz) { cells.push(['WKZ-Guthaben', m(a.amount)]); cells.push(['WKZ-Ware gewählt', m(a.used)]); cells.push(['WKZ verbleibend', m(a.remaining)]); }
+      var pu = ['sale', 'tester', 'cabin'].map(function (k) { var x = agg.byPurpose[k]; return x.qty + x.freeQty ? bestPurposeLabel(k) + ' ' + (x.qty + x.freeQty) : ''; }).filter(Boolean).join(' · ');
+      return '<div class="a4-sum"><div class="a4-sumhead">' + esc(b) + (pu ? '<span>' + esc(pu) + ' Stück</span>' : '') + '</div><div class="a4-cells">' +
+        cells.map(function (c) { return '<div><small>' + c[0] + '</small><b>' + c[1] + '</b></div>'; }).join('') + '</div></div>';
+    }).join('');
+    var who = (o.contributors && o.contributors.length) ? o.contributors.join(', ') : (o.besteller || '—');
+    return '<div class="a4"><div class="a4-body"><div class="a4-fit">' +
+      '<div class="a4-head"><img class="logo" src="' + LOGO_SRC + '" alt="Beauty Lounge" />' +
+        '<div class="a4-title"><span>BESTELLFORMULAR</span><b>' + esc(o.id === 'Entwurf' ? 'Entwurf' : o.id) + '</b></div></div>' +
+      '<div class="a4-meta"><div><small>Hersteller</small><b>' + esc(brands.join(', ') || '—') + '</b></div><div><small>Datum</small><b>' + esc(formatDateDE(new Date(o.createdAt))) + '</b></div>' +
+        '<div><small>Eingetragen von</small><b>' + esc(who) + '</b></div><div><small>Status</small><b>' + (done ? 'abgeschlossen' + (o.approvedBy ? ' (' + esc(o.approvedBy) + ')' : '') : 'in Bearbeitung') + '</b></div></div>' +
+      '<table class="a4-table"><thead><tr><th class="r">Menge</th><th class="r">Gratis</th><th>Art.-Nr.</th><th>Bezeichnung</th><th>Verwendung</th><th>Aktion</th><th class="r">EK</th><th class="r">Gesamt</th></tr></thead><tbody>' + (rows || '<tr><td colspan="8">Keine Positionen</td></tr>') + '</tbody></table>' +
+      (wrows ? '<div class="a4-sub">WKZ-Ware</div><table class="a4-table"><thead><tr><th class="r">Menge</th><th>Art.-Nr.</th><th>Bezeichnung</th><th>Verwendung</th><th class="r">EK</th><th class="r">Gesamt</th></tr></thead><tbody>' + wrows + '</tbody></table>' : '') +
+      '<div class="a4-sub">Zusammenfassung</div>' + sums +
+      '<div class="a4-sign"><div>Geprüft und freigegeben:<i></i></div><div>Datum:<i></i></div></div>' +
+      '</div></div><div class="a4-foot">Beauty Lounge Neuss · Hoistener Str. 15 · 41466 Neuss · 02131 4506806</div></div>';
+  }
+  function bestPaperFit() {
+    var root = document.getElementById('best-preview-root'); if (!root) return;
+    var fit = root.querySelector('.a4-fit'), body = root.querySelector('.a4-body'), wrap = root.querySelector('.a4wrap');
+    if (!fit || !body) return;
+    fit.style.zoom = ''; var avail = body.clientHeight - 2, z = 1;
+    if (fit.getBoundingClientRect().height > avail && avail > 0) {
+      // schrittweise annähern (Zoom ändert den Umbruch): größtmögliche Skalierung, die noch auf die Seite passt
+      for (var n = 0; n < 6; n++) {
+        fit.style.zoom = String(z); var hh = fit.getBoundingClientRect().height;
+        if (hh <= avail && hh >= avail * 0.96) break;
+        z = Math.max(0.35, z * (avail / hh) * (hh > avail ? 0.995 : 1));
+      }
+      if (fit.getBoundingClientRect().height > avail) fit.style.zoom = String(Math.max(0.35, z * 0.97));
+    }
+    // Bildschirmvorschau: Blatt an die Bildschirmbreite anpassen
+    var sheetPx = 210 * 3.7795, vs = Math.min(1, (window.innerWidth - 24) / sheetPx);
+    if (wrap) wrap.style.zoom = vs < 1 ? String(vs) : '';
+  }
   function bestPreview(id) {
     var o = bestOrderForOutput(id);
     if (!o) return;
-    var agg = bestAggregate(o.items, o.wkzItems);
-    var rows = o.items.slice().sort(function (x, y) { return BEST_BRANDS.indexOf(x.product.brand) - BEST_BRANDS.indexOf(y.product.brand); }).map(function (i) {
-      return '<tr><td class="r">' + i.quantityPaid + '</td><td class="r">' + i.quantityFree + '</td><td>' + esc(i.product.articleNumber) + '</td><td>' + esc(i.product.name) + '<br/><small>' + esc(i.product.brand) + '</small></td><td>' + esc(bestPurposeLabel(i.purpose)) + '</td><td>' + esc(bestPromoLabel(i)) + '</td><td class="r">' + bestMoney(i.unitPurchasePrice) + '</td><td class="r">' + bestMoney(calculateLineCost(i)) + '</td></tr>';
-    }).join('');
-    var wrows = o.wkzItems.map(function (w) {
-      return '<tr><td class="r">' + w.quantity + '</td><td>' + esc(w.product.articleNumber) + '</td><td>' + esc(w.product.name) + '<br/><small>' + esc(w.product.brand) + '</small></td><td class="r">' + bestMoney(w.unitPurchasePrice) + '</td><td class="r">' + bestMoney(w.quantity * w.unitPurchasePrice) + '</td></tr>';
-    }).join('');
     var el = document.getElementById('best-preview-root');
     if (el) el.parentNode.removeChild(el);
     el = document.createElement('div');
     el.id = 'best-preview-root'; el.className = 'best-preview';
-    el.innerHTML = '<div style="width:100%;max-width:780px"><div class="best-previewbar"><button class="best-secondary" onclick="__bb.select(\'best-preview-close\')">Schließen</button>' +
-      '<button class="best-primary" onclick="__bb.select(\'best-print\')">Drucken / Als PDF sichern</button></div>' +
-      '<div class="best-paper"><img class="logo" src="' + LOGO_SRC + '" alt="Beauty Lounge" /><h1>Bestellformular ' + esc(o.id) + '</h1>' +
-      '<p>Bestellt von <b>' + esc(o.besteller || '—') + '</b> · ' + esc(formatDateDE(new Date(o.createdAt))) + ' · Status: ' + (o.status === 'completed' ? 'abgeschlossen' : 'Entwurf') + '</p>' +
-      '<div class="best-h2">Positionen</div><table class="best-table"><tr><th class="r">Menge</th><th class="r">Gratis</th><th>Art.-Nr.</th><th>Bezeichnung</th><th>Verwendung</th><th>Aktion</th><th class="r">EK</th><th class="r">Gesamt</th></tr>' + rows + '</table>' +
-      (wrows ? '<div class="best-h2">WKZ-Ware</div><table class="best-table"><tr><th class="r">Menge</th><th>Art.-Nr.</th><th>Bezeichnung</th><th class="r">EK</th><th class="r">Gesamt</th></tr>' + wrows + '</table>' : '') +
-      bestSummaryBlocks(o) + '</div></div>';
+    el.innerHTML = '<div class="a4wrap"><div class="best-previewbar"><button class="best-secondary" onclick="__bb.select(\'best-preview-close\')">Schließen</button>' +
+      '<button class="best-primary" onclick="__bb.select(\'best-print\')">Drucken / Als PDF sichern</button></div>' + bestPaperHtml(o) + '</div>';
     document.body.appendChild(el);
+    bestPaperFit();
+    setTimeout(bestPaperFit, 80);   // nach dem Laden des Logos nochmal messen
   }
+  window.addEventListener('resize', function () { try { bestPaperFit(); } catch (e) { /* egal */ } });
   function bestPreviewClose() { var el = document.getElementById('best-preview-root'); if (el) el.parentNode.removeChild(el); }
 
   // ---------- Eingaben ----------
