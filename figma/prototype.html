@@ -929,6 +929,15 @@
   .bst-sum span.wkz { color: var(--rose-deep); font-weight: 600; font-size: 0.9rem; } .bst-sum span.wkz b { display: inline; font-size: 1.05rem; }
   .best-wkzbar.live .hl { background: rgba(255,255,255,0.16); border-radius: 12px; padding: 0.35rem 0.7rem; }
   .best-wkzbar small { display: block; font-size: 0.68rem; font-weight: 400; opacity: .75; }
+  /* Schritte und Zahlen in Schwarz; nur WKZ und Rabatt bleiben farbig */
+  .bst-tabs button, .bst-tabs button.on, .main-tab, .main-tab.current, .bst-steps .on, .bst-steps .done, .best-step.current, .best-step.done { color: var(--text); }
+  .bst-tabs button.on, .main-tab.current { font-weight: 800; }
+  .bst-tabs button small { color: var(--text); opacity: .75; }
+  .bst-val, .bst-lineval, .best-hist .val, .best-done .nr, .best-sumrow b, .best-table td.r, .bst-sum b { color: var(--text); }
+  .best-sumrow.acc b, .best-sumrow.acc span { color: var(--rose-deep); }
+  .best-sumrow.free b { color: var(--text); }
+  .best-wkzbar.live div:first-child b { color: var(--text); }
+  .bst-sum span.wkz b { color: var(--rose-deep); }
   /* Lesbarkeit: helle Karte, dunkler Text, große Rosé-Zahlen (Kontrast > 4,5:1) */
   .best-wkzbar { background: #fff; color: var(--text); border: 2px solid var(--rose-wash); box-shadow: 0 6px 18px rgba(0,0,0,0.10); }
   .best-wkzbar div { font-size: 0.78rem; opacity: 1; color: var(--text-soft); }
@@ -4624,12 +4633,12 @@
       return '<div class="best-h2">' + esc(b) + ' — Bestellübersicht</div><div class="best-twocol"><div class="best-sumbox">' +
         '<div class="best-sumrow big"><span>Bestellwert ' + esc(b) + '</span><b>' + bestMoney(a.regular) + '</b></div>' +
         '<div class="best-sumrow"><span>Artikel (inkl. Gratisware)</span><b>' + a.qty + '</b></div>' +
-        (a.testerQty ? '<div class="best-sumrow"><span>Tester-Rabatt (−' + BEST_CONFIG.testerDiscountPercent + ' % auf EK, ' + a.testerQty + ' Stück) — im Bestellwert enthalten</span><b>−' + bestMoney(a.testerDiscount) + '</b></div>' : '') +
+        (a.testerQty ? '<div class="best-sumrow acc"><span>Tester-Rabatt (−' + BEST_CONFIG.testerDiscountPercent + ' % auf EK, ' + a.testerQty + ' Stück) — im Bestellwert enthalten</span><b>−' + bestMoney(a.testerDiscount) + '</b></div>' : '') +
         '<div class="best-sumrow free"><span>Gratisware aus Aktionen (nicht berechnet)</span><b>' + bestMoney(a.free) + '</b></div>' +
-        '<div class="best-sumrow"><span>WKZ-Basis (nur Ware ohne Aktion)</span><b>' + bestMoney(a.base) + '</b></div>' +
-        '<div class="best-sumrow"><span>WKZ ' + esc(String(o.wkzRate).replace('.', ',')) + ' %</span><b>' + bestMoney(a.amount) + '</b></div>' +
-        '<div class="best-sumrow"><span>WKZ-Ware gewählt</span><b>' + bestMoney(a.used) + '</b></div>' +
-        '<div class="best-sumrow"><span>WKZ verbleibend</span><b>' + bestMoney(a.remaining) + '</b></div></div>' +
+        '<div class="best-sumrow acc"><span>WKZ-Basis (nur Ware ohne Aktion)</span><b>' + bestMoney(a.base) + '</b></div>' +
+        '<div class="best-sumrow acc"><span>WKZ ' + esc(String(o.wkzRate).replace('.', ',')) + ' %</span><b>' + bestMoney(a.amount) + '</b></div>' +
+        '<div class="best-sumrow acc"><span>WKZ-Ware gewählt</span><b>' + bestMoney(a.used) + '</b></div>' +
+        '<div class="best-sumrow acc"><span>WKZ verbleibend</span><b>' + bestMoney(a.remaining) + '</b></div></div>' +
         '<div class="best-sumbox"><div class="best-sumrow" style="border:none;padding-top:0"><b>Nach Verwendungszweck</b></div>' + bestPurposeTable(agg) + '</div></div>' + note;
     }).join('');
   }
