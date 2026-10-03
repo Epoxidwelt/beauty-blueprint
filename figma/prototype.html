@@ -791,6 +791,10 @@
   .bst-scanrow .grow { flex: 1; min-width: 0; }
   .bst-scanrow small { display: block; color: var(--text-soft); }
   .bst-scanrow.ok > span:first-child { color: var(--wkz); font-weight: 800; } .bst-scanrow.bad > span:first-child { color: var(--danger); font-weight: 800; }
+  .bst-collective { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .4rem .9rem; background: #fff; border: 1.5px solid var(--border-strong); border-radius: 14px; padding: .6rem .9rem; margin-bottom: .8rem; }
+  .bst-collective small { display: block; color: var(--text-soft); font-size: .8rem; font-weight: 400; }
+  .bst-collective .who { font-size: .85rem; font-weight: 600; }
+  .bst-by { font-size: .78rem; color: var(--text-soft); background: var(--beige); border-radius: 999px; padding: .2rem .6rem; white-space: nowrap; }
   .bst-editbanner { display: flex; align-items: center; justify-content: space-between; gap: .8rem; }
   .best-img { background: #fff; border: 1px solid var(--rose-pale); border-radius: 14px; display: flex; align-items: center; justify-content: center; padding: 0.5rem; }
   .best-img img { width: 96px; height: 96px; display: block; object-fit: contain; }
@@ -4511,6 +4515,14 @@
     };
   })();
   var BEST_FAVS = bestLoad(BEST_KEYS.favs, []);
+  // Zweites Fenster/Tab auf demselben Gerät: Änderungen an der Sammelbestellung sofort übernehmen
+  // (für mehrere Geräte braucht es eine zentrale Datenbank — siehe README)
+  window.addEventListener('storage', function (e) {
+    if (e.key !== BEST_KEYS.draft) return;
+    var d = bestLoad(BEST_KEYS.draft, {}) || {};
+    BEST.items = d.items || []; BEST.wkzItems = d.wkzItems || [];
+    if (path[pointer] === 'bestellung') { try { render(); } catch (x) { /* egal */ } }
+  });
   function bestPersist() {
     bestSave(BEST_KEYS.draft, { besteller: BEST.besteller, items: BEST.items, wkzItems: BEST.wkzItems, wkzRate: BEST.wkzRate, wkzOverrunConfirmed: BEST.wkzOverrunConfirmed, editingId: BEST.editingId || null });
   }
@@ -4638,6 +4650,7 @@
       var k = bestKey(it, wkz), q = wkz ? it.quantity : it.quantityPaid;
       var promoOk = !wkz && it.purpose === 'sale' && bestPromosFor(p.brand).length > 1;   // Aktionen gibt es nur auf Verkaufsware
       return '<div class="bst-sub"><span class="bst-purpose">' + esc(bestPurposeLabel(it.purpose || 'sale')) + '</span>' + bestStepper(qk, k, q) +
+        (!wkz && bestContribText(it) ? '<span class="bst-by" title="eingetragen von">' + bestContribText(it) + '</span>' : '') +
         (promoOk ? '<button class="bst-chip' + (it.promotionType !== 'none' ? ' on' : '') + '" onclick="__bb.select(\'best-cyc-promo\',\'' + k + '\')">' + (it.promotionType === 'none' ? 'Aktion: keine' : 'Aktion ' + esc(bestPromoLabel(it))) + ' ⟳</button>' : '') +
         ((!wkz && it.quantityFree) ? '<span class="bst-free">+ ' + it.quantityFree + ' gratis = ' + (it.quantityPaid + it.quantityFree) + ' Stück</span>' : '') +
         (bestShowPrices() ? '<span class="bst-val">' + bestMoney(q * it.unitPurchasePrice) + '</span>' : '') + '</div>';
@@ -4818,6 +4831,12 @@
       '<button class="best-chip' + (BEST.favOnly ? ' on' : '') + '" onclick="__bb.select(\'best-toggle\',\'favOnly\')">♥ Favoriten</button></div>' +
       catBlock;
   }
+  function bestCollectiveBanner() {
+    var n = BEST.items.reduce(function (a, i) { return a + i.quantityPaid + i.quantityFree; }, 0), who = bestContributors(BEST.items), ks = Object.keys(who);
+    return (BEST.flash ? '<div class="best-msg info">' + esc(BEST.flash) + '</div>' : '') +
+      '<div class="bst-collective"><div><b>Gemeinsame Sammelbestellung</b><small>' + (BEST.items.length ? n + ' Artikel · ' + BEST.items.length + ' Position' + (BEST.items.length === 1 ? '' : 'en') : 'noch leer — neue Sammlung') + ' · alle Mitarbeiter tragen in dieselbe Bestellung ein</small></div>' +
+      (ks.length ? '<div class="who">' + ks.map(function (k) { return esc(k) + ' <b>' + who[k] + '</b>'; }).join(' · ') + '</div>' : '') + '</div>';
+  }
   function bestEditBanner() {
     if (!BEST.editingId) return '';
     return '<div class="best-msg info bst-editbanner"><span>✎ Du bearbeitest <b>' + esc(BEST.editingId) + '</b> — Änderungen mit „Bestellung speichern" übernehmen.</span>' +
@@ -4826,6 +4845,7 @@
   function renderBestMain() {
     bestEnsureBesteller();
     if (BEST.tab !== 'scan') bestScanStop();
+    var flashDone = function () { BEST.flash = ''; };
     var orders = bestLoad(BEST_KEYS.orders, []).slice().reverse();
     var histRow = function (o) {
       var open = o.status !== 'completed';
@@ -4835,16 +4855,18 @@
     var openOrders = orders.filter(function (o) { return o.status !== 'completed'; }), doneOrders = orders.filter(function (o) { return o.status === 'completed'; });
     var hist = (openOrders.length ? '<details class="bst-hist" open><summary>Offene Bestellungen — warten auf Freigabe (' + openOrders.length + ')</summary><div class="best-history">' + openOrders.map(histRow).join('') + '</div></details>' : '') +
       (doneOrders.length ? '<details class="bst-hist"' + (openOrders.length ? '' : ' open') + '><summary>Abgeschlossene Bestellungen (' + doneOrders.length + ')</summary><div class="best-history">' + doneOrders.map(histRow).join('') + '</div></details>' : '');
-    var body = '<div class="best-wrap">' + bestMainTabs('bestellung') + bestWhoChips() + bestEditBanner() + bestTabsHtml() +
+    var body = '<div class="best-wrap">' + bestMainTabs('bestellung') + bestWhoChips() + bestEditBanner() + '<div id="best-collective">' + bestCollectiveBanner() + '</div>' + bestTabsHtml() +
       '<div id="best-bar">' + bestBarHtml() + '</div>' + bestFiltersHtml() +
       '<div id="best-list">' + bestListHtml() + '</div>' + hist +
       '<div class="bst-footer" id="best-footer">' + bestFooterHtml() + '</div></div>';
     screenWrap('dezent', 0, contextLabel(), body);
+    flashDone();
   }
   function bestRefresh() {
     if (path[pointer] !== 'bestellung') return render();
     var a = document.getElementById('best-list'), b = document.getElementById('best-bar'), c = document.getElementById('best-footer');
     if (!a || !b || !c) return render();
+    var cb = document.getElementById('best-collective'); if (cb) cb.innerHTML = bestCollectiveBanner();
     if (BEST.tab === 'scan') { c.innerHTML = bestFooterHtml(); var tb = document.querySelector('.bst-tabs'); if (tb) tb.outerHTML = bestTabsHtml(); bestScanLogRefresh(); return; }
     a.innerHTML = bestListHtml(); b.innerHTML = bestBarHtml(); c.innerHTML = bestFooterHtml();
     var tabs = document.querySelector('.bst-tabs'); if (tabs) tabs.outerHTML = bestTabsHtml();
@@ -4861,7 +4883,7 @@
     var kind = wkz ? 'best-qw' : 'best-q', p = it.product;
     var meta = wkz ? esc(p.articleNumber) + ' · ' + esc(p.brand) + ' · ' + esc(bestPurposeLabel(it.purpose || 'sale'))
       : esc(p.articleNumber) + ' · ' + esc(p.brand) + ' · ' + esc(bestPromoLabel(it)) + (it.quantityFree ? ' · <b style="color:var(--good)">+' + it.quantityFree + ' gratis</b>' : '');
-    return '<div class="bst-line"><div class="best-img"><img src="' + p.image + '" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'' + (p.fallbackImage || '').replace(/'/g, '%27') + '\'"/></div><div class="bst-info"><div class="bst-name">' + esc(p.name) + '</div><div class="bst-meta">' + meta + '</div>' + (wkz ? '' : '<div style="margin-top:.4rem">' + bestPurposeSwitch(it) + '</div>') + '</div>' +
+    return '<div class="bst-line"><div class="best-img"><img src="' + p.image + '" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'' + (p.fallbackImage || '').replace(/'/g, '%27') + '\'"/></div><div class="bst-info"><div class="bst-name">' + esc(p.name) + '</div><div class="bst-meta">' + meta + '</div>' + (!wkz && bestContribText(it) ? '<div class="bst-meta"><b>Eingetragen:</b> ' + bestContribText(it) + '</div>' : '') + (wkz ? '' : '<div style="margin-top:.4rem">' + bestPurposeSwitch(it) + '</div>') + '</div>' +
       bestStepper(kind, bestKey(it, wkz), wkz ? it.quantity : it.quantityPaid) +
       (bestShowPrices() ? '<div class="bst-lineval">' + bestMoney(wkz ? it.quantity * it.unitPurchasePrice : calculateLineCost(it)) + '</div>' : '<div></div>') + '</div>';
   }
@@ -4876,9 +4898,8 @@
       '<div class="best-actionrow bst-final"><button class="best-secondary" onclick="__bb.goBack()">← Bestellung bearbeiten</button>' +
       (bestIsApprover()
         ? '<button class="best-secondary" onclick="__bb.select(\'best-preview\')">PDF Vorschau</button><button class="best-secondary" onclick="__bb.select(\'best-export\')">Exportieren</button>' +
-          '<button class="best-secondary" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-save\')">Offen speichern</button>' +
-          '<button class="best-primary grow" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-finish\')">Bestellung abschließen</button>'
-        : '<button class="best-primary grow" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-save\')">Bestellung speichern</button>') + '</div>' +
+          '<button class="best-primary grow" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-finish\')">' + (BEST.editingId ? 'Bestellung speichern' : 'Sammelbestellung abschließen') + '</button>'
+        : '<button class="best-primary grow" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-save\')">Speichern</button>') + '</div>' +
       '</div>';
     screenWrap('dezent', 0, contextLabel(), body);
   }
@@ -4923,6 +4944,28 @@
       regularOrderValue: t.regular, wkzBase: t.base, wkzAmount: t.amount, wkzUsed: t.used, wkzRemaining: t.remaining, freeGoodsValue: t.free };
   }
   // ---------- Abschluss ----------
+  // ---------- Sammelbestellung: alle tragen in dieselbe Bestellung ein; je Zeile wird vermerkt, wer wie viel eingetragen hat ----------
+  function bestContribSum(it) { var c = it.contrib || {}, n = 0; Object.keys(c).forEach(function (k) { n += c[k]; }); return n; }
+  function bestTouch(it, oldQty, newQty) {
+    var u = STATE.mitarbeiterin || '–', c = it.contrib = it.contrib || {}, have = bestContribSum(it);
+    if (have < oldQty) c['–'] = (c['–'] || 0) + (oldQty - have);   // ältere Mengen ohne Urheber
+    var d = newQty - oldQty;
+    if (d > 0) c[u] = (c[u] || 0) + d;
+    else if (d < 0) {
+      var need = -d, keys = [u].concat(Object.keys(c).filter(function (k) { return k !== u; }));
+      keys.forEach(function (k) { if (need > 0 && c[k]) { var t = Math.min(need, c[k]); c[k] -= t; need -= t; } });
+    }
+    Object.keys(c).forEach(function (k) { if (!c[k]) delete c[k]; });
+  }
+  function bestContribText(it) {
+    var c = it.contrib || {}, ks = Object.keys(c);
+    return ks.length ? ks.map(function (k) { return esc(k) + ' ' + c[k]; }).join(' · ') : '';
+  }
+  function bestContributors(items) {
+    var m = {};
+    items.forEach(function (i) { Object.keys(i.contrib || {}).forEach(function (k) { if (k !== '–') m[k] = (m[k] || 0) + i.contrib[k]; }); });
+    return m;
+  }
   function bestShowPrices() { return bestIsApprover(); }   // EK-Preise, Zeilen- und Bestellwerte nur für die Freigabe-Person
   function bestIsApprover() { return STATE.mitarbeiterin === BEST_CONFIG.approver; }
   // Bestellung ablegen: 'open' = gespeichert, wartet auf Freigabe; 'completed' = von der Freigabe-Person abgeschlossen
@@ -4931,7 +4974,7 @@
     if (!BEST.items.length || !bestOverrunOk(t)) { render(); return; }
     var o = bestDraftOrder(), now = new Date().toISOString();
     var all = bestLoad(BEST_KEYS.orders, []), prev = BEST.editingId ? bestFindOrder(BEST.editingId) : null;
-    o.status = status;
+    o.status = status; o.contributors = Object.keys(bestContributors(BEST.items));
     if (prev) {
       o.id = prev.id; o.createdAt = prev.createdAt; o.besteller = prev.besteller; o.editedAt = now; o.editedBy = STATE.mitarbeiterin; o.emailSent = {};   // geänderte Bestellung → E-Mails neu senden
       all = all.map(function (x) { return x.id === prev.id ? o : x; });
@@ -4960,7 +5003,7 @@
     var done = o.status === 'completed', ap = bestIsApprover(), id = esc(o.id);
     var canEdit = !done || ap;
     var body = '<div class="best-wrap"><div class="best-done"><div class="check">' + (done ? '✓' : '✎') + '</div><p class="best-h2" style="margin:0">' + (done ? 'Bestellung abgeschlossen' : 'Bestellung gespeichert') + '</p>' +
-      '<div class="nr">' + id + '</div><div style="margin:.4rem 0 1.2rem"><span class="best-by">' + bestAvatar(o.besteller) + 'Eingetragen von ' + esc(o.besteller || '—') + '</span>' +
+      '<div class="nr">' + id + '</div><div style="margin:.4rem 0 1.2rem"><span class="best-by">' + bestAvatar(o.besteller) + 'Eingetragen von ' + esc((o.contributors && o.contributors.length) ? o.contributors.join(', ') : (o.besteller || '—')) + '</span>' +
       '<div class="best-sub" style="margin-top:.5rem">' + esc(formatDateDE(new Date(o.createdAt))) + ' · Status: ' + (done ? 'abgeschlossen' + (o.approvedBy ? ' von ' + esc(o.approvedBy) : '') : '<b>offen — wartet auf Freigabe durch ' + esc(BEST_CONFIG.approver) + '</b>') + '</div></div></div>' +
       bestSummaryBlocks(o) +
       ((done && ap) ? '<div class="best-h2">E-Mails an die Hersteller</div>' + bestBrandMailCards(o) : '') +
@@ -5146,15 +5189,15 @@
     if (wkz && !bestHasWkz(p.brand)) return;                      // WKZ-Ware nur bei KLAPP
     qty = Math.max(0, Math.floor(Number(qty)) || 0);
     var list = wkz ? BEST.wkzItems : BEST.items;
-    var it = bestFind(key, wkz);
+    var it = bestFind(key, wkz), oldQ = it ? (wkz ? it.quantity : it.quantityPaid) : 0;
     if (!it && qty > 0) {
       if (wkz) { it = { id: bestUid('wi-'), productId: p.id, product: p, purpose: purpose, quantity: qty, unitPurchasePrice: bestItemPrice(p, purpose) }; }
       else { it = { id: bestUid('oi-'), productId: p.id, product: p, purpose: purpose, quantityPaid: qty, quantityFree: 0, promotionType: 'none', unitPurchasePrice: bestItemPrice(p, purpose) }; }
-      list.push(it);
+      list.push(it); if (!wkz) bestTouch(it, 0, qty);
     } else if (it && qty === 0) {
       list.splice(list.indexOf(it), 1);
     } else if (it) {
-      if (wkz) it.quantity = qty; else it.quantityPaid = qty;
+      if (wkz) it.quantity = qty; else { it.quantityPaid = qty; bestTouch(it, oldQ, qty); }
     }
     if (it && !wkz) bestRecalc(it);
     if (!wkz) BEST.pick = null;
@@ -5221,8 +5264,8 @@
         var promo = 'none';
         var pkg = 1;   // 6+1 → gleich 6 bezahlt + 1 gratis = 7 Stück
         var line = bestFind(key, false);
-        if (line) { line.quantityPaid += 1; }
-        else { line = { id: bestUid('oi-'), productId: apr.id, product: apr, purpose: ap[1], quantityPaid: pkg, quantityFree: 0, promotionType: promo, unitPurchasePrice: bestItemPrice(apr, ap[1]) }; BEST.items.push(line); }
+        if (line) { line.quantityPaid += 1; bestTouch(line, line.quantityPaid - 1, line.quantityPaid); }
+        else { line = { id: bestUid('oi-'), productId: apr.id, product: apr, purpose: ap[1], quantityPaid: pkg, quantityFree: 0, promotionType: promo, unitPurchasePrice: bestItemPrice(apr, ap[1]) }; BEST.items.push(line); bestTouch(line, 0, pkg); }
         bestRecalc(line); BEST.pick = null; BEST.wkzOverrunConfirmed = 0; bestPersist(); bestRefresh();
       }
     }
@@ -5232,7 +5275,7 @@
         var tgt = bestFind(sp[0] + '|' + sp[2], false);
         cur.purpose = sp[2]; cur.unitPurchasePrice = bestItemPrice(cur.product, sp[2]);
         if (sp[2] !== 'sale') cur.promotionType = 'none';   // Aktion nur auf Verkaufsware
-        if (tgt) { tgt.quantityPaid += cur.quantityPaid; BEST.items.splice(BEST.items.indexOf(cur), 1); bestRecalc(tgt); } else bestRecalc(cur);
+        if (tgt) { Object.keys(cur.contrib || {}).forEach(function (k) { tgt.contrib = tgt.contrib || {}; tgt.contrib[k] = (tgt.contrib[k] || 0) + cur.contrib[k]; }); tgt.quantityPaid += cur.quantityPaid; BEST.items.splice(BEST.items.indexOf(cur), 1); bestRecalc(tgt); } else bestRecalc(cur);
         BEST.wkzOverrunConfirmed = 0; bestPersist(); bestRefresh();
       }
     }
@@ -5243,13 +5286,16 @@
       if (im && im.purpose === 'sale') {
         var cyc = bestPromosFor(im.product.brand), pi = cyc.indexOf(im.promotionType);
         im.promotionType = cyc[(pi + 1) % cyc.length];
-        var psz = bestPromoSize(im.promotionType); if (psz) im.quantityPaid = psz; /* 6+1 → 6 bezahlt + 1 gratis = 7 Stück, 10+2 → 12 Stück */
+        var psz = bestPromoSize(im.promotionType), oq = im.quantityPaid; if (psz) { im.quantityPaid = psz; bestTouch(im, oq, psz); } /* 6+1 → 6 bezahlt + 1 gratis = 7 Stück, 10+2 → 12 Stück */
         bestRecalc(im); BEST.wkzOverrunConfirmed = 0; bestPersist(); bestRefresh();
       }
     }
     else if (kind === 'best-next') { goTo('best-pruefen'); }
     else if (kind === 'best-overrun-ok') { BEST.wkzOverrunConfirmed = bestOverrun(bestTotals()); bestPersist(); render(); }
-    else if (kind === 'best-save') { bestCommitOrder('open'); }
+    else if (kind === 'best-save') {   // Mitarbeiterin: Eintrag ist Teil der gemeinsamen Sammelbestellung (liegt schon im gemeinsamen Entwurf)
+      bestPersist(); BEST.flash = '✓ Gespeichert — dein Eintrag ist Teil der gemeinsamen Sammelbestellung.'; BEST.tab = 'order';
+      path = ['login', 'kunde-wahl', 'bestellung']; pointer = 2; render();
+    }
     else if (kind === 'best-finish') { if (bestIsApprover()) bestCommitOrder('completed'); }
     else if (kind === 'best-approve') {   // gespeicherte Bestellung freigeben & abschließen (nur Freigabe-Person)
       var ao = bestFindOrder(key);
