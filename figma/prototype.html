@@ -4328,9 +4328,8 @@
       '<button class="main-tab' + (active === 'beratung' ? ' current' : '') + '" onclick="__bb.replaceTop(\'kunde-wahl\')">Beratung</button>' +
       '<button class="main-tab' + (active === 'bestellung' ? ' current' : '') + '" onclick="__bb.replaceTop(\'bestellung\')">Bestellung</button></div>';
   }
-  function bestWhoChips() {
-    return '<div class="bst-who"><span class="bst-lbl">Besteller</span><span class="best-by">' + bestAvatar(BEST.besteller) + esc(BEST.besteller) + '</span></div>';
-  }
+  // Der Besteller (= angemeldete Mitarbeiterin) steht schon oben rechts — hier nicht nochmals.
+  function bestWhoChips() { return ''; }
   function bestSteps2(current) {
     return '<div class="bst-steps"><span class="' + (current === 1 ? 'on' : 'done') + '"><i>' + (current > 1 ? '✓' : '1') + '</i>Auswählen</span><span class="line"></span>' +
       '<span class="' + (current === 2 ? 'on' : '') + '"><i>2</i>Prüfen &amp; abschließen</span></div>';
