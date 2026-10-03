@@ -1694,7 +1694,7 @@
   ];
 
   var MITARBEITERINNEN = [
-    { name: 'Svenja', img: '../assets/team/svenja.jpg' },
+    { name: 'Svenja', img: '../assets/team/svenja.jpg', inhaberin: true },
     { name: 'Viktoria', img: '../assets/team/viktoria.jpg' },
     { name: 'Eleni', img: '../assets/team/eleni.jpg' },
     { name: 'Janine', img: '../assets/team/janine.jpg' }
@@ -2307,6 +2307,14 @@
       saveAdminData();
       render();
     }
+    else if (kind === 'mitarbeiter-toggle-inhaberin') {
+      var mi = ADMIN_DATA.team[key];
+      if (mi) {
+        var anzahl = ADMIN_DATA.team.filter(function (m) { return m.inhaberin; }).length;
+        if (mi.inhaberin && anzahl <= 1) { window.alert('Mindestens eine Inhaberin muss festgelegt bleiben. Lege zuerst eine andere Person als Inhaberin fest.'); return; }
+        mi.inhaberin = !mi.inhaberin; saveAdminData(); render();
+      }
+    }
     else if (kind === 'mitarbeiter-toggle-sichtbar') {
       var mitarbeiterEintrag = ADMIN_DATA.team[key];
       if (mitarbeiterEintrag) {
@@ -2316,7 +2324,7 @@
       }
     }
     else if (kind === 'mitarbeiter-reset') {
-      ADMIN_DATA.team = MITARBEITERINNEN.slice();
+      ADMIN_DATA.team = MITARBEITERINNEN.map(function (m) { return Object.assign({}, m, { inhaberin: m.name === 'Svenja' }); });
       saveAdminData();
       render();
     }
@@ -2646,9 +2654,11 @@
       return '<div class="admin-item' + (ausgeblendet ? ' ausgeblendet' : '') + '">' +
           '<div class="admin-item-avatar">' + avatarInner(m) + '</div>' +
           '<div class="admin-item-body"><div class="admin-item-title">' + esc(m.name) + '</div>' +
+            (m.inhaberin ? '<div class="admin-item-meta"><b>Inhaberin</b> — sieht WKZ, Preise und Rabatte, gibt Bestellungen frei</div>' : '') +
             (ausgeblendet ? '<div class="admin-item-meta">Ausgeblendet — erscheint nicht auf dem Login-Screen</div>' : '') +
           '</div>' +
           '<div class="admin-item-actions">' +
+            '<button type="button" class="admin-icon-btn' + (m.inhaberin ? ' good' : '') + '" onclick="__bb.select(\'mitarbeiter-toggle-inhaberin\',' + i + ')">' + (m.inhaberin ? 'Inhaberin ✓' : 'Als Inhaberin festlegen') + '</button>' +
             '<button type="button" class="admin-icon-btn' + (ausgeblendet ? ' good' : '') + '" onclick="__bb.select(\'mitarbeiter-toggle-sichtbar\',' + i + ')">' + (ausgeblendet ? 'Einblenden' : 'Ausblenden') + '</button>' +
             '<button type="button" class="admin-icon-btn danger" onclick="__bb.confirmMitarbeiterDelete(' + i + ',\'' + esc(m.name).replace(/'/g, "\\'") + '\')">Löschen</button>' +
           '</div>' +
@@ -2657,6 +2667,7 @@
 
     return '' +
       '<p class="admin-section-title">Team</p>' +
+      '<p class="admin-hint"><b>Inhaberin:</b> Nur die als Inhaberin markierte Person sieht in der Bestell-App WKZ, Preise und Rabatte, gibt die Sammelbestellung frei und löst die E-Mails an die Hersteller aus. Alle anderen Mitarbeiterinnen tragen nur ein. Mindestens eine Inhaberin muss festgelegt bleiben.</p>' +
       '<p class="admin-hint">„Ausblenden" nimmt eine Mitarbeiterin nur vom Login-Screen — alle Daten bleiben erhalten. „Löschen" entfernt sie endgültig und fragt deshalb zweifach nach (inkl. Admin-Passwort).</p>' +
       '<div class="admin-list">' + list + '</div>' +
       '<p class="admin-section-title">Neue Mitarbeiterin anlegen</p>' +
@@ -4967,7 +4978,11 @@
     return m;
   }
   function bestShowPrices() { return bestIsApprover(); }   // EK-Preise, Zeilen- und Bestellwerte nur für die Freigabe-Person
-  function bestIsApprover() { return STATE.mitarbeiterin === BEST_CONFIG.approver; }
+  // Inhaberin = im Admin (Mitarbeiter) hinterlegt; nur sie sieht WKZ, Preise und Rabatte, gibt frei und löst Hersteller-E-Mails aus.
+  // Ist im gespeicherten Team noch niemand markiert (ältere Daten), gilt der Standardname aus BEST_CONFIG.approver.
+  function bestOwners() { return ADMIN_DATA.team.filter(function (m) { return m.inhaberin; }).map(function (m) { return m.name; }); }
+  function bestIsApprover() { var o = bestOwners(); return o.length ? o.indexOf(STATE.mitarbeiterin) > -1 : STATE.mitarbeiterin === BEST_CONFIG.approver; }
+  function bestApproverLabel() { var o = bestOwners(); return o.length ? o.join(' / ') : BEST_CONFIG.approver; }
   // Bestellung ablegen: 'open' = gespeichert, wartet auf Freigabe; 'completed' = von der Freigabe-Person abgeschlossen
   function bestCommitOrder(status) {
     var t = bestTotals();
@@ -5004,7 +5019,7 @@
     var canEdit = !done || ap;
     var body = '<div class="best-wrap"><div class="best-done"><div class="check">' + (done ? '✓' : '✎') + '</div><p class="best-h2" style="margin:0">' + (done ? 'Bestellung abgeschlossen' : 'Bestellung gespeichert') + '</p>' +
       '<div class="nr">' + id + '</div><div style="margin:.4rem 0 1.2rem"><span class="best-by">' + bestAvatar(o.besteller) + 'Eingetragen von ' + esc((o.contributors && o.contributors.length) ? o.contributors.join(', ') : (o.besteller || '—')) + '</span>' +
-      '<div class="best-sub" style="margin-top:.5rem">' + esc(formatDateDE(new Date(o.createdAt))) + ' · Status: ' + (done ? 'abgeschlossen' + (o.approvedBy ? ' von ' + esc(o.approvedBy) : '') : '<b>offen — wartet auf Freigabe durch ' + esc(BEST_CONFIG.approver) + '</b>') + '</div></div></div>' +
+      '<div class="best-sub" style="margin-top:.5rem">' + esc(formatDateDE(new Date(o.createdAt))) + ' · Status: ' + (done ? 'abgeschlossen' + (o.approvedBy ? ' von ' + esc(o.approvedBy) : '') : '<b>offen — wartet auf Freigabe durch ' + esc(bestApproverLabel()) + '</b>') + '</div></div></div>' +
       bestSummaryBlocks(o) +
       ((done && ap) ? '<div class="best-h2">E-Mails an die Hersteller</div>' + bestBrandMailCards(o) : '') +
       '<div class="best-actionrow">' +
