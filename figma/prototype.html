@@ -802,13 +802,14 @@
   .bst-askyes { background: var(--danger) !important; }
   .bst-meta .bst-purposetag, .bst-purposetag { background: var(--text); color: #fff !important; border-radius: 999px; padding: .1rem .55rem; font-size: .75rem; }
   .best-histwrap { margin-bottom: .5rem; } .bst-histmail { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; padding: .3rem .4rem 0; font-size: .8rem; color: var(--text-soft); }
-  .bst-hub { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: .8rem; margin-bottom: 1.2rem; }
-  .bst-hubbtn { display: flex; flex-direction: column; align-items: flex-start; gap: .25rem; text-align: left; font-family: var(--font-body); background: #fff; border: 2px solid var(--border-strong); border-radius: 18px; padding: 1.1rem 1.2rem; min-height: 120px; cursor: pointer; box-shadow: 0 3px 12px rgba(0,0,0,.08); }
-  .bst-hubbtn .bn { font-size: 1.35rem; font-weight: 800; color: var(--text); } .bst-hubbtn .bc { font-size: 1.05rem; font-weight: 700; color: var(--text); }
+  .bst-hub { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: .6rem; margin-bottom: 1rem; }
+  .bst-hubbtn { display: flex; flex-direction: row; align-items: baseline; justify-content: flex-start; gap: .6rem; text-align: left; font-family: var(--font-body); background: #fff; border: 2px solid var(--border-strong); border-radius: 14px; padding: .55rem 1rem; min-height: 52px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+  .bst-hubbtn .bn { font-size: 1.1rem; font-weight: 800; color: var(--text); } .bst-hubbtn .bc { font-size: .9rem; font-weight: 700; color: var(--text); }
   .bst-hubbtn small { color: var(--text-soft); font-size: .8rem; } .bst-hubbtn.has { border-color: var(--text); background: var(--beige); }
   .bst-workhead { display: flex; align-items: center; gap: .8rem; margin-bottom: .8rem; } .bst-workhead b { font-size: 1.3rem; }
   .best-hist .avatar-mini { width: 44px; height: 44px; border-radius: 50%; overflow: hidden; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; background: var(--rose-pale); }
   .best-hist .avatar-mini img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .best-hist { padding: .45rem .8rem !important; min-height: 0 !important; } .best-hist small { font-size: .75rem; }
   .bst-editbanner { display: flex; align-items: center; justify-content: space-between; gap: .8rem; }
   .best-img { background: #fff; border: 1px solid var(--rose-pale); border-radius: 14px; display: flex; align-items: center; justify-content: center; padding: 0.5rem; }
   .best-img img { width: 96px; height: 96px; display: block; object-fit: contain; }
@@ -4906,7 +4907,7 @@
       BEST_BRANDS.map(function (b) {
         var its = all.filter(function (i) { return i.product.brand === b; });
         var n = its.reduce(function (a, i) { return a + i.quantityPaid + i.quantityFree; }, 0), ks = Object.keys(bestContributors(its));
-        return '<button class="bst-hubbtn' + (n ? ' has' : '') + '" onclick="__bb.select(\'best-brand\',\'' + b + '\')"><span class="bn">' + esc(b) + '</span><span class="bc">' + (n ? n + ' Artikel' : 'noch leer') + '</span><small>' + (ks.length ? esc(ks.join(', ')) : BEST_BRAND_STYLE[b].sub) + '</small></button>';
+        return '<button class="bst-hubbtn' + (n ? ' has' : '') + '" onclick="__bb.select(\'best-brand\',\'' + b + '\')"><span class="bn">' + esc(b) + '</span><span class="bc">' + n + ' Artikel' + '</span></button>';
       }).join('') + '</div>';
   }
   function renderBestMain() {
@@ -4916,8 +4917,7 @@
     var orders = bestLoad(BEST_KEYS.orders, []).slice().reverse();
     var histRow = function (o) {
       var open = o.status !== 'completed';
-      return '<div class="best-histwrap"><button class="best-hist" onclick="__bb.select(\'best-view-order\',\'' + esc(o.id) + '\')">' + bestAvatar(o.besteller) +
-        '<span><b>' + esc(o.id) + '</b>' + (open ? ' <span class="best-badge warn">offen</span>' : '') + '<small>' + esc(o.besteller || '—') + ' · ' + esc(formatDateDE(new Date(o.createdAt))) + ' · ' + esc(bestOrderBrands(o).join(', ')) + '</small></span>' + (bestShowPrices() ? '<span class="val">' + bestMoney(o.regularOrderValue) + '</span>' : '') + '</button>' +
+      return '<div class="best-histwrap"><button class="best-hist" onclick="__bb.select(\'best-view-order\',\'' + esc(o.id) + '\')">' + '<span><b>' + esc(o.id) + '</b>' + (open ? ' <span class="best-badge warn">offen</span>' : '') + '<small>' + esc(formatDateDE(new Date(o.createdAt))) + ' · ' + esc(bestOrderBrands(o).join(', ')) + '</small></span>' + (bestShowPrices() ? '<span class="val">' + bestMoney(o.regularOrderValue) + '</span>' : '') + '</button>' +
         (bestIsApprover() ? '<div class="bst-histmail"><span>Direkt senden:</span>' + bestOrderBrands(o).map(function (b) { return '<button class="best-chip" onclick="__bb.select(\'best-email\',\'' + esc(o.id) + '\',\'' + b + '\')">✉ ' + esc(b) + '</button>'; }).join('') + '</div>' : '') + '</div>';
     };
     var openOrders = orders.filter(function (o) { return o.status !== 'completed'; }), doneOrders = orders.filter(function (o) { return o.status === 'completed'; });
