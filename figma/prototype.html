@@ -4522,10 +4522,8 @@
     return '<div class="best-filters"><button class="best-chip' + (!BEST.brand ? ' on' : '') + '" onclick="__bb.select(\'best-filter-brand\',\'\')">Alle</button>' +
       BEST_BRANDS.map(function (b) { return '<button class="best-chip' + (BEST.brand === b ? ' on' : '') + '" onclick="__bb.select(\'best-filter-brand\',\'' + b + '\')">' + esc(b) + '</button>'; }).join('') +
       '<input class="best-search" style="flex:1;min-width:10rem;width:auto;min-height:48px;padding:.6rem 1rem" type="search" value="' + esc(BEST.search) + '" placeholder="Produkt / Art.-Nr. suchen" oninput="__bb.bestInput(\'search\',this.value)" autocomplete="off" />' +
-      '<button class="best-chip' + (BEST.favOnly ? ' on' : '') + '" onclick="__bb.select(\'best-toggle\',\'favOnly\')">♥ Favoriten</button>' +
-      '<button class="best-chip' + (BEST.moreFilters ? ' on' : '') + '" onclick="__bb.select(\'best-toggle\',\'moreFilters\')">Mehr Filter</button></div>' +
-      catBlock +
-      (BEST.moreFilters ? '<div class="best-filters"><button class="best-chip' + (BEST.lowStock ? ' on' : '') + '" onclick="__bb.select(\'best-toggle\',\'lowStock\')">Nur Mindestbestand erreicht</button></div>' : '');
+      '<button class="best-chip' + (BEST.favOnly ? ' on' : '') + '" onclick="__bb.select(\'best-toggle\',\'favOnly\')">♥ Favoriten</button></div>' +
+      catBlock;
   }
   function bestEditBanner() {
     if (!BEST.editingId) return '';
