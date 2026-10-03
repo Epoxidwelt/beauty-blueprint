@@ -4888,12 +4888,7 @@
     return n ? n + ' Artikel · ' + ks.join(', ') : 'noch leer';
   }
   function bestCollectiveBanner() {
-    var n = BEST.items.reduce(function (a, i) { return a + i.quantityPaid + i.quantityFree; }, 0), who = bestContributors(BEST.items), ks = Object.keys(who);
-    return (BEST.flash ? '<div class="best-msg info">' + esc(BEST.flash) + '</div>' : '') +
-      '<div class="bst-collective"><div><b>Sammelbestellung ' + esc(BEST.workBrand || '') + '</b><small>' + (BEST.items.length ? n + ' Artikel · ' + BEST.items.length + ' Position' + (BEST.items.length === 1 ? '' : 'en') : 'noch leer') + ' · alle tragen hier ein</small></div>' +
-      (ks.length ? '<div class="who">' + ks.map(function (k) { return esc(k) + ' <b>' + who[k] + '</b>'; }).join(' · ') + '</div>' : '') +
-      (BEST.items.length ? '<button class="best-secondary" onclick="__bb.select(\'best-next\')">Prüfen &amp; abschließen</button>' : '') +
-      ((BEST.items.length && bestIsApprover()) ? '<button class="best-secondary bst-danger" onclick="__bb.select(\'best-discard-collective\')">Sammelbestellung verwerfen</button>' : '') + '</div>';
+    return BEST.flash ? '<div class="best-msg info">' + esc(BEST.flash) + '</div>' : '';
   }
   function bestEditBanner() {
     if (!BEST.editingId) return '';
@@ -4977,6 +4972,7 @@
       '<div class="best-h2">Bestellung</div>' + (BEST.items.length ? '<div class="bst-prodlist">' + bestUniqueProducts(BEST.items).map(function (p) { return bestRowHtml(p, false, 0); }).join('') + '</div>' : '<div class="best-msg err">Noch keine Artikel in der Bestellung.</div>') +
       (BEST.wkzItems.length ? '<div class="best-h2">WKZ-Ware</div><div class="bst-prodlist">' + bestUniqueProducts(BEST.wkzItems).map(function (p) { return bestRowHtml(p, true, 0); }).join('') + '</div>' : '') +
       bestSummaryBlocks(o) +
+      (bestIsApprover() && BEST.items.length ? '<div class="best-actionrow"><button class="best-secondary bst-danger" onclick="__bb.select(\'best-discard-collective\')">Sammelbestellung verwerfen</button></div>' : '') +
       (bestIsApprover() && BEST.items.length ? '<div class="best-h2">Direkt an die Hersteller senden</div><div class="best-msg info">Einzelne Hersteller-E-Mails lassen sich auch ohne Abschluss der Bestellung versenden.</div>' + bestBrandMailCards(o) : '') +
       '<div class="best-actionrow bst-final"><button class="best-secondary" onclick="__bb.goBack()">' + (path[pointer - 1] === 'kunde-wahl' ? '← Zurück' : '← Bestellung bearbeiten') + '</button>' +
       (bestIsApprover()

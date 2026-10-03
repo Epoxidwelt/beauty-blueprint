@@ -166,3 +166,5 @@ Sammelbestellung je Hersteller (Update, ersetzt die eine gemeinsame Sammlung): D
 Kacheln kompakt (Update): Die Hersteller-Kacheln sind klein und flach (eine Zeile, „KLAPP 1 Artikel", Artikelzahl direkt hinter dem Herstellernamen, ohne Mitarbeiter-Namen und Untertitel). Die Einträge der Bestellliste sind ebenfalls flach und ohne Foto/Mitarbeiter-Namen (Nummer, Datum, Hersteller, Wert nur für die Inhaberin).
 
 Überschrift (Update): Über den Hersteller-Kacheln steht jetzt „Offene Bestellungen" (statt „Sammelbestellung je Hersteller").
+
+Aufgeräumte Herstelleransicht (Update): Nach der Wahl eines Herstellers steht oben nur noch „← Hersteller | KLAPP". Die Info-Kachel mit „Sammelbestellung … n Artikel · Namen" und dem Button „Prüfen & abschließen" ist entfernt; zur Prüfung geht es über den Button in der Fußleiste („Weiter zur Prüfung" / „Weiter zur WKZ-Ware"). „Sammelbestellung verwerfen" (nur Inhaberin) liegt jetzt auf dem Prüfen-Screen.
