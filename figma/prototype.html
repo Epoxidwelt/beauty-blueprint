@@ -920,7 +920,7 @@
   .bst-defaults { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.9rem; }
   .best-wkzbar .rate span { display: flex; align-items: center; gap: 0.4rem; }
   .best-wkzbar .rate button { width: 40px; height: 40px; border-radius: 12px; border: none; background: rgba(255,255,255,0.22); color: #fff; font-size: 1.2rem; cursor: pointer; }
-  .best-wkzbar { grid-template-columns: repeat(4, 1fr); }
+  .best-wkzbar { grid-template-columns: repeat(3, 1fr); } .best-wkzbar.live { grid-template-columns: repeat(2, 1fr); }
   .bst-row { display: grid; grid-template-columns: 56px minmax(0, 1fr) 44px auto; gap: 0.4rem 0.8rem; align-items: center; background: #fff; border-radius: 16px; padding: 0.7rem 0.8rem; margin-bottom: 0.5rem; box-shadow: 0 3px 12px rgba(0,0,0,0.08); border: 2px solid transparent; }
   .bst-row.has { border-color: var(--rose); background: #FFFFFF; }
   .bst-row.above { opacity: 0.6; }
@@ -2208,6 +2208,8 @@
     else if (kind === 'hersteller-save') {
       ADMIN_DATA.herstellerEmails = ADMIN_DATA.herstellerEmails || {};
       BEST_BRANDS.forEach(function (b) { var el = document.getElementById('hersteller-email-' + b); if (el) ADMIN_DATA.herstellerEmails[b] = el.value.trim(); });
+      var wk = document.getElementById('hersteller-wkz-KLAPP');
+      if (wk) { var wv = parseFloat(String(wk.value).replace(',', '.')); ADMIN_DATA.wkzRates = ADMIN_DATA.wkzRates || {}; ADMIN_DATA.wkzRates.KLAPP = (isNaN(wv) || wv < 0) ? BEST_CONFIG.defaultWkzRate : wv; }
       saveAdminData(); render();
     }
     else if (kind === 'produkte-file') { var pf = document.getElementById('produkte-file'); if (pf && pf.files && pf.files[0]) produkteImportFile(pf.files[0]); }
@@ -2688,7 +2690,10 @@
       '<p class="admin-hint">Jede Bestellung geht pro Hersteller als eigene E-Mail raus. Solange hier nichts steht, wird der Platzhalter ' + esc(BEST_CONFIG.orderEmail) + ' verwendet.</p>' +
       '<div class="admin-form">' + BEST_BRANDS.map(function (b) {
         return '<label class="file-label">' + esc(b) + '<input id="hersteller-email-' + b + '" class="text-input" type="email" placeholder="bestellung@hersteller.de" value="' + esc(em[b] || '') + '" /></label>';
-      }).join('') + '<button class="btn-primary" onclick="__bb.select(\'hersteller-save\')">Speichern</button></div>';
+      }).join('') +
+      '<p class="admin-section-title" style="margin-top:1.4rem">WKZ-Satz</p><p class="admin-hint">Warenkreditzinsen/WKZ in Prozent auf die Bestellung ohne Aktionsware. Gilt nur für Hersteller mit WKZ (aktuell KLAPP) und wird in neuen Bestellungen automatisch verwendet.</p>' +
+      '<label class="file-label">KLAPP — WKZ-Satz in %<input id="hersteller-wkz-KLAPP" class="text-input" type="text" inputmode="decimal" placeholder="5" value="' + esc(String(bestAdminWkzRate()).replace('.', ',')) + '" /></label>' +
+      '<button class="btn-primary" onclick="__bb.select(\'hersteller-save\')">Speichern</button></div>';
   }
 
   function renderAdminDashboard() {
@@ -4509,9 +4514,11 @@
     bestSave(BEST_KEYS.draft, { besteller: BEST.besteller, items: BEST.items, wkzItems: BEST.wkzItems, wkzRate: BEST.wkzRate, wkzOverrunConfirmed: BEST.wkzOverrunConfirmed, editingId: BEST.editingId || null });
   }
   // Besteller ist immer die angemeldete Mitarbeiterin — keine zweite Auswahl nötig.
+  function bestAdminWkzRate() { var r = (ADMIN_DATA.wkzRates || {}).KLAPP; return (typeof r === 'number' && r >= 0) ? r : BEST_CONFIG.defaultWkzRate; }
   function bestEnsureBesteller() {
     var names = bestTeamNames();
     BEST.besteller = STATE.mitarbeiterin || names[0] || '';
+    if (!BEST.editingId) BEST.wkzRate = bestAdminWkzRate();   // WKZ-Satz wird im Admin gepflegt (Admin → Hersteller)
   }
   function bestTeamNames() { return ADMIN_DATA.team.filter(function (m) { return m.sichtbar !== false; }).map(function (m) { return m.name; }); }
   function bestMember(name) { return ADMIN_DATA.team.filter(function (m) { return m.name === name; })[0] || { name: name || '?' }; }
@@ -4750,14 +4757,14 @@
     if (BEST.tab !== 'wkz') {
       return '<div class="best-wkzbar live"><div>Bestellwert für WKZ<small>ohne Aktionsware</small><b>' + bestMoney(t.base) + '</b></div>' +
         '<div class="hl">WKZ ' + esc(String(BEST.wkzRate).replace('.', ',')) + ' %<small>dein WKZ-Guthaben</small><b>' + bestMoney(t.amount) + '</b></div>' +
-        '<div class="rate">WKZ-Satz<span><button onclick="__bb.select(\'best-wkz-rate\',\'\',-1)">−</button><b>' + esc(String(BEST.wkzRate).replace('.', ',')) + ' %</b><button onclick="__bb.select(\'best-wkz-rate\',\'\',1)">+</button></span></div></div>';
+        '</div>';
     }
     var note = over ? '<div class="best-msg warn" style="margin:0 0 .9rem">Der WKZ ist um <b>' + bestMoney(over) + '</b> überschritten — nur zur Info, die Bestellung geht trotzdem raus.</div>'
       : (t.remaining > 0 ? '<div class="best-msg info" style="margin:0 0 .9rem">Noch <b>' + bestMoney(t.remaining) + '</b> WKZ offen — nur eine Randnotiz, die Bestellung geht auch so raus.</div>'
         : '<div class="best-msg info" style="margin:0 0 .9rem">✓ WKZ genau aufgebraucht (0,00 €).</div>');
     return '<div class="best-wkzbar"><div>WKZ verfügbar<b>' + bestMoney(t.amount) + '</b></div><div>WKZ verwendet<b>' + bestMoney(t.used) + '</b></div>' +
       '<div class="' + (over ? 'over' : '') + '">' + (over ? 'Überschreitung' : 'WKZ übrig') + '<b>' + bestMoney(over ? over : t.remaining) + '</b></div>' +
-      '<div class="rate">WKZ-Satz<span><button onclick="__bb.select(\'best-wkz-rate\',\'\',-1)">−</button><b>' + esc(String(BEST.wkzRate).replace('.', ',')) + ' %</b><button onclick="__bb.select(\'best-wkz-rate\',\'\',1)">+</button></span></div></div>' + note;
+      '</div>' + note;
   }
   // WKZ gibt es nur bei KLAPP: nur anzeigen, wenn KLAPP-Ware in der Bestellung ist oder gerade KLAPP gewählt/im WKZ-Reiter ist
   function bestWkzRelevant() {
@@ -5208,7 +5215,6 @@
         bestRecalc(im); BEST.wkzOverrunConfirmed = 0; bestPersist(); bestRefresh();
       }
     }
-    else if (kind === 'best-wkz-rate') { BEST.wkzRate = Math.max(0, round2(BEST.wkzRate + extra)); BEST.wkzOverrunConfirmed = 0; bestPersist(); bestRefresh(); }
     else if (kind === 'best-next') { goTo('best-pruefen'); }
     else if (kind === 'best-overrun-ok') { BEST.wkzOverrunConfirmed = bestOverrun(bestTotals()); bestPersist(); render(); }
     else if (kind === 'best-finish') {
