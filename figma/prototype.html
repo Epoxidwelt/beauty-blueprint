@@ -4630,8 +4630,8 @@
     var lines = bestSortByPurpose((wkz ? BEST.wkzItems : BEST.items).filter(function (i) { return i.productId === p.id; }));
     var has = lines.length > 0;
     var above = wkz && !has && BEST_CONFIG.markProductsAboveWkzRest && p.purchasePrice > Math.max(remaining, 0);
-    var info = esc(p.articleNumber) + ' · EK <b>' + bestMoney(p.purchasePrice) + '</b>' + (p.stock !== undefined ? ' · Bestand ' + p.stock : '') +
-      (p.purchasePrice === 0 ? ' <span class="best-badge bad">Kein EK-Preis</span>' : '') +
+    var info = esc(p.articleNumber) + (bestShowPrices() ? ' · EK <b>' + bestMoney(p.purchasePrice) + '</b>' : '') + (p.stock !== undefined ? ' · Bestand ' + p.stock : '') +
+      (p.purchasePrice === 0 && bestShowPrices() ? ' <span class="best-badge bad">Kein EK-Preis</span>' : '') +
       (above ? ' <span class="best-badge warn">über WKZ-Rest</span>' : '');
     var control = '<button class="bst-plus" aria-label="hinzufügen" onclick="__bb.select(\'' + (wkz ? 'best-qw' : 'best-add') + '\',\'' + p.id + '|sale\'' + (wkz ? ',1' : '') + ')">+</button>';
     var extra = lines.map(function (it) {
@@ -4640,7 +4640,7 @@
       return '<div class="bst-sub"><span class="bst-purpose">' + esc(bestPurposeLabel(it.purpose || 'sale')) + '</span>' + bestStepper(qk, k, q) +
         (promoOk ? '<button class="bst-chip' + (it.promotionType !== 'none' ? ' on' : '') + '" onclick="__bb.select(\'best-cyc-promo\',\'' + k + '\')">' + (it.promotionType === 'none' ? 'Aktion: keine' : 'Aktion ' + esc(bestPromoLabel(it))) + ' ⟳</button>' : '') +
         ((!wkz && it.quantityFree) ? '<span class="bst-free">+ ' + it.quantityFree + ' gratis = ' + (it.quantityPaid + it.quantityFree) + ' Stück</span>' : '') +
-        '<span class="bst-val">' + bestMoney(q * it.unitPurchasePrice) + '</span></div>';
+        (bestShowPrices() ? '<span class="bst-val">' + bestMoney(q * it.unitPurchasePrice) + '</span>' : '') + '</div>';
     }).join('');
     if (has) extra = '<div class="bst-sub"><span class="bst-purposes" role="group" aria-label="Menge je Verwendung eingeben">' +
       bestPurposesFor(p.brand).map(function (key) {
@@ -4774,7 +4774,7 @@
   }
   function bestFooterHtml() {
     var t = bestTotals(), empty = !BEST.items.length && !BEST.wkzItems.length;
-    var sum = '<div class="bst-sum"><b>' + t.deliveryQty + ' Artikel' + (t.freeQty ? ' (davon ' + t.freeQty + ' gratis)' : '') + ' · ' + bestMoney(t.regular) + '</b>' +
+    var sum = '<div class="bst-sum"><b>' + t.deliveryQty + ' Artikel' + (t.freeQty ? ' (davon ' + t.freeQty + ' gratis)' : '') + (bestShowPrices() ? ' · ' + bestMoney(t.regular) : '') + '</b>' +
       (bestWkzRelevant() ? '<span class="wkz">WKZ-Guthaben: <b>' + bestMoney(t.amount) + '</b>' + (t.used ? ' · gewählt ' + bestMoney(t.used) + (t.remaining < 0 ? ' · Überschreitung ' + bestMoney(-t.remaining) : ' · übrig ' + bestMoney(t.remaining)) : '') + '</span>' : '') + '</div>';
     var hasK = bestWkzRelevant() && BEST.items.some(function (i) { return bestHasWkz(i.product.brand); });
     if (BEST.tab === 'wkz')
@@ -4830,7 +4830,7 @@
     var histRow = function (o) {
       var open = o.status !== 'completed';
       return '<button class="best-hist" onclick="__bb.select(\'best-view-order\',\'' + esc(o.id) + '\')">' + bestAvatar(o.besteller) +
-        '<span><b>' + esc(o.id) + '</b>' + (open ? ' <span class="best-badge warn">offen</span>' : '') + '<small>' + esc(o.besteller || '—') + ' · ' + esc(formatDateDE(new Date(o.createdAt))) + ' · ' + esc(bestOrderBrands(o).join(', ')) + '</small></span><span class="val">' + bestMoney(o.regularOrderValue) + '</span></button>';
+        '<span><b>' + esc(o.id) + '</b>' + (open ? ' <span class="best-badge warn">offen</span>' : '') + '<small>' + esc(o.besteller || '—') + ' · ' + esc(formatDateDE(new Date(o.createdAt))) + ' · ' + esc(bestOrderBrands(o).join(', ')) + '</small></span>' + (bestShowPrices() ? '<span class="val">' + bestMoney(o.regularOrderValue) + '</span>' : '') + '</button>';
     };
     var openOrders = orders.filter(function (o) { return o.status !== 'completed'; }), doneOrders = orders.filter(function (o) { return o.status === 'completed'; });
     var hist = (openOrders.length ? '<details class="bst-hist" open><summary>Offene Bestellungen — warten auf Freigabe (' + openOrders.length + ')</summary><div class="best-history">' + openOrders.map(histRow).join('') + '</div></details>' : '') +
@@ -4863,7 +4863,7 @@
       : esc(p.articleNumber) + ' · ' + esc(p.brand) + ' · ' + esc(bestPromoLabel(it)) + (it.quantityFree ? ' · <b style="color:var(--good)">+' + it.quantityFree + ' gratis</b>' : '');
     return '<div class="bst-line"><div class="best-img"><img src="' + p.image + '" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'' + (p.fallbackImage || '').replace(/'/g, '%27') + '\'"/></div><div class="bst-info"><div class="bst-name">' + esc(p.name) + '</div><div class="bst-meta">' + meta + '</div>' + (wkz ? '' : '<div style="margin-top:.4rem">' + bestPurposeSwitch(it) + '</div>') + '</div>' +
       bestStepper(kind, bestKey(it, wkz), wkz ? it.quantity : it.quantityPaid) +
-      '<div class="bst-lineval">' + bestMoney(wkz ? it.quantity * it.unitPurchasePrice : calculateLineCost(it)) + '</div></div>';
+      (bestShowPrices() ? '<div class="bst-lineval">' + bestMoney(wkz ? it.quantity * it.unitPurchasePrice : calculateLineCost(it)) + '</div>' : '<div></div>') + '</div>';
   }
   function renderBestPruefen() {
     bestEnsureBesteller();
@@ -4884,8 +4884,8 @@
   }
 
   function bestPurposeTable(agg) {
-    return '<table class="best-table"><tr><th>Verwendung</th><th class="r">Bezahlt</th><th class="r">Gratis</th><th class="r">Wert</th></tr>' +
-      BEST_PURPOSES.filter(function (p) { return p.key !== 'other'; }).map(function (p) { var a = agg.byPurpose[p.key]; return '<tr><td>' + esc(p.label) + '</td><td class="r">' + a.qty + '</td><td class="r">' + a.freeQty + '</td><td class="r">' + bestMoney(a.value) + '</td></tr>'; }).join('') + '</table>';
+    return '<table class="best-table"><tr><th>Verwendung</th><th class="r">Bezahlt</th><th class="r">Gratis</th>' + (bestShowPrices() ? '<th class="r">Wert</th>' : '') + '</tr>' +
+      BEST_PURPOSES.filter(function (p) { return p.key !== 'other'; }).map(function (p) { var a = agg.byPurpose[p.key]; return '<tr><td>' + esc(p.label) + '</td><td class="r">' + a.qty + '</td><td class="r">' + a.freeQty + '</td>' + (bestShowPrices() ? '<td class="r">' + bestMoney(a.value) + '</td>' : '') + '</tr>'; }).join('') + '</table>';
   }
   // Kennzahlen je Marke — jede Marke wird getrennt bestellt, deshalb nie Marken vermischen.
   function bestBrandStats(o, b) {
@@ -4906,7 +4906,7 @@
       var note = (!a.hasWkz || !bestIsApprover()) ? '' : over ? '<div class="best-msg warn">Randnotiz: Der WKZ ist um <b>' + bestMoney(over) + '</b> überschritten.</div>'
         : (a.hasWkz && a.remaining > 0 && a.amount > 0 ? '<div class="best-msg info">Randnotiz: Noch <b>' + bestMoney(a.remaining) + '</b> WKZ offen.</div>' : '');
       return '<div class="best-h2">' + esc(b) + ' — Bestellübersicht</div><div class="best-twocol"><div class="best-sumbox">' +
-        '<div class="best-sumrow big"><span>Bestellwert ' + esc(b) + '</span><b>' + bestMoney(a.regular) + '</b></div>' +
+        (bestShowPrices() ? '<div class="best-sumrow big"><span>Bestellwert ' + esc(b) + '</span><b>' + bestMoney(a.regular) + '</b></div>' : '') +
         '<div class="best-sumrow"><span>Artikel (inkl. Gratisware)</span><b>' + a.qty + '</b></div>' +
         (a.testerQty && bestIsApprover() ? '<div class="best-sumrow acc"><span>Tester-Rabatt (−' + BEST_CONFIG.testerDiscountPercent + ' % auf EK, ' + a.testerQty + ' Stück) — im Bestellwert enthalten</span><b>−' + bestMoney(a.testerDiscount) + '</b></div>' : '') +
         (bestIsApprover() ? '<div class="best-sumrow free"><span>Gratisware aus Aktionen (nicht berechnet)</span><b>' + bestMoney(a.free) + '</b></div>' : '') +
@@ -4923,6 +4923,7 @@
       regularOrderValue: t.regular, wkzBase: t.base, wkzAmount: t.amount, wkzUsed: t.used, wkzRemaining: t.remaining, freeGoodsValue: t.free };
   }
   // ---------- Abschluss ----------
+  function bestShowPrices() { return bestIsApprover(); }   // EK-Preise, Zeilen- und Bestellwerte nur für die Freigabe-Person
   function bestIsApprover() { return STATE.mitarbeiterin === BEST_CONFIG.approver; }
   // Bestellung ablegen: 'open' = gespeichert, wartet auf Freigabe; 'completed' = von der Freigabe-Person abgeschlossen
   function bestCommitOrder(status) {
