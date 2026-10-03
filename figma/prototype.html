@@ -104,6 +104,7 @@
   }
   .back-btn:hover { border-color: var(--border-strong); }
   .back-btn[disabled] { visibility: hidden; }
+  .logo-home { cursor: pointer; -webkit-tap-highlight-color: transparent; } .logo-home:focus-visible { outline: 2px solid #111; outline-offset: 3px; border-radius: 6px; }
   .topbar-logo { height: 48px; width: auto; flex-shrink: 0; }
   .topbar-spacer { flex: 1; }
   .topbar-right { display: flex; flex-direction: column; align-items: flex-end; gap: 0.15rem; }
@@ -2177,6 +2178,7 @@
     render();
   }
   window.__bb = {
+    goHome: function () { try { bestScanStop(); } catch (e) { /* egal */ } path = ['login']; pointer = 0; render(); },   // Logo antippen = sofort zum Hauptmenü „Wer berät heute?"
     goTo: goTo, goBack: goBack, replaceTop: replaceTop, state: STATE, select: selectHandler, input: inputHandler,
     filterProducts: filterProducts, pickProduct: pickProduct,
     filterTreatments: filterTreatments, pickTreatment: pickTreatment, pickKurOption: pickKurOption,
@@ -2533,7 +2535,7 @@
     var header = '' +
       '<div class="topbar">' +
         '<button class="back-btn" ' + backDisabled + ' onclick="__bb.goBack()" aria-label="Zurück">&#8592;</button>' +
-        (showLogo ? '<img class="topbar-logo" src="' + LOGO_SRC + '" alt="Beauty Lounge" />' : '') +
+        (showLogo ? '<img class="topbar-logo logo-home" src="' + LOGO_SRC + '" alt="Beauty Lounge — zum Hauptmenü" title="Zum Hauptmenü" role="button" tabindex="0" onclick="__bb.goHome()" onkeydown="if(event.key===\'Enter\'){__bb.goHome()}" />' : '') +
         '<div class="topbar-spacer"></div>' +
         '<div class="topbar-right">' +
           (step ? '<div class="step-label">Schritt ' + step.index + '</div>' : '') +
@@ -2591,7 +2593,7 @@
 
   function renderLogin() {
     var body = '' +
-      '<img class="brand-logo lg" src="' + LOGO_SRC + '" alt="Beauty Lounge" />' +
+      '<img class="brand-logo lg logo-home" src="' + LOGO_SRC + '" alt="Beauty Lounge — zum Hauptmenü" title="Zum Hauptmenü" role="button" tabindex="0" onclick="__bb.goHome()" onkeydown="if(event.key===\'Enter\'){__bb.goHome()}" />' +
       '<p class="eyebrow" style="text-align:center">Anmeldung</p>' +
       '<h1 class="q" style="text-align:center">Wer berät heute?</h1>' +
       '<div class="avatar-row">' +
@@ -2814,7 +2816,7 @@
     }).join('');
     var body = '' +
       bestMainTabs('beratung') +
-      '<img class="brand-logo md" src="' + LOGO_SRC + '" alt="Beauty Lounge" />' +
+      '<img class="brand-logo md logo-home" src="' + LOGO_SRC + '" alt="Beauty Lounge — zum Hauptmenü" title="Zum Hauptmenü" role="button" tabindex="0" onclick="__bb.goHome()" onkeydown="if(event.key===\'Enter\'){__bb.goHome()}" />' +
       '<p class="welcome-title">Willkommen, ' + esc(STATE.mitarbeiterin || '') + '</p>' +
       loginHinweise +
       '<div class="stack">' +
@@ -4196,7 +4198,7 @@
       return '<div class="summary-row"><span class="k">Behandlung ' + (i + 1) + '</span><span class="v">' + esc(label) + '</span></div>';
     }).join('');
     var body = '' +
-      '<img class="brand-logo md" src="' + LOGO_SRC + '" alt="Beauty Lounge" />' +
+      '<img class="brand-logo md logo-home" src="' + LOGO_SRC + '" alt="Beauty Lounge — zum Hauptmenü" title="Zum Hauptmenü" role="button" tabindex="0" onclick="__bb.goHome()" onkeydown="if(event.key===\'Enter\'){__bb.goHome()}" />' +
       '<p class="eyebrow" style="text-align:center">Beauty Blueprint</p>' +
       '<p class="blueprint-hero" style="text-align:center">' + esc(STATE.kundeName || 'Kundin') + '</p>' +
       '<p class="sub" style="margin-top:0;text-align:center">' + esc(zielText()) + '</p>' +
@@ -4258,7 +4260,7 @@
 
   function renderAbschluss() {
     var body = '' +
-      '<img class="brand-logo md" src="' + LOGO_SRC + '" alt="Beauty Lounge" />' +
+      '<img class="brand-logo md logo-home" src="' + LOGO_SRC + '" alt="Beauty Lounge — zum Hauptmenü" title="Zum Hauptmenü" role="button" tabindex="0" onclick="__bb.goHome()" onkeydown="if(event.key===\'Enter\'){__bb.goHome()}" />' +
       '<p class="eyebrow" style="text-align:center">Abgeschlossen</p>' +
       '<h1 class="q" style="text-align:center">Beauty Blueprint gespeichert</h1>' +
       '<p class="sub" style="text-align:center">' + esc(STATE.kundeName || 'Die Kundin') + ' erhält ihren persönlichen Plan. Ein Bericht kann optional erstellt werden.</p>' +
