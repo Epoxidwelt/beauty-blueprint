@@ -4527,9 +4527,9 @@
     var sum = '<div class="bst-sum"><b>' + t.deliveryQty + ' Artikel' + (t.freeQty ? ' (davon ' + t.freeQty + ' gratis)' : '') + ' · ' + bestMoney(t.regular) + '</b>' +
       '<span class="wkz">WKZ ' + esc(String(BEST.wkzRate).replace('.', ',')) + ' %: <b>' + bestMoney(t.amount) + '</b>' + (t.used ? ' · gewählt ' + bestMoney(t.used) + ' · übrig ' + bestMoney(t.remaining) : '') + '</span></div>';
     if (BEST.tab === 'wkz')
-      return '<button class="best-secondary" onclick="__bb.select(\'best-tab\',\'order\')">← Zurück</button>' + sum +
+      return '<button class="best-secondary" onclick="__bb.select(\'best-back\')">← Zurück</button>' + sum +
         '<button class="best-primary" ' + (BEST.items.length ? '' : 'disabled') + ' onclick="__bb.select(\'best-next\')">Weiter zur Prüfung</button>';
-    return '<button class="best-secondary" onclick="__bb.goBack()">← Zurück</button>' + sum +
+    return '<button class="best-secondary" onclick="__bb.select(\'best-back\')">← Zurück</button>' + sum +
       '<button class="best-primary" ' + (BEST.items.length ? '' : 'disabled') + ' onclick="__bb.select(\'best-tab\',\'wkz\')">Weiter zur WKZ-Ware</button>';
   }
   function bestTabsHtml() {
@@ -4860,6 +4860,15 @@
     if (kind === 'best-besteller') { BEST.besteller = key; bestPersist(); render(); }
     else if (kind === 'best-tab') { BEST.tab = key; BEST.limit = BEST_CONFIG.pageSize; bestRefresh(); }
     else if (kind === 'best-cat') { BEST.category = (BEST.category === key) ? '' : key; BEST.catOpen = false; BEST.limit = BEST_CONFIG.pageSize; render(); }
+    else if (kind === 'best-back') {   // genau ein Schritt zurück: WKZ-Ware → Bestellung → Produkte → Produktlinien → Marke → Hauptbildschirm
+      BEST.pick = null; BEST.limit = BEST_CONFIG.pageSize;
+      if (BEST.tab === 'wkz') BEST.tab = 'order';
+      else if (BEST.favOnly) BEST.favOnly = false;
+      else if (BEST.category) { BEST.category = ''; BEST.catOpen = false; }
+      else if (BEST.brand) { BEST.brand = null; BEST.group = ''; }
+      else { replaceTop('kunde-wahl'); return; }   // erster Schritt: zurück zum Hauptbildschirm
+      render();
+    }
     else if (kind === 'best-cat-toggle') { BEST.catOpen = !BEST.catOpen; render(); }
     else if (kind === 'best-filter-brand') { BEST.brand = key || null; BEST.group = ''; BEST.category = ''; BEST.catOpen = false; BEST.limit = BEST_CONFIG.pageSize; render(); }
     else if (kind === 'best-toggle') { BEST[key] = !BEST[key]; BEST.limit = BEST_CONFIG.pageSize; render(); }

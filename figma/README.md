@@ -91,3 +91,5 @@ Tester-Rabatt & Marken getrennt (Update): Tester erhalten **−20 % auf den EK**
 Schwarze Schritte/Zahlen (Update): Reiter und Schritte („1 · Bestellung", „2 · WKZ-Ware", Beratung/Bestellung), Mengen, Beträge, Bestellwerte und Bestellnummer sind schwarz (`--text`). Farbig (Rosé #9A4B66) bleiben nur WKZ-Werte (WKZ-Guthaben, WKZ-Zeilen in der Übersicht, „WKZ 5 %: x €" in der unteren Leiste) und der Tester-Rabatt (`.best-sumrow.acc`).
 
 Fußleiste (Update): Unten links immer „← Zurück" (im Reiter Bestellung zurück zum Hauptbildschirm, im Reiter WKZ-Ware zurück zur Bestellung), in der Mitte Artikelzahl/Bestellwert/WKZ, rechts der Weiter-Button („Weiter zur WKZ-Ware" bzw. „Weiter zur Prüfung").
+
+Zurück-Button (Update): „← Zurück" in der Fußleiste geht **immer genau einen Schritt zurück** (`best-back`): WKZ-Ware → Bestellung → Produktliste → Produktlinien → Markenwahl → Hauptbildschirm (bei aktivem Favoriten-Filter zuerst Favoriten aus).
