@@ -185,3 +185,5 @@ Professionelle Hersteller-E-Mail (Update): Die E-Mail ist klar gegliedert — An
 Button-Text: „Weiter zur Prüfung" heißt jetzt nur „Weiter →".
 
 Position „Bestellung verwerfen" (Update): Auf dem Prüfen-Screen steht der rote Button **„Bestellung verwerfen"** (nur Inhaberin) jetzt **unterhalb** der Button-Leiste mit „Bestellung abschließen" (rechtsbündig am Seitenende), nicht mehr darüber.
+
+Speichern direkt nach der Eingabe (Update): In der unteren Leiste der Bestell-Eingabe gibt es jetzt **„Speichern"** (zwischen „← Zurück" und „Weiter →") — für **alle Mitarbeiterinnen und auch die Inhaberin**. Ein Tipp legt die offene Bestellung des Herstellers ab (Meldung „✓ Gespeichert — offene Bestellung GEHWOL.") und führt zur Hersteller-Übersicht; die Bestellung wird dadurch **nicht** abgeschlossen und es wird keine E-Mail erzeugt. Ohne Artikel ist der Button ausgegraut. Der Button gilt in den Reitern „Bestellung", „WKZ-Ware" und „Produkte scannen". Auf dem Prüfen-Screen bleibt „Speichern" ebenfalls erhalten.

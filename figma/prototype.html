@@ -4862,10 +4862,11 @@
     var sum = '<div class="bst-sum"><b>' + t.deliveryQty + ' Artikel' + (t.freeQty ? ' (davon ' + t.freeQty + ' gratis)' : '') + (bestShowPrices() ? ' · ' + bestMoney(t.regular) : '') + '</b>' +
       (bestWkzRelevant() ? '<span class="wkz">WKZ-Guthaben: <b>' + bestMoney(t.amount) + '</b>' + (t.used ? ' · gewählt ' + bestMoney(t.used) + (t.remaining < 0 ? ' · Überschreitung ' + bestMoney(-t.remaining) : ' · übrig ' + bestMoney(t.remaining)) : '') + '</span>' : '') + '</div>';
     var hasK = bestWkzRelevant() && BEST.items.some(function (i) { return bestHasWkz(i.product.brand); });
+    var save = '<button class="best-secondary" ' + (BEST.items.length ? '' : 'disabled') + ' onclick="__bb.select(\'best-save\')">Speichern</button>';   // Speichern direkt nach der Eingabe — für alle, auch die Inhaberin
     if (BEST.tab === 'wkz')
-      return '<button class="best-secondary" onclick="__bb.select(\'best-back\')">← Zurück</button>' + sum +
+      return '<button class="best-secondary" onclick="__bb.select(\'best-back\')">← Zurück</button>' + sum + save +
         '<button class="best-primary" ' + (BEST.items.length ? '' : 'disabled') + ' onclick="__bb.select(\'best-next\')">Weiter →</button>';
-    return '<button class="best-secondary" onclick="__bb.select(\'best-back\')">← Zurück</button>' + sum +
+    return '<button class="best-secondary" onclick="__bb.select(\'best-back\')">← Zurück</button>' + sum + save +
       (hasK ? '<button class="best-primary" ' + (BEST.items.length ? '' : 'disabled') + ' onclick="__bb.select(\'best-tab\',\'wkz\')">Weiter zur WKZ-Ware</button>'
         : '<button class="best-primary" ' + (BEST.items.length ? '' : 'disabled') + ' onclick="__bb.select(\'best-next\')">Weiter →</button>');
   }
