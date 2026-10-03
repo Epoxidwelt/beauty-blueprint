@@ -81,3 +81,7 @@ Filter (Update): Der Knopf „Mehr Filter" mit „Nur Mindestbestand erreicht" i
 Favoriten (Update): Favoriten sind die **regelmäßig bestellten Produkte** — automatisch alle Artikel, die in mindestens 2 gespeicherten Bestellungen vorkommen (`bestOrderCounts()`/`bestIsFav()`), plus per ♥ von Hand markierte. Im Filter „♥ Favoriten" stehen die am häufigsten bestellten zuerst, mit kurzem Erklärtext. Die Schwelle (2) lässt sich in `bestIsFav()` ändern.
 
 WKZ live & Bestand (Update): Bestand/Mindestbestand werden nicht mehr angezeigt (kein Abgleich mit Abverkauf/Meldebestand). Im Reiter „1 · Bestellung" steht oben eine **Live-WKZ-Leiste**: Bestellwert für WKZ (ohne Aktionsware), **WKZ 5 % = Guthaben** und der WKZ-Satz (−/+); sie aktualisiert sich bei jedem Produkt/jeder Menge/jeder Aktion. Die untere Leiste zeigt ebenfalls fett „WKZ 5 %: x €" (und nach der WKZ-Wahl gewählt/übrig), sodass man nach der Auswahl sofort sieht, wie hoch der WKZ ist.
+
+Reihenfolge Menge → Art.-Nr. → Bezeichnung (Update): In den Hersteller-E-Mails („7x | KL-10001 | Produktname"), der internen Zusammenfassung, der PDF-Vorschau/Aufstellung (Spalten Menge, Gratis, Art.-Nr., Bezeichnung …) und im CSV-Export (Menge, Gratis, Artikelnummer, Produkt …) steht immer zuerst die Menge, dann die Artikelnummer, dann die Bezeichnung.
+
+Lesbarkeit (Update): Die WKZ-Leiste ist jetzt eine helle Karte mit zartem Rosé-Rand, dunkler Beschriftung und großen Beträgen in dunklem Rosé (#9A4B66, Kontrast > 4,5:1) statt weißer Kleinschrift auf Dunkelrosa; Überschreitung in Rot.
