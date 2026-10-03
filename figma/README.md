@@ -172,3 +172,5 @@ Aufgeräumte Herstelleransicht (Update): Nach der Wahl eines Herstellers steht o
 Hersteller-Kachel (Update): Die Artikelanzahl steht jetzt **unter** dem Herstellernamen (zwei Zeilen: „KLAPP" / „2 Artikel"). Die Speichern-Meldung heißt „✓ Gespeichert — offene Bestellung KLAPP."
 
 Abgeschlossene Bestellungen (Update): Die Liste „Abgeschlossene Bestellungen (n)" ist immer **zugeklappt** und zeigt ihre Einträge erst nach einem Klick auf die Überschrift.
+
+Artikelanzahl nicht fett (Update): Die Anzahl ausgewählter Artikel (untere Leiste „2 Artikel · 34,20 €", Reiter „1 Artikel", Hersteller-Kacheln) wird in normaler Schriftstärke dargestellt.
