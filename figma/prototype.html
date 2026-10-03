@@ -15,10 +15,10 @@
   :root {
     /* Exakt aus dem Original-Logo (Beauty_Lounge_Logo Transparent.png) extrahiert */
     --warmweiss: #FFFFFF;
-    --rose-pale: #EDEDED;
-    --rose-wash: #CFCFCF;
-    --rose: #8A8A8A;
-    --rose-deep: #111111;
+    --rose-pale: #F4E6EB;
+    --rose-wash: #E3C3CE;
+    --rose: #C4879C;
+    --rose-deep: #9A4B66;
     --anthrazit: #111111;
     --anthrazit-soft: #6B6B6B;
     --surface: var(--warmweiss);
@@ -661,10 +661,10 @@
 
   /* ===== Bestellung (interne Bestell-App) ===== */
   :root {
-    --beige: #F2F2F2;
-    --beige-deep: #E4E4E4;
-    --taupe: #8A8A8A;
-    --braun: #222222;
+    --beige: #F8EEF1;
+    --beige-deep: #EBD6DD;
+    --taupe: #B08A98;
+    --braun: #7C3A53;
   }
   .main-tabs {
     display: flex; gap: 0.4rem; background: var(--beige); padding: 0.35rem; border-radius: 16px;
@@ -776,8 +776,8 @@
     border: 2px solid transparent;
   }
   .best-card.above { opacity: 0.6; border-color: rgba(169,122,46,0.45); }
-  .best-img { background: var(--beige); border-radius: 14px; display: flex; align-items: center; justify-content: center; padding: 0.5rem; }
-  .best-img img { width: 96px; height: 96px; display: block; }
+  .best-img { background: #fff; border: 1px solid var(--rose-pale); border-radius: 14px; display: flex; align-items: center; justify-content: center; padding: 0.5rem; }
+  .best-img img { width: 96px; height: 96px; display: block; object-fit: contain; }
   .best-fav { position: absolute; top: 0.6rem; right: 0.6rem; width: 44px; height: 44px; border-radius: 50%; border: none; background: rgba(255,255,255,0.9); font-size: 1.25rem; cursor: pointer; color: var(--taupe); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
   .best-fav.on { color: var(--rose-deep); }
   .best-tag { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--taupe); }
@@ -4235,6 +4235,8 @@
   // ---------- Produktkatalog (Quelle austauschbar) ----------
   function bestHash(s) { var h = 5381; for (var i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return Math.abs(h); }
   function bestParsePrice(str) { return parseFloat(String(str).replace(/[^\d,]/g, '').replace(',', '.')) || 0; }
+  // Platzhalterbilder von der Hersteller-Website (klapp-skincare.com, per Namensabgleich; Rest = erzeugte Platzhalter)
+  var KLAPP_IMG = {"A CLASSIC Cream 50 ml": "s/files/1/0938/0066/1259/files/1802_A_Classic_Cream.png", "A CLASSIC Cream Eye Care 15 ml": "s/files/1/0938/0066/1259/files/1810AClassicEyeCareCream.png", "A CLASSIC Cream Micro Retinol Soft 30 ml": "s/files/1/0938/0066/1259/files/1825AClassicMicroRetinolSoftCream.png", "A CLASSIC Cream Neck & Décolleté 50 ml": "s/files/1/0938/0066/1259/files/1803_A_Classic_Neck_Decollete_Cream.png", "A CLASSIC Cream Ultra 50 ml": "s/files/1/0938/0066/1259/files/1809_A_Classic_Cream_Ultra.png", "A CLASSIC Cream Ultra 50ml": "s/files/1/0938/0066/1259/files/1809_A_Classic_Cream_Ultra.png", "A CLASSIC Mask Effect 50 ml": "s/files/1/0938/0066/1259/files/1811AClassicEffectMask.png", "A CLASSIC Revital Serum 30 ml": "s/files/1/0938/0066/1259/files/1806_A_Classic_Revital_Serum_Front.png", "ASA PEEL Cream Care 30 ml": "s/files/1/0938/0066/1259/files/1840ASAPeelCareCream.png", "ASA PEEL Serum 30 ml": "s/files/1/0938/0066/1259/files/1844ASAPeelSerumFront.png", "BETA GLUCAN Cream 24h 50 ml": "s/files/1/0938/0066/1259/files/1312BetaGlucan24HCream1_045ee423-7288-4878-b377-32251f14e14c.png", "C PURE Cleanser Foam 200 ml": "s/files/1/0938/0066/1259/files/foam-cleanser_1.png", "C PURE Cream Complete 50 ml": "s/files/1/0938/0066/1259/files/1513CPureCreamCompleteFront.png", "C PURE Fluid 50 ml": "s/files/1/0938/0066/1259/files/1512CPureFluidFront.png", "CASHMERE Body Butter": "s/files/1/0938/0066/1259/files/7212_Cachmere_Body_Butter_SOLL.png", "Caviar Power Imperial White Cream Serum": "s/files/1/0938/0066/1259/files/2563CaviarpowerImperialWhiteSerum.png", "CAVIAR POWER IMPERIAL WHITE SERUM 40 ml": "s/files/1/0938/0066/1259/files/2563CaviarpowerImperialWhiteSerum.png", "CLEAN & ACTIVE Gel Cleansing 250 ml": "s/files/1/0938/0066/1259/files/1202Clean_ActiveCleansingGelSpender.png", "CLEAN & ACTIVE Micro Peeling VK 50 ml": "s/files/1/0938/0066/1259/files/1214Clean_ActiveMicroPeeling.png", "CLEAN & ACTIVE PEELING ENZYME 50 ml": "s/files/1/0938/0066/1259/files/1205Clean_ActiveEnzymePeeling.png", "CLEAN & ACTIVE Tonic without Alcohol 250 ml": "s/files/1/0938/0066/1259/files/1206_Clean_Active_Tonic_without_Alcohol_Spender.png", "eyeTECH Star Fresh Work Out Fluid 15 ml": "s/files/1/0938/0066/1259/files/5102EyeTechStarFreshWorkOutFluid.png", "Hangover Age Fight serum 15ml": "s/files/1/0938/0066/1259/files/4362_Men_Hangover_Front.png", "Hyaluronic Triple Action  Moisture Eye Cream": "s/files/1/0938/0066/1259/files/C4012_Moisture_Balance_Eye_Care_Cream_20ml_ohne_Professional.png", "Hyaluronic Triple Action Moist. Power Trio Set": "s/files/1/0938/0066/1259/files/moisturizing-power-trio-set_297219b4-d0f0-4b94-a64c-3ba4e08a62e2.png", "Hyaluronic Triple Action Moisture Day&Night Cream": "s/files/1/0938/0066/1259/files/C4001BALANCEMoistureDayandNightCream.png", "Hyaluronic Triple Action Moisture Serum 50ml": "s/files/1/0938/0066/1259/files/C4006MoistureBalanceSerum30ml.png", "Hyaluronic Triple Action Moisture Sheet Mask 3St.": "s/files/1/0938/0066/1259/files/C4005_BALANCE_Sheet_Mask.png", "Hyaluronic Triple Action Moisturizing Booster": "s/files/1/0938/0066/1259/files/C4003_BALANCE_Moisture_Booster_15_ml.png", "IMMUN Couperose Cream 30 ml": "s/files/1/0938/0066/1259/files/1705ImmunCouperoseCream.png", "IMMUN Couperose Serum 30 ml": "s/files/1/0938/0066/1259/files/1715ImmunCouperoseSerum.png", "IMMUN Cream Anti-Stress Pack 50 ml": "s/files/1/0938/0066/1259/files/1703ImmunAnti-StressCreamPackSOLL.png", "IMMUN Cream Daily Protection 50 ml": "s/files/1/0938/0066/1259/files/1706ImmunDailyCreamProtection.png", "IMMUN Cream Night Defense 50 ml": "s/files/1/0938/0066/1259/files/1707ImmunNightCreamDefense_517200d2-caa3-403c-929a-286a3c0f6151.png", "IMMUN Cream Repair Concentrate 50 ml": "s/files/1/0938/0066/1259/files/1708ImmunRepairCreamConcentrate.png", "IMMUN Gel Radical Moist Complex 50 ml": "s/files/1/0938/0066/1259/files/1713ImmunRadicalMoistComplexGel.png", "MEN Cream All Day Long 24h Hydro 50 ml": "s/files/1/0938/0066/1259/files/4361MenAllDayLong_881c167d-42e6-4420-af45-0a28d0cc53e2.png", "MEN Serum Hangover Age Fight 50 ml": "s/files/1/0938/0066/1259/files/4362_Men_Hangover_Front.png", "REPAGEN EXCLUSIVE Hand Care Cream 75 ml": "s/files/1/0938/0066/1259/files/4310RepagenExclusiveHandCareCream.png", "REPAGEN EXCLUSIVE Serum 50 ml": "s/files/1/0938/0066/1259/files/4308RepagenExclusiveSerum.png", "SKIN NATURAL Aloe Vera Cream 50 ml": "s/files/1/0938/0066/1259/files/1191SkinNaturalAloeVeraCream.png", "SKIN NATURAL Aloe Vera Gel 50 ml": "s/files/1/0938/0066/1259/files/1190SkinNaturalAloeVeraGel.png", "SKIN NATURAL Aloe Vera Mousse Mask 50 ml": "s/files/1/0938/0066/1259/files/1193SkinNaturalAloeVeraMousseMask.png", "SKIN NATURAL Power Set": "s/files/1/0938/0066/1259/files/2556AmpulleSkinNaturalPowerSetfront.png", "STRI-PEXAN Intensivecream 70 ml": "s/files/1/0938/0066/1259/files/2015Stri-PexanIntensivecream.png", "STRI-PEXAN Intensivecream Eye Care 20 ml": "s/files/1/0938/0066/1259/files/2016Stri-PexanEyeCareIntensivecream.png", "STRI-PEXAN Serum Serpentine 30 ml": "s/files/1/0938/0066/1259/files/2018Stri-PeXanSerpentineSerum.png", "Triple Action Moisture Hyaluronic Serum 30 ml": "s/files/1/0938/0066/1259/files/C4006MoistureBalanceSerum30ml.png", "Triple Action Pro Age Overnight Mask": "s/files/1/0938/0066/1259/files/C2007RESISTAGINGRetinolMLPOvernightMask.png", "Triple Action Pro Age Serum": "s/files/1/0938/0066/1259/files/C2002RESISTAGINGRetinolMLPSerum.png", "Triple Action Radiance Vitamin C Sheet Mask": "s/files/1/0938/0066/1259/files/C3006RechargeVitaminCSheetMask.png", "X-Mas Set A Classic Skin Care Set": "s/files/1/0938/0066/1259/files/1366AClassicSkinCareSet.png", "X-TREME Cream Lifting Day & Night 50 ml": "s/files/1/0938/0066/1259/files/1958X-tremeLiftingCreamDay_Night.png", "X-TREME Cream Super Lipid 50 ml": "s/files/1/0938/0066/1259/files/1954_X-treme_Super_Lipid_Cream.png"};
   function bestImage(brand, name) {
     var st = BEST_BRAND_STYLE[brand];
     var ini = (name.match(/[A-Za-zÄÖÜäöü0-9]/g) || ['?']).slice(0, 2).join('').toUpperCase();
@@ -4275,7 +4277,7 @@
     return {
       id: id, name: name, brand: brand, articleNumber: prefix + '-' + (10000 + idx), productGroup: group,
       purchasePrice: purchase, salesPrice: sales, stock: bestHash(name + 'lager') % 31, minimumStock: min,
-      image: bestImage(brand, name), active: true, categories: bestCategoriesFor(brand, name, group)
+      image: (brand === 'KLAPP' && KLAPP_IMG[name]) ? 'https://cdn.shopify.com/' + KLAPP_IMG[name] + '?width=240' : bestImage(brand, name), fallbackImage: bestImage(brand, name), active: true, categories: bestCategoriesFor(brand, name, group)
     };
   }
   // Rubriken = Produktlinien der jeweiligen Marke (z. B. KLAPP: A CLASSIC, CAVIAR POWER, IMMUN …).
@@ -4458,7 +4460,7 @@
           }).join('') + '</div></div>';
       }
     }
-    return '<div class="bst-row' + (has ? ' has' : '') + (above ? ' above' : '') + '"><div class="best-img"><img src="' + p.image + '" alt=""/></div>' +
+    return '<div class="bst-row' + (has ? ' has' : '') + (above ? ' above' : '') + '"><div class="best-img"><img src="' + p.image + '" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'' + (p.fallbackImage || '').replace(/'/g, '%27') + '\'"/></div>' +
       '<div class="bst-info"><div class="bst-name">' + esc(p.name) + '</div><div class="bst-meta">' + esc(p.brand) + ' · ' + info + '</div></div>' +
       '<button class="bst-fav' + (fav ? ' on' : '') + '" aria-label="Favorit" onclick="__bb.select(\'best-fav\',\'' + p.id + '\')">' + (fav ? '♥' : '♡') + '</button>' +
       '<div class="bst-ctl">' + control + '</div>' + extra + '</div>';
@@ -4550,7 +4552,7 @@
     var kind = wkz ? 'best-qw' : 'best-q', p = it.product;
     var meta = wkz ? esc(p.brand) + ' · ' + esc(p.articleNumber)
       : esc(p.brand) + ' · ' + esc(bestPurposeLabel(it.purpose)) + ' · ' + esc(bestPromoLabel(it)) + (it.quantityFree ? ' · <b style="color:var(--good)">+' + it.quantityFree + ' gratis</b>' : '');
-    return '<div class="bst-line"><div class="best-img"><img src="' + p.image + '" alt=""/></div><div class="bst-info"><div class="bst-name">' + esc(p.name) + '</div><div class="bst-meta">' + meta + '</div></div>' +
+    return '<div class="bst-line"><div class="best-img"><img src="' + p.image + '" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'' + (p.fallbackImage || '').replace(/'/g, '%27') + '\'"/></div><div class="bst-info"><div class="bst-name">' + esc(p.name) + '</div><div class="bst-meta">' + meta + '</div></div>' +
       bestStepper(kind, bestKey(it, wkz), wkz ? it.quantity : it.quantityPaid) +
       '<div class="bst-lineval">' + bestMoney(wkz ? it.quantity * it.unitPurchasePrice : calculateLineCost(it)) + '</div></div>';
   }
