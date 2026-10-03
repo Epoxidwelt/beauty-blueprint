@@ -947,6 +947,17 @@
   .bst-mail { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; background: #fff; border-radius: 16px; padding: 0.8rem 1rem; box-shadow: 0 3px 12px rgba(122,92,75,0.08); }
   .bst-mail small { display: block; font-size: 0.75rem; color: var(--text-soft); margin-top: 0.15rem; }
   .bst-mail small.ok { color: var(--good); font-weight: 600; }
+  .bst-catgrid-wrap { background: var(--beige); border-radius: 18px; padding: 0.8rem; margin-bottom: 1rem; }
+  .bst-cathead { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--rose-deep); margin: 0 0 0.6rem 0.2rem; }
+  .bst-cathead small { margin-left: 0.5rem; color: var(--taupe); text-transform: none; letter-spacing: 0; font-weight: 600; }
+  .bst-catgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.5rem; }
+  .bst-tile { font-family: var(--font-body); font-size: 0.95rem; font-weight: 700; color: var(--text); background: #fff; border: 2px solid transparent; border-radius: 14px; padding: 0.7rem 0.8rem; min-height: 64px; text-align: left; cursor: pointer; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 2px 8px rgba(122,92,75,0.08); }
+  .bst-tile small { font-weight: 500; font-size: 0.72rem; color: var(--text-soft); margin-top: 0.15rem; }
+  .bst-tile.all { background: transparent; box-shadow: none; border: 2px dashed var(--beige-deep); }
+  .bst-tile.on { background: var(--rose-pale); border-color: var(--rose-deep); color: var(--rose-deep); }
+  .bst-catbar { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap; background: var(--rose-pale); border-radius: 16px; padding: 0.5rem 0.8rem; margin-bottom: 1rem; color: var(--rose-deep); }
+  .bst-catbar small { color: var(--braun); font-weight: 500; }
+  .bst-catbar span:last-child { display: flex; gap: 0.4rem; }
   @media (max-width: 760px) {
     .bst-row { grid-template-columns: 48px minmax(0, 1fr) 44px; }
     .bst-ctl { grid-column: 1 / -1; justify-self: end; }
@@ -4316,7 +4327,7 @@
       wkzRate: (typeof d.wkzRate === 'number') ? d.wkzRate : BEST_CONFIG.defaultWkzRate,
       wkzOverrunConfirmed: d.wkzOverrunConfirmed || 0,
       brand: null, group: '', search: '', lowStock: false, favOnly: false, limit: BEST_CONFIG.pageSize,
-      tab: 'order', pick: null, category: '', moreFilters: false, completedId: null
+      tab: 'order', pick: null, category: '', catOpen: false, moreFilters: false, completedId: null
     };
   })();
   var BEST_FAVS = bestLoad(BEST_KEYS.favs, []);
@@ -4493,15 +4504,23 @@
       if (BEST.brand && p.brand !== BEST.brand) return;
       p.categories.forEach(function (c) { catCount[c] = (catCount[c] || 0) + 1; if (catOrder.indexOf(c) === -1) catOrder.push(c); });
     });
-    var catChips = catOrder.filter(function (c) { return catCount[c]; }).map(function (c) {
-      return '<button class="best-chip bst-cat' + (BEST.category === c ? ' on' : '') + '" onclick="__bb.select(\'best-cat\',\'' + esc(c) + '\')">' + esc(c) + ' <small>' + catCount[c] + '</small></button>';
-    }).join('');
+    var catList = catOrder.filter(function (c) { return catCount[c]; });
+    var total = 0; bestCatalog().forEach(function (p) { if (!BEST.brand || p.brand === BEST.brand) total++; });
+    var tiles = '<button class="bst-tile all' + (!BEST.category ? ' on' : '') + '" onclick="__bb.select(\'best-cat\',\'\')">Alle Rubriken<small>' + total + ' Produkte</small></button>' +
+      catList.map(function (c) {
+        return '<button class="bst-tile' + (BEST.category === c ? ' on' : '') + '" onclick="__bb.select(\'best-cat\',\'' + esc(c) + '\')">' + esc(c) + '<small>' + catCount[c] + ' Produkte</small></button>';
+      }).join('');
+    var catBlock;
+    if (!BEST.brand) catBlock = '<div class="bst-hint">Marke wählen (KLAPP, GEHWOL, Alessandro), dann erscheinen die Rubriken — z. B. Vitamin A, Vitamin B, Serum &amp; Ampullen.</div>';
+    else if (BEST.category && !BEST.catOpen) catBlock = '<div class="bst-catbar"><span>Rubrik: <b>' + esc(BEST.category) + '</b> <small>' + (catCount[BEST.category] || 0) + ' Produkte</small></span>' +
+      '<span><button class="best-chip" onclick="__bb.select(\'best-cat-toggle\')">Rubrik ändern</button><button class="best-chip" onclick="__bb.select(\'best-cat\',\'\')">✕ Alle</button></span></div>';
+    else catBlock = '<div class="bst-catgrid-wrap"><div class="bst-cathead">Rubrik wählen<small>' + esc(BEST.brand) + '</small></div><div class="bst-catgrid">' + tiles + '</div></div>';
     return '<div class="best-filters"><button class="best-chip' + (!BEST.brand ? ' on' : '') + '" onclick="__bb.select(\'best-filter-brand\',\'\')">Alle</button>' +
       BEST_BRANDS.map(function (b) { return '<button class="best-chip' + (BEST.brand === b ? ' on' : '') + '" onclick="__bb.select(\'best-filter-brand\',\'' + b + '\')">' + esc(b) + '</button>'; }).join('') +
       '<input class="best-search" style="flex:1;min-width:10rem;width:auto;min-height:48px;padding:.6rem 1rem" type="search" value="' + esc(BEST.search) + '" placeholder="Produkt / Art.-Nr. suchen" oninput="__bb.bestInput(\'search\',this.value)" autocomplete="off" />' +
       '<button class="best-chip' + (BEST.favOnly ? ' on' : '') + '" onclick="__bb.select(\'best-toggle\',\'favOnly\')">♥ Favoriten</button>' +
       '<button class="best-chip' + (BEST.moreFilters ? ' on' : '') + '" onclick="__bb.select(\'best-toggle\',\'moreFilters\')">Mehr Filter</button></div>' +
-      (!BEST.brand ? '<div class="bst-hint">Marke wählen (KLAPP, GEHWOL, Alessandro), dann erscheinen die Rubriken — z. B. Vitamin A, Vitamin B, Serum &amp; Ampullen.</div>' : '<div class="bst-cats"><span class="bst-lbl">Rubrik</span><button class="best-chip bst-cat' + (!BEST.category ? ' on' : '') + '" onclick="__bb.select(\'best-cat\',\'\')">Alle</button>' + catChips + '</div>') +
+      catBlock +
       (BEST.moreFilters ? '<div class="best-filters"><select class="best-select" onchange="__bb.bestInput(\'group\',this.value)" aria-label="Produktlinie"><option value="">Alle Produktlinien</option>' +
         gKeys.map(function (g) { return '<option value="' + esc(g) + '"' + (BEST.group === g ? ' selected' : '') + '>' + esc(g) + ' (' + groups[g] + ')</option>'; }).join('') + '</select>' +
         '<button class="best-chip' + (BEST.lowStock ? ' on' : '') + '" onclick="__bb.select(\'best-toggle\',\'lowStock\')">Nur Mindestbestand erreicht</button></div>' : '');
@@ -4787,8 +4806,9 @@
   function bestellungHandler(kind, key, extra) {
     if (kind === 'best-besteller') { BEST.besteller = key; bestPersist(); render(); }
     else if (kind === 'best-tab') { BEST.tab = key; BEST.limit = BEST_CONFIG.pageSize; bestRefresh(); }
-    else if (kind === 'best-cat') { BEST.category = (BEST.category === key) ? '' : key; BEST.limit = BEST_CONFIG.pageSize; render(); }
-    else if (kind === 'best-filter-brand') { BEST.brand = key || null; BEST.group = ''; BEST.category = ''; BEST.limit = BEST_CONFIG.pageSize; render(); }
+    else if (kind === 'best-cat') { BEST.category = (BEST.category === key) ? '' : key; BEST.catOpen = false; BEST.limit = BEST_CONFIG.pageSize; render(); }
+    else if (kind === 'best-cat-toggle') { BEST.catOpen = !BEST.catOpen; render(); }
+    else if (kind === 'best-filter-brand') { BEST.brand = key || null; BEST.group = ''; BEST.category = ''; BEST.catOpen = false; BEST.limit = BEST_CONFIG.pageSize; render(); }
     else if (kind === 'best-toggle') { BEST[key] = !BEST[key]; BEST.limit = BEST_CONFIG.pageSize; render(); }
     else if (kind === 'best-more') { BEST.limit += BEST_CONFIG.pageSize; bestRefresh(); }
     else if (kind === 'best-fav') {
