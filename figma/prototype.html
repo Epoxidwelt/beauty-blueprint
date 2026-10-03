@@ -4769,13 +4769,14 @@
   }
   // WKZ gibt es nur bei KLAPP: nur anzeigen, wenn KLAPP-Ware in der Bestellung liegt (oder der WKZ-Reiter schon offen ist / WKZ-Ware vorhanden)
   function bestWkzRelevant() {
+    if (!bestIsApprover()) return false;   // Mitarbeiterinnen sehen weder WKZ noch Rabatte — WKZ-Ware ergänzt die Freigabe-Person
     return BEST.tab === 'wkz' || BEST.wkzItems.length > 0 || BEST.items.some(function (i) { return bestHasWkz(i.product.brand); });
   }
   function bestFooterHtml() {
     var t = bestTotals(), empty = !BEST.items.length && !BEST.wkzItems.length;
     var sum = '<div class="bst-sum"><b>' + t.deliveryQty + ' Artikel' + (t.freeQty ? ' (davon ' + t.freeQty + ' gratis)' : '') + ' · ' + bestMoney(t.regular) + '</b>' +
       (bestWkzRelevant() ? '<span class="wkz">WKZ-Guthaben: <b>' + bestMoney(t.amount) + '</b>' + (t.used ? ' · gewählt ' + bestMoney(t.used) + (t.remaining < 0 ? ' · Überschreitung ' + bestMoney(-t.remaining) : ' · übrig ' + bestMoney(t.remaining)) : '') + '</span>' : '') + '</div>';
-    var hasK = BEST.items.some(function (i) { return bestHasWkz(i.product.brand); });
+    var hasK = bestWkzRelevant() && BEST.items.some(function (i) { return bestHasWkz(i.product.brand); });
     if (BEST.tab === 'wkz')
       return '<button class="best-secondary" onclick="__bb.select(\'best-back\')">← Zurück</button>' + sum +
         '<button class="best-primary" ' + (BEST.items.length ? '' : 'disabled') + ' onclick="__bb.select(\'best-next\')">Weiter zur Prüfung</button>';
@@ -4902,14 +4903,14 @@
     return bestOrderBrandsOf(o).map(function (b) {
       var a = bestBrandStats(o, b), agg = bestAggregate(a.items, a.wkz);
       var over = a.remaining < 0 ? round2(-a.remaining) : 0;
-      var note = !a.hasWkz ? '' : over ? '<div class="best-msg warn">Randnotiz: Der WKZ ist um <b>' + bestMoney(over) + '</b> überschritten.</div>'
+      var note = (!a.hasWkz || !bestIsApprover()) ? '' : over ? '<div class="best-msg warn">Randnotiz: Der WKZ ist um <b>' + bestMoney(over) + '</b> überschritten.</div>'
         : (a.hasWkz && a.remaining > 0 && a.amount > 0 ? '<div class="best-msg info">Randnotiz: Noch <b>' + bestMoney(a.remaining) + '</b> WKZ offen.</div>' : '');
       return '<div class="best-h2">' + esc(b) + ' — Bestellübersicht</div><div class="best-twocol"><div class="best-sumbox">' +
         '<div class="best-sumrow big"><span>Bestellwert ' + esc(b) + '</span><b>' + bestMoney(a.regular) + '</b></div>' +
         '<div class="best-sumrow"><span>Artikel (inkl. Gratisware)</span><b>' + a.qty + '</b></div>' +
-        (a.testerQty ? '<div class="best-sumrow acc"><span>Tester-Rabatt (−' + BEST_CONFIG.testerDiscountPercent + ' % auf EK, ' + a.testerQty + ' Stück) — im Bestellwert enthalten</span><b>−' + bestMoney(a.testerDiscount) + '</b></div>' : '') +
-        '<div class="best-sumrow free"><span>Gratisware aus Aktionen (nicht berechnet)</span><b>' + bestMoney(a.free) + '</b></div>' +
-        (a.hasWkz ? '<div class="best-sumrow acc"><span>WKZ-Basis (nur Ware ohne Aktion)</span><b>' + bestMoney(a.base) + '</b></div>' +
+        (a.testerQty && bestIsApprover() ? '<div class="best-sumrow acc"><span>Tester-Rabatt (−' + BEST_CONFIG.testerDiscountPercent + ' % auf EK, ' + a.testerQty + ' Stück) — im Bestellwert enthalten</span><b>−' + bestMoney(a.testerDiscount) + '</b></div>' : '') +
+        (bestIsApprover() ? '<div class="best-sumrow free"><span>Gratisware aus Aktionen (nicht berechnet)</span><b>' + bestMoney(a.free) + '</b></div>' : '') +
+        (a.hasWkz && bestIsApprover() ? '<div class="best-sumrow acc"><span>WKZ-Basis (nur Ware ohne Aktion)</span><b>' + bestMoney(a.base) + '</b></div>' +
         '<div class="best-sumrow acc"><span>WKZ-Guthaben</span><b>' + bestMoney(a.amount) + '</b></div>' +
         '<div class="best-sumrow acc"><span>WKZ-Ware gewählt</span><b>' + bestMoney(a.used) + '</b></div>' +
         '<div class="best-sumrow acc"><span>WKZ verbleibend</span><b>' + bestMoney(a.remaining) + '</b></div>' : '') + '</div>' +
