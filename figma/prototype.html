@@ -777,9 +777,9 @@
     border: 2px solid transparent;
   }
   .best-card.above { opacity: 0.6; border-color: rgba(169,122,46,0.45); }
-  .bst-purposes { display: inline-flex; background: var(--beige); border-radius: 12px; padding: 3px; gap: 2px; }
-  .bst-purposes button { font-family: var(--font-body); font-size: 0.8rem; font-weight: 600; border: none; background: transparent; color: var(--text); border-radius: 9px; padding: 0.45rem 0.7rem; min-height: 40px; cursor: pointer; }
-  .bst-purposes button.on { background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.18); font-weight: 800; }
+  .bst-purposes { display: inline-flex; flex-wrap: wrap; gap: 0.5rem; }
+  .bst-purposes button { font-family: var(--font-body); font-size: 0.85rem; font-weight: 600; color: var(--text); background: #fff; border: 1.5px solid var(--border-strong); border-radius: 999px; padding: 0.45rem 1rem; min-height: 44px; cursor: pointer; }
+  .bst-purposes button.on { background: var(--text); color: #fff; border-color: var(--text); font-weight: 700; }
   .bst-editbanner { display: flex; align-items: center; justify-content: space-between; gap: .8rem; }
   .best-img { background: #fff; border: 1px solid var(--rose-pale); border-radius: 14px; display: flex; align-items: center; justify-content: center; padding: 0.5rem; }
   .best-img img { width: 96px; height: 96px; display: block; object-fit: contain; }
@@ -4483,7 +4483,7 @@
     if (!wkz) {
       extra = lines.map(function (it) {
         var k = bestKey(it, false);
-        return '<div class="bst-sub">' + bestPurposeSwitch(it) +  + bestStepper('best-q', k, it.quantityPaid) +
+        return '<div class="bst-sub">' + bestPurposeSwitch(it) + bestStepper('best-q', k, it.quantityPaid) +
           (it.purpose === 'tester' ? '' : '<button class="bst-chip' + (it.promotionType !== 'none' ? ' on' : '') + '" onclick="__bb.select(\'best-cyc-promo\',\'' + k + '\')">' + (it.promotionType === 'none' ? 'Aktion: keine' : 'Aktion ' + esc(bestPromoLabel(it))) + ' ⟳</button>') +
           (it.quantityFree ? '<span class="bst-free">+ ' + it.quantityFree + ' gratis = ' + (it.quantityPaid + it.quantityFree) + ' Stück</span>' : '') +
           '<span class="bst-val">' + bestMoney(calculateLineCost(it)) + '</span></div>';
