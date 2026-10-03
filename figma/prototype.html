@@ -4447,14 +4447,13 @@
       extra = lines.map(function (it) {
         var k = bestKey(it, false);
         return '<div class="bst-sub"><span class="bst-purpose">' + esc(bestPurposeLabel(it.purpose)) + '</span>' + bestStepper('best-q', k, it.quantityPaid) +
-          '<button class="bst-chip' + (it.promotionType !== 'none' ? ' on' : '') + '" onclick="__bb.select(\'best-cyc-promo\',\'' + k + '\')">' + (it.promotionType === 'none' ? 'Aktion: keine' : 'Aktion ' + esc(bestPromoLabel(it))) + ' ⟳</button>' +
+          (it.purpose === 'tester' ? '' : '<button class="bst-chip' + (it.promotionType !== 'none' ? ' on' : '') + '" onclick="__bb.select(\'best-cyc-promo\',\'' + k + '\')">' + (it.promotionType === 'none' ? 'Aktion: keine' : 'Aktion ' + esc(bestPromoLabel(it))) + ' ⟳</button>') +
           (it.quantityFree ? '<span class="bst-free">+ ' + it.quantityFree + ' gratis = ' + (it.quantityPaid + it.quantityFree) + ' Stück</span>' : '') +
-          (it.purpose === 'tester' ? '<span class="bst-free">EK ' + bestMoney(it.product.purchasePrice) + ' −' + BEST_CONFIG.testerDiscountPercent + ' % = ' + bestMoney(it.unitPurchasePrice) + '</span>' : '') +
           '<span class="bst-val">' + bestMoney(calculateLineCost(it)) + '</span></div>';
       }).join('');
       if (BEST.pick === p.id) {
         extra += '<div class="bst-pick"><div class="bst-pickq"><b>Verwendung</b> wählen — <span style="opacity:.8">' + esc(p.name) + '</span></div><div class="best-bigbtns">' +
-          BEST_PURPOSES.filter(function (x) { return x.key === 'sale' || x.key === 'cabin'; }).map(function (x) {
+          BEST_PURPOSES.filter(function (x) { return x.key !== 'other'; }).map(function (x) {
             var used = bestFind(p.id + '|' + x.key, false);
             return '<button class="best-bigbtn' + (used ? ' on' : '') + '" onclick="__bb.select(\'best-add\',\'' + p.id + '|' + x.key + '\')">' + esc(x.label) + (used ? ' ✓' : '') + '</button>';
           }).join('') + '</div></div>';
@@ -4477,7 +4476,7 @@
   function bestBarHtml() {
     var t = bestTotals(), over = bestOverrun(t);
     if (BEST.tab !== 'wkz') {
-      return '<div class="best-msg info" style="margin:0 0 .9rem">Produktlinie wählen, dann beim Hinzufügen die <b>Verwendung</b> (Verkauf oder Kabinenware). Standard-Aktion 6+1 = gleich 7 Stück. Ware mit Aktion zählt <b>nicht</b> zum WKZ.</div>';
+      return '<div class="best-msg info" style="margin:0 0 .9rem">Produktlinie wählen, dann beim Hinzufügen die <b>Verwendung</b> (Verkauf, Tester oder Kabinenware). Aktion lässt sich in der Zeile wählen: 6+1 = gleich 7 Stück. Ware mit Aktion zählt <b>nicht</b> zum WKZ.</div>';
     }
     var note = over ? '<div class="best-msg warn" style="margin:0 0 .9rem">Der WKZ ist um <b>' + bestMoney(over) + '</b> überschritten — nur zur Info, die Bestellung geht trotzdem raus.</div>'
       : (t.remaining > 0 ? '<div class="best-msg info" style="margin:0 0 .9rem">Noch <b>' + bestMoney(t.remaining) + '</b> WKZ offen — nur eine Randnotiz, die Bestellung geht auch so raus.</div>'
@@ -4803,7 +4802,7 @@
     else if (name === 'qty') { bestSetQty(id, false, value); }
     else if (name === 'qtyw') { bestSetQty(id, true, value); }
   }
-  var BEST_PROMO_CYCLE = ['6+1', '5+1', '3+1', 'none'];
+  var BEST_PROMO_CYCLE = ['none', '6+1', '5+1', '3+1'];
   var BEST_PROMO_PICK = ['6+1', '5+1', '3+1', 'none'];
   function bestellungHandler(kind, key, extra) {
     if (kind === 'best-besteller') { BEST.besteller = key; bestPersist(); render(); }
@@ -4817,15 +4816,15 @@
       var fi = BEST_FAVS.indexOf(key); if (fi > -1) BEST_FAVS.splice(fi, 1); else BEST_FAVS.push(key);
       bestSave(BEST_KEYS.favs, BEST_FAVS); bestRefresh();
     }
-    else if (kind === 'best-pick') { BEST.pick = (BEST.pick === key) ? null : key; BEST.pickPromo = BEST_CONFIG.defaultPromotion; bestRefresh(); }
+    else if (kind === 'best-pick') { BEST.pick = (BEST.pick === key) ? null : key; BEST.pickPromo = 'none'; bestRefresh(); }
     else if (kind === 'best-pickpromo') { BEST.pickPromo = key; bestRefresh(); }
     else if (kind === 'best-add') {
       var ap = String(key).split('|'), apr = bestProduct(ap[0]);
       if (apr && BEST_PURPOSES.some(function (x) { return x.key === ap[1]; })) {
-        var promo = ap[1] === 'tester' ? 'none' : BEST.pickPromo;
-        var pkg = promo === 'none' ? 1 : bestPromoSize(promo);   // 6+1 → gleich 6 bezahlt + 1 gratis = 7 Stück
+        var promo = 'none';
+        var pkg = 1;   // 6+1 → gleich 6 bezahlt + 1 gratis = 7 Stück
         var line = bestFind(key, false);
-        if (line) { line.promotionType = promo; line.quantityPaid += pkg; }
+        if (line) { line.quantityPaid += 1; }
         else { line = { id: bestUid('oi-'), productId: apr.id, product: apr, purpose: ap[1], quantityPaid: pkg, quantityFree: 0, promotionType: promo, unitPurchasePrice: bestItemPrice(apr, ap[1]) }; BEST.items.push(line); }
         bestRecalc(line); BEST.pick = null; BEST.wkzOverrunConfirmed = 0; bestPersist(); bestRefresh();
       }
@@ -4834,7 +4833,7 @@
     else if (kind === 'best-qw') { var iw = bestFind(key, true); bestSetQty(key, true, bestQtyOf(iw, true) + extra); }
     else if (kind === 'best-cyc-promo') {
       var im = bestFind(key, false);
-      if (im && im.purpose !== 'tester') { var pi = BEST_PROMO_CYCLE.indexOf(im.promotionType); im.promotionType = BEST_PROMO_CYCLE[(pi + 1) % BEST_PROMO_CYCLE.length]; var psz = bestPromoSize(im.promotionType); if (psz && im.quantityPaid < psz) im.quantityPaid = psz; bestRecalc(im); BEST.wkzOverrunConfirmed = 0; bestPersist(); bestRefresh(); }
+      if (im && im.purpose !== 'tester') { var pi = BEST_PROMO_CYCLE.indexOf(im.promotionType); im.promotionType = BEST_PROMO_CYCLE[(pi + 1) % BEST_PROMO_CYCLE.length]; var psz = bestPromoSize(im.promotionType); if (psz) im.quantityPaid = psz; /* 6+1 → 6 bezahlt + 1 gratis = 7 Stück */ bestRecalc(im); BEST.wkzOverrunConfirmed = 0; bestPersist(); bestRefresh(); }
     }
     else if (kind === 'best-wkz-rate') { BEST.wkzRate = Math.max(0, round2(BEST.wkzRate + extra)); BEST.wkzOverrunConfirmed = 0; bestPersist(); bestRefresh(); }
     else if (kind === 'best-next') { goTo('best-pruefen'); }
