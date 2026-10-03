@@ -4212,6 +4212,7 @@
   // =====================================================================================
 
   var BEST_CONFIG = {
+    approver: 'Svenja',            // nur diese Person darf Bestellungen freigeben/abschließen und E-Mails an die Hersteller auslösen
     orderEmail: 'beauty_lounge@gmx.net', // Platzhalter-Empfänger der Bestell-Zusammenfassung
     defaultPromotion: '6+1',
     testerDiscountPercent: 20,   // Tester: immer 20 % Nachlass auf den EK
@@ -4825,10 +4826,14 @@
     bestEnsureBesteller();
     if (BEST.tab !== 'scan') bestScanStop();
     var orders = bestLoad(BEST_KEYS.orders, []).slice().reverse();
-    var hist = orders.length ? '<details class="bst-hist" open><summary>Gespeicherte Bestellungen (' + orders.length + ')</summary><div class="best-history">' + orders.map(function (o) {
+    var histRow = function (o) {
+      var open = o.status !== 'completed';
       return '<button class="best-hist" onclick="__bb.select(\'best-view-order\',\'' + esc(o.id) + '\')">' + bestAvatar(o.besteller) +
-        '<span><b>' + esc(o.id) + '</b><small>' + esc(o.besteller || '—') + ' · ' + esc(formatDateDE(new Date(o.createdAt))) + ' · ' + esc(bestOrderBrands(o).join(', ')) + '</small></span><span class="val">' + bestMoney(o.regularOrderValue) + '</span></button>';
-    }).join('') + '</div></details>' : '';
+        '<span><b>' + esc(o.id) + '</b>' + (open ? ' <span class="best-badge warn">offen</span>' : '') + '<small>' + esc(o.besteller || '—') + ' · ' + esc(formatDateDE(new Date(o.createdAt))) + ' · ' + esc(bestOrderBrands(o).join(', ')) + '</small></span><span class="val">' + bestMoney(o.regularOrderValue) + '</span></button>';
+    };
+    var openOrders = orders.filter(function (o) { return o.status !== 'completed'; }), doneOrders = orders.filter(function (o) { return o.status === 'completed'; });
+    var hist = (openOrders.length ? '<details class="bst-hist" open><summary>Offene Bestellungen — warten auf Freigabe (' + openOrders.length + ')</summary><div class="best-history">' + openOrders.map(histRow).join('') + '</div></details>' : '') +
+      (doneOrders.length ? '<details class="bst-hist"' + (openOrders.length ? '' : ' open') + '><summary>Abgeschlossene Bestellungen (' + doneOrders.length + ')</summary><div class="best-history">' + doneOrders.map(histRow).join('') + '</div></details>' : '');
     var body = '<div class="best-wrap">' + bestMainTabs('bestellung') + bestWhoChips() + bestEditBanner() + bestTabsHtml() +
       '<div id="best-bar">' + bestBarHtml() + '</div>' + bestFiltersHtml() +
       '<div id="best-list">' + bestListHtml() + '</div>' + hist +
@@ -4868,8 +4873,12 @@
       (BEST.wkzItems.length ? '<div class="best-h2">WKZ-Ware</div><div class="bst-lines">' + BEST.wkzItems.map(function (i) { return bestLineRow(i, true); }).join('') + '</div>' : '') +
       bestSummaryBlocks(o) +
       '<div class="best-actionrow bst-final"><button class="best-secondary" onclick="__bb.goBack()">← Bestellung bearbeiten</button>' +
-      '<button class="best-secondary" onclick="__bb.select(\'best-preview\')">PDF Vorschau</button><button class="best-secondary" onclick="__bb.select(\'best-export\')">Exportieren</button>' +
-      '<button class="best-primary grow" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-finish\')">' + (BEST.editingId ? 'Bestellung speichern' : 'Bestellung abschließen') + '</button></div></div>';
+      (bestIsApprover()
+        ? '<button class="best-secondary" onclick="__bb.select(\'best-preview\')">PDF Vorschau</button><button class="best-secondary" onclick="__bb.select(\'best-export\')">Exportieren</button>' +
+          '<button class="best-secondary" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-save\')">Offen speichern</button>' +
+          '<button class="best-primary grow" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-finish\')">Bestellung abschließen</button>'
+        : '<button class="best-primary grow" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-save\')">Bestellung speichern</button>') + '</div>' +
+      (bestIsApprover() ? '' : '<div class="best-msg info">Du kannst die Bestellung speichern und später bearbeiten. Abschließen und an die Hersteller senden darf nur ' + esc(BEST_CONFIG.approver) + '.</div>') + '</div>';
     screenWrap('dezent', 0, contextLabel(), body);
   }
 
@@ -4913,6 +4922,23 @@
       regularOrderValue: t.regular, wkzBase: t.base, wkzAmount: t.amount, wkzUsed: t.used, wkzRemaining: t.remaining, freeGoodsValue: t.free };
   }
   // ---------- Abschluss ----------
+  function bestIsApprover() { return STATE.mitarbeiterin === BEST_CONFIG.approver; }
+  // Bestellung ablegen: 'open' = gespeichert, wartet auf Freigabe; 'completed' = von der Freigabe-Person abgeschlossen
+  function bestCommitOrder(status) {
+    var t = bestTotals();
+    if (!BEST.items.length || !bestOverrunOk(t)) { render(); return; }
+    var o = bestDraftOrder(), now = new Date().toISOString();
+    var all = bestLoad(BEST_KEYS.orders, []), prev = BEST.editingId ? bestFindOrder(BEST.editingId) : null;
+    o.status = status;
+    if (prev) {
+      o.id = prev.id; o.createdAt = prev.createdAt; o.besteller = prev.besteller; o.editedAt = now; o.editedBy = STATE.mitarbeiterin; o.emailSent = {};   // geänderte Bestellung → E-Mails neu senden
+      all = all.map(function (x) { return x.id === prev.id ? o : x; });
+    } else { o.id = bestNextNumber(); o.createdAt = now; all.push(o); }
+    if (status === 'completed') { o.approvedBy = STATE.mitarbeiterin; o.approvedAt = now; }
+    bestSave(BEST_KEYS.orders, all); BEST.editingId = null;
+    BEST.completedId = o.id; BEST.items = []; BEST.wkzItems = []; BEST.wkzOverrunConfirmed = 0; BEST.wkzRate = BEST_CONFIG.defaultWkzRate; BEST.tab = 'order'; BEST.pick = null; bestPersist();
+    path = ['login', 'kunde-wahl', 'best-fertig']; pointer = 2; render();
+  }
   function bestFindOrder(id) { return bestLoad(BEST_KEYS.orders, []).filter(function (o) { return o.id === id; })[0]; }
   function bestBrandMailCards(o) {
     var brands = bestOrderBrands(o);
@@ -4929,16 +4955,21 @@
   function renderBestDone() {
     var o = bestFindOrder(BEST.completedId);
     if (!o) { return replaceTop('bestellung'); }
-    var body = '<div class="best-wrap"><div class="best-done"><div class="check">✓</div><p class="best-h2" style="margin:0">Bestellung erfolgreich erstellt</p>' +
-      '<div class="nr">' + esc(o.id) + '</div><div style="margin:.4rem 0 1.2rem"><span class="best-by">' + bestAvatar(o.besteller) + 'Bestellt von ' + esc(o.besteller || '—') + '</span>' +
-      '<div class="best-sub" style="margin-top:.5rem">' + esc(formatDateDE(new Date(o.createdAt))) + ' · Status: abgeschlossen</div></div></div>' +
+    var done = o.status === 'completed', ap = bestIsApprover(), id = esc(o.id);
+    var canEdit = !done || ap;
+    var body = '<div class="best-wrap"><div class="best-done"><div class="check">' + (done ? '✓' : '✎') + '</div><p class="best-h2" style="margin:0">' + (done ? 'Bestellung abgeschlossen' : 'Bestellung gespeichert') + '</p>' +
+      '<div class="nr">' + id + '</div><div style="margin:.4rem 0 1.2rem"><span class="best-by">' + bestAvatar(o.besteller) + 'Eingetragen von ' + esc(o.besteller || '—') + '</span>' +
+      '<div class="best-sub" style="margin-top:.5rem">' + esc(formatDateDE(new Date(o.createdAt))) + ' · Status: ' + (done ? 'abgeschlossen' + (o.approvedBy ? ' von ' + esc(o.approvedBy) : '') : '<b>offen — wartet auf Freigabe durch ' + esc(BEST_CONFIG.approver) + '</b>') + '</div></div></div>' +
       bestSummaryBlocks(o) +
-      '<div class="best-h2">E-Mails an die Hersteller</div>' + bestBrandMailCards(o) +
-      '<div class="best-actionrow"><button class="best-secondary" onclick="__bb.select(\'best-email-intern\',\'' + esc(o.id) + '\')">✉ Interne Gesamtzusammenfassung</button><button class="best-secondary" onclick="__bb.select(\'best-preview\',\'' + esc(o.id) + '\')">PDF Vorschau</button>' +
-      '<button class="best-secondary" onclick="__bb.select(\'best-export\',\'' + esc(o.id) + '\')">Bestellung exportieren</button>' +
-      '<button class="best-secondary" onclick="__bb.select(\'best-edit-order\',\'' + esc(o.id) + '\')">✎ Bestellung bearbeiten</button>' +
+      ((done && ap) ? '<div class="best-h2">E-Mails an die Hersteller</div>' + bestBrandMailCards(o) : '') +
+      ((!done && !ap) ? '<div class="best-msg info">Die Bestellung ist gespeichert. Du kannst sie weiter bearbeiten, bis ' + esc(BEST_CONFIG.approver) + ' sie abschließt.</div>' : '') +
+      '<div class="best-actionrow">' +
+      (ap ? '<button class="best-secondary" onclick="__bb.select(\'best-preview\',\'' + id + '\')">PDF Vorschau</button><button class="best-secondary" onclick="__bb.select(\'best-export\',\'' + id + '\')">Bestellung exportieren</button>' : '') +
+      ((done && ap) ? '<button class="best-secondary" onclick="__bb.select(\'best-email-intern\',\'' + id + '\')">✉ Interne Gesamtzusammenfassung</button>' : '') +
+      (canEdit ? '<button class="best-secondary" onclick="__bb.select(\'best-edit-order\',\'' + id + '\')">✎ Bestellung bearbeiten</button>' : '') +
       '<button class="best-secondary" onclick="__bb.replaceTop(\'kunde-wahl\')">Zum Hauptbildschirm</button>' +
-      '<button class="best-primary grow" onclick="__bb.select(\'best-new\')">Neue Bestellung</button></div></div>';
+      ((!done && ap) ? '<button class="best-primary grow" onclick="__bb.select(\'best-approve\',\'' + id + '\')">Bestellung abschließen</button>' : '') +
+      '<button class="' + ((!done && ap) ? 'best-secondary' : 'best-primary grow') + '" onclick="__bb.select(\'best-new\')">Neue Bestellung</button></div></div>';
     screenWrap('dezent', 0, contextLabel(), body);
   }
 
@@ -5217,23 +5248,19 @@
     }
     else if (kind === 'best-next') { goTo('best-pruefen'); }
     else if (kind === 'best-overrun-ok') { BEST.wkzOverrunConfirmed = bestOverrun(bestTotals()); bestPersist(); render(); }
-    else if (kind === 'best-finish') {
-      var t = bestTotals();
-      if (!BEST.items.length || !bestOverrunOk(t)) { render(); return; }
-      var o = bestDraftOrder();
-      var all = bestLoad(BEST_KEYS.orders, []), prev = BEST.editingId ? bestFindOrder(BEST.editingId) : null;
-      o.status = 'completed';
-      if (prev) {
-        o.id = prev.id; o.createdAt = prev.createdAt; o.besteller = prev.besteller; o.editedAt = new Date().toISOString(); o.emailSent = {};   // geänderte Bestellung → E-Mails neu senden
-        all = all.map(function (x) { return x.id === prev.id ? o : x; });
-      } else { o.id = bestNextNumber(); o.createdAt = new Date().toISOString(); all.push(o); }
-      bestSave(BEST_KEYS.orders, all); BEST.editingId = null;
-      BEST.completedId = o.id; BEST.items = []; BEST.wkzItems = []; BEST.wkzOverrunConfirmed = 0; BEST.wkzRate = BEST_CONFIG.defaultWkzRate; BEST.tab = 'order'; BEST.pick = null; bestPersist();
-      path = ['login', 'kunde-wahl', 'best-fertig']; pointer = 2; render();
+    else if (kind === 'best-save') { bestCommitOrder('open'); }
+    else if (kind === 'best-finish') { if (bestIsApprover()) bestCommitOrder('completed'); }
+    else if (kind === 'best-approve') {   // gespeicherte Bestellung freigeben & abschließen (nur Freigabe-Person)
+      var ao = bestFindOrder(key);
+      if (ao && bestIsApprover() && ao.status !== 'completed') {
+        ao.status = 'completed'; ao.approvedBy = STATE.mitarbeiterin; ao.approvedAt = new Date().toISOString(); ao.emailSent = {};
+        bestSave(BEST_KEYS.orders, bestLoad(BEST_KEYS.orders, []).map(function (x) { return x.id === ao.id ? ao : x; }));
+        BEST.completedId = ao.id; render();
+      }
     }
     else if (kind === 'best-edit-order') {
       var eo = bestFindOrder(key);
-      if (!eo) return;
+      if (!eo || (eo.status === 'completed' && !bestIsApprover())) return;   // abgeschlossene Bestellungen nur durch die Freigabe-Person änderbar
       if (BEST.items.length && !BEST.editingId && !window.confirm('Der aktuelle Entwurf wird durch diese Bestellung ersetzt. Fortfahren?')) return;
       BEST.items = JSON.parse(JSON.stringify(eo.items)); BEST.wkzItems = JSON.parse(JSON.stringify(eo.wkzItems)); BEST.wkzRate = eo.wkzRate;
       BEST.editingId = eo.id; BEST.tab = 'order'; BEST.pick = null; BEST.wkzOverrunConfirmed = 0; BEST.completedId = null; bestPersist();
@@ -5244,10 +5271,11 @@
     }
     else if (kind === 'best-new') { BEST.completedId = null; replaceTop('bestellung'); }
     else if (kind === 'best-view-order') { BEST.completedId = key; goTo('best-fertig'); }
-    else if (kind === 'best-preview') { bestPreview(key); }
+    else if (kind === 'best-preview') { if (bestIsApprover()) bestPreview(key); }
     else if (kind === 'best-preview-close') { bestPreviewClose(); }
     else if (kind === 'best-print') { try { window.print(); } catch (e) { /* Drucken evtl. gesperrt */ } }
-    else if (kind === 'best-export') { bestExport(key); }
+    else if (kind === 'best-export') { if (bestIsApprover()) bestExport(key); }
+    else if (kind === 'best-email' && !bestIsApprover()) { /* nur Freigabe-Person */ }
     else if (kind === 'best-email') {
       var all2 = bestLoad(BEST_KEYS.orders, []), eo = all2.filter(function (x) { return x.id === key; })[0];
       if (eo) {
@@ -5257,7 +5285,7 @@
         render();
       }
     }
-    else if (kind === 'best-email-intern') { var ei = bestFindOrder(key); if (ei) window.location.href = bestEmailHref(ei); }
+    else if (kind === 'best-email-intern') { var ei = bestFindOrder(key); if (ei && bestIsApprover()) window.location.href = bestEmailHref(ei); }
   }
 
   function render() {
