@@ -943,6 +943,10 @@
   .bst-cats .bst-cat { flex-shrink: 0; min-height: 44px; padding: 0.4rem 0.9rem; font-size: 0.85rem; background: #fff; border-color: var(--beige-deep); white-space: nowrap; }
   .bst-cats .bst-cat.on { background: var(--rose-pale); border-color: var(--rose-deep); }
   .bst-cats .bst-cat small { opacity: 0.6; margin-left: 0.2rem; }
+  .bst-mails { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 0.8rem; }
+  .bst-mail { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; background: #fff; border-radius: 16px; padding: 0.8rem 1rem; box-shadow: 0 3px 12px rgba(122,92,75,0.08); }
+  .bst-mail small { display: block; font-size: 0.75rem; color: var(--text-soft); margin-top: 0.15rem; }
+  .bst-mail small.ok { color: var(--good); font-weight: 600; }
   @media (max-width: 760px) {
     .bst-row { grid-template-columns: 48px minmax(0, 1fr) 44px; }
     .bst-ctl { grid-column: 1 / -1; justify-self: end; }
@@ -2065,7 +2069,7 @@
     downloadPdfReport: downloadPdfReport,
     sendKundeEmail: sendKundeEmail,
     bestInput: bestInput,
-    bestEmailBody: function (id) { return bestEmailBody(bestFindOrder(id)); },
+    bestBrandEmailBody: function (id, brand) { return bestBrandEmailBody(bestFindOrder(id), brand); },
     handleMitarbeiterFotoChange: handleMitarbeiterFotoChange,
     filterAktionVerknuepfung: filterAktionVerknuepfung,
     pickAktionVerknuepfung: pickAktionVerknuepfung,
@@ -2149,6 +2153,11 @@
       }
     }
     else if (kind === 'admin-logout') { adminLogout(); }
+    else if (kind === 'hersteller-save') {
+      ADMIN_DATA.herstellerEmails = ADMIN_DATA.herstellerEmails || {};
+      BEST_BRANDS.forEach(function (b) { var el = document.getElementById('hersteller-email-' + b); if (el) ADMIN_DATA.herstellerEmails[b] = el.value.trim(); });
+      saveAdminData(); render();
+    }
     else if (kind === 'admin-tab') { STATE.adminTab = key; STATE.aktionEditId = null; render(); }
     else if (kind === 'aktion-add') {
       var titelEl = document.getElementById('aktion-titel-input');
@@ -2617,17 +2626,28 @@
       '</div>';
   }
 
+  function renderAdminHerstellerTab() {
+    var em = ADMIN_DATA.herstellerEmails || {};
+    return '<p class="admin-section-title">E-Mail-Adressen der Hersteller</p>' +
+      '<p class="admin-hint">Jede Bestellung geht pro Hersteller als eigene E-Mail raus. Solange hier nichts steht, wird der Platzhalter ' + esc(BEST_CONFIG.orderEmail) + ' verwendet.</p>' +
+      '<div class="admin-form">' + BEST_BRANDS.map(function (b) {
+        return '<label class="file-label">' + esc(b) + '<input id="hersteller-email-' + b + '" class="text-input" type="email" placeholder="bestellung@hersteller.de" value="' + esc(em[b] || '') + '" /></label>';
+      }).join('') + '<button class="btn-primary" onclick="__bb.select(\'hersteller-save\')">Speichern</button></div>';
+  }
+
   function renderAdminDashboard() {
     var tabs = [
       { key: 'aktionen', label: 'Aktionen' },
       { key: 'mitarbeiter', label: 'Mitarbeiter' },
-      { key: 'fragen', label: 'Ziele' }
+      { key: 'fragen', label: 'Ziele' },
+      { key: 'hersteller', label: 'Hersteller' }
     ];
     var tabBtns = tabs.map(function (t) {
       return '<button type="button" class="admin-tab-btn' + (STATE.adminTab === t.key ? ' current' : '') + '" onclick="__bb.select(\'admin-tab\',\'' + t.key + '\')">' + t.label + '</button>';
     }).join('');
     var content = STATE.adminTab === 'mitarbeiter' ? renderAdminMitarbeiterTab()
       : STATE.adminTab === 'fragen' ? renderAdminFragenTab()
+      : STATE.adminTab === 'hersteller' ? renderAdminHerstellerTab()
       : renderAdminAktionenTab();
     var body = '' +
       '<p class="eyebrow">Admin-Bereich</p>' +
@@ -4488,10 +4508,10 @@
   }
   function renderBestMain() {
     bestEnsureBesteller();
-    var orders = bestLoad(BEST_KEYS.orders, []).slice(-5).reverse();
-    var hist = orders.length ? '<details class="bst-hist"><summary>Letzte Bestellungen (' + orders.length + ')</summary><div class="best-history">' + orders.map(function (o) {
+    var orders = bestLoad(BEST_KEYS.orders, []).slice().reverse();
+    var hist = orders.length ? '<details class="bst-hist" open><summary>Gespeicherte Bestellungen (' + orders.length + ')</summary><div class="best-history">' + orders.map(function (o) {
       return '<button class="best-hist" onclick="__bb.select(\'best-view-order\',\'' + esc(o.id) + '\')">' + bestAvatar(o.besteller) +
-        '<span><b>' + esc(o.id) + '</b><small>' + esc(o.besteller || '—') + ' · ' + esc(formatDateDE(new Date(o.createdAt))) + '</small></span><span class="val">' + bestMoney(o.regularOrderValue) + '</span></button>';
+        '<span><b>' + esc(o.id) + '</b><small>' + esc(o.besteller || '—') + ' · ' + esc(formatDateDE(new Date(o.createdAt))) + ' · ' + esc(bestOrderBrands(o).join(', ')) + '</small></span><span class="val">' + bestMoney(o.regularOrderValue) + '</span></button>';
     }).join('') + '</div></details>' : '';
     var body = '<div class="best-wrap">' + bestMainTabs('bestellung') + bestWhoChips() + bestTabsHtml() +
       '<div id="best-bar">' + bestBarHtml() + '</div>' + bestFiltersHtml() +
@@ -4566,6 +4586,17 @@
   }
   // ---------- Abschluss ----------
   function bestFindOrder(id) { return bestLoad(BEST_KEYS.orders, []).filter(function (o) { return o.id === id; })[0]; }
+  function bestBrandMailCards(o) {
+    var brands = bestOrderBrands(o);
+    return '<div class="bst-mails">' + brands.map(function (b) {
+      var n = o.items.filter(function (i) { return i.product.brand === b; }).length + o.wkzItems.filter(function (w) { return w.product.brand === b; }).length;
+      var sent = o.emailSent && o.emailSent[b];
+      return '<div class="bst-mail"><div><b>' + esc(b) + '</b> · ' + n + ' Position' + (n === 1 ? '' : 'en') +
+        '<small>' + esc(bestBrandEmail(b)) + (bestBrandConfigured(b) ? '' : ' (Platzhalter — Hersteller-E-Mail im Admin-Bereich hinterlegen)') + '</small>' +
+        (sent ? '<small class="ok">✓ E-Mail geöffnet am ' + esc(formatDateDE(new Date(sent))) + '</small>' : '') + '</div>' +
+        '<button class="best-primary" onclick="__bb.select(\'best-email\',\'' + esc(o.id) + '\',\'' + b + '\')">✉ E-Mail an ' + esc(b) + '</button></div>';
+    }).join('') + '</div>';
+  }
   function renderBestDone() {
     var o = bestFindOrder(BEST.completedId);
     if (!o) { return replaceTop('bestellung'); }
@@ -4573,8 +4604,8 @@
       '<div class="nr">' + esc(o.id) + '</div><div style="margin:.4rem 0 1.2rem"><span class="best-by">' + bestAvatar(o.besteller) + 'Bestellt von ' + esc(o.besteller || '—') + '</span>' +
       '<div class="best-sub" style="margin-top:.5rem">' + esc(formatDateDE(new Date(o.createdAt))) + ' · Status: abgeschlossen</div></div></div>' +
       bestSummaryBlocks(o) +
-      '<div class="best-msg info">Die Zusammenfassung ist für <b>' + esc(BEST_CONFIG.orderEmail) + '</b> vorbereitet (Mailprogramm öffnet sich).</div>' +
-      '<div class="best-actionrow"><button class="best-primary" onclick="__bb.select(\'best-email\',\'' + esc(o.id) + '\')">✉ Zusammenfassung per E-Mail senden</button><button class="best-secondary" onclick="__bb.select(\'best-preview\',\'' + esc(o.id) + '\')">PDF Vorschau</button>' +
+      '<div class="best-h2">E-Mails an die Hersteller</div>' + bestBrandMailCards(o) +
+      '<div class="best-actionrow"><button class="best-secondary" onclick="__bb.select(\'best-email-intern\',\'' + esc(o.id) + '\')">✉ Interne Gesamtzusammenfassung</button><button class="best-secondary" onclick="__bb.select(\'best-preview\',\'' + esc(o.id) + '\')">PDF Vorschau</button>' +
       '<button class="best-secondary" onclick="__bb.select(\'best-export\',\'' + esc(o.id) + '\')">Bestellung exportieren</button>' +
       '<button class="best-secondary" onclick="__bb.replaceTop(\'kunde-wahl\')">Zum Hauptbildschirm</button>' +
       '<button class="best-primary grow" onclick="__bb.select(\'best-new\')">Neue Bestellung</button></div></div>';
@@ -4621,6 +4652,39 @@
   function bestEmailHref(o) {
     var subject = 'Bestellung ' + o.id + ' – ' + (o.besteller || '') + ' – ' + formatDateDE(new Date(o.createdAt));
     return 'mailto:' + BEST_CONFIG.orderEmail + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(bestEmailBody(o));
+  }
+  // Pro Hersteller eine eigene Bestell-Mail: nur Artikelnummer, Produktname und Menge
+  // (Liefermenge = bezahlt + gratis) — keine Preise, Verwendung oder WKZ-Interna.
+  function bestBrandEmail(brand) {
+    var e = (ADMIN_DATA.herstellerEmails || {})[brand];
+    return (e && e.trim()) || BEST_CONFIG.orderEmail;
+  }
+  function bestBrandConfigured(brand) { var e = (ADMIN_DATA.herstellerEmails || {})[brand]; return !!(e && e.trim()); }
+  function bestOrderBrands(o) {
+    return BEST_BRANDS.filter(function (b) {
+      return o.items.some(function (i) { return i.product.brand === b; }) || o.wkzItems.some(function (w) { return w.product.brand === b; });
+    });
+  }
+  function bestBrandEmailBody(o, brand) {
+    var L = ['Guten Tag,', '', 'bitte folgende Artikel liefern (Bestellung ' + o.id + '):', ''];
+    o.items.filter(function (i) { return i.product.brand === brand; }).forEach(function (i) {
+      var total = i.quantityPaid + i.quantityFree;
+      L.push('Art.-Nr. ' + i.product.articleNumber + ' | ' + i.product.name + ' | Menge: ' + total +
+        (i.quantityFree ? ' (' + i.quantityPaid + ' bezahlt + ' + i.quantityFree + ' gratis, Aktion ' + bestPromoLabel(i) + ')' : ''));
+    });
+    var wk = o.wkzItems.filter(function (w) { return w.product.brand === brand; });
+    if (wk.length) {
+      L.push(''); L.push('WKZ-Ware:');
+      wk.forEach(function (w) { L.push('Art.-Nr. ' + w.product.articleNumber + ' | ' + w.product.name + ' | Menge: ' + w.quantity); });
+    }
+    L.push(''); L.push('Besteller: ' + (o.besteller || '—') + ' · ' + formatDateDE(new Date(o.createdAt)));
+    L.push(''); L.push('Mit freundlichen Grüßen'); L.push((o.besteller || 'Beauty Lounge') + ' · Beauty Lounge Neuss');
+    L.push('Hoistener Str. 15 · 41466 Neuss · 02131 4506806');
+    return L.join('\n');
+  }
+  function bestBrandHref(o, brand) {
+    var subject = 'Bestellung ' + o.id + ' – ' + brand + ' – Beauty Lounge Neuss';
+    return 'mailto:' + bestBrandEmail(brand) + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(bestBrandEmailBody(o, brand));
   }
   function bestNextNumber() {
     var seq = (bestLoad(BEST_KEYS.seq, 0) || 0) + 1;
@@ -4749,7 +4813,6 @@
       var all = bestLoad(BEST_KEYS.orders, []); all.push(o); bestSave(BEST_KEYS.orders, all);
       BEST.completedId = o.id; BEST.items = []; BEST.wkzItems = []; BEST.wkzOverrunConfirmed = 0; BEST.wkzRate = BEST_CONFIG.defaultWkzRate; BEST.tab = 'order'; BEST.pick = null; bestPersist();
       path = ['login', 'kunde-wahl', 'best-fertig']; pointer = 2; render();
-      try { window.location.href = bestEmailHref(o); } catch (e) { /* Mailprogramm nicht verfügbar — Button auf dem Abschluss-Screen */ }
     }
     else if (kind === 'best-new') { BEST.completedId = null; replaceTop('bestellung'); }
     else if (kind === 'best-view-order') { BEST.completedId = key; goTo('best-fertig'); }
@@ -4757,7 +4820,16 @@
     else if (kind === 'best-preview-close') { bestPreviewClose(); }
     else if (kind === 'best-print') { try { window.print(); } catch (e) { /* Drucken evtl. gesperrt */ } }
     else if (kind === 'best-export') { bestExport(key); }
-    else if (kind === 'best-email') { var eo = bestFindOrder(key); if (eo) window.location.href = bestEmailHref(eo); }
+    else if (kind === 'best-email') {
+      var all2 = bestLoad(BEST_KEYS.orders, []), eo = all2.filter(function (x) { return x.id === key; })[0];
+      if (eo) {
+        eo.emailSent = eo.emailSent || {}; eo.emailSent[extra] = new Date().toISOString();
+        bestSave(BEST_KEYS.orders, all2);
+        window.location.href = bestBrandHref(eo, extra);
+        render();
+      }
+    }
+    else if (kind === 'best-email-intern') { var ei = bestFindOrder(key); if (ei) window.location.href = bestEmailHref(ei); }
   }
 
   function render() {
