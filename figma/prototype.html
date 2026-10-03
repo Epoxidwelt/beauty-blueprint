@@ -15,10 +15,11 @@
   :root {
     /* Exakt aus dem Original-Logo (Beauty_Lounge_Logo Transparent.png) extrahiert */
     --warmweiss: #FFFFFF;
-    --rose-pale: #F4E6EB;
-    --rose-wash: #E3C3CE;
-    --rose: #C4879C;
-    --rose-deep: #9A4B66;
+    --wkz: #1F6B4E;   /* Signalfarbe nur für WKZ und Rabatt */
+    --rose-pale: #F0F0F0;
+    --rose-wash: #D6D6D6;
+    --rose: #8A8A8A;
+    --rose-deep: #111111;
     --anthrazit: #111111;
     --anthrazit-soft: #6B6B6B;
     --surface: var(--warmweiss);
@@ -661,10 +662,10 @@
 
   /* ===== Bestellung (interne Bestell-App) ===== */
   :root {
-    --beige: #F8EEF1;
-    --beige-deep: #EBD6DD;
-    --taupe: #B08A98;
-    --braun: #7C3A53;
+    --beige: #F2F2F2;
+    --beige-deep: #E2E2E2;
+    --taupe: #8A8A8A;
+    --braun: #222222;
   }
   .main-tabs {
     display: flex; gap: 0.4rem; background: var(--beige); padding: 0.35rem; border-radius: 16px;
@@ -926,7 +927,7 @@
   .bst-free { font-size: 0.9rem; font-weight: 700; color: var(--good); }
   .bst-val { margin-left: auto; font-weight: 700; color: var(--braun); }
   .bst-footer { position: sticky; bottom: -1.9rem; z-index: 30; display: flex; align-items: center; gap: 1rem; justify-content: space-between; flex-wrap: wrap; background: #fff; border-radius: 20px 20px 0 0; padding: 0.8rem 1.1rem; margin-top: 1rem; box-shadow: 0 -8px 24px rgba(0,0,0,0.18); }
-  .bst-sum span.wkz { color: var(--rose-deep); font-weight: 600; font-size: 0.9rem; } .bst-sum span.wkz b { display: inline; font-size: 1.05rem; }
+  .bst-sum span.wkz { color: var(--wkz); font-weight: 600; font-size: 0.9rem; } .bst-sum span.wkz b { display: inline; font-size: 1.05rem; }
   .best-wkzbar.live .hl { background: rgba(255,255,255,0.16); border-radius: 12px; padding: 0.35rem 0.7rem; }
   .best-wkzbar small { display: block; font-size: 0.68rem; font-weight: 400; opacity: .75; }
   /* Schritte und Zahlen in Schwarz; nur WKZ und Rabatt bleiben farbig */
@@ -934,19 +935,19 @@
   .bst-tabs button.on, .main-tab.current { font-weight: 800; }
   .bst-tabs button small { color: var(--text); opacity: .75; }
   .bst-val, .bst-lineval, .best-hist .val, .best-done .nr, .best-sumrow b, .best-table td.r, .bst-sum b { color: var(--text); }
-  .best-sumrow.acc b, .best-sumrow.acc span { color: var(--rose-deep); }
+  .best-sumrow.acc b, .best-sumrow.acc span { color: var(--wkz); }
   .best-sumrow.free b { color: var(--text); }
   .best-wkzbar.live div:first-child b { color: var(--text); }
-  .bst-sum span.wkz b { color: var(--rose-deep); }
+  .bst-sum span.wkz b { color: var(--wkz); }
   /* Lesbarkeit: helle Karte, dunkler Text, große Rosé-Zahlen (Kontrast > 4,5:1) */
   .best-wkzbar { background: #fff; color: var(--text); border: 2px solid var(--rose-wash); box-shadow: 0 6px 18px rgba(0,0,0,0.10); }
   .best-wkzbar div { font-size: 0.78rem; opacity: 1; color: var(--text-soft); }
-  .best-wkzbar b { font-size: 1.45rem; color: var(--rose-deep); font-weight: 700; }
+  .best-wkzbar b { font-size: 1.45rem; color: var(--wkz); font-weight: 700; }
   .best-wkzbar .over b { color: var(--danger); }
-  .best-wkzbar.live .hl { background: var(--rose-pale); }
+  .best-wkzbar.live .hl { background: #E8F1EC; }
   .best-wkzbar small { opacity: 1; color: var(--text-soft); }
   .best-wkzbar .rate b { font-size: 1.15rem; color: var(--text); display: inline; }
-  .best-wkzbar .rate button { background: var(--rose-pale); color: var(--rose-deep); font-weight: 700; }
+  .best-wkzbar .rate button { background: var(--rose-pale); color: var(--text); font-weight: 700; }
   .bst-footer .bst-sum { flex: 1; text-align: center; }
   .bst-sum b { display: block; font-size: 1.05rem; } .bst-sum span { font-size: 0.78rem; color: var(--text-soft); }
   .bst-lines { display: flex; flex-direction: column; gap: 0.5rem; }
