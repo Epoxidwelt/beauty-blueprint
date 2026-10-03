@@ -788,6 +788,7 @@
   .bst-manual { display: flex; gap: .6rem; }
   .bst-manual input { flex: 1; min-height: 48px; border-radius: 14px; border: 2px solid var(--border-strong); padding: .5rem 1rem; font-size: 1rem; font-family: var(--font-body); }
   .bst-scanrow { display: flex; gap: .7rem; align-items: center; background: #fff; border-radius: 14px; padding: .6rem .9rem; margin-bottom: .4rem; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+  .bst-scanrow .grow { flex: 1; min-width: 0; }
   .bst-scanrow small { display: block; color: var(--text-soft); }
   .bst-scanrow.ok > span:first-child { color: var(--wkz); font-weight: 800; } .bst-scanrow.bad > span:first-child { color: var(--danger); font-weight: 800; }
   .bst-editbanner { display: flex; align-items: center; justify-content: space-between; gap: .8rem; }
@@ -4513,19 +4514,28 @@
   }
   function bestScanHtml() {
     return '<div class="bst-scan"><div class="best-h2">Produkte scannen</div>' +
-      '<p class="bst-scanhint">EAN-Code des Produkts mit der Handy-Kamera scannen — das Produkt kommt als <b>Verkauf</b> in die Bestellung (jeder Scan = +1). Verwendung und Aktion danach im Reiter „1 · Bestellung" ändern.</p>' +
+      '<p class="bst-scanhint">EAN-Code des Produkts mit der Handy-Kamera scannen — das Produkt kommt als <b>Verkauf</b> in die Bestellung (jeder Scan = +1). Die <b>Menge</b> gibst du direkt darunter beim gescannten Artikel ein. Verwendung und Aktion änderst du im Reiter „1 · Bestellung".</p>' +
       '<div class="bst-videowrap"><video id="bst-video" playsinline muted></video><div class="bst-scanframe" aria-hidden="true"></div></div>' +
       '<div class="best-actionrow"><button class="best-primary grow" id="bst-scanbtn" onclick="__bb.select(\'best-scan-toggle\')">' + (SCAN.running ? 'Kamera stoppen' : 'Kamera starten') + '</button></div>' +
       '<div class="bst-scanmsg" id="bst-scanmsg" role="status"></div>' +
       '<div class="best-h2">EAN von Hand eingeben</div><div class="bst-manual"><input id="bst-ean" type="text" inputmode="numeric" placeholder="EAN-Code (8–13 Ziffern)" autocomplete="off" onkeydown="if(event.key===\'Enter\'){__bb.select(\'best-scan-manual\')}" />' +
       '<button class="best-secondary" onclick="__bb.select(\'best-scan-manual\')">Hinzufügen</button></div>' +
-      '<div class="best-h2">Zuletzt gescannt</div><div id="bst-scanlog">' + bestScanLogHtml() + '</div></div>';
+      '<div class="best-h2">Gescannt — Menge anpassen</div><div id="bst-scanlog">' + bestScanLogHtml() + '</div></div>';
   }
   function bestScanLogHtml() {
     if (!SCAN.log.length) return '<div class="best-msg info">Noch nichts gescannt.</div>';
-    return SCAN.log.slice(0, 12).map(function (e) {
-      return '<div class="bst-scanrow ' + (e.ok ? 'ok' : 'bad') + '"><span>' + (e.ok ? '✓' : '✗') + '</span><span><b>' + esc(e.ok ? e.name : 'EAN nicht gefunden') + '</b><small>' + esc(e.code) + (e.ok ? ' · +1 Verkauf' : ' · nicht im Katalog hinterlegt') + '</small></span></div>';
-    }).join('');
+    var seen = {}, html = '';
+    SCAN.log.slice(0, 30).forEach(function (e) {
+      if (e.ok) {
+        if (seen[e.id]) return; seen[e.id] = 1;
+        var it = bestFind(e.id + '|sale', false), p = bestProduct(e.id);
+        html += '<div class="bst-scanrow ok"><span>✓</span><span class="grow"><b>' + esc(e.name) + '</b><small>' + esc(p ? p.articleNumber : '') + ' · EAN ' + esc(e.code) + ' · in der Bestellung als Verkauf</small></span>' +
+          bestStepper('best-q', e.id + '|sale', it ? it.quantityPaid : 0) + '</div>';
+      } else {
+        html += '<div class="bst-scanrow bad"><span>✗</span><span class="grow"><b>EAN nicht gefunden</b><small>' + esc(e.code) + ' · nicht im Katalog hinterlegt</small></span></div>';
+      }
+    });
+    return html;
   }
   function bestScanLogRefresh() { var el = document.getElementById('bst-scanlog'); if (el) el.innerHTML = bestScanLogHtml(); }
   function bestScanMsg(t) { var el = document.getElementById('bst-scanmsg'); if (el) el.textContent = t || ''; }
@@ -4534,7 +4544,7 @@
     if (code === SCAN.last && now - SCAN.lastAt < 2500) return;   // gleiche Packung nicht doppelt zählen
     SCAN.last = code; SCAN.lastAt = now;
     var p = bestProductByEan(code);
-    SCAN.log.unshift({ ok: !!p, code: code, name: p ? p.name : '' });
+    SCAN.log.unshift({ ok: !!p, code: code, id: p ? p.id : '', name: p ? p.name : '' });
     if (p) { try { if (navigator.vibrate) navigator.vibrate(60); } catch (e) { /* egal */ } bestellungHandler('best-add', p.id + '|sale'); }
     bestScanLogRefresh();
     bestScanMsg(p ? p.name + ' hinzugefügt' : 'EAN ' + code + ' ist nicht hinterlegt');
