@@ -776,6 +776,7 @@
     border: 2px solid transparent;
   }
   .best-card.above { opacity: 0.6; border-color: rgba(169,122,46,0.45); }
+  .bst-editbanner { display: flex; align-items: center; justify-content: space-between; gap: .8rem; }
   .best-img { background: #fff; border: 1px solid var(--rose-pale); border-radius: 14px; display: flex; align-items: center; justify-content: center; padding: 0.5rem; }
   .best-img img { width: 96px; height: 96px; display: block; object-fit: contain; }
   .best-fav { position: absolute; top: 0.6rem; right: 0.6rem; width: 44px; height: 44px; border-radius: 50%; border: none; background: rgba(255,255,255,0.9); font-size: 1.25rem; cursor: pointer; color: var(--taupe); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
@@ -4322,14 +4323,14 @@
       besteller: d.besteller || null,
       items: d.items || [], wkzItems: d.wkzItems || [],
       wkzRate: (typeof d.wkzRate === 'number') ? d.wkzRate : BEST_CONFIG.defaultWkzRate,
-      wkzOverrunConfirmed: d.wkzOverrunConfirmed || 0,
+      wkzOverrunConfirmed: d.wkzOverrunConfirmed || 0, editingId: d.editingId || null,
       brand: null, group: '', search: '', lowStock: false, favOnly: false, limit: BEST_CONFIG.pageSize,
       tab: 'order', pick: null, pickPromo: '6+1', category: '', catOpen: false, moreFilters: false, completedId: null
     };
   })();
   var BEST_FAVS = bestLoad(BEST_KEYS.favs, []);
   function bestPersist() {
-    bestSave(BEST_KEYS.draft, { besteller: BEST.besteller, items: BEST.items, wkzItems: BEST.wkzItems, wkzRate: BEST.wkzRate, wkzOverrunConfirmed: BEST.wkzOverrunConfirmed });
+    bestSave(BEST_KEYS.draft, { besteller: BEST.besteller, items: BEST.items, wkzItems: BEST.wkzItems, wkzRate: BEST.wkzRate, wkzOverrunConfirmed: BEST.wkzOverrunConfirmed, editingId: BEST.editingId || null });
   }
   // Besteller ist immer die angemeldete Mitarbeiterin — keine zweite Auswahl nötig.
   function bestEnsureBesteller() {
@@ -4526,6 +4527,11 @@
       catBlock +
       (BEST.moreFilters ? '<div class="best-filters"><button class="best-chip' + (BEST.lowStock ? ' on' : '') + '" onclick="__bb.select(\'best-toggle\',\'lowStock\')">Nur Mindestbestand erreicht</button></div>' : '');
   }
+  function bestEditBanner() {
+    if (!BEST.editingId) return '';
+    return '<div class="best-msg info bst-editbanner"><span>✎ Du bearbeitest <b>' + esc(BEST.editingId) + '</b> — Änderungen mit „Bestellung speichern" übernehmen.</span>' +
+      '<button class="best-secondary" onclick="__bb.select(\'best-edit-cancel\')">Abbrechen</button></div>';
+  }
   function renderBestMain() {
     bestEnsureBesteller();
     var orders = bestLoad(BEST_KEYS.orders, []).slice().reverse();
@@ -4533,7 +4539,7 @@
       return '<button class="best-hist" onclick="__bb.select(\'best-view-order\',\'' + esc(o.id) + '\')">' + bestAvatar(o.besteller) +
         '<span><b>' + esc(o.id) + '</b><small>' + esc(o.besteller || '—') + ' · ' + esc(formatDateDE(new Date(o.createdAt))) + ' · ' + esc(bestOrderBrands(o).join(', ')) + '</small></span><span class="val">' + bestMoney(o.regularOrderValue) + '</span></button>';
     }).join('') + '</div></details>' : '';
-    var body = '<div class="best-wrap">' + bestMainTabs('bestellung') + bestWhoChips() + bestTabsHtml() +
+    var body = '<div class="best-wrap">' + bestMainTabs('bestellung') + bestWhoChips() + bestEditBanner() + bestTabsHtml() +
       '<div id="best-bar">' + bestBarHtml() + '</div>' + bestFiltersHtml() +
       '<div id="best-list">' + bestListHtml() + '</div>' + hist +
       '<div class="bst-footer" id="best-footer">' + bestFooterHtml() + '</div></div>';
@@ -4572,9 +4578,9 @@
       (over ? '<div class="best-msg warn">Randnotiz: Der WKZ ist um <b>' + bestMoney(over) + '</b> überschritten. Die Bestellung kann trotzdem abgeschlossen werden.</div>'
         : (t.remaining > 0 ? '<div class="best-msg info">Randnotiz: Noch <b>' + bestMoney(t.remaining) + '</b> WKZ offen.</div>' : '')) +
       '<details class="bst-hist"><summary>Details nach Marke und Verwendungszweck</summary>' + bestSummaryBlocks(o) + '</details>' +
-      '<div class="best-actionrow bst-final"><button class="best-secondary" onclick="__bb.goBack()">← Zurück</button>' +
+      '<div class="best-actionrow bst-final"><button class="best-secondary" onclick="__bb.goBack()">← Bestellung bearbeiten</button>' +
       '<button class="best-secondary" onclick="__bb.select(\'best-preview\')">PDF Vorschau</button><button class="best-secondary" onclick="__bb.select(\'best-export\')">Exportieren</button>' +
-      '<button class="best-primary grow" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-finish\')">Bestellung abschließen</button></div></div>';
+      '<button class="best-primary grow" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-finish\')">' + (BEST.editingId ? 'Bestellung speichern' : 'Bestellung abschließen') + '</button></div></div>';
     screenWrap('dezent', 0, contextLabel(), body);
   }
 
@@ -4627,6 +4633,7 @@
       '<div class="best-h2">E-Mails an die Hersteller</div>' + bestBrandMailCards(o) +
       '<div class="best-actionrow"><button class="best-secondary" onclick="__bb.select(\'best-email-intern\',\'' + esc(o.id) + '\')">✉ Interne Gesamtzusammenfassung</button><button class="best-secondary" onclick="__bb.select(\'best-preview\',\'' + esc(o.id) + '\')">PDF Vorschau</button>' +
       '<button class="best-secondary" onclick="__bb.select(\'best-export\',\'' + esc(o.id) + '\')">Bestellung exportieren</button>' +
+      '<button class="best-secondary" onclick="__bb.select(\'best-edit-order\',\'' + esc(o.id) + '\')">✎ Bestellung bearbeiten</button>' +
       '<button class="best-secondary" onclick="__bb.replaceTop(\'kunde-wahl\')">Zum Hauptbildschirm</button>' +
       '<button class="best-primary grow" onclick="__bb.select(\'best-new\')">Neue Bestellung</button></div></div>';
     screenWrap('dezent', 0, contextLabel(), body);
@@ -4843,10 +4850,26 @@
       var t = bestTotals();
       if (!BEST.items.length || !bestOverrunOk(t)) { render(); return; }
       var o = bestDraftOrder();
-      o.id = bestNextNumber(); o.status = 'completed'; o.createdAt = new Date().toISOString();
-      var all = bestLoad(BEST_KEYS.orders, []); all.push(o); bestSave(BEST_KEYS.orders, all);
+      var all = bestLoad(BEST_KEYS.orders, []), prev = BEST.editingId ? bestFindOrder(BEST.editingId) : null;
+      o.status = 'completed';
+      if (prev) {
+        o.id = prev.id; o.createdAt = prev.createdAt; o.besteller = prev.besteller; o.editedAt = new Date().toISOString(); o.emailSent = {};   // geänderte Bestellung → E-Mails neu senden
+        all = all.map(function (x) { return x.id === prev.id ? o : x; });
+      } else { o.id = bestNextNumber(); o.createdAt = new Date().toISOString(); all.push(o); }
+      bestSave(BEST_KEYS.orders, all); BEST.editingId = null;
       BEST.completedId = o.id; BEST.items = []; BEST.wkzItems = []; BEST.wkzOverrunConfirmed = 0; BEST.wkzRate = BEST_CONFIG.defaultWkzRate; BEST.tab = 'order'; BEST.pick = null; bestPersist();
       path = ['login', 'kunde-wahl', 'best-fertig']; pointer = 2; render();
+    }
+    else if (kind === 'best-edit-order') {
+      var eo = bestFindOrder(key);
+      if (!eo) return;
+      if (BEST.items.length && !BEST.editingId && !window.confirm('Der aktuelle Entwurf wird durch diese Bestellung ersetzt. Fortfahren?')) return;
+      BEST.items = JSON.parse(JSON.stringify(eo.items)); BEST.wkzItems = JSON.parse(JSON.stringify(eo.wkzItems)); BEST.wkzRate = eo.wkzRate;
+      BEST.editingId = eo.id; BEST.tab = 'order'; BEST.pick = null; BEST.wkzOverrunConfirmed = 0; BEST.completedId = null; bestPersist();
+      path = ['login', 'kunde-wahl', 'bestellung']; pointer = 2; render();
+    }
+    else if (kind === 'best-edit-cancel') {
+      BEST.editingId = null; BEST.items = []; BEST.wkzItems = []; BEST.wkzRate = BEST_CONFIG.defaultWkzRate; BEST.wkzOverrunConfirmed = 0; bestPersist(); render();
     }
     else if (kind === 'best-new') { BEST.completedId = null; replaceTop('bestellung'); }
     else if (kind === 'best-view-order') { BEST.completedId = key; goTo('best-fertig'); }
