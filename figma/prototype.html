@@ -4878,7 +4878,7 @@
           '<button class="best-secondary" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-save\')">Offen speichern</button>' +
           '<button class="best-primary grow" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-finish\')">Bestellung abschließen</button>'
         : '<button class="best-primary grow" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-save\')">Bestellung speichern</button>') + '</div>' +
-      (bestIsApprover() ? '' : '<div class="best-msg info">Du kannst die Bestellung speichern und später bearbeiten. Abschließen und an die Hersteller senden darf nur ' + esc(BEST_CONFIG.approver) + '.</div>') + '</div>';
+      '</div>';
     screenWrap('dezent', 0, contextLabel(), body);
   }
 
@@ -4962,7 +4962,6 @@
       '<div class="best-sub" style="margin-top:.5rem">' + esc(formatDateDE(new Date(o.createdAt))) + ' · Status: ' + (done ? 'abgeschlossen' + (o.approvedBy ? ' von ' + esc(o.approvedBy) : '') : '<b>offen — wartet auf Freigabe durch ' + esc(BEST_CONFIG.approver) + '</b>') + '</div></div></div>' +
       bestSummaryBlocks(o) +
       ((done && ap) ? '<div class="best-h2">E-Mails an die Hersteller</div>' + bestBrandMailCards(o) : '') +
-      ((!done && !ap) ? '<div class="best-msg info">Die Bestellung ist gespeichert. Du kannst sie weiter bearbeiten, bis ' + esc(BEST_CONFIG.approver) + ' sie abschließt.</div>' : '') +
       '<div class="best-actionrow">' +
       (ap ? '<button class="best-secondary" onclick="__bb.select(\'best-preview\',\'' + id + '\')">PDF Vorschau</button><button class="best-secondary" onclick="__bb.select(\'best-export\',\'' + id + '\')">Bestellung exportieren</button>' : '') +
       ((done && ap) ? '<button class="best-secondary" onclick="__bb.select(\'best-email-intern\',\'' + id + '\')">✉ Interne Gesamtzusammenfassung</button>' : '') +
