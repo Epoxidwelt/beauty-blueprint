@@ -4528,9 +4528,8 @@
     SCAN.log.slice(0, 30).forEach(function (e) {
       if (e.ok) {
         if (seen[e.id]) return; seen[e.id] = 1;
-        var it = bestFind(e.id + '|sale', false), p = bestProduct(e.id);
-        html += '<div class="bst-scanrow ok"><span>✓</span><span class="grow"><b>' + esc(e.name) + '</b><small>' + esc(p ? p.articleNumber : '') + ' · EAN ' + esc(e.code) + ' · in der Bestellung als Verkauf</small></span>' +
-          bestStepper('best-q', e.id + '|sale', it ? it.quantityPaid : 0) + '</div>';
+        var p = bestProduct(e.id);   // dieselbe Zeile wie in der Produktauswahl: Verkauf/Tester/Kabinenware je Marke, Aktion, Menge
+        if (p) html += bestRowHtml(p, false, 0);
       } else {
         html += '<div class="bst-scanrow bad"><span>✗</span><span class="grow"><b>EAN nicht gefunden</b><small>' + esc(e.code) + ' · nicht im Katalog hinterlegt</small></span></div>';
       }
