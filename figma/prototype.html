@@ -780,6 +780,16 @@
   .bst-purposes { display: inline-flex; flex-wrap: wrap; gap: 0.5rem; }
   .bst-purposes button { font-family: var(--font-body); font-size: 0.85rem; font-weight: 600; color: var(--text); background: #fff; border: 1.5px solid var(--border-strong); border-radius: 999px; padding: 0.45rem 1rem; min-height: 44px; cursor: pointer; }
   .bst-purposes button.on { background: var(--text); color: #fff; border-color: var(--text); font-weight: 700; }
+  .bst-scanhint { font-size: 0.9rem; color: var(--text-soft); margin: 0 0 .8rem; }
+  .bst-videowrap { position: relative; background: #111; border-radius: 18px; overflow: hidden; aspect-ratio: 4 / 3; max-width: 560px; margin: 0 auto .9rem; }
+  .bst-videowrap video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .bst-scanframe { position: absolute; inset: 22% 12%; border: 3px solid rgba(255,255,255,.85); border-radius: 14px; pointer-events: none; }
+  .bst-scanmsg { min-height: 1.4rem; font-size: 0.9rem; font-weight: 600; margin: .5rem 0; }
+  .bst-manual { display: flex; gap: .6rem; }
+  .bst-manual input { flex: 1; min-height: 48px; border-radius: 14px; border: 2px solid var(--border-strong); padding: .5rem 1rem; font-size: 1rem; font-family: var(--font-body); }
+  .bst-scanrow { display: flex; gap: .7rem; align-items: center; background: #fff; border-radius: 14px; padding: .6rem .9rem; margin-bottom: .4rem; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+  .bst-scanrow small { display: block; color: var(--text-soft); }
+  .bst-scanrow.ok > span:first-child { color: var(--wkz); font-weight: 800; } .bst-scanrow.bad > span:first-child { color: var(--danger); font-weight: 800; }
   .bst-editbanner { display: flex; align-items: center; justify-content: space-between; gap: .8rem; }
   .best-img { background: #fff; border: 1px solid var(--rose-pale); border-radius: 14px; display: flex; align-items: center; justify-content: center; padding: 0.5rem; }
   .best-img img { width: 96px; height: 96px; display: block; object-fit: contain; }
@@ -902,7 +912,7 @@
   .best-whochip.bst-small .avatar-mini { width: 34px; height: 34px; }
   .bst-tabs button { min-height: 52px !important; padding: 0.5rem !important; }
   .best-wrap > .main-tabs { margin-bottom: 0.7rem; }
-  .bst-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; background: var(--beige); padding: 0.35rem; border-radius: 18px; margin-bottom: 0.9rem; }
+  .bst-tabs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; background: var(--beige); padding: 0.35rem; border-radius: 18px; margin-bottom: 0.9rem; }
   .bst-tabs button { font-family: var(--font-body); font-size: 1.05rem; font-weight: 700; color: var(--braun); background: transparent; border: none; border-radius: 14px; padding: 0.8rem; min-height: 62px; cursor: pointer; }
   .bst-tabs button small { display: block; font-weight: 500; font-size: 0.75rem; opacity: 0.8; }
   .bst-tabs button.on { background: #fff; color: var(--rose-deep); box-shadow: 0 4px 14px rgba(0,0,0,0.16); }
@@ -2108,6 +2118,7 @@
     downloadPdfReport: downloadPdfReport,
     sendKundeEmail: sendKundeEmail,
     bestInput: bestInput,
+    setEanTable: function (map) { Object.keys(map || {}).forEach(function (k) { BEST_EAN_TABLE[k] = map[k]; }); },   // EAN → Artikelnummer, z. B. aus CSV/Excel
     bestBrandEmailBody: function (id, brand) { return bestBrandEmailBody(bestFindOrder(id), brand); },
     handleMitarbeiterFotoChange: handleMitarbeiterFotoChange,
     filterAktionVerknuepfung: filterAktionVerknuepfung,
@@ -4209,7 +4220,7 @@
   ];
   var BEST_PROMOS = [
     { key: 'none', label: 'Keine Aktion', threshold: 0 }, { key: '3+1', label: '3 + 1', threshold: 3 },
-    { key: '5+1', label: '5 + 1', threshold: 5 }, { key: '6+1', label: '6 + 1', threshold: 6 },
+    { key: '5+1', label: '5 + 1', threshold: 5 }, { key: '6+1', label: '6 + 1', threshold: 6 }, { key: '10+2', label: '10 + 2', threshold: 10, free: 2 },
     { key: 'custom', label: 'Individuell', threshold: 0 }
   ];
   var BEST_STEP_LABELS = ['Marke', 'Produkte', 'Verwendung & Menge', 'Warenkorb', 'WKZ', 'Zusammenfassung'];
@@ -4233,11 +4244,12 @@
     var p = BEST_PROMOS.filter(function (x) { return x.key === promotionType; })[0];
     return p ? p.threshold : 0;
   }
-  // quantityFree = floor(quantityPaid / threshold)
+  function promoFree(promotionType) { var p = BEST_PROMOS.filter(function (x) { return x.key === promotionType; })[0]; return (p && p.free) || 1; }
+  // quantityFree = floor(quantityPaid / threshold) × Gratisstücke je Paket (3+1/5+1/6+1 = 1, 10+2 = 2)
   function calculateFreeQuantity(quantityPaid, promotionType, customThreshold) {
     var t = promoThreshold(promotionType, customThreshold);
     if (!t || t < 1 || quantityPaid < 1) return 0;
-    return Math.floor(quantityPaid / t);
+    return Math.floor(quantityPaid / t) * promoFree(promotionType);
   }
   function calculateLineCost(item) { return round2(item.quantityPaid * item.unitPurchasePrice); } // Gratisware zählt nicht
   function calculateOrderTotal(items) { return round2(items.reduce(function (s, i) { return s + calculateLineCost(i); }, 0)); }
@@ -4247,6 +4259,15 @@
   // komplett nicht zum WKZ — weder die bezahlten noch die Gratisstücke.
   function calculateWKZBase(items) { return round2(items.reduce(function (s, i) { return s + (i.promotionType === 'none' ? i.quantityPaid * i.unitPurchasePrice : 0); }, 0)); }
   function bestPromoSize(promo) { return promoThreshold(promo, 0); }
+  // Marken-Regeln: Verwendungen und Aktionen je Marke; WKZ gibt es nur bei KLAPP
+  var BEST_BRAND_RULES = {
+    KLAPP: { purposes: ['sale', 'tester', 'cabin'], promos: ['none', '6+1', '5+1', '3+1'], wkz: true },
+    GEHWOL: { purposes: ['sale', 'cabin'], promos: ['none', '10+2'], wkz: false },
+    Alessandro: { purposes: ['sale', 'tester', 'cabin'], promos: ['none', '10+2'], wkz: false }
+  };
+  function bestPurposesFor(brand) { return (BEST_BRAND_RULES[brand] || BEST_BRAND_RULES.KLAPP).purposes; }
+  function bestPromosFor(brand) { return (BEST_BRAND_RULES[brand] || BEST_BRAND_RULES.KLAPP).promos; }
+  function bestHasWkz(brand) { return !!(BEST_BRAND_RULES[brand] || {}).wkz; }
   // Tester bekommen immer den Nachlass auf den EK (voreingestellt 20 %).
   function bestItemPrice(p, purpose) {
     return purpose === 'tester' ? round2(p.purchasePrice * (1 - BEST_CONFIG.testerDiscountPercent / 100)) : p.purchasePrice;
@@ -4370,7 +4391,7 @@
 
   function bestTotals() {
     var regular = calculateOrderTotal(BEST.items);
-    var base = calculateWKZBase(BEST.items);
+    var base = calculateWKZBase(BEST.items.filter(function (i) { return bestHasWkz(i.product.brand); }));
     var amount = calculateWKZAmount(base, BEST.wkzRate);
     var used = calculateWKZUsed(BEST.wkzItems);
     var deliveryQty = BEST.items.reduce(function (s, i) { return s + i.quantityPaid + i.quantityFree; }, 0);
@@ -4421,7 +4442,7 @@
   }
   // Zeilen-Schlüssel: Bestellware "produktId|Verwendung" (dasselbe Produkt kann mehrfach mit
   // verschiedener Verwendung vorkommen), WKZ-Ware nur "produktId".
-  function bestKey(it, wkz) { return wkz ? it.productId : it.productId + '|' + it.purpose; }
+  function bestKey(it, wkz) { return it.productId + '|' + (it.purpose || 'sale'); }
   function bestFind(key, wkz) {
     var list = wkz ? BEST.wkzItems : BEST.items;
     for (var i = 0; i < list.length; i++) if (bestKey(list[i], wkz) === key) return list[i];
@@ -4468,38 +4489,34 @@
   }
   function bestRowHtml(p, wkz, remaining) {
     var fav = bestIsFav(p.id);
-    var wit = wkz ? bestFind(p.id, true) : null;
-    var lines = wkz ? [] : bestLinesOf(p.id);
-    var has = wkz ? !!wit : lines.length > 0;
-    var above = wkz && !wit && BEST_CONFIG.markProductsAboveWkzRest && p.purchasePrice > Math.max(remaining, 0);
+    var qk = wkz ? 'best-qw' : 'best-q';
+    var lines = bestSortByPurpose((wkz ? BEST.wkzItems : BEST.items).filter(function (i) { return i.productId === p.id; }));
+    var has = lines.length > 0;
+    var above = wkz && !has && BEST_CONFIG.markProductsAboveWkzRest && p.purchasePrice > Math.max(remaining, 0);
     var info = esc(p.articleNumber) + ' · EK <b>' + bestMoney(p.purchasePrice) + '</b>' +
       (p.purchasePrice === 0 ? ' <span class="best-badge bad">Kein EK-Preis</span>' : '') +
       (above ? ' <span class="best-badge warn">über WKZ-Rest</span>' : '');
-    var control;
-    if (wkz) control = wit ? bestStepper('best-qw', p.id, wit.quantity) : '<button class="bst-plus" aria-label="hinzufügen" onclick="__bb.select(\'best-qw\',\'' + p.id + '\',1)">+</button>';
-    else control = '<button class="bst-plus" aria-label="hinzufügen" onclick="__bb.select(\'best-add\',\'' + p.id + '|sale\')">+</button>';
-    var extra = '';
-    if (wkz && wit) extra = '<div class="bst-extra"><span class="bst-val">' + bestMoney(wit.quantity * wit.unitPurchasePrice) + '</span></div>';
-    if (!wkz) {
-      extra = lines.map(function (it) {
-        var k = bestKey(it, false);
-        return '<div class="bst-sub"><span class="bst-purpose">' + esc(bestPurposeLabel(it.purpose)) + '</span>' + bestStepper('best-q', k, it.quantityPaid) +
-          (it.purpose === 'tester' ? '' : '<button class="bst-chip' + (it.promotionType !== 'none' ? ' on' : '') + '" onclick="__bb.select(\'best-cyc-promo\',\'' + k + '\')">' + (it.promotionType === 'none' ? 'Aktion: keine' : 'Aktion ' + esc(bestPromoLabel(it))) + ' ⟳</button>') +
-          (it.quantityFree ? '<span class="bst-free">+ ' + it.quantityFree + ' gratis = ' + (it.quantityPaid + it.quantityFree) + ' Stück</span>' : '') +
-          '<span class="bst-val">' + bestMoney(calculateLineCost(it)) + '</span></div>';
-      }).join('');
-      if (lines.length) extra = '<div class="bst-sub"><span class="bst-purposes" role="group" aria-label="Menge je Verwendung eingeben">' +
-        BEST_PURPOSES.filter(function (x) { return x.key !== 'other'; }).map(function (x) {
-          var has2 = !!bestFind(p.id + '|' + x.key, false);
-          return '<button class="' + (has2 ? 'on' : '') + '" onclick="__bb.select(\'best-add-purpose\',\'' + p.id + '|' + x.key + '\')">' + esc(x.label) + '</button>';
-        }).join('') + '</span></div>' + extra;
-    }
+    var control = '<button class="bst-plus" aria-label="hinzufügen" onclick="__bb.select(\'' + (wkz ? 'best-qw' : 'best-add') + '\',\'' + p.id + '|sale\'' + (wkz ? ',1' : '') + ')">+</button>';
+    var extra = lines.map(function (it) {
+      var k = bestKey(it, wkz), q = wkz ? it.quantity : it.quantityPaid;
+      var promoOk = !wkz && it.purpose === 'sale' && bestPromosFor(p.brand).length > 1;   // Aktionen gibt es nur auf Verkaufsware
+      return '<div class="bst-sub"><span class="bst-purpose">' + esc(bestPurposeLabel(it.purpose || 'sale')) + '</span>' + bestStepper(qk, k, q) +
+        (promoOk ? '<button class="bst-chip' + (it.promotionType !== 'none' ? ' on' : '') + '" onclick="__bb.select(\'best-cyc-promo\',\'' + k + '\')">' + (it.promotionType === 'none' ? 'Aktion: keine' : 'Aktion ' + esc(bestPromoLabel(it))) + ' ⟳</button>' : '') +
+        ((!wkz && it.quantityFree) ? '<span class="bst-free">+ ' + it.quantityFree + ' gratis = ' + (it.quantityPaid + it.quantityFree) + ' Stück</span>' : '') +
+        '<span class="bst-val">' + bestMoney(q * it.unitPurchasePrice) + '</span></div>';
+    }).join('');
+    if (has) extra = '<div class="bst-sub"><span class="bst-purposes" role="group" aria-label="Menge je Verwendung eingeben">' +
+      bestPurposesFor(p.brand).map(function (key) {
+        var has2 = !!bestFind(p.id + '|' + key, wkz);
+        return '<button class="' + (has2 ? 'on' : '') + '" onclick="__bb.select(\'' + (wkz ? 'best-add-purpose-w' : 'best-add-purpose') + '\',\'' + p.id + '|' + key + '\')">' + esc(bestPurposeLabel(key)) + '</button>';
+      }).join('') + '</span></div>' + extra;
     return '<div class="bst-row' + (has ? ' has' : '') + (above ? ' above' : '') + '"><div class="best-img"><img src="' + p.image + '" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'' + (p.fallbackImage || '').replace(/'/g, '%27') + '\'"/></div>' +
       '<div class="bst-info"><div class="bst-name">' + esc(p.name) + '</div><div class="bst-meta">' + esc(p.brand) + ' · ' + info + '</div></div>' +
       '<button class="bst-fav' + (fav ? ' on' : '') + '" aria-label="Favorit" onclick="__bb.select(\'best-fav\',\'' + p.id + '\')">' + (fav ? '♥' : '♡') + '</button>' +
       '<div class="bst-ctl">' + control + '</div>' + extra + '</div>';
   }
   function bestListHtml() {
+    if (BEST.tab === 'scan') return bestScanHtml();
     var wkz = BEST.tab === 'wkz', hintFav = '';
     if (BEST.favOnly) hintFav = '<div class="best-msg info">Favoriten = Produkte, die du regelmäßig bestellst (ab 2 Bestellungen), plus selbst mit ♥ markierte. Häufigste zuerst.</div>';
     if (!wkz && BEST.brand && !BEST.category && !BEST.search && !BEST.favOnly) return '<div class="best-msg info">Produktlinie wählen, dann erscheinen die Produkte.</div>';
@@ -4509,13 +4526,93 @@
     return hintFav + shown.map(function (p) { return bestRowHtml(p, wkz, t.remaining); }).join('') +
       (list.length > shown.length ? '<div class="best-actionrow"><button class="best-secondary grow" onclick="__bb.select(\'best-more\')">Mehr anzeigen (' + (list.length - shown.length) + ' weitere)</button></div>' : '');
   }
+
+  // ---------- Produkte scannen (EAN-Code per Handy-Kamera) ----------
+  // EAN-Zuordnung: wird nachgereicht. Eintrag: 'EAN-Code': 'Artikelnummer' (z. B. '4012345678901': 'KL-10001').
+  // Alternativ später direkt im Produktdatensatz (Product.ean) aus dem Katalog/der API.
+  var BEST_EAN_TABLE = {};
+  var SCAN = { stream: null, timer: null, reader: null, last: '', lastAt: 0, log: [], running: false };
+  function bestEanNorm(c) { var d = String(c || '').replace(/\D/g, ''); return d.length === 12 ? '0' + d : d; }   // UPC-A → EAN-13
+  function bestProductByEan(code) {
+    var n = bestEanNorm(code), art = null;
+    Object.keys(BEST_EAN_TABLE).forEach(function (k) { if (bestEanNorm(k) === n) art = BEST_EAN_TABLE[k]; });
+    var cat = bestCatalog();
+    for (var i = 0; i < cat.length; i++) {
+      if ((cat[i].ean && bestEanNorm(cat[i].ean) === n) || (art && (cat[i].articleNumber === art || cat[i].id === art))) return cat[i];
+    }
+    return null;
+  }
+  function bestScanHtml() {
+    return '<div class="bst-scan"><div class="best-h2">Produkte scannen</div>' +
+      '<p class="bst-scanhint">EAN-Code des Produkts mit der Handy-Kamera scannen — das Produkt kommt als <b>Verkauf</b> in die Bestellung (jeder Scan = +1). Verwendung und Aktion danach im Reiter „1 · Bestellung" ändern.</p>' +
+      '<div class="bst-videowrap"><video id="bst-video" playsinline muted></video><div class="bst-scanframe" aria-hidden="true"></div></div>' +
+      '<div class="best-actionrow"><button class="best-primary grow" id="bst-scanbtn" onclick="__bb.select(\'best-scan-toggle\')">' + (SCAN.running ? 'Kamera stoppen' : 'Kamera starten') + '</button></div>' +
+      '<div class="bst-scanmsg" id="bst-scanmsg" role="status"></div>' +
+      '<div class="best-h2">EAN von Hand eingeben</div><div class="bst-manual"><input id="bst-ean" type="text" inputmode="numeric" placeholder="EAN-Code (8–13 Ziffern)" autocomplete="off" onkeydown="if(event.key===\'Enter\'){__bb.select(\'best-scan-manual\')}" />' +
+      '<button class="best-secondary" onclick="__bb.select(\'best-scan-manual\')">Hinzufügen</button></div>' +
+      '<div class="best-h2">Zuletzt gescannt</div><div id="bst-scanlog">' + bestScanLogHtml() + '</div></div>';
+  }
+  function bestScanLogHtml() {
+    if (!SCAN.log.length) return '<div class="best-msg info">Noch nichts gescannt.</div>';
+    return SCAN.log.slice(0, 12).map(function (e) {
+      return '<div class="bst-scanrow ' + (e.ok ? 'ok' : 'bad') + '"><span>' + (e.ok ? '✓' : '✗') + '</span><span><b>' + esc(e.ok ? e.name : 'EAN nicht gefunden') + '</b><small>' + esc(e.code) + (e.ok ? ' · +1 Verkauf' : ' · nicht im Katalog hinterlegt') + '</small></span></div>';
+    }).join('');
+  }
+  function bestScanLogRefresh() { var el = document.getElementById('bst-scanlog'); if (el) el.innerHTML = bestScanLogHtml(); }
+  function bestScanMsg(t) { var el = document.getElementById('bst-scanmsg'); if (el) el.textContent = t || ''; }
+  function bestScanCode(code) {
+    var now = Date.now();
+    if (code === SCAN.last && now - SCAN.lastAt < 2500) return;   // gleiche Packung nicht doppelt zählen
+    SCAN.last = code; SCAN.lastAt = now;
+    var p = bestProductByEan(code);
+    SCAN.log.unshift({ ok: !!p, code: code, name: p ? p.name : '' });
+    if (p) { try { if (navigator.vibrate) navigator.vibrate(60); } catch (e) { /* egal */ } bestellungHandler('best-add', p.id + '|sale'); }
+    bestScanLogRefresh();
+    bestScanMsg(p ? p.name + ' hinzugefügt' : 'EAN ' + code + ' ist nicht hinterlegt');
+  }
+  function bestScanStop() {
+    SCAN.running = false;
+    if (SCAN.timer) { clearInterval(SCAN.timer); SCAN.timer = null; }
+    if (SCAN.reader) { try { SCAN.reader.reset(); } catch (e) { /* egal */ } SCAN.reader = null; }
+    if (SCAN.stream) { SCAN.stream.getTracks().forEach(function (t) { t.stop(); }); SCAN.stream = null; }
+    var v = document.getElementById('bst-video'); if (v) v.srcObject = null;
+    var b = document.getElementById('bst-scanbtn'); if (b) b.textContent = 'Kamera starten';
+  }
+  function bestScanStart() {
+    var v = document.getElementById('bst-video'), b = document.getElementById('bst-scanbtn');
+    if (!v) return;
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { bestScanMsg('Kamera nicht verfügbar (Seite muss über https geöffnet sein). EAN bitte von Hand eingeben.'); return; }
+    SCAN.running = true; if (b) b.textContent = 'Kamera stoppen'; bestScanMsg('Kamera wird gestartet …');
+    function fail(e) { bestScanStop(); bestScanMsg('Kamera konnte nicht gestartet werden (' + ((e && e.name) || 'Fehler') + '). Bitte Kamera-Zugriff erlauben oder EAN von Hand eingeben.'); }
+    if ('BarcodeDetector' in window) {
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false }).then(function (stream) {
+        SCAN.stream = stream; v.srcObject = stream; return v.play();
+      }).then(function () {
+        var det = new window.BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e'] });
+        bestScanMsg('Bereit — Barcode in den Rahmen halten.');
+        SCAN.timer = setInterval(function () {
+          if (v.readyState < 2) return;
+          det.detect(v).then(function (r) { if (r && r.length) bestScanCode(r[0].rawValue); }).catch(function () { /* Frame überspringen */ });
+        }, 250);
+      }).catch(fail);
+    } else {   // z. B. iPhone/Safari: ZXing als Ersatz nachladen
+      var go = function () {
+        try {
+          SCAN.reader = new window.ZXing.BrowserMultiFormatReader();
+          SCAN.reader.decodeFromConstraints({ video: { facingMode: { ideal: 'environment' } }, audio: false }, 'bst-video', function (res) { if (res) bestScanCode(res.getText()); }).then(function () { bestScanMsg('Bereit — Barcode in den Rahmen halten.'); }).catch(fail);
+        } catch (e) { fail(e); }
+      };
+      if (window.ZXing) go();
+      else { var sc = document.createElement('script'); sc.src = 'https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js'; sc.onload = go; sc.onerror = function () { fail({ name: 'Scanner-Bibliothek nicht ladbar' }); }; document.head.appendChild(sc); }
+    }
+  }
   function bestBarHtml() {
     var t = bestTotals(), over = bestOverrun(t);
+    if (BEST.tab === 'scan') return '';
     if (BEST.tab !== 'wkz') {
       return '<div class="best-wkzbar live"><div>Bestellwert für WKZ<small>ohne Aktionsware</small><b>' + bestMoney(t.base) + '</b></div>' +
         '<div class="hl">WKZ ' + esc(String(BEST.wkzRate).replace('.', ',')) + ' %<small>dein WKZ-Guthaben</small><b>' + bestMoney(t.amount) + '</b></div>' +
-        '<div class="rate">WKZ-Satz<span><button onclick="__bb.select(\'best-wkz-rate\',\'\',-1)">−</button><b>' + esc(String(BEST.wkzRate).replace('.', ',')) + ' %</b><button onclick="__bb.select(\'best-wkz-rate\',\'\',1)">+</button></span></div></div>' +
-        '<div class="best-msg info" style="margin:0 0 .9rem">Das <b>+</b> legt <b>Verkauf</b> an. Mit den Buttons <b>Tester</b> und <b>Kabinenware</b> öffnest du je eine eigene Zeile und gibst dort die Menge ein. 6+1 = 7 Stück, zählt <b>nicht</b> zum WKZ.</div>';
+        '<div class="rate">WKZ-Satz<span><button onclick="__bb.select(\'best-wkz-rate\',\'\',-1)">−</button><b>' + esc(String(BEST.wkzRate).replace('.', ',')) + ' %</b><button onclick="__bb.select(\'best-wkz-rate\',\'\',1)">+</button></span></div></div>';
     }
     var note = over ? '<div class="best-msg warn" style="margin:0 0 .9rem">Der WKZ ist um <b>' + bestMoney(over) + '</b> überschritten — nur zur Info, die Bestellung geht trotzdem raus.</div>'
       : (t.remaining > 0 ? '<div class="best-msg info" style="margin:0 0 .9rem">Noch <b>' + bestMoney(t.remaining) + '</b> WKZ offen — nur eine Randnotiz, die Bestellung geht auch so raus.</div>'
@@ -4527,7 +4624,7 @@
   function bestFooterHtml() {
     var t = bestTotals(), empty = !BEST.items.length && !BEST.wkzItems.length;
     var sum = '<div class="bst-sum"><b>' + t.deliveryQty + ' Artikel' + (t.freeQty ? ' (davon ' + t.freeQty + ' gratis)' : '') + ' · ' + bestMoney(t.regular) + '</b>' +
-      '<span class="wkz">WKZ ' + esc(String(BEST.wkzRate).replace('.', ',')) + ' %: <b>' + bestMoney(t.amount) + '</b>' + (t.used ? ' · gewählt ' + bestMoney(t.used) + ' · übrig ' + bestMoney(t.remaining) : '') + '</span></div>';
+      '<span class="wkz">WKZ ' + esc(String(BEST.wkzRate).replace('.', ',')) + ' %: <b>' + bestMoney(t.amount) + '</b>' + (t.used ? ' · gewählt ' + bestMoney(t.used) + (t.remaining < 0 ? ' · Überschreitung ' + bestMoney(-t.remaining) : ' · übrig ' + bestMoney(t.remaining)) : '') + '</span></div>';
     if (BEST.tab === 'wkz')
       return '<button class="best-secondary" onclick="__bb.select(\'best-back\')">← Zurück</button>' + sum +
         '<button class="best-primary" ' + (BEST.items.length ? '' : 'disabled') + ' onclick="__bb.select(\'best-next\')">Weiter zur Prüfung</button>';
@@ -4536,9 +4633,11 @@
   }
   function bestTabsHtml() {
     return '<div class="bst-tabs"><button class="' + (BEST.tab === 'order' ? 'on' : '') + '" onclick="__bb.select(\'best-tab\',\'order\')">1 · Bestellung<small>' + BEST.items.length + ' Artikel</small></button>' +
-      '<button class="' + (BEST.tab === 'wkz' ? 'on' : '') + '" onclick="__bb.select(\'best-tab\',\'wkz\')">2 · WKZ-Ware<small>' + BEST.wkzItems.length + ' Artikel</small></button></div>';
+      '<button class="' + (BEST.tab === 'wkz' ? 'on' : '') + '" onclick="__bb.select(\'best-tab\',\'wkz\')">2 · WKZ-Ware<small>' + BEST.wkzItems.length + ' Artikel</small></button>' +
+      '<button class="' + (BEST.tab === 'scan' ? 'on' : '') + '" onclick="__bb.select(\'best-tab\',\'scan\')">Produkte scannen<small>EAN-Code</small></button></div>';
   }
   function bestFiltersHtml() {
+    if (BEST.tab === 'scan') return '';
     var catCount = {};
     bestCatalog().forEach(function (p) {
       if (BEST.brand && p.brand !== BEST.brand) return;
@@ -4558,8 +4657,9 @@
     else if (BEST.category && !BEST.catOpen) catBlock = '<div class="bst-catbar"><span>Rubrik: <b>' + esc(BEST.category) + '</b> <small>' + (catCount[BEST.category] || 0) + ' Produkte</small></span>' +
       '<span><button class="best-chip" onclick="__bb.select(\'best-cat-toggle\')">Rubrik ändern</button><button class="best-chip" onclick="__bb.select(\'best-cat\',\'\')">✕ Alle</button></span></div>';
     else catBlock = '<div class="bst-catgrid-wrap"><div class="bst-cathead">Rubrik wählen<small>' + esc(BEST.brand) + '</small></div><div class="bst-catgrid">' + tiles + '</div></div>';
-    return '<div class="best-filters"><button class="best-chip' + (!BEST.brand ? ' on' : '') + '" onclick="__bb.select(\'best-filter-brand\',\'\')">Alle</button>' +
-      BEST_BRANDS.map(function (b) { return '<button class="best-chip' + (BEST.brand === b ? ' on' : '') + '" onclick="__bb.select(\'best-filter-brand\',\'' + b + '\')">' + esc(b) + '</button>'; }).join('') +
+    var wkzTab = BEST.tab === 'wkz';
+    return '<div class="best-filters">' + (wkzTab ? '' : '<button class="best-chip' + (!BEST.brand ? ' on' : '') + '" onclick="__bb.select(\'best-filter-brand\',\'\')">Alle</button>') +
+      BEST_BRANDS.filter(function (b) { return !wkzTab || bestHasWkz(b); }).map(function (b) { return '<button class="best-chip' + (BEST.brand === b ? ' on' : '') + '" onclick="__bb.select(\'best-filter-brand\',\'' + b + '\')">' + esc(b) + '</button>'; }).join('') +
       '<input class="best-search" style="flex:1;min-width:10rem;width:auto;min-height:48px;padding:.6rem 1rem" type="search" value="' + esc(BEST.search) + '" placeholder="Produkt / Art.-Nr. suchen" oninput="__bb.bestInput(\'search\',this.value)" autocomplete="off" />' +
       '<button class="best-chip' + (BEST.favOnly ? ' on' : '') + '" onclick="__bb.select(\'best-toggle\',\'favOnly\')">♥ Favoriten</button></div>' +
       catBlock;
@@ -4571,6 +4671,7 @@
   }
   function renderBestMain() {
     bestEnsureBesteller();
+    if (BEST.tab !== 'scan') bestScanStop();
     var orders = bestLoad(BEST_KEYS.orders, []).slice().reverse();
     var hist = orders.length ? '<details class="bst-hist" open><summary>Gespeicherte Bestellungen (' + orders.length + ')</summary><div class="best-history">' + orders.map(function (o) {
       return '<button class="best-hist" onclick="__bb.select(\'best-view-order\',\'' + esc(o.id) + '\')">' + bestAvatar(o.besteller) +
@@ -4586,6 +4687,7 @@
     if (path[pointer] !== 'bestellung') return render();
     var a = document.getElementById('best-list'), b = document.getElementById('best-bar'), c = document.getElementById('best-footer');
     if (!a || !b || !c) return render();
+    if (BEST.tab === 'scan') { c.innerHTML = bestFooterHtml(); var tb = document.querySelector('.bst-tabs'); if (tb) tb.outerHTML = bestTabsHtml(); bestScanLogRefresh(); return; }
     a.innerHTML = bestListHtml(); b.innerHTML = bestBarHtml(); c.innerHTML = bestFooterHtml();
     var tabs = document.querySelector('.bst-tabs'); if (tabs) tabs.outerHTML = bestTabsHtml();
   }
@@ -4593,13 +4695,13 @@
   // ---------- Screen 2: Prüfen & abschließen ----------
   // Verwendung (Verkauf / Tester / Kabinenware) jederzeit umschaltbar — in der Auswahl und auf dem Prüfen-Screen
   function bestPurposeSwitch(it) {
-    return '<span class="bst-purposes" role="group" aria-label="Verwendung">' + BEST_PURPOSES.filter(function (x) { return x.key !== 'other'; }).map(function (x) {
+    return '<span class="bst-purposes" role="group" aria-label="Verwendung">' + bestPurposesFor(it.product.brand).map(function (k) { var x = { key: k, label: bestPurposeLabel(k) };
       return '<button class="' + (x.key === it.purpose ? 'on' : '') + '" onclick="__bb.select(\'best-set-purpose\',\'' + it.productId + '|' + it.purpose + '|' + x.key + '\')">' + esc(x.label) + '</button>';
     }).join('') + '</span>';
   }
   function bestLineRow(it, wkz) {
     var kind = wkz ? 'best-qw' : 'best-q', p = it.product;
-    var meta = wkz ? esc(p.articleNumber) + ' · ' + esc(p.brand)
+    var meta = wkz ? esc(p.articleNumber) + ' · ' + esc(p.brand) + ' · ' + esc(bestPurposeLabel(it.purpose || 'sale'))
       : esc(p.articleNumber) + ' · ' + esc(p.brand) + ' · ' + esc(bestPromoLabel(it)) + (it.quantityFree ? ' · <b style="color:var(--good)">+' + it.quantityFree + ' gratis</b>' : '');
     return '<div class="bst-line"><div class="best-img"><img src="' + p.image + '" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'' + (p.fallbackImage || '').replace(/'/g, '%27') + '\'"/></div><div class="bst-info"><div class="bst-name">' + esc(p.name) + '</div><div class="bst-meta">' + meta + '</div>' + (wkz ? '' : '<div style="margin-top:.4rem">' + bestPurposeSwitch(it) + '</div>') + '</div>' +
       bestStepper(kind, bestKey(it, wkz), wkz ? it.quantity : it.quantityPaid) +
@@ -4627,10 +4729,10 @@
   function bestBrandStats(o, b) {
     var its = o.items.filter(function (i) { return i.product.brand === b; });
     var wk = o.wkzItems.filter(function (w) { return w.product.brand === b; });
-    var base = calculateWKZBase(its), amount = calculateWKZAmount(base, o.wkzRate), used = calculateWKZUsed(wk);
+    var hasW = bestHasWkz(b), base = hasW ? calculateWKZBase(its) : 0, amount = hasW ? calculateWKZAmount(base, o.wkzRate) : 0, used = hasW ? calculateWKZUsed(wk) : 0;
     var tester = 0, testerQty = 0;
     its.forEach(function (i) { if (i.purpose === 'tester') { tester += i.quantityPaid * (i.product.purchasePrice - i.unitPurchasePrice); testerQty += i.quantityPaid; } });
-    return { items: its, wkz: wk, regular: calculateOrderTotal(its), free: calculateFreeGoods(its), base: base, amount: amount, used: used,
+    return { hasWkz: hasW, items: its, wkz: wk, regular: calculateOrderTotal(its), free: calculateFreeGoods(its), base: base, amount: amount, used: used,
       remaining: calculateWKZRemaining(amount, used), testerDiscount: round2(tester), testerQty: testerQty,
       qty: its.reduce(function (s, i) { return s + i.quantityPaid + i.quantityFree; }, 0) };
   }
@@ -4639,17 +4741,17 @@
     return bestOrderBrandsOf(o).map(function (b) {
       var a = bestBrandStats(o, b), agg = bestAggregate(a.items, a.wkz);
       var over = a.remaining < 0 ? round2(-a.remaining) : 0;
-      var note = over ? '<div class="best-msg warn">Randnotiz: Der WKZ ist um <b>' + bestMoney(over) + '</b> überschritten.</div>'
-        : (a.remaining > 0 && a.amount > 0 ? '<div class="best-msg info">Randnotiz: Noch <b>' + bestMoney(a.remaining) + '</b> WKZ offen.</div>' : '');
+      var note = !a.hasWkz ? '' : over ? '<div class="best-msg warn">Randnotiz: Der WKZ ist um <b>' + bestMoney(over) + '</b> überschritten.</div>'
+        : (a.hasWkz && a.remaining > 0 && a.amount > 0 ? '<div class="best-msg info">Randnotiz: Noch <b>' + bestMoney(a.remaining) + '</b> WKZ offen.</div>' : '');
       return '<div class="best-h2">' + esc(b) + ' — Bestellübersicht</div><div class="best-twocol"><div class="best-sumbox">' +
         '<div class="best-sumrow big"><span>Bestellwert ' + esc(b) + '</span><b>' + bestMoney(a.regular) + '</b></div>' +
         '<div class="best-sumrow"><span>Artikel (inkl. Gratisware)</span><b>' + a.qty + '</b></div>' +
         (a.testerQty ? '<div class="best-sumrow acc"><span>Tester-Rabatt (−' + BEST_CONFIG.testerDiscountPercent + ' % auf EK, ' + a.testerQty + ' Stück) — im Bestellwert enthalten</span><b>−' + bestMoney(a.testerDiscount) + '</b></div>' : '') +
         '<div class="best-sumrow free"><span>Gratisware aus Aktionen (nicht berechnet)</span><b>' + bestMoney(a.free) + '</b></div>' +
-        '<div class="best-sumrow acc"><span>WKZ-Basis (nur Ware ohne Aktion)</span><b>' + bestMoney(a.base) + '</b></div>' +
+        (a.hasWkz ? '<div class="best-sumrow acc"><span>WKZ-Basis (nur Ware ohne Aktion)</span><b>' + bestMoney(a.base) + '</b></div>' +
         '<div class="best-sumrow acc"><span>WKZ ' + esc(String(o.wkzRate).replace('.', ',')) + ' %</span><b>' + bestMoney(a.amount) + '</b></div>' +
         '<div class="best-sumrow acc"><span>WKZ-Ware gewählt</span><b>' + bestMoney(a.used) + '</b></div>' +
-        '<div class="best-sumrow acc"><span>WKZ verbleibend</span><b>' + bestMoney(a.remaining) + '</b></div></div>' +
+        '<div class="best-sumrow acc"><span>WKZ verbleibend</span><b>' + bestMoney(a.remaining) + '</b></div>' : '') + '</div>' +
         '<div class="best-sumbox"><div class="best-sumrow" style="border:none;padding-top:0"><b>Nach Verwendungszweck</b></div>' + bestPurposeTable(agg) + '</div></div>' + note;
     }).join('');
   }
@@ -4716,10 +4818,12 @@
       L.push('Bestellwert: ' + m(a.regular));
       if (a.testerQty) L.push('Tester-Rabatt (−' + BEST_CONFIG.testerDiscountPercent + ' % auf EK, ' + a.testerQty + ' Stück, im Bestellwert enthalten): −' + m(a.testerDiscount));
       L.push('Gratisware aus Aktionen (nicht berechnet): ' + m(a.free));
-      L.push('WKZ-Basis (nur Ware ohne Aktion): ' + m(a.base));
-      L.push('WKZ ' + String(o.wkzRate).replace('.', ',') + ' %: ' + m(a.amount));
-      L.push('WKZ-Ware gewählt: ' + m(a.used));
-      L.push('WKZ ' + (a.remaining < 0 ? 'überschritten um: ' + m(-a.remaining) : 'Rest: ' + m(a.remaining)) + ' (nur Randnotiz)');
+      if (a.hasWkz) {
+        L.push('WKZ-Basis (nur Ware ohne Aktion): ' + m(a.base));
+        L.push('WKZ ' + String(o.wkzRate).replace('.', ',') + ' %: ' + m(a.amount));
+        L.push('WKZ-Ware gewählt: ' + m(a.used));
+        L.push('WKZ ' + (a.remaining < 0 ? 'überschritten um: ' + m(-a.remaining) : 'Rest: ' + m(a.remaining)) + ' (nur Randnotiz)');
+      }
       L.push('Nach Verwendungszweck (bezahlt / gratis / Wert):');
       BEST_PURPOSES.forEach(function (p) { var x = agg.byPurpose[p.key]; if (p.key !== 'other' && (x.qty || x.freeQty)) L.push('- ' + p.label + ': ' + x.qty + ' / ' + x.freeQty + ' / ' + m(x.value)); });
       L.push('');
@@ -4838,13 +4942,15 @@
     var parts = String(key).split('|'), productId = parts[0], purpose = parts[1] || '';
     var p = bestProduct(productId);
     if (!p) return;
-    if (!wkz && BEST_PURPOSES.map(function (x) { return x.key; }).indexOf(purpose) === -1) return; // ohne gewählte Verwendung nie anlegen
+    purpose = purpose || 'sale';
+    if (bestPurposesFor(p.brand).indexOf(purpose) === -1) return; // nur erlaubte Verwendungen je Marke
+    if (wkz && !bestHasWkz(p.brand)) return;                      // WKZ-Ware nur bei KLAPP
     qty = Math.max(0, Math.floor(Number(qty)) || 0);
     var list = wkz ? BEST.wkzItems : BEST.items;
     var it = bestFind(key, wkz);
     if (!it && qty > 0) {
-      if (wkz) { it = { id: bestUid('wi-'), productId: p.id, product: p, quantity: qty, unitPurchasePrice: p.purchasePrice }; }
-      else { it = { id: bestUid('oi-'), productId: p.id, product: p, purpose: purpose, quantityPaid: qty, quantityFree: 0, promotionType: purpose === 'tester' ? 'none' : BEST_CONFIG.defaultPromotion, unitPurchasePrice: bestItemPrice(p, purpose) }; }
+      if (wkz) { it = { id: bestUid('wi-'), productId: p.id, product: p, purpose: purpose, quantity: qty, unitPurchasePrice: bestItemPrice(p, purpose) }; }
+      else { it = { id: bestUid('oi-'), productId: p.id, product: p, purpose: purpose, quantityPaid: qty, quantityFree: 0, promotionType: 'none', unitPurchasePrice: bestItemPrice(p, purpose) }; }
       list.push(it);
     } else if (it && qty === 0) {
       list.splice(list.indexOf(it), 1);
@@ -4866,11 +4972,16 @@
   var BEST_PROMO_PICK = ['6+1', '5+1', '3+1', 'none'];
   function bestellungHandler(kind, key, extra) {
     if (kind === 'best-besteller') { BEST.besteller = key; bestPersist(); render(); }
-    else if (kind === 'best-tab') { BEST.tab = key; BEST.limit = BEST_CONFIG.pageSize; bestRefresh(); }
+    else if (kind === 'best-tab') {
+      bestScanStop();
+      BEST.tab = key; BEST.limit = BEST_CONFIG.pageSize; BEST.pick = null;
+      if (key === 'wkz') { BEST.brand = 'KLAPP'; BEST.category = ''; BEST.catOpen = false; BEST.favOnly = false; BEST.search = ''; }   // WKZ nur KLAPP, immer zurück zur Rubrikenübersicht
+      render();
+    }
     else if (kind === 'best-cat') { BEST.category = (BEST.category === key) ? '' : key; BEST.catOpen = false; BEST.limit = BEST_CONFIG.pageSize; render(); }
     else if (kind === 'best-back') {   // genau ein Schritt zurück: WKZ-Ware → Bestellung → Produkte → Produktlinien → Marke → Hauptbildschirm
       BEST.pick = null; BEST.limit = BEST_CONFIG.pageSize;
-      if (BEST.tab === 'wkz') BEST.tab = 'order';
+      if (BEST.tab === 'wkz' || BEST.tab === 'scan') { bestScanStop(); BEST.tab = 'order'; }
       else if (BEST.favOnly) BEST.favOnly = false;
       else if (BEST.category) { BEST.category = ''; BEST.catOpen = false; }
       else if (BEST.brand) { BEST.brand = null; BEST.group = ''; }
@@ -4891,6 +5002,16 @@
       if (!bestFind(key, false)) { bestellungHandler('best-add', key); }
       setTimeout(function () { var el = document.querySelector('input[data-k="' + key + '"]'); if (el) { el.focus(); el.select(); } }, 60);
     }
+    else if (kind === 'best-scan-toggle') { if (SCAN.running) bestScanStop(); else bestScanStart(); }
+    else if (kind === 'best-scan-manual') {
+      var ei = document.getElementById('bst-ean'), cv = ei ? ei.value.trim() : '';
+      if (!/^\d{8,14}$/.test(cv)) { bestScanMsg('Bitte einen EAN-Code mit 8–13 Ziffern eingeben.'); return; }
+      SCAN.last = ''; bestScanCode(cv); if (ei) { ei.value = ''; ei.focus(); }
+    }
+    else if (kind === 'best-add-purpose-w') {
+      if (!bestFind(key, true)) bestSetQty(key, true, 1);
+      setTimeout(function () { var el = document.querySelector('input[data-k="' + key + '"]'); if (el) { el.focus(); el.select(); } }, 60);
+    }
     else if (kind === 'best-add-next') {   // + : erst Verkauf, dann Tester, dann Kabinenware; sind alle drei da, Verkauf +1
       var seq = ['sale', 'tester', 'cabin'], nx = seq.filter(function (k) { return !bestFind(key + '|' + k, false); })[0] || 'sale';
       return bestellungHandler('best-add', key + '|' + nx);
@@ -4908,10 +5029,10 @@
     }
     else if (kind === 'best-set-purpose') {   // Verwendung einer Zeile nachträglich ändern (Standard beim + ist Verkauf)
       var sp = String(key).split('|'), cur = bestFind(sp[0] + '|' + sp[1], false);
-      if (cur && sp[2] !== sp[1]) {
+      if (cur && sp[2] !== sp[1] && bestPurposesFor(cur.product.brand).indexOf(sp[2]) > -1) {
         var tgt = bestFind(sp[0] + '|' + sp[2], false);
         cur.purpose = sp[2]; cur.unitPurchasePrice = bestItemPrice(cur.product, sp[2]);
-        if (sp[2] === 'tester') cur.promotionType = 'none';
+        if (sp[2] !== 'sale') cur.promotionType = 'none';   // Aktion nur auf Verkaufsware
         if (tgt) { tgt.quantityPaid += cur.quantityPaid; BEST.items.splice(BEST.items.indexOf(cur), 1); bestRecalc(tgt); } else bestRecalc(cur);
         BEST.wkzOverrunConfirmed = 0; bestPersist(); bestRefresh();
       }
@@ -4920,7 +5041,12 @@
     else if (kind === 'best-qw') { var iw = bestFind(key, true); bestSetQty(key, true, bestQtyOf(iw, true) + extra); }
     else if (kind === 'best-cyc-promo') {
       var im = bestFind(key, false);
-      if (im && im.purpose !== 'tester') { var pi = BEST_PROMO_CYCLE.indexOf(im.promotionType); im.promotionType = BEST_PROMO_CYCLE[(pi + 1) % BEST_PROMO_CYCLE.length]; var psz = bestPromoSize(im.promotionType); if (psz) im.quantityPaid = psz; /* 6+1 → 6 bezahlt + 1 gratis = 7 Stück */ bestRecalc(im); BEST.wkzOverrunConfirmed = 0; bestPersist(); bestRefresh(); }
+      if (im && im.purpose === 'sale') {
+        var cyc = bestPromosFor(im.product.brand), pi = cyc.indexOf(im.promotionType);
+        im.promotionType = cyc[(pi + 1) % cyc.length];
+        var psz = bestPromoSize(im.promotionType); if (psz) im.quantityPaid = psz; /* 6+1 → 6 bezahlt + 1 gratis = 7 Stück, 10+2 → 12 Stück */
+        bestRecalc(im); BEST.wkzOverrunConfirmed = 0; bestPersist(); bestRefresh();
+      }
     }
     else if (kind === 'best-wkz-rate') { BEST.wkzRate = Math.max(0, round2(BEST.wkzRate + extra)); BEST.wkzOverrunConfirmed = 0; bestPersist(); bestRefresh(); }
     else if (kind === 'best-next') { goTo('best-pruefen'); }
