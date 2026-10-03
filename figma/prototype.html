@@ -2164,6 +2164,7 @@
     produkteImportFile: function (f) { produkteImportFile(f); },   // Test-/Automatisierungszugang
     setEanTable: function (map) { Object.keys(map || {}).forEach(function (k) { BEST_EAN_TABLE[k] = map[k]; }); },   // EAN → Artikelnummer, z. B. aus CSV/Excel
     bestBrandEmailBody: function (id, brand) { return bestBrandEmailBody(bestFindOrder(id), brand); },
+    bestBrandEmailHtml: function (id, brand) { return bestBrandEmailHtml(bestFindOrder(id), brand); },
     handleMitarbeiterFotoChange: handleMitarbeiterFotoChange,
     filterAktionVerknuepfung: filterAktionVerknuepfung,
     pickAktionVerknuepfung: pickAktionVerknuepfung,
@@ -4862,10 +4863,10 @@
     var hasK = bestWkzRelevant() && BEST.items.some(function (i) { return bestHasWkz(i.product.brand); });
     if (BEST.tab === 'wkz')
       return '<button class="best-secondary" onclick="__bb.select(\'best-back\')">← Zurück</button>' + sum +
-        '<button class="best-primary" ' + (BEST.items.length ? '' : 'disabled') + ' onclick="__bb.select(\'best-next\')">Weiter zur Prüfung</button>';
+        '<button class="best-primary" ' + (BEST.items.length ? '' : 'disabled') + ' onclick="__bb.select(\'best-next\')">Weiter →</button>';
     return '<button class="best-secondary" onclick="__bb.select(\'best-back\')">← Zurück</button>' + sum +
       (hasK ? '<button class="best-primary" ' + (BEST.items.length ? '' : 'disabled') + ' onclick="__bb.select(\'best-tab\',\'wkz\')">Weiter zur WKZ-Ware</button>'
-        : '<button class="best-primary" ' + (BEST.items.length ? '' : 'disabled') + ' onclick="__bb.select(\'best-next\')">Weiter zur Prüfung</button>');
+        : '<button class="best-primary" ' + (BEST.items.length ? '' : 'disabled') + ' onclick="__bb.select(\'best-next\')">Weiter →</button>');
   }
   function bestTabsHtml() {
     var showW = bestWkzRelevant();
@@ -5104,6 +5105,7 @@
       return '<div class="bst-mail"><div><b>' + esc(b) + '</b> · ' + n + ' Position' + (n === 1 ? '' : 'en') + (ex.length ? ' · <b>enthält ' + ex.join(' + ') + '</b> (in der Mail gekennzeichnet)' : '') +
         '<small>' + esc(bestBrandEmail(b)) + (bestBrandConfigured(b) ? '' : ' (Platzhalter — Hersteller-E-Mail im Admin-Bereich hinterlegen)') + '</small>' +
         (sent ? '<small class="ok">✓ E-Mail geöffnet am ' + esc(formatDateDE(new Date(sent))) + '</small>' : '') + '</div>' +
+        '<button class="best-secondary" onclick="__bb.select(\'best-copy-html\',\'' + esc(o.id) + '\',\'' + b + '\')">Formatiert kopieren</button>' +
         '<button class="best-primary" onclick="__bb.select(\'best-email\',\'' + esc(o.id) + '\',\'' + b + '\')">' + (sent ? '✉ Erneut senden an ' : '✉ E-Mail an ') + esc(b) + '</button></div>';
     }).join('') + '</div>';
   }
@@ -5203,29 +5205,63 @@
     setTimeout(function () { bestOpenMailto(bestBrandHref(x || o, brands[0])); }, 150);
   }
   function bestOrderLabel(o) { return o.id === 'Entwurf' ? 'Bestellung vom ' + formatDateDE(new Date(o.createdAt)) : o.id; }
-  function bestBrandEmailBody(o, brand) {
-    var L = ['Guten Tag,', '', 'bitte folgende Artikel liefern (' + (o.id === 'Entwurf' ? bestOrderLabel(o) : 'Bestellung ' + o.id) + ') — Menge | Art.-Nr. | Bezeichnung:'];
-    var purposes = bestBrandPurposes(o, brand);
-    if (purposes.some(function (k) { return k !== 'sale'; })) L.push('ACHTUNG: Diese Bestellung enthält ' + purposes.filter(function (k) { return k !== 'sale'; }).map(function (k) { return k === 'tester' ? 'TESTER' : 'KABINENWARE'; }).join(' und ') + ' — bitte getrennt ausweisen.');
-    L.push('');
-    purposes.forEach(function (k) {
+  // Hersteller-E-Mail (Klartext für mailto) — klar gegliedert: Anrede, Bestelldaten, Positionen je Verwendung, Summe, Lieferhinweis, Gruß
+  function bestMailSections(o, brand) {
+    return bestBrandPurposes(o, brand).map(function (k) {
       var its = o.items.filter(function (i) { return i.product.brand === brand && (i.purpose || 'sale') === k; });
       var wk = o.wkzItems.filter(function (w) { return w.product.brand === brand && (w.purpose || 'sale') === k; });
-      L.push(BEST_MAIL_HEAD[k]);
-      its.forEach(function (i) {
-        L.push((i.quantityPaid + i.quantityFree) + 'x | ' + i.product.articleNumber + ' | ' + i.product.name + BEST_MAIL_TAG[k] +
-          (i.quantityFree ? ' (' + i.quantityPaid + ' bezahlt + ' + i.quantityFree + ' gratis, Aktion ' + bestPromoLabel(i) + ')' : ''));
-      });
-      if (wk.length) {
-        L.push('WKZ-Ware' + (k === 'sale' ? '' : ' (' + (k === 'tester' ? 'Tester' : 'Kabinenware') + ')') + ':');
-        wk.forEach(function (w) { L.push(w.quantity + 'x | ' + w.product.articleNumber + ' | ' + w.product.name + BEST_MAIL_TAG[k]); });
-      }
+      var lines = its.map(function (i) { return { qty: i.quantityPaid + i.quantityFree, art: i.product.articleNumber, name: i.product.name, note: i.quantityFree ? i.quantityPaid + ' bezahlt + ' + i.quantityFree + ' gratis (Aktion ' + bestPromoLabel(i) + ')' : '' }; });
+      var wlines = wk.map(function (w) { return { qty: w.quantity, art: w.product.articleNumber, name: w.product.name, note: '' }; });
+      var total = lines.concat(wlines).reduce(function (a, l) { return a + l.qty; }, 0);
+      return { key: k, lines: lines, wlines: wlines, total: total };
+    });
+  }
+  var BEST_MAIL_TITLE = { sale: 'VERKAUF', tester: 'TESTER', cabin: 'KABINENWARE' };
+  function bestBrandEmailBody(o, brand) {
+    var secs = bestMailSections(o, brand), nr = o.id === 'Entwurf' ? bestOrderLabel(o) : 'Bestellung ' + o.id;
+    var special = secs.filter(function (x) { return x.key !== 'sale'; }).map(function (x) { return BEST_MAIL_TITLE[x.key]; });
+    var rule = '────────────────────────────────────';
+    var L = ['Sehr geehrte Damen und Herren,', '', 'hiermit bestellen wir bei Ihnen die unten aufgeführten Artikel.', ''];
+    L.push(rule, nr.toUpperCase() + ' · ' + brand.toUpperCase(), rule);
+    L.push('Datum:           ' + formatDateDE(new Date(o.createdAt)));
+    L.push('Besteller:       ' + (o.besteller || '—') + ' · Beauty Lounge Neuss');
+    L.push('Lieferadresse:   Beauty Lounge, Hoistener Str. 15, 41466 Neuss');
+    if (special.length) { L.push('', '⚠ WICHTIG: Die Bestellung enthält ' + special.join(' und ') + ' — bitte getrennt ausweisen und liefern.'); }
+    L.push('');
+    var grand = 0;
+    secs.forEach(function (x) {
+      grand += x.total;
+      L.push(rule, (x.key === 'sale' ? '' : '>>> ') + BEST_MAIL_TITLE[x.key] + (x.key === 'sale' ? '' : ' <<<') + '   (' + x.total + ' Stück)', rule);
+      L.push('Menge | Art.-Nr. | Bezeichnung');
+      x.lines.forEach(function (l) { L.push(l.qty + ' Stk. | ' + l.art + ' | ' + l.name + (x.key === 'sale' ? '' : '  [' + BEST_MAIL_TITLE[x.key] + ']')); if (l.note) L.push('      ↳ ' + l.note); });
+      if (x.wlines.length) { L.push('', 'WKZ-Ware' + (x.key === 'sale' ? '' : ' (' + BEST_MAIL_TITLE[x.key] + ')') + ':'); x.wlines.forEach(function (l) { L.push(l.qty + ' Stk. | ' + l.art + ' | ' + l.name + (x.key === 'sale' ? '' : '  [' + BEST_MAIL_TITLE[x.key] + ']')); }); }
       L.push('');
     });
-    L.push('Besteller: ' + (o.besteller || '—') + ' · ' + formatDateDE(new Date(o.createdAt)));
-    L.push(''); L.push('Mit freundlichen Grüßen'); L.push((o.besteller || 'Beauty Lounge') + ' · Beauty Lounge Neuss');
-    L.push('Hoistener Str. 15 · 41466 Neuss · 02131 4506806');
+    L.push(rule, 'GESAMT: ' + grand + ' Stück', rule, '');
+    L.push('Bitte bestätigen Sie uns den Eingang der Bestellung und den voraussichtlichen Liefertermin.', '', 'Vielen Dank und freundliche Grüße', '', (o.besteller || 'Beauty Lounge') + '', 'Beauty Lounge Neuss', 'Hoistener Str. 15 · 41466 Neuss', 'Tel. 02131 4506806');
     return L.join('\n');
+  }
+  // Formatierte Fassung (HTML) zum Einfügen in das Mailprogramm — Tabelle mit Überschriften, Tester/Kabinenware farbig abgesetzt
+  function bestBrandEmailHtml(o, brand) {
+    var secs = bestMailSections(o, brand), nr = o.id === 'Entwurf' ? bestOrderLabel(o) : 'Bestellung ' + o.id, grand = 0;
+    var th = 'style="text-align:left;padding:6px 10px;background:#111;color:#fff;font-size:12px;font-weight:600"', td = 'style="padding:6px 10px;border-bottom:1px solid #ddd;font-size:13px;vertical-align:top"';
+    var special = secs.filter(function (x) { return x.key !== 'sale'; }).map(function (x) { return BEST_MAIL_TITLE[x.key]; });
+    var blocks = secs.map(function (x) {
+      grand += x.total; var sp = x.key !== 'sale';
+      var head = '<div style="margin:18px 0 6px;padding:6px 10px;background:' + (sp ? '#e9e9e9' : '#f4f4f4') + ';border-left:4px solid #111;font-weight:700;font-size:13px;letter-spacing:.05em">' + BEST_MAIL_TITLE[x.key] + ' <span style="font-weight:400;color:#555">· ' + x.total + ' Stück</span></div>';
+      var rows = x.lines.concat(x.wlines.map(function (l) { l.wkz = true; return l; })).map(function (l) {
+        return '<tr><td ' + td + ' align="right">' + l.qty + '</td><td ' + td + '>' + esc(l.art) + '</td><td ' + td + '>' + esc(l.name) + (sp ? ' <b style="background:#111;color:#fff;padding:1px 6px;border-radius:3px;font-size:10px">' + BEST_MAIL_TITLE[x.key] + '</b>' : '') + (l.wkz ? ' <i style="color:#555">(WKZ-Ware)</i>' : '') + (l.note ? '<br/><span style="color:#555;font-size:12px">' + esc(l.note) + '</span>' : '') + '</td></tr>';
+      }).join('');
+      return head + '<table cellspacing="0" cellpadding="0" style="border-collapse:collapse;width:100%"><tr><th ' + th + ' width="60">Menge</th><th ' + th + ' width="110">Art.-Nr.</th><th ' + th + '>Bezeichnung</th></tr>' + rows + '</table>';
+    }).join('');
+    return '<div style="font-family:Arial,Helvetica,sans-serif;color:#111;max-width:680px;line-height:1.45">' +
+      '<p>Sehr geehrte Damen und Herren,</p><p>hiermit bestellen wir bei Ihnen die unten aufgeführten Artikel.</p>' +
+      '<table cellspacing="0" cellpadding="0" style="border:1px solid #ccc;width:100%;font-size:13px"><tr><td style="padding:8px 12px"><b style="font-size:15px">' + esc(nr) + '</b> · ' + esc(brand) + '</td><td style="padding:8px 12px" align="right">' + esc(formatDateDE(new Date(o.createdAt))) + '</td></tr>' +
+      '<tr><td colspan="2" style="padding:0 12px 8px;color:#444">Besteller: ' + esc(o.besteller || '—') + ' · Lieferadresse: Beauty Lounge, Hoistener Str. 15, 41466 Neuss</td></tr></table>' +
+      (special.length ? '<p style="background:#fff3cd;border:1px solid #e0c36a;padding:8px 12px;margin:14px 0 0"><b>Wichtig:</b> Die Bestellung enthält <b>' + special.join(' und ') + '</b> — bitte getrennt ausweisen und liefern.</p>' : '') +
+      blocks + '<p style="margin-top:16px;font-weight:700;border-top:2px solid #111;padding-top:8px">Gesamt: ' + grand + ' Stück</p>' +
+      '<p>Bitte bestätigen Sie uns den Eingang der Bestellung und den voraussichtlichen Liefertermin.</p><p>Vielen Dank und freundliche Grüße</p>' +
+      '<p><b>' + esc(o.besteller || 'Beauty Lounge') + '</b><br/>Beauty Lounge Neuss<br/>Hoistener Str. 15 · 41466 Neuss<br/>Tel. 02131 4506806</p></div>';
   }
   function bestBrandHref(o, brand) {
     var extra = bestBrandPurposes(o, brand).filter(function (k) { return k !== 'sale'; }).map(function (k) { return k === 'tester' ? 'TESTER' : 'KABINENWARE'; });
@@ -5515,6 +5551,15 @@
         if (key !== 'Entwurf') { eo.emailSent = eo.emailSent || {}; eo.emailSent[extra] = new Date().toISOString(); bestSave(BEST_KEYS.orders, all2); }
         bestOpenMailto(bestBrandHref(eo, extra));
         render();
+      }
+    }
+    else if (kind === 'best-copy-html') {   // formatierte Fassung (Tabelle) in die Zwischenablage — zum Einfügen ins Mailprogramm
+      var co = key === 'Entwurf' ? bestDraftOrder() : bestFindOrder(key);
+      if (co && bestIsApprover()) {
+        var html = bestBrandEmailHtml(co, extra), txt = bestBrandEmailBody(co, extra);
+        try {
+          navigator.clipboard.write([new ClipboardItem({ 'text/html': new Blob([html], { type: 'text/html' }), 'text/plain': new Blob([txt], { type: 'text/plain' }) })]).then(function () { BEST.flash = '✓ Formatierte Bestellung kopiert — im Mailprogramm einfügen.'; render(); }, function () { window.prompt('Kopieren nicht möglich — Text markieren und kopieren:', txt); });
+        } catch (e) { window.prompt('Kopieren nicht möglich — Text markieren und kopieren:', txt); }
       }
     }
     else if (kind === 'best-email-intern') { var ei = bestFindOrder(key); if (ei && bestIsApprover()) bestOpenMailto(bestEmailHref(ei)); }
