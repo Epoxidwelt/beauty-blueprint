@@ -803,8 +803,8 @@
   .bst-meta .bst-purposetag, .bst-purposetag { background: var(--text); color: #fff !important; border-radius: 999px; padding: .1rem .55rem; font-size: .75rem; }
   .best-histwrap { margin-bottom: .5rem; } .bst-histmail { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; padding: .3rem .4rem 0; font-size: .8rem; color: var(--text-soft); }
   .bst-hub { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: .6rem; margin-bottom: 1rem; }
-  .bst-hubbtn { display: flex; flex-direction: row; align-items: baseline; justify-content: flex-start; gap: .6rem; text-align: left; font-family: var(--font-body); background: #fff; border: 2px solid var(--border-strong); border-radius: 14px; padding: .55rem 1rem; min-height: 52px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
-  .bst-hubbtn .bn { font-size: 1.1rem; font-weight: 800; color: var(--text); } .bst-hubbtn .bc { font-size: .9rem; font-weight: 700; color: var(--text); }
+  .bst-hubbtn { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: .05rem; text-align: left; font-family: var(--font-body); background: #fff; border: 2px solid var(--border-strong); border-radius: 14px; padding: .5rem 1rem; min-height: 64px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+  .bst-hubbtn .bn { font-size: 1.1rem; font-weight: 800; color: var(--text); } .bst-hubbtn .bc { font-size: .85rem; font-weight: 600; color: var(--text-soft); font-weight: 700; color: var(--text); }
   .bst-hubbtn small { color: var(--text-soft); font-size: .8rem; } .bst-hubbtn.has { border-color: var(--text); background: var(--beige); }
   .bst-workhead { display: flex; align-items: center; gap: .8rem; margin-bottom: .8rem; } .bst-workhead b { font-size: 1.3rem; }
   .best-hist .avatar-mini { width: 44px; height: 44px; border-radius: 50%; overflow: hidden; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; background: var(--rose-pale); }
@@ -5405,7 +5405,7 @@
       });
     }
     else if (kind === 'best-save') {   // Mitarbeiterin: Eintrag ist Teil der gemeinsamen Sammelbestellung (liegt schon im gemeinsamen Entwurf)
-      bestPersist(); BEST.flash = '✓ Gespeichert — dein Eintrag ist Teil der Sammelbestellung ' + BEST.workBrand + '.'; bestLeaveBrand();
+      bestPersist(); BEST.flash = '✓ Gespeichert — offene Bestellung ' + BEST.workBrand + '.'; bestLeaveBrand();
       path = ['login', 'kunde-wahl', 'bestellung']; pointer = 2; render();
     }
     else if (kind === 'best-finish') { if (bestIsApprover()) bestCommitOrder('completed'); }
