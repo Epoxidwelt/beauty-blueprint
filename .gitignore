@@ -47,3 +47,4 @@ supabase/.temp/
 
 # Eigenständiges Projekt mit eigenem Repository (Essens App)
 essens-app/
+dist/
