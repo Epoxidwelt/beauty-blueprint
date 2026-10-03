@@ -4917,7 +4917,7 @@
     var histRow = function (o) {
       var open = o.status !== 'completed';
       return '<div class="best-histwrap"><button class="best-hist" onclick="__bb.select(\'best-view-order\',\'' + esc(o.id) + '\')">' + '<span><b>' + esc(o.id) + '</b>' + (open ? ' <span class="best-badge warn">offen</span>' : '') + '<small>' + esc(formatDateDE(new Date(o.createdAt))) + ' · ' + esc(bestOrderBrands(o).join(', ')) + '</small></span>' + (bestShowPrices() ? '<span class="val">' + bestMoney(o.regularOrderValue) + '</span>' : '') + '</button>' +
-        (bestIsApprover() ? '<div class="bst-histmail"><span>Direkt senden:</span>' + bestOrderBrands(o).map(function (b) { return '<button class="best-chip" onclick="__bb.select(\'best-email\',\'' + esc(o.id) + '\',\'' + b + '\')">✉ ' + esc(b) + '</button>'; }).join('') + '</div>' : '') + '</div>';
+        (bestIsApprover() && !open ? '<div class="bst-histmail"><span>Erneut senden:</span>' + bestOrderBrands(o).map(function (b) { return '<button class="best-chip" onclick="__bb.select(\'best-email\',\'' + esc(o.id) + '\',\'' + b + '\')">✉ ' + esc(b) + '</button>'; }).join('') + '</div>' : '') + '</div>';
     };
     var openOrders = orders.filter(function (o) { return o.status !== 'completed'; }), doneOrders = orders.filter(function (o) { return o.status === 'completed'; });
     var hist = (openOrders.length ? '<details class="bst-hist" open><summary>Offene Bestellungen — warten auf Freigabe (' + openOrders.length + ')</summary><div class="best-history">' + openOrders.map(histRow).join('') + '</div></details>' : '') +
@@ -4977,7 +4977,6 @@
       (BEST.wkzItems.length ? '<div class="best-h2">WKZ-Ware</div><div class="bst-prodlist">' + bestUniqueProducts(BEST.wkzItems).map(function (p) { return bestRowHtml(p, true, 0); }).join('') + '</div>' : '') +
       bestSummaryBlocks(o) +
       (bestIsApprover() && BEST.items.length ? '<div class="best-actionrow"><button class="best-secondary bst-danger" onclick="__bb.select(\'best-discard-collective\')">Bestellung verwerfen</button></div>' : '') +
-      (bestIsApprover() && BEST.items.length ? '<div class="best-h2">Direkt an die Hersteller senden</div><div class="best-msg info">Einzelne Hersteller-E-Mails lassen sich auch ohne Abschluss der Bestellung versenden.</div>' + bestBrandMailCards(o) : '') +
       '<div class="best-actionrow bst-final"><button class="best-secondary" onclick="__bb.goBack()">' + (path[pointer - 1] === 'kunde-wahl' ? '← Zurück' : '← Bestellung bearbeiten') + '</button>' +
       (bestIsApprover()
         ? '<button class="best-secondary" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-save\')">Speichern</button>' +
@@ -5079,7 +5078,9 @@
     if (status === 'completed') { o.approvedBy = STATE.mitarbeiterin; o.approvedAt = now; }
     bestSave(BEST_KEYS.orders, all); BEST.editingId = null;
     BEST.completedId = o.id; BEST.items = []; BEST.wkzItems = []; BEST.wkzOverrunConfirmed = 0; BEST.wkzRate = BEST_CONFIG.defaultWkzRate; BEST.tab = 'order'; BEST.pick = null; bestLeaveBrand();
+    if (status === 'completed') bestAutoMail(o, false);   // als gesendet vermerken
     path = ['login', 'kunde-wahl', 'best-fertig']; pointer = 2; render();
+    if (status === 'completed') bestAutoMail(o, true);   // Bestellung abgeschlossen → E-Mail an den Hersteller wird erstellt/geöffnet
   }
   function bestFindOrder(id) { return bestLoad(BEST_KEYS.orders, []).filter(function (o) { return o.id === id; })[0]; }
   function bestBrandMailCards(o) {
@@ -5091,7 +5092,7 @@
       return '<div class="bst-mail"><div><b>' + esc(b) + '</b> · ' + n + ' Position' + (n === 1 ? '' : 'en') + (ex.length ? ' · <b>enthält ' + ex.join(' + ') + '</b> (in der Mail gekennzeichnet)' : '') +
         '<small>' + esc(bestBrandEmail(b)) + (bestBrandConfigured(b) ? '' : ' (Platzhalter — Hersteller-E-Mail im Admin-Bereich hinterlegen)') + '</small>' +
         (sent ? '<small class="ok">✓ E-Mail geöffnet am ' + esc(formatDateDE(new Date(sent))) + '</small>' : '') + '</div>' +
-        '<button class="best-primary" onclick="__bb.select(\'best-email\',\'' + esc(o.id) + '\',\'' + b + '\')">✉ E-Mail an ' + esc(b) + '</button></div>';
+        '<button class="best-primary" onclick="__bb.select(\'best-email\',\'' + esc(o.id) + '\',\'' + b + '\')">' + (sent ? '✉ Erneut senden an ' : '✉ E-Mail an ') + esc(b) + '</button></div>';
     }).join('') + '</div>';
   }
   function renderBestDone() {
@@ -5103,7 +5104,7 @@
       '<div class="nr">' + id + '</div><div style="margin:.4rem 0 1.2rem"><span class="best-by">' + bestAvatar(o.besteller) + 'Eingetragen von ' + esc((o.contributors && o.contributors.length) ? o.contributors.join(', ') : (o.besteller || '—')) + '</span>' +
       '<div class="best-sub" style="margin-top:.5rem">' + esc(formatDateDE(new Date(o.createdAt))) + ' · Status: ' + (done ? 'abgeschlossen' + (o.approvedBy ? ' von ' + esc(o.approvedBy) : '') : '<b>offen — wartet auf Freigabe durch ' + esc(bestApproverLabel()) + '</b>') + '</div></div></div>' +
       bestSummaryBlocks(o) +
-      (ap ? '<div class="best-h2">E-Mails an die Hersteller</div>' + bestBrandMailCards(o) : '') +
+      ((done && ap) ? '<div class="best-h2">E-Mail an den Hersteller</div>' + bestBrandMailCards(o) : '') +
       '<div class="best-actionrow">' +
       (ap ? '<button class="best-secondary" onclick="__bb.select(\'best-preview\',\'' + id + '\')">PDF Vorschau</button><button class="best-secondary" onclick="__bb.select(\'best-export\',\'' + id + '\')">Bestellung exportieren</button>' : '') +
       ((done && ap) ? '<button class="best-secondary" onclick="__bb.select(\'best-email-intern\',\'' + id + '\')">✉ Interne Gesamtzusammenfassung</button>' : '') +
@@ -5179,6 +5180,15 @@
     var set = {};
     o.items.concat(o.wkzItems).forEach(function (i) { if (i.product.brand === brand) set[i.purpose || 'sale'] = 1; });
     return ['sale', 'tester', 'cabin'].filter(function (k) { return set[k]; });
+  }
+  function bestOpenMailto(href) { if (window.__bbMailHook) return window.__bbMailHook(href); window.location.href = href; }
+  // Nach dem Abschluss: E-Mail an den Hersteller sofort öffnen (eine Bestellung = ein Hersteller); erneutes Senden jederzeit über die Karte
+  function bestAutoMail(o, openNow) {
+    var brands = bestOrderBrands(o);
+    if (brands.length !== 1) return;
+    var all = bestLoad(BEST_KEYS.orders, []), x = all.filter(function (y) { return y.id === o.id; })[0];
+    if (!openNow) { if (x) { x.emailSent = x.emailSent || {}; x.emailSent[brands[0]] = new Date().toISOString(); bestSave(BEST_KEYS.orders, all); } return; }
+    setTimeout(function () { bestOpenMailto(bestBrandHref(x || o, brands[0])); }, 150);
   }
   function bestOrderLabel(o) { return o.id === 'Entwurf' ? 'Bestellung vom ' + formatDateDE(new Date(o.createdAt)) : o.id; }
   function bestBrandEmailBody(o, brand) {
@@ -5418,7 +5428,7 @@
       if (ao && bestIsApprover() && ao.status !== 'completed') {
         ao.status = 'completed'; ao.approvedBy = STATE.mitarbeiterin; ao.approvedAt = new Date().toISOString(); ao.emailSent = {};
         bestSave(BEST_KEYS.orders, bestLoad(BEST_KEYS.orders, []).map(function (x) { return x.id === ao.id ? ao : x; }));
-        BEST.completedId = ao.id; render();
+        bestAutoMail(ao, false); BEST.completedId = ao.id; render(); bestAutoMail(ao, true);
       }
     }
     else if (kind === 'best-edit-order') {
@@ -5446,11 +5456,11 @@
       var all2 = bestLoad(BEST_KEYS.orders, []), eo = key === 'Entwurf' ? bestDraftOrder() : all2.filter(function (x) { return x.id === key; })[0];
       if (eo) {
         if (key !== 'Entwurf') { eo.emailSent = eo.emailSent || {}; eo.emailSent[extra] = new Date().toISOString(); bestSave(BEST_KEYS.orders, all2); }
-        window.location.href = bestBrandHref(eo, extra);
+        bestOpenMailto(bestBrandHref(eo, extra));
         render();
       }
     }
-    else if (kind === 'best-email-intern') { var ei = bestFindOrder(key); if (ei && bestIsApprover()) window.location.href = bestEmailHref(ei); }
+    else if (kind === 'best-email-intern') { var ei = bestFindOrder(key); if (ei && bestIsApprover()) bestOpenMailto(bestEmailHref(ei)); }
   }
 
   function render() {
