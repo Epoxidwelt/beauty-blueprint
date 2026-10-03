@@ -4412,7 +4412,19 @@
   function bestQtyOf(it, wkz) { return it ? (wkz ? it.quantity : it.quantityPaid) : 0; }
 
   // ---------- Einziger Auswahl-Screen (Reiter "Bestellung") ----------
+  // Favoriten = regelmäßig bestellte Produkte (in mindestens 2 gespeicherten Bestellungen) + von Hand mit ♥ markierte
+  function bestOrderCounts() {
+    var c = {};
+    bestLoad(BEST_KEYS.orders, []).forEach(function (o) {
+      var seen = {};
+      o.items.forEach(function (i) { seen[i.productId] = 1; });
+      Object.keys(seen).forEach(function (id) { c[id] = (c[id] || 0) + 1; });
+    });
+    return c;
+  }
+  function bestIsFav(id, counts) { return BEST_FAVS.indexOf(id) > -1 || (counts || bestOrderCounts())[id] >= 2; }
   function bestFiltered() {
+    var counts = BEST.favOnly ? bestOrderCounts() : null;
     var q = BEST.search.trim().toLowerCase();
     return bestCatalog().filter(function (p) {
       if (BEST.brand && p.brand !== BEST.brand) return false;
@@ -4420,9 +4432,9 @@
       if (BEST.category && p.categories.indexOf(BEST.category) === -1) return false;
       if (q && p.name.toLowerCase().indexOf(q) === -1 && p.articleNumber.toLowerCase().indexOf(q) === -1) return false;
       if (BEST.lowStock && !(p.stock !== undefined && p.minimumStock !== undefined && p.stock <= p.minimumStock)) return false;
-      if (BEST.favOnly && BEST_FAVS.indexOf(p.id) === -1) return false;
+      if (BEST.favOnly && !bestIsFav(p.id, counts)) return false;
       return true;
-    });
+    }).sort(function (a, b) { return counts ? (counts[b.id] || 0) - (counts[a.id] || 0) : 0; });
   }
   function bestStepper(kind, id, qty) {
     return '<div class="bst-step"><button aria-label="weniger" onclick="__bb.select(\'' + kind + '\',\'' + id + '\',-1)">−</button>' +
@@ -4430,7 +4442,7 @@
       '<button class="add" aria-label="mehr" onclick="__bb.select(\'' + kind + '\',\'' + id + '\',1)">+</button></div>';
   }
   function bestRowHtml(p, wkz, remaining) {
-    var fav = BEST_FAVS.indexOf(p.id) > -1;
+    var fav = bestIsFav(p.id);
     var low = p.stock !== undefined && p.minimumStock !== undefined && p.stock <= p.minimumStock;
     var wit = wkz ? bestFind(p.id, true) : null;
     var lines = wkz ? [] : bestLinesOf(p.id);
@@ -4467,12 +4479,13 @@
       '<div class="bst-ctl">' + control + '</div>' + extra + '</div>';
   }
   function bestListHtml() {
-    var wkz = BEST.tab === 'wkz';
+    var wkz = BEST.tab === 'wkz', hintFav = '';
+    if (BEST.favOnly) hintFav = '<div class="best-msg info">Favoriten = Produkte, die du regelmäßig bestellst (ab 2 Bestellungen), plus selbst mit ♥ markierte. Häufigste zuerst.</div>';
     if (!wkz && BEST.brand && !BEST.category && !BEST.search && !BEST.favOnly) return '<div class="best-msg info">Produktlinie wählen, dann erscheinen die Produkte.</div>';
     var list = bestFiltered(), t = bestTotals();
-    if (!list.length) return '<div class="best-msg info">Keine Produkte gefunden — Filter oder Suche anpassen.</div>';
+    if (!list.length) return hintFav + '<div class="best-msg info">' + (BEST.favOnly ? 'Noch keine Favoriten — sie entstehen automatisch aus deinen Bestellungen oder per ♥.' : 'Keine Produkte gefunden — Suche anpassen.') + '</div>';
     var shown = list.slice(0, BEST.limit);
-    return shown.map(function (p) { return bestRowHtml(p, wkz, t.remaining); }).join('') +
+    return hintFav + shown.map(function (p) { return bestRowHtml(p, wkz, t.remaining); }).join('') +
       (list.length > shown.length ? '<div class="best-actionrow"><button class="best-secondary grow" onclick="__bb.select(\'best-more\')">Mehr anzeigen (' + (list.length - shown.length) + ' weitere)</button></div>' : '');
   }
   function bestBarHtml() {
