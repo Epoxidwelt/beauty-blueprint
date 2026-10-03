@@ -4718,7 +4718,6 @@
   }
   function bestScanHtml() {
     return '<div class="bst-scan"><div class="best-h2">Produkte scannen</div>' +
-      '<p class="bst-scanhint">EAN-Code des Produkts mit der Handy-Kamera scannen — das Produkt kommt als <b>Verkauf</b> in die Bestellung (jeder Scan = +1). Die <b>Menge</b> gibst du direkt darunter beim gescannten Artikel ein. Verwendung und Aktion änderst du im Reiter „1 · Bestellung".</p>' +
       '<div class="bst-videowrap"><video id="bst-video" playsinline muted></video><div class="bst-scanframe" aria-hidden="true"></div></div>' +
       '<div class="best-actionrow"><button class="best-primary grow" id="bst-scanbtn" onclick="__bb.select(\'best-scan-toggle\')">' + (SCAN.running ? 'Kamera stoppen' : 'Kamera starten') + '</button></div>' +
       '<div class="bst-scanmsg" id="bst-scanmsg" role="status"></div>' +
@@ -4928,7 +4927,7 @@
       bestSummaryBlocks(o) +
       '<div class="best-actionrow bst-final"><button class="best-secondary" onclick="__bb.goBack()">' + (path[pointer - 1] === 'kunde-wahl' ? '← Zurück' : '← Bestellung bearbeiten') + '</button>' +
       (bestIsApprover()
-        ? '<button class="best-secondary" onclick="__bb.select(\'best-preview\')">PDF Vorschau</button><button class="best-secondary" onclick="__bb.select(\'best-export\')">Exportieren</button>' +
+        ? '<button class="best-secondary" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-save\')">Speichern</button>' +
           '<button class="best-primary grow" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-finish\')">' + (BEST.editingId ? 'Bestellung speichern' : 'Sammelbestellung abschließen') + '</button>'
         : '<button class="best-primary grow" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-save\')">Speichern</button>') + '</div>' +
       '</div>';
