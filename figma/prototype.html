@@ -800,6 +800,7 @@
   .bst-askbox { background: #fff; border-radius: 18px; padding: 1.4rem; max-width: 440px; width: 100%; box-shadow: 0 30px 70px rgba(0,0,0,.35); }
   .bst-askbox h3 { margin: 0 0 .5rem; font-size: 1.2rem; } .bst-askbox p { margin: 0 0 1.1rem; color: var(--text-soft); }
   .bst-askyes { background: var(--danger) !important; }
+  .bst-meta .bst-purposetag, .bst-purposetag { background: var(--text); color: #fff !important; border-radius: 999px; padding: .1rem .55rem; font-size: .75rem; }
   .bst-editbanner { display: flex; align-items: center; justify-content: space-between; gap: .8rem; }
   .best-img { background: #fff; border: 1px solid var(--rose-pale); border-radius: 14px; display: flex; align-items: center; justify-content: center; padding: 0.5rem; }
   .best-img img { width: 96px; height: 96px; display: block; object-fit: contain; }
@@ -4909,11 +4910,18 @@
       return '<button class="' + (x.key === it.purpose ? 'on' : '') + '" onclick="__bb.select(\'best-set-purpose\',\'' + it.productId + '|' + it.purpose + '|' + x.key + '\')">' + esc(x.label) + '</button>';
     }).join('') + '</span>';
   }
+  // Buttons Verkauf | Tester | Kabinenware je Produkt: aktiv = Zeile vorhanden; Tipp auf eine fehlende Verwendung legt eine eigene Zeile an
+  function bestPurposeStrip(p, wkz) {
+    return '<span class="bst-purposes" role="group" aria-label="Verwendung hinzufügen">' + bestPurposesFor(p.brand).map(function (key) {
+      var has = !!bestFind(p.id + '|' + key, wkz);
+      return '<button class="' + (has ? 'on' : '') + '" onclick="__bb.select(\'' + (wkz ? 'best-add-purpose-w' : 'best-add-purpose') + '\',\'' + p.id + '|' + key + '\')">' + esc(bestPurposeLabel(key)) + '</button>';
+    }).join('') + '</span>';
+  }
   function bestLineRow(it, wkz) {
     var kind = wkz ? 'best-qw' : 'best-q', p = it.product;
     var meta = wkz ? esc(p.articleNumber) + ' · ' + esc(p.brand) + ' · ' + esc(bestPurposeLabel(it.purpose || 'sale'))
-      : esc(p.articleNumber) + ' · ' + esc(p.brand) + ' · ' + esc(bestPromoLabel(it)) + (it.quantityFree ? ' · <b style="color:var(--good)">+' + it.quantityFree + ' gratis</b>' : '');
-    return '<div class="bst-line"><div class="best-img"><img src="' + p.image + '" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'' + (p.fallbackImage || '').replace(/'/g, '%27') + '\'"/></div><div class="bst-info"><div class="bst-name">' + esc(p.name) + '</div><div class="bst-meta">' + meta + '</div>' + (!wkz && bestContribText(it) ? '<div class="bst-meta"><b>Eingetragen:</b> ' + bestContribText(it) + '</div>' : '') + (wkz ? '' : '<div style="margin-top:.4rem">' + bestPurposeSwitch(it) + '</div>') + '</div>' +
+      : '<b class="bst-purposetag">' + esc(bestPurposeLabel(it.purpose || 'sale')) + '</b> · ' + esc(p.articleNumber) + ' · ' + esc(p.brand) + (it.purpose === 'sale' || !it.purpose ? ' · ' + esc(bestPromoLabel(it)) : '') + (it.quantityFree ? ' · <b style="color:var(--good)">+' + it.quantityFree + ' gratis</b>' : '');
+    return '<div class="bst-line"><div class="best-img"><img src="' + p.image + '" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'' + (p.fallbackImage || '').replace(/'/g, '%27') + '\'"/></div><div class="bst-info"><div class="bst-name">' + esc(p.name) + '</div><div class="bst-meta">' + meta + '</div>' + (!wkz && bestContribText(it) ? '<div class="bst-meta"><b>Eingetragen:</b> ' + bestContribText(it) + '</div>' : '') + '<div style="margin-top:.4rem">' + bestPurposeStrip(p, wkz) + '</div>' + '</div>' +
       bestStepper(kind, bestKey(it, wkz), wkz ? it.quantity : it.quantityPaid) +
       (bestShowPrices() ? '<div class="bst-lineval">' + bestMoney(wkz ? it.quantity * it.unitPurchasePrice : calculateLineCost(it)) + '</div>' : '<div></div>') + '</div>';
   }
