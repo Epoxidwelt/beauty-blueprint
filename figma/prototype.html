@@ -2065,6 +2065,7 @@
     downloadPdfReport: downloadPdfReport,
     sendKundeEmail: sendKundeEmail,
     bestInput: bestInput,
+    bestEmailBody: function (id) { return bestEmailBody(bestFindOrder(id)); },
     handleMitarbeiterFotoChange: handleMitarbeiterFotoChange,
     filterAktionVerknuepfung: filterAktionVerknuepfung,
     pickAktionVerknuepfung: pickAktionVerknuepfung,
@@ -4128,6 +4129,8 @@
   // =====================================================================================
 
   var BEST_CONFIG = {
+    orderEmail: 'beauty_lounge@gmx.net', // Platzhalter-Empfänger der Bestell-Zusammenfassung
+    defaultPromotion: '6+1',
     defaultWkzRate: 5,
     allowWkzOverrun: true,       // WKZ-Überschreitung überhaupt erlaubt?
     overrunNeedsConfirm: true,   // wenn ja: nur nach ausdrücklicher Bestätigung
@@ -4342,13 +4345,8 @@
     var p = BEST_PROMOS.filter(function (x) { return x.key === item.promotionType; })[0]; return p ? p.label : item.promotionType;
   }
   function bestOverrun(t) { return t.remaining < 0 ? round2(-t.remaining) : 0; }
-  function bestOverrunOk(t) {
-    var over = bestOverrun(t);
-    if (!over) return true;
-    if (!BEST_CONFIG.allowWkzOverrun) return false;
-    if (!BEST_CONFIG.overrunNeedsConfirm) return true;
-    return BEST.wkzOverrunConfirmed === over;
-  }
+  // Eine WKZ-Überschreitung oder ein Restbetrag ist nur eine Randnotiz und blockiert nie die Bestellung.
+  function bestOverrunOk() { return true; }
 
   // ---------- Bausteine ----------
   function bestAvatar(name, cls) {
@@ -4445,15 +4443,20 @@
     if (BEST.tab !== 'wkz') {
       return '<div class="best-msg info" style="margin:0 0 .9rem">Beim Hinzufügen wählst du immer die Verwendung: <b>Verkauf, Tester, Kabinenware oder Sonstiges</b>.</div>';
     }
+    var note = over ? '<div class="best-msg warn" style="margin:0 0 .9rem">Der WKZ ist um <b>' + bestMoney(over) + '</b> überschritten — nur zur Info, die Bestellung geht trotzdem raus.</div>'
+      : (t.remaining > 0 ? '<div class="best-msg info" style="margin:0 0 .9rem">Noch <b>' + bestMoney(t.remaining) + '</b> WKZ offen — nur eine Randnotiz, die Bestellung geht auch so raus.</div>'
+        : '<div class="best-msg info" style="margin:0 0 .9rem">✓ WKZ genau aufgebraucht (0,00 €).</div>');
     return '<div class="best-wkzbar"><div>WKZ verfügbar<b>' + bestMoney(t.amount) + '</b></div><div>WKZ verwendet<b>' + bestMoney(t.used) + '</b></div>' +
       '<div class="' + (over ? 'over' : '') + '">' + (over ? 'Überschreitung' : 'WKZ übrig') + '<b>' + bestMoney(over ? over : t.remaining) + '</b></div>' +
-      '<div class="rate">WKZ-Satz<span><button onclick="__bb.select(\'best-wkz-rate\',\'\',-1)">−</button><b>' + esc(String(BEST.wkzRate).replace('.', ',')) + ' %</b><button onclick="__bb.select(\'best-wkz-rate\',\'\',1)">+</button></span></div></div>';
+      '<div class="rate">WKZ-Satz<span><button onclick="__bb.select(\'best-wkz-rate\',\'\',-1)">−</button><b>' + esc(String(BEST.wkzRate).replace('.', ',')) + ' %</b><button onclick="__bb.select(\'best-wkz-rate\',\'\',1)">+</button></span></div></div>' + note;
   }
   function bestFooterHtml() {
     var t = bestTotals(), empty = !BEST.items.length && !BEST.wkzItems.length;
     return '<div class="bst-sum"><b>' + t.deliveryQty + ' Artikel' + (t.freeQty ? ' (davon ' + t.freeQty + ' gratis)' : '') + ' · ' + bestMoney(t.regular) + '</b>' +
       '<span>WKZ ' + esc(String(BEST.wkzRate).replace('.', ',')) + ' % = ' + bestMoney(t.amount) + ' · gewählt ' + bestMoney(t.used) + '</span></div>' +
-      '<button class="best-primary" ' + (empty ? 'disabled' : '') + ' onclick="__bb.select(\'best-next\')">Weiter zur Prüfung</button>';
+      (BEST.tab === 'wkz'
+        ? '<button class="best-secondary" onclick="__bb.select(\'best-tab\',\'order\')">← Zur Bestellung</button><button class="best-primary" ' + (BEST.items.length ? '' : 'disabled') + ' onclick="__bb.select(\'best-next\')">Weiter zur Prüfung</button>'
+        : '<button class="best-primary" ' + (BEST.items.length ? '' : 'disabled') + ' onclick="__bb.select(\'best-tab\',\'wkz\')">Weiter zur WKZ-Ware</button>');
   }
   function bestTabsHtml() {
     return '<div class="bst-tabs"><button class="' + (BEST.tab === 'order' ? 'on' : '') + '" onclick="__bb.select(\'best-tab\',\'order\')">1 · Bestellung<small>' + BEST.items.length + ' Artikel</small></button>' +
@@ -4526,8 +4529,8 @@
       '<div class="best-sumrow"><span>WKZ ' + esc(String(BEST.wkzRate).replace('.', ',')) + ' % auf ' + bestMoney(t.base) + '</span><b>' + bestMoney(t.amount) + '</b></div>' +
       '<div class="best-sumrow"><span>WKZ-Ware gewählt</span><b>' + bestMoney(t.used) + '</b></div>' +
       '<div class="best-sumrow"><span>WKZ Rest</span><b>' + bestMoney(t.remaining) + '</b></div></div>' +
-      (over ? '<div class="best-msg warn"><b>Der verfügbare WKZ wird um ' + bestMoney(over) + ' überschritten.</b> Menge reduzieren oder die Überschreitung bestätigen.' +
-        (BEST_CONFIG.allowWkzOverrun && BEST_CONFIG.overrunNeedsConfirm ? (BEST.wkzOverrunConfirmed === over ? '<br/><b>✓ Überschreitung bestätigt.</b>' : '<div class="best-actionrow" style="margin-top:.6rem"><button class="best-secondary" onclick="__bb.select(\'best-overrun-ok\')">Überschreitung bestätigen</button></div>') : '') + '</div>' : '') +
+      (over ? '<div class="best-msg warn">Randnotiz: Der WKZ ist um <b>' + bestMoney(over) + '</b> überschritten. Die Bestellung kann trotzdem abgeschlossen werden.</div>'
+        : (t.remaining > 0 ? '<div class="best-msg info">Randnotiz: Noch <b>' + bestMoney(t.remaining) + '</b> WKZ offen.</div>' : '')) +
       '<details class="bst-hist"><summary>Details nach Marke und Verwendungszweck</summary>' + bestSummaryBlocks(o) + '</details>' +
       '<div class="best-actionrow bst-final"><button class="best-secondary" onclick="__bb.goBack()">← Zurück</button>' +
       '<button class="best-secondary" onclick="__bb.select(\'best-preview\')">PDF Vorschau</button><button class="best-secondary" onclick="__bb.select(\'best-export\')">Exportieren</button>' +
@@ -4570,11 +4573,54 @@
       '<div class="nr">' + esc(o.id) + '</div><div style="margin:.4rem 0 1.2rem"><span class="best-by">' + bestAvatar(o.besteller) + 'Bestellt von ' + esc(o.besteller || '—') + '</span>' +
       '<div class="best-sub" style="margin-top:.5rem">' + esc(formatDateDE(new Date(o.createdAt))) + ' · Status: abgeschlossen</div></div></div>' +
       bestSummaryBlocks(o) +
-      '<div class="best-actionrow"><button class="best-secondary" onclick="__bb.select(\'best-preview\',\'' + esc(o.id) + '\')">PDF Vorschau</button>' +
+      '<div class="best-msg info">Die Zusammenfassung ist für <b>' + esc(BEST_CONFIG.orderEmail) + '</b> vorbereitet (Mailprogramm öffnet sich).</div>' +
+      '<div class="best-actionrow"><button class="best-primary" onclick="__bb.select(\'best-email\',\'' + esc(o.id) + '\')">✉ Zusammenfassung per E-Mail senden</button><button class="best-secondary" onclick="__bb.select(\'best-preview\',\'' + esc(o.id) + '\')">PDF Vorschau</button>' +
       '<button class="best-secondary" onclick="__bb.select(\'best-export\',\'' + esc(o.id) + '\')">Bestellung exportieren</button>' +
       '<button class="best-secondary" onclick="__bb.replaceTop(\'kunde-wahl\')">Zum Hauptbildschirm</button>' +
       '<button class="best-primary grow" onclick="__bb.select(\'best-new\')">Neue Bestellung</button></div></div>';
     screenWrap('dezent', 0, contextLabel(), body);
+  }
+
+  // ---------- Zusammenfassung per E-Mail ----------
+  function bestEmailBody(o) {
+    var L = [];
+    var m = formatCurrency;
+    L.push('Bestellung ' + o.id);
+    L.push('Datum: ' + formatDateDE(new Date(o.createdAt)));
+    L.push('Besteller: ' + (o.besteller || '—'));
+    L.push('');
+    BEST_BRANDS.forEach(function (b) {
+      var rows = o.items.filter(function (i) { return i.product.brand === b; });
+      if (!rows.length) return;
+      L.push(b.toUpperCase());
+      rows.forEach(function (i) {
+        L.push('- ' + i.quantityPaid + 'x ' + i.product.name + ' (' + i.product.articleNumber + ') | ' + bestPurposeLabel(i.purpose) + ' | ' + bestPromoLabel(i) +
+          (i.quantityFree ? ' → +' + i.quantityFree + ' gratis' : '') + ' | EK ' + m(i.unitPurchasePrice) + ' | ' + m(calculateLineCost(i)));
+      });
+      L.push('');
+    });
+    if (o.wkzItems.length) {
+      L.push('WKZ-WARE');
+      o.wkzItems.forEach(function (w) { L.push('- ' + w.quantity + 'x ' + w.product.name + ' (' + w.product.articleNumber + ', ' + w.product.brand + ') | EK ' + m(w.unitPurchasePrice) + ' | ' + m(w.quantity * w.unitPurchasePrice)); });
+      L.push('');
+    }
+    L.push('ZUSAMMENFASSUNG');
+    L.push('Regulärer Bestellwert: ' + m(o.regularOrderValue));
+    L.push('Gratisware aus Aktionen (nicht berechnet): ' + m(o.freeGoodsValue));
+    L.push('WKZ-Basis (nur bezahlte Ware): ' + m(o.wkzBase));
+    L.push('WKZ-Satz: ' + String(o.wkzRate).replace('.', ',') + ' %');
+    L.push('WKZ verfügbar: ' + m(o.wkzAmount));
+    L.push('WKZ-Ware gewählt: ' + m(o.wkzUsed));
+    L.push('WKZ ' + (o.wkzRemaining < 0 ? 'überschritten um: ' + m(-o.wkzRemaining) : 'Rest: ' + m(o.wkzRemaining)) + ' (nur Randnotiz)');
+    L.push('');
+    var agg = bestAggregate(o.items, o.wkzItems);
+    L.push('Nach Verwendungszweck (bezahlt / gratis / Wert):');
+    BEST_PURPOSES.forEach(function (p) { var a = agg.byPurpose[p.key]; L.push('- ' + p.label + ': ' + a.qty + ' / ' + a.freeQty + ' / ' + m(a.value)); });
+    return L.join('\n');
+  }
+  function bestEmailHref(o) {
+    var subject = 'Bestellung ' + o.id + ' – ' + (o.besteller || '') + ' – ' + formatDateDE(new Date(o.createdAt));
+    return 'mailto:' + BEST_CONFIG.orderEmail + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(bestEmailBody(o));
   }
   function bestNextNumber() {
     var seq = (bestLoad(BEST_KEYS.seq, 0) || 0) + 1;
@@ -4655,7 +4701,7 @@
     var it = bestFind(key, wkz);
     if (!it && qty > 0) {
       if (wkz) { it = { id: bestUid('wi-'), productId: p.id, product: p, quantity: qty, unitPurchasePrice: p.purchasePrice }; }
-      else { it = { id: bestUid('oi-'), productId: p.id, product: p, purpose: purpose, quantityPaid: qty, quantityFree: 0, promotionType: 'none', unitPurchasePrice: p.purchasePrice }; }
+      else { it = { id: bestUid('oi-'), productId: p.id, product: p, purpose: purpose, quantityPaid: qty, quantityFree: 0, promotionType: BEST_CONFIG.defaultPromotion, unitPurchasePrice: p.purchasePrice }; }
       list.push(it);
     } else if (it && qty === 0) {
       list.splice(list.indexOf(it), 1);
@@ -4703,6 +4749,7 @@
       var all = bestLoad(BEST_KEYS.orders, []); all.push(o); bestSave(BEST_KEYS.orders, all);
       BEST.completedId = o.id; BEST.items = []; BEST.wkzItems = []; BEST.wkzOverrunConfirmed = 0; BEST.wkzRate = BEST_CONFIG.defaultWkzRate; BEST.tab = 'order'; BEST.pick = null; bestPersist();
       path = ['login', 'kunde-wahl', 'best-fertig']; pointer = 2; render();
+      try { window.location.href = bestEmailHref(o); } catch (e) { /* Mailprogramm nicht verfügbar — Button auf dem Abschluss-Screen */ }
     }
     else if (kind === 'best-new') { BEST.completedId = null; replaceTop('bestellung'); }
     else if (kind === 'best-view-order') { BEST.completedId = key; goTo('best-fertig'); }
@@ -4710,6 +4757,7 @@
     else if (kind === 'best-preview-close') { bestPreviewClose(); }
     else if (kind === 'best-print') { try { window.print(); } catch (e) { /* Drucken evtl. gesperrt */ } }
     else if (kind === 'best-export') { bestExport(key); }
+    else if (kind === 'best-email') { var eo = bestFindOrder(key); if (eo) window.location.href = bestEmailHref(eo); }
   }
 
   function render() {
