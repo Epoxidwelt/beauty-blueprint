@@ -69,3 +69,5 @@ Auswahl-Flow (Update): Nach der Herstellerwahl erscheinen zuerst nur die **Produ
 Farben (Update): Die gesamte App ist jetzt schwarz-weiß-grau (Akzent #111111, Flächen #FFFFFF/#F2F2F2/#EDEDED, Linien grau); alle Rosé-, Creme- und Beigetöne sind entfernt, das Logo wird per CSS-Filter in Graustufen dargestellt. Nur die Statusfarben (Fehler rot, Warnung bernstein, OK grün) bleiben als Signalfarben erhalten.
 
 Auswahl (Update 2): Das **+** fragt wieder **Verkauf / Tester / Kabinenware** ab (ohne Hinweise zu Tester-Preis/Aktion; Tester −20 % auf EK wirkt nur in Berechnung und WKZ). Neue Zeilen starten mit **„Aktion: keine"** (1 Stück). Ein Tipp auf den Aktions-Knopf schaltet in der Reihenfolge **6+1 → 5+1 → 3+1 → keine** weiter; bei 6+1 wandern sofort 7 Stück in den Warenkorb (6 bezahlt + 1 gratis). Ware mit Aktion zählt nicht zur WKZ-Basis. Tester-Zeilen haben keinen Aktions-Knopf.
+
+Logo (Update): Das Logo wird wieder in den Originalfarben (Anthrazit/Schwarz, Weiß und Rosé) dargestellt; der Graustufenfilter ist entfernt. Die übrige App bleibt schwarz-weiß-grau.
