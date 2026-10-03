@@ -4452,18 +4452,10 @@
           '<span class="bst-val">' + bestMoney(calculateLineCost(it)) + '</span></div>';
       }).join('');
       if (BEST.pick === p.id) {
-        var pp = BEST.pickPromo;
-        extra += '<div class="bst-pick"><div class="bst-pickq">1 · <b>Aktion</b> wählen</div><div class="best-bigbtns">' +
-          BEST_PROMO_PICK.map(function (k) {
-            var size = bestPromoSize(k);
-            var lbl = k === 'none' ? 'Keine Aktion' : bestPromoLabel({ promotionType: k }) + '<small>' + (size + 1) + ' Stück</small>';
-            return '<button class="best-bigbtn' + (pp === k ? ' on' : '') + '" onclick="__bb.select(\'best-pickpromo\',\'' + k + '\')">' + lbl + '</button>';
-          }).join('') + '</div>' +
-          '<div class="bst-pickq" style="margin-top:.8rem">2 · <b>Verwendung</b> wählen — <span style="opacity:.8">' + esc(p.name) + '</span></div><div class="best-bigbtns">' +
-          BEST_PURPOSES.map(function (x) {
+        extra += '<div class="bst-pick"><div class="bst-pickq"><b>Verwendung</b> wählen — <span style="opacity:.8">' + esc(p.name) + '</span></div><div class="best-bigbtns">' +
+          BEST_PURPOSES.filter(function (x) { return x.key === 'sale' || x.key === 'cabin'; }).map(function (x) {
             var used = bestFind(p.id + '|' + x.key, false);
-            var tip = x.key === 'tester' ? '<small>ohne Aktion · −' + BEST_CONFIG.testerDiscountPercent + ' % EK</small>' : '';
-            return '<button class="best-bigbtn' + (used ? ' on' : '') + '" onclick="__bb.select(\'best-add\',\'' + p.id + '|' + x.key + '\')">' + esc(x.label) + (used ? ' ✓' : '') + tip + '</button>';
+            return '<button class="best-bigbtn' + (used ? ' on' : '') + '" onclick="__bb.select(\'best-add\',\'' + p.id + '|' + x.key + '\')">' + esc(x.label) + (used ? ' ✓' : '') + '</button>';
           }).join('') + '</div></div>';
       }
     }
@@ -4474,6 +4466,7 @@
   }
   function bestListHtml() {
     var wkz = BEST.tab === 'wkz';
+    if (!wkz && BEST.brand && !BEST.category && !BEST.search && !BEST.favOnly) return '<div class="best-msg info">Produktlinie wählen, dann erscheinen die Produkte.</div>';
     var list = bestFiltered(), t = bestTotals();
     if (!list.length) return '<div class="best-msg info">Keine Produkte gefunden — Filter oder Suche anpassen.</div>';
     var shown = list.slice(0, BEST.limit);
@@ -4516,8 +4509,7 @@
       return catCount[b] - catCount[a] || a.localeCompare(b, 'de');
     });
     var total = 0; bestCatalog().forEach(function (p) { if (!BEST.brand || p.brand === BEST.brand) total++; });
-    var tiles = '<button class="bst-tile all' + (!BEST.category ? ' on' : '') + '" onclick="__bb.select(\'best-cat\',\'\')">Alle Rubriken<small>' + total + ' Produkte</small></button>' +
-      catList.map(function (c) {
+    var tiles = catList.map(function (c) {
         return '<button class="bst-tile' + (BEST.category === c ? ' on' : '') + '" onclick="__bb.select(\'best-cat\',\'' + esc(c) + '\')">' + esc(c) + '<small>' + catCount[c] + ' Produkte</small></button>';
       }).join('');
     var catBlock;
