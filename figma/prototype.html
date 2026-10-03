@@ -777,6 +777,9 @@
     border: 2px solid transparent;
   }
   .best-card.above { opacity: 0.6; border-color: rgba(169,122,46,0.45); }
+  .bst-purposes { display: inline-flex; background: var(--beige); border-radius: 12px; padding: 3px; gap: 2px; }
+  .bst-purposes button { font-family: var(--font-body); font-size: 0.8rem; font-weight: 600; border: none; background: transparent; color: var(--text); border-radius: 9px; padding: 0.45rem 0.7rem; min-height: 40px; cursor: pointer; }
+  .bst-purposes button.on { background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.18); font-weight: 800; }
   .bst-editbanner { display: flex; align-items: center; justify-content: space-between; gap: .8rem; }
   .best-img { background: #fff; border: 1px solid var(--rose-pale); border-radius: 14px; display: flex; align-items: center; justify-content: center; padding: 0.5rem; }
   .best-img img { width: 96px; height: 96px; display: block; object-fit: contain; }
@@ -4474,24 +4477,19 @@
       (above ? ' <span class="best-badge warn">über WKZ-Rest</span>' : '');
     var control;
     if (wkz) control = wit ? bestStepper('best-qw', p.id, wit.quantity) : '<button class="bst-plus" aria-label="hinzufügen" onclick="__bb.select(\'best-qw\',\'' + p.id + '\',1)">+</button>';
-    else control = '<button class="bst-plus" aria-label="hinzufügen" onclick="__bb.select(\'best-pick\',\'' + p.id + '\')">+</button>';
+    else control = '<button class="bst-plus" aria-label="hinzufügen" onclick="__bb.select(\'best-add\',\'' + p.id + '|sale\')">+</button>';
     var extra = '';
     if (wkz && wit) extra = '<div class="bst-extra"><span class="bst-val">' + bestMoney(wit.quantity * wit.unitPurchasePrice) + '</span></div>';
     if (!wkz) {
       extra = lines.map(function (it) {
         var k = bestKey(it, false);
-        return '<div class="bst-sub"><span class="bst-purpose">' + esc(bestPurposeLabel(it.purpose)) + '</span>' + bestStepper('best-q', k, it.quantityPaid) +
+        return '<div class="bst-sub"><span class="bst-purposes" role="group" aria-label="Verwendung">' + BEST_PURPOSES.filter(function (x) { return x.key !== 'other'; }).map(function (x) {
+          return '<button class="' + (x.key === it.purpose ? 'on' : '') + '" onclick="__bb.select(\'best-set-purpose\',\'' + it.productId + '|' + it.purpose + '|' + x.key + '\')">' + esc(x.label) + '</button>';
+        }).join('') + '</span>' + bestStepper('best-q', k, it.quantityPaid) +
           (it.purpose === 'tester' ? '' : '<button class="bst-chip' + (it.promotionType !== 'none' ? ' on' : '') + '" onclick="__bb.select(\'best-cyc-promo\',\'' + k + '\')">' + (it.promotionType === 'none' ? 'Aktion: keine' : 'Aktion ' + esc(bestPromoLabel(it))) + ' ⟳</button>') +
           (it.quantityFree ? '<span class="bst-free">+ ' + it.quantityFree + ' gratis = ' + (it.quantityPaid + it.quantityFree) + ' Stück</span>' : '') +
           '<span class="bst-val">' + bestMoney(calculateLineCost(it)) + '</span></div>';
       }).join('');
-      if (BEST.pick === p.id) {
-        extra += '<div class="bst-pick"><div class="bst-pickq"><b>Verwendung</b> wählen — <span style="opacity:.8">' + esc(p.name) + '</span></div><div class="best-bigbtns">' +
-          BEST_PURPOSES.filter(function (x) { return x.key !== 'other'; }).map(function (x) {
-            var used = bestFind(p.id + '|' + x.key, false);
-            return '<button class="best-bigbtn' + (used ? ' on' : '') + '" onclick="__bb.select(\'best-add\',\'' + p.id + '|' + x.key + '\')">' + esc(x.label) + (used ? ' ✓' : '') + '</button>';
-          }).join('') + '</div></div>';
-      }
     }
     return '<div class="bst-row' + (has ? ' has' : '') + (above ? ' above' : '') + '"><div class="best-img"><img src="' + p.image + '" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'' + (p.fallbackImage || '').replace(/'/g, '%27') + '\'"/></div>' +
       '<div class="bst-info"><div class="bst-name">' + esc(p.name) + '</div><div class="bst-meta">' + esc(p.brand) + ' · ' + info + '</div></div>' +
@@ -4514,7 +4512,7 @@
       return '<div class="best-wkzbar live"><div>Bestellwert für WKZ<small>ohne Aktionsware</small><b>' + bestMoney(t.base) + '</b></div>' +
         '<div class="hl">WKZ ' + esc(String(BEST.wkzRate).replace('.', ',')) + ' %<small>dein WKZ-Guthaben</small><b>' + bestMoney(t.amount) + '</b></div>' +
         '<div class="rate">WKZ-Satz<span><button onclick="__bb.select(\'best-wkz-rate\',\'\',-1)">−</button><b>' + esc(String(BEST.wkzRate).replace('.', ',')) + ' %</b><button onclick="__bb.select(\'best-wkz-rate\',\'\',1)">+</button></span></div></div>' +
-        '<div class="best-msg info" style="margin:0 0 .9rem">Beim Hinzufügen die <b>Verwendung</b> wählen (Verkauf, Tester, Kabinenware). Aktion in der Zeile: 6+1 = 7 Stück, zählt <b>nicht</b> zum WKZ.</div>';
+        '<div class="best-msg info" style="margin:0 0 .9rem">Das <b>+</b> legt das Produkt als <b>Verkauf</b> an — Verwendung (Verkauf / Tester / Kabinenware) und Aktion lassen sich in der Zeile ändern. 6+1 = 7 Stück, zählt <b>nicht</b> zum WKZ.</div>';
     }
     var note = over ? '<div class="best-msg warn" style="margin:0 0 .9rem">Der WKZ ist um <b>' + bestMoney(over) + '</b> überschritten — nur zur Info, die Bestellung geht trotzdem raus.</div>'
       : (t.remaining > 0 ? '<div class="best-msg info" style="margin:0 0 .9rem">Noch <b>' + bestMoney(t.remaining) + '</b> WKZ offen — nur eine Randnotiz, die Bestellung geht auch so raus.</div>'
@@ -4889,6 +4887,16 @@
         if (line) { line.quantityPaid += 1; }
         else { line = { id: bestUid('oi-'), productId: apr.id, product: apr, purpose: ap[1], quantityPaid: pkg, quantityFree: 0, promotionType: promo, unitPurchasePrice: bestItemPrice(apr, ap[1]) }; BEST.items.push(line); }
         bestRecalc(line); BEST.pick = null; BEST.wkzOverrunConfirmed = 0; bestPersist(); bestRefresh();
+      }
+    }
+    else if (kind === 'best-set-purpose') {   // Verwendung einer Zeile nachträglich ändern (Standard beim + ist Verkauf)
+      var sp = String(key).split('|'), cur = bestFind(sp[0] + '|' + sp[1], false);
+      if (cur && sp[2] !== sp[1]) {
+        var tgt = bestFind(sp[0] + '|' + sp[2], false);
+        cur.purpose = sp[2]; cur.unitPurchasePrice = bestItemPrice(cur.product, sp[2]);
+        if (sp[2] === 'tester') cur.promotionType = 'none';
+        if (tgt) { tgt.quantityPaid += cur.quantityPaid; BEST.items.splice(BEST.items.indexOf(cur), 1); bestRecalc(tgt); } else bestRecalc(cur);
+        BEST.wkzOverrunConfirmed = 0; bestPersist(); bestRefresh();
       }
     }
     else if (kind === 'best-q') { var it = bestFind(key, false); bestSetQty(key, false, bestQtyOf(it, false) + extra); }
