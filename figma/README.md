@@ -95,3 +95,5 @@ Fußleiste (Update): Unten links immer „← Zurück" (im Reiter Bestellung zur
 Zurück-Button (Update): „← Zurück" in der Fußleiste geht **immer genau einen Schritt zurück** (`best-back`): WKZ-Ware → Bestellung → Produktliste → Produktlinien → Markenwahl → Hauptbildschirm (bei aktivem Favoriten-Filter zuerst Favoriten aus).
 
 Farben (Update, ersetzt die Rosé-Akzente): Die App enthält **keine Logo-Farben mehr** — Hintergründe, Reiter, Kacheln, Chips in dezenten Grautönen (`--rose-pale #F0F0F0`, `--beige #F2F2F2`, Linien `#D6D6D6`), Text und Hauptbuttons in Schwarz. Nur das **Logo** bleibt in Originalfarbe. Einzige Signalfarbe für WKZ und Tester-Rabatt ist ein dunkles Grün (`--wkz #1F6B4E`) auf hellem Grund; zusätzlich die Statusfarben Rot/Bernstein/Grün für Hinweise. (Die Variablennamen `--rose*` sind historisch und enthalten jetzt Grau.)
+
+Nach Verwendungszweck (Update): „Sonstiges" wird in der Zusammenfassung (App, PDF, interne E-Mail) nicht mehr aufgeführt — es gibt Verkauf, Tester und Kabinenware.

@@ -4614,7 +4614,7 @@
 
   function bestPurposeTable(agg) {
     return '<table class="best-table"><tr><th>Verwendung</th><th class="r">Bezahlt</th><th class="r">Gratis</th><th class="r">Wert</th></tr>' +
-      BEST_PURPOSES.map(function (p) { var a = agg.byPurpose[p.key]; return '<tr><td>' + esc(p.label) + '</td><td class="r">' + a.qty + '</td><td class="r">' + a.freeQty + '</td><td class="r">' + bestMoney(a.value) + '</td></tr>'; }).join('') + '</table>';
+      BEST_PURPOSES.filter(function (p) { return p.key !== 'other'; }).map(function (p) { var a = agg.byPurpose[p.key]; return '<tr><td>' + esc(p.label) + '</td><td class="r">' + a.qty + '</td><td class="r">' + a.freeQty + '</td><td class="r">' + bestMoney(a.value) + '</td></tr>'; }).join('') + '</table>';
   }
   // Kennzahlen je Marke — jede Marke wird getrennt bestellt, deshalb nie Marken vermischen.
   function bestBrandStats(o, b) {
@@ -4714,7 +4714,7 @@
       L.push('WKZ-Ware gewählt: ' + m(a.used));
       L.push('WKZ ' + (a.remaining < 0 ? 'überschritten um: ' + m(-a.remaining) : 'Rest: ' + m(a.remaining)) + ' (nur Randnotiz)');
       L.push('Nach Verwendungszweck (bezahlt / gratis / Wert):');
-      BEST_PURPOSES.forEach(function (p) { var x = agg.byPurpose[p.key]; if (x.qty || x.freeQty) L.push('- ' + p.label + ': ' + x.qty + ' / ' + x.freeQty + ' / ' + m(x.value)); });
+      BEST_PURPOSES.forEach(function (p) { var x = agg.byPurpose[p.key]; if (p.key !== 'other' && (x.qty || x.freeQty)) L.push('- ' + p.label + ': ' + x.qty + ' / ' + x.freeQty + ' / ' + m(x.value)); });
       L.push('');
     });
     return L.join('\n');
