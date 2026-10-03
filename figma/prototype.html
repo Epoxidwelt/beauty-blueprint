@@ -814,6 +814,7 @@
   .bst-sum b { font-weight: 400 !important; }
   .bst-hubbtn .bc { font-weight: 400 !important; }
   .bst-tabs button small { font-weight: 400 !important; }
+  .bst-final2 { display: flex; flex-direction: column; gap: .55rem; padding: .7rem 0 .8rem; }
   .bst-discardrow { display: flex; justify-content: flex-end; margin: .4rem 0 1rem; }
   .bst-editbanner { display: flex; align-items: center; justify-content: space-between; gap: .8rem; }
   .best-img { background: #fff; border: 1px solid var(--rose-pale); border-radius: 14px; display: flex; align-items: center; justify-content: center; padding: 0.5rem; }
@@ -4871,7 +4872,7 @@
     if (bestWkzRelevant()) right += '<span class="wkz">WKZ-Guthaben <b>' + bestMoney(t.amount) + '</b>' + (t.used ? ' · gewählt ' + bestMoney(t.used) + (t.remaining < 0 ? ' · Überschreitung ' + bestMoney(-t.remaining) : ' · übrig ' + bestMoney(t.remaining)) : '') + '</span>';
     var hasK = bestWkzRelevant() && BEST.items.some(function (i) { return bestHasWkz(i.product.brand); });
     var nextBtn = (BEST.tab !== 'wkz' && hasK)
-      ? '<button class="best-primary" ' + (has ? '' : 'disabled') + ' onclick="__bb.select(\'best-tab\',\'wkz\')">Weiter zur WKZ-Ware</button>'
+      ? '<button class="best-primary" ' + (has ? '' : 'disabled') + ' onclick="__bb.select(\'best-tab\',\'wkz\')">Weiter WKZ</button>'
       : '<button class="best-primary" ' + (has ? '' : 'disabled') + ' onclick="__bb.select(\'best-next\')">Weiter →</button>';
     return '<div class="bst-sumline">' + left + '<span class="r">' + right + '</span></div>' +
       '<button class="best-secondary bst-savefull" ' + (has ? '' : 'disabled') + ' onclick="__bb.select(\'best-save\')">Speichern</button>' +
@@ -4998,11 +4999,12 @@
       '<div class="best-h2">Bestellung</div>' + (BEST.items.length ? '<div class="bst-prodlist">' + bestUniqueProducts(BEST.items).map(function (p) { return bestRowHtml(p, false, 0); }).join('') + '</div>' : '<div class="best-msg err">Noch keine Artikel in der Bestellung.</div>') +
       (BEST.wkzItems.length ? '<div class="best-h2">WKZ-Ware</div><div class="bst-prodlist">' + bestUniqueProducts(BEST.wkzItems).map(function (p) { return bestRowHtml(p, true, 0); }).join('') + '</div>' : '') +
       bestSummaryBlocks(o) +
-      '<div class="best-actionrow bst-final"><button class="best-secondary" onclick="__bb.goBack()">' + (path[pointer - 1] === 'kunde-wahl' ? '← Zurück' : '← Bestellung bearbeiten') + '</button>' +
-      (bestIsApprover()
-        ? '<button class="best-secondary" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-save\')">Speichern</button>' +
-          '<button class="best-primary grow" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-finish\')">' + (BEST.editingId ? 'Bestellung speichern' : 'Bestellung abschließen') + '</button>'
-        : '<button class="best-primary grow" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-save\')">Speichern</button>') + '</div>' +
+      '<div class="bst-final bst-final2">' +
+        (bestIsApprover() ? '<button class="best-secondary bst-savefull" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-save\')">Speichern</button>' : '') +
+        '<div class="bst-navrow"><button class="best-secondary" onclick="__bb.goBack()">← Zurück</button>' +
+        (bestIsApprover()
+          ? '<button class="best-primary" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-finish\')">' + (BEST.editingId ? 'Bestellung speichern' : 'Bestellung abschließen') + '</button>'
+          : '<button class="best-primary" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-save\')">Speichern</button>') + '</div></div>' +
       (bestIsApprover() && BEST.items.length ? '<div class="bst-discardrow"><button class="best-secondary bst-danger" onclick="__bb.select(\'best-discard-collective\')">Bestellung verwerfen</button></div>' : '') +
       '</div>';
     screenWrap('dezent', 0, contextLabel(), body);
