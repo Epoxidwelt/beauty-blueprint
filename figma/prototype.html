@@ -4903,7 +4903,7 @@
   // Startseite der Bestellung: ein großer Button je Hersteller mit dem Stand der jeweiligen Sammelbestellung
   function bestHubHtml() {
     var all = bestAllItems();
-    return (BEST.flash ? '<div class="best-msg info">' + esc(BEST.flash) + '</div>' : '') + '<div class="best-h2">Sammelbestellung je Hersteller</div><div class="bst-hub">' +
+    return (BEST.flash ? '<div class="best-msg info">' + esc(BEST.flash) + '</div>' : '') + '<div class="best-h2">Offene Bestellungen</div><div class="bst-hub">' +
       BEST_BRANDS.map(function (b) {
         var its = all.filter(function (i) { return i.product.brand === b; });
         var n = its.reduce(function (a, i) { return a + i.quantityPaid + i.quantityFree; }, 0), ks = Object.keys(bestContributors(its));
