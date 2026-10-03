@@ -174,3 +174,5 @@ Hersteller-Kachel (Update): Die Artikelanzahl steht jetzt **unter** dem Herstell
 Abgeschlossene Bestellungen (Update): Die Liste „Abgeschlossene Bestellungen (n)" ist immer **zugeklappt** und zeigt ihre Einträge erst nach einem Klick auf die Überschrift.
 
 Artikelanzahl nicht fett (Update): Die Anzahl ausgewählter Artikel (untere Leiste „2 Artikel · 34,20 €", Reiter „1 Artikel", Hersteller-Kacheln) wird in normaler Schriftstärke dargestellt.
+
+Begriff (Update): „Sammelbestellung" heißt in der App und in den Hersteller-E-Mails jetzt nur noch **„Bestellung"** (z. B. „Bestellung öffnen", „Bestellung abschließen", „Bestellung verwerfen?", Direkt-Senden-Mail „Bestellung vom …"). Ältere README-Abschnitte verwenden den Begriff weiterhin als technische Beschreibung.
