@@ -2119,6 +2119,7 @@
     downloadPdfReport: downloadPdfReport,
     sendKundeEmail: sendKundeEmail,
     bestInput: bestInput,
+    produkteImportFile: function (f) { produkteImportFile(f); },   // Test-/Automatisierungszugang
     setEanTable: function (map) { Object.keys(map || {}).forEach(function (k) { BEST_EAN_TABLE[k] = map[k]; }); },   // EAN → Artikelnummer, z. B. aus CSV/Excel
     bestBrandEmailBody: function (id, brand) { return bestBrandEmailBody(bestFindOrder(id), brand); },
     handleMitarbeiterFotoChange: handleMitarbeiterFotoChange,
@@ -2209,6 +2210,10 @@
       BEST_BRANDS.forEach(function (b) { var el = document.getElementById('hersteller-email-' + b); if (el) ADMIN_DATA.herstellerEmails[b] = el.value.trim(); });
       saveAdminData(); render();
     }
+    else if (kind === 'produkte-file') { var pf = document.getElementById('produkte-file'); if (pf && pf.files && pf.files[0]) produkteImportFile(pf.files[0]); }
+    else if (kind === 'produkte-apply') { produkteImportApply(); }
+    else if (kind === 'produkte-cancel') { PIMPORT.pending = null; PIMPORT.error = ''; render(); }
+    else if (kind === 'produkte-reset') { produkteImportReset(); }
     else if (kind === 'admin-tab') { STATE.adminTab = key; STATE.aktionEditId = null; render(); }
     else if (kind === 'aktion-add') {
       var titelEl = document.getElementById('aktion-titel-input');
@@ -2691,7 +2696,8 @@
       { key: 'aktionen', label: 'Aktionen' },
       { key: 'mitarbeiter', label: 'Mitarbeiter' },
       { key: 'fragen', label: 'Ziele' },
-      { key: 'hersteller', label: 'Hersteller' }
+      { key: 'hersteller', label: 'Hersteller' },
+      { key: 'produkte', label: 'Produkte' }
     ];
     var tabBtns = tabs.map(function (t) {
       return '<button type="button" class="admin-tab-btn' + (STATE.adminTab === t.key ? ' current' : '') + '" onclick="__bb.select(\'admin-tab\',\'' + t.key + '\')">' + t.label + '</button>';
@@ -2699,6 +2705,7 @@
     var content = STATE.adminTab === 'mitarbeiter' ? renderAdminMitarbeiterTab()
       : STATE.adminTab === 'fragen' ? renderAdminFragenTab()
       : STATE.adminTab === 'hersteller' ? renderAdminHerstellerTab()
+      : STATE.adminTab === 'produkte' ? renderAdminProdukteTab()
       : renderAdminAktionenTab();
     var body = '' +
       '<p class="eyebrow">Admin-Bereich</p>' +
@@ -4319,8 +4326,160 @@
   // Austauschbare Quelle: später z. B. fetch('/api/products'), Datenbank, Excel oder CSV —
   // nur load() ersetzen, der Rest der Bestellung arbeitet ausschließlich mit Product[].
   var ProductRepository = {
-    load: function () { return BEST_DATA.map(bestMakeProduct); }   // später ersetzbar: API / Datenbank / aktueller Export
+    load: function () { var st = bestStoredProducts(); return (st ? st.rows : BEST_DATA).map(bestMakeProduct); }   // importierter Stand (Admin → Produkte) hat Vorrang vor dem mitgelieferten Stand
   };
+
+  // ---------- Produktstamm-Import (Admin → Produkte): Excel/CSV-Export hochladen, Vorschau, übernehmen ----------
+  var PROD_KEY = 'bb_products_v1';
+  var PIMPORT = { pending: null, error: '', busy: false, done: '' };
+  function bestStoredProducts() { var d = bestLoad(PROD_KEY, null); return (d && d.rows && d.rows.length) ? d : null; }
+  function prodClean(x) { return String(x === null || x === undefined ? '' : x).replace(/ /g, ' ').replace(/\s+/g, ' ').trim(); }
+  function prodNum(v) { if (v === '' || v === null || v === undefined) return null; var n = typeof v === 'number' ? v : parseFloat(String(v).replace(/\./g, function (m, i, str) { return /,/.test(str) ? '' : '.'; }).replace(',', '.')); return isNaN(n) ? null : n; }
+  function prodBrand(h, name, group) {
+    var cand = [prodClean(h).toLowerCase(), prodClean(group).toLowerCase()];
+    for (var i = 0; i < cand.length; i++) {
+      var t = cand[i];
+      if (t.indexOf('klapp') > -1) return 'KLAPP';
+      if (t.indexOf('gehw') > -1) return 'GEHWOL';
+      if (/al+e+s+andro/.test(t)) return 'Alessandro';
+    }
+    var n = prodClean(name).toLowerCase();
+    if (n.indexOf('klapp') > -1) return 'KLAPP';
+    if (n.indexOf('gehwol') > -1 || n.indexOf('gehwohl') > -1) return 'GEHWOL';
+    if (n.indexOf('alessandro') > -1) return 'Alessandro';
+    return null;
+  }
+  // Tabelle (Array von Zeilen, erste Zeile = Kopf) → BEST_DATA-Zeilen
+  function prodNormalize(table) {
+    var hdr = (table[0] || []).map(function (h) { return prodClean(h).toLowerCase(); });
+    var need = ['id', 'produkt', 'hersteller', 'preis', 'einkaufspreis', 'artikelnummer', 'bestand', 'ean', 'produktgruppe'];
+    var col = {}; hdr.forEach(function (h, i) { col[h] = i; });
+    var missing = need.filter(function (k) { return col[k] === undefined; });
+    if (missing.length) return { error: 'Spalten fehlen: ' + missing.join(', ') + '. Erwartet wird der Export „Produkte" (ID, Aktiv, EAN, Produkt, Produktgruppe, Hersteller, Bestand, Preis, Einkaufspreis, Artikelnummer, Mindestbestand).' };
+    var g = function (r, k) { return col[k] === undefined ? '' : r[col[k]]; };
+    var rows = [], skipped = [];
+    table.slice(1).forEach(function (r) {
+      var id = prodNum(g(r, 'id')); if (!id) return;
+      if (col['aktiv'] !== undefined && /^(false|nein|0)$/i.test(prodClean(g(r, 'aktiv')))) return;
+      var name = prodClean(g(r, 'produkt')), b = prodBrand(g(r, 'hersteller'), name, g(r, 'produktgruppe'));
+      if (!b) { skipped.push(name); return; }
+      var st = prodNum(g(r, 'bestand')), mn = prodNum(g(r, 'mindestbestand'));
+      rows.push([id, prodClean(g(r, 'ean')), name, prodClean(g(r, 'produktgruppe')), b, st === null ? null : Math.round(st), prodNum(g(r, 'preis')) || 0, prodNum(g(r, 'einkaufspreis')) || 0, prodClean(g(r, 'artikelnummer')), mn === null ? null : Math.round(mn)]);
+    });
+    var cnt = {};
+    rows.forEach(function (o) { if (o[3]) { var k = o[4] + '|' + o[3].toLowerCase(); (cnt[k] = cnt[k] || {})[o[3]] = ((cnt[k] || {})[o[3]] || 0) + 1; } });
+    rows.forEach(function (o) {
+      if (!o[3]) { o[3] = 'Weitere Pflege'; return; }
+      var m = cnt[o[4] + '|' + o[3].toLowerCase()], best = o[3], bc = -1;
+      Object.keys(m).forEach(function (l) { if (m[l] > bc) { bc = m[l]; best = l; } });
+      o[3] = best;
+    });
+    return { rows: rows, skipped: skipped };
+  }
+  function prodParseCsv(text) {
+    var first = text.split(/\r?\n/)[0] || '', delim = (first.split(';').length > first.split(',').length) ? ';' : ',';
+    var rows = [], row = [], cur = '', q = false;
+    for (var i = 0; i < text.length; i++) {
+      var c = text[i];
+      if (q) { if (c === '"') { if (text[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += c; }
+      else if (c === '"') q = true;
+      else if (c === delim) { row.push(cur); cur = ''; }
+      else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(cur); rows.push(row); row = []; cur = ''; }
+      else cur += c;
+    }
+    if (cur !== '' || row.length) { row.push(cur); rows.push(row); }
+    return rows;
+  }
+  function prodLoadXlsx(cb, fail) {
+    if (window.XLSX) return cb();
+    var sc = document.createElement('script'); sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    sc.onload = cb; sc.onerror = function () { fail('Excel-Bibliothek konnte nicht geladen werden (Internetverbindung?). Alternativ die Datei als CSV speichern und diese hochladen.'); };
+    document.head.appendChild(sc);
+  }
+  function prodCompare(rows) {
+    var cur = {}; bestCatalog().forEach(function (p) { cur[p.id] = p; });
+    var seen = {}, added = [], changed = [], stockOnly = 0;
+    rows.forEach(function (r) {
+      var id = 'p' + r[0]; seen[id] = 1; var p = cur[id], m = formatCurrency;
+      if (!p) { added.push(r); return; }
+      var ch = [], onlyStock = true;
+      if (prodClean(p.name) !== r[2]) { ch.push('Name'); onlyStock = false; }
+      if ((p.ean || '') !== r[1]) { ch.push('EAN'); onlyStock = false; }
+      if (p.productGroup !== r[3]) { ch.push('Gruppe: ' + p.productGroup + ' → ' + r[3]); onlyStock = false; }
+      if (p.brand !== r[4]) { ch.push('Marke'); onlyStock = false; }
+      if ((p.articleNumber === '–' ? '' : p.articleNumber) !== r[8]) { ch.push('Art.-Nr. ' + p.articleNumber + ' → ' + (r[8] || '–')); onlyStock = false; }
+      if (Math.abs(p.salesPrice - r[6]) > 0.004) { ch.push('VK ' + m(p.salesPrice) + ' → ' + m(r[6])); onlyStock = false; }
+      if (Math.abs(p.purchasePrice - r[7]) > 0.004) { ch.push('EK ' + m(p.purchasePrice) + ' → ' + m(r[7])); onlyStock = false; }
+      if (p.stock !== (r[5] === null ? undefined : r[5])) ch.push('Bestand ' + (p.stock === undefined ? '–' : p.stock) + ' → ' + (r[5] === null ? '–' : r[5]));
+      if (ch.length) { changed.push({ name: r[2], brand: r[4], ch: ch }); if (onlyStock) stockOnly++; }
+    });
+    var removed = Object.keys(cur).filter(function (id) { return !seen[id]; }).map(function (id) { return cur[id]; });
+    return { added: added, changed: changed, removed: removed, stockOnly: stockOnly, unchanged: rows.length - added.length - changed.length };
+  }
+  function produkteImportFile(file) {
+    if (!file) return;
+    PIMPORT.pending = null; PIMPORT.error = ''; PIMPORT.done = ''; PIMPORT.busy = true; render();
+    function fail(msg) { PIMPORT.busy = false; PIMPORT.error = msg; render(); }
+    function finish(table) {
+      var res = prodNormalize(table);
+      if (res.error) return fail(res.error);
+      if (!res.rows.length) return fail('Keine Produkte in der Datei gefunden.');
+      PIMPORT.busy = false; PIMPORT.pending = { fileName: file.name, rows: res.rows, skipped: res.skipped, diff: prodCompare(res.rows) }; render();
+    }
+    var rd = new FileReader();
+    if (/\.csv$/i.test(file.name)) { rd.onload = function () { finish(prodParseCsv(String(rd.result))); }; rd.onerror = function () { fail('Datei konnte nicht gelesen werden.'); }; rd.readAsText(file, 'utf-8'); }
+    else {
+      rd.onload = function () {
+        prodLoadXlsx(function () {
+          try { var wb = window.XLSX.read(rd.result, { type: 'array' }); finish(window.XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, defval: '', raw: true })); }
+          catch (e) { fail('Datei konnte nicht gelesen werden — bitte den Excel-Export „Produkte" (.xlsx) oder eine CSV-Datei wählen.'); }
+        }, fail);
+      };
+      rd.onerror = function () { fail('Datei konnte nicht gelesen werden.'); };
+      rd.readAsArrayBuffer(file);
+    }
+  }
+  function produkteImportApply() {
+    var p = PIMPORT.pending; if (!p) return;
+    var cur = bestCatalog().length;
+    if (p.rows.length < cur * 0.5 && !window.confirm('Die Datei enthält nur ' + p.rows.length + ' Produkte, aktuell sind ' + cur + ' im Katalog. Trotzdem übernehmen?')) return;
+    bestSave(PROD_KEY, { importedAt: new Date().toISOString(), fileName: p.fileName, rows: p.rows });
+    BEST_CATALOG = null; BEST_BY_ID = {};
+    PIMPORT.done = p.rows.length + ' Produkte übernommen (' + p.diff.added.length + ' neu, ' + p.diff.changed.length + ' geändert, ' + p.diff.removed.length + ' entfallen).'; PIMPORT.pending = null; render();
+  }
+  function produkteImportReset() {
+    if (!window.confirm('Importierten Stand verwerfen und auf den mitgelieferten Stand (03.10.2026) zurückgehen?')) return;
+    try { localStorage.removeItem(PROD_KEY); } catch (e) { /* egal */ }
+    BEST_CATALOG = null; BEST_BY_ID = {}; PIMPORT.pending = null; PIMPORT.done = 'Auf den mitgelieferten Stand zurückgesetzt.'; render();
+  }
+  function renderAdminProdukteTab() {
+    var st = bestStoredProducts(), n = bestCatalog().length, p = PIMPORT.pending, m = formatCurrency;
+    var h = '<p class="admin-section-title">Produkte und Bestand aktualisieren</p>' +
+      '<p class="admin-hint">Export „Produkte" aus dem System ziehen (Excel .xlsx oder CSV, gleiche Spalten wie bisher) und hier hochladen. Du siehst zuerst eine Vorschau mit neuen, geänderten und entfallenen Artikeln und bestätigst dann die Übernahme. Der Stand gilt für dieses Gerät.</p>' +
+      '<div class="admin-form"><div class="best-msg info">Aktueller Stand: <b>' + n + ' Produkte</b> — ' + (st ? 'importiert am ' + esc(formatDateDE(new Date(st.importedAt))) + ' aus „' + esc(st.fileName) + '"' : 'mitgelieferter Stand vom 03.10.2026') + '</div>' +
+      '<label class="file-label">Datei auswählen (.xlsx, .xls oder .csv)<input id="produkte-file" class="text-input" type="file" accept=".xlsx,.xls,.csv" onchange="__bb.select(\'produkte-file\')" /></label>' +
+      (PIMPORT.busy ? '<div class="best-msg info">Datei wird eingelesen …</div>' : '') +
+      (PIMPORT.error ? '<div class="best-msg err">' + esc(PIMPORT.error) + '</div>' : '') +
+      (PIMPORT.done ? '<div class="best-msg info">✓ ' + esc(PIMPORT.done) + '</div>' : '');
+    if (p) {
+      var d = p.diff;
+      var list = function (title, items) { return items.length ? '<details class="bst-hist"><summary>' + title + ' (' + items.length + ')</summary>' + items.slice(0, 25).map(function (x) { return '<div class="bst-scanrow"><span class="grow">' + x + '</span></div>'; }).join('') + (items.length > 25 ? '<div class="admin-hint">… und ' + (items.length - 25) + ' weitere</div>' : '') + '</details>' : ''; };
+      h += '<div class="best-h2">Vorschau — ' + esc(p.fileName) + '</div><div class="best-sumbox">' +
+        '<div class="best-sumrow"><span>Produkte in der Datei</span><b>' + p.rows.length + '</b></div>' +
+        '<div class="best-sumrow"><span>Neu</span><b>' + d.added.length + '</b></div>' +
+        '<div class="best-sumrow"><span>Geändert (davon nur Bestand: ' + d.stockOnly + ')</span><b>' + d.changed.length + '</b></div>' +
+        '<div class="best-sumrow"><span>Entfallen (nicht mehr in der Datei)</span><b>' + d.removed.length + '</b></div>' +
+        '<div class="best-sumrow"><span>Unverändert</span><b>' + d.unchanged + '</b></div>' +
+        '<div class="best-sumrow"><span>Ohne erkennbare Marke (nicht übernommen)</span><b>' + p.skipped.length + '</b></div></div>' +
+        list('Neue Artikel', d.added.map(function (r) { return '<b>' + esc(r[2]) + '</b> · ' + esc(r[4]) + ' · Art.-Nr. ' + esc(r[8] || '–') + ' · EK ' + m(r[7]); })) +
+        list('Geänderte Artikel', d.changed.map(function (c) { return '<b>' + esc(c.name) + '</b> · ' + esc(c.brand) + '<br/><small>' + esc(c.ch.join(' · ')) + '</small>'; })) +
+        list('Entfallene Artikel', d.removed.map(function (x) { return '<b>' + esc(x.name) + '</b> · ' + esc(x.brand) + ' · Art.-Nr. ' + esc(x.articleNumber); })) +
+        list('Ohne Marke (nicht übernommen)', p.skipped.map(esc)) +
+        '<div class="best-actionrow"><button class="btn-ghost" onclick="__bb.select(\'produkte-cancel\')">Abbrechen</button><button class="btn-primary" onclick="__bb.select(\'produkte-apply\')">Import übernehmen</button></div>';
+    }
+    if (st) h += '<button class="btn-ghost" onclick="__bb.select(\'produkte-reset\')">Auf mitgelieferten Stand zurücksetzen</button>';
+    return h + '</div>';
+  }
   var BEST_CATALOG = null, BEST_BY_ID = {};
   function bestCatalog() {
     if (!BEST_CATALOG) {
