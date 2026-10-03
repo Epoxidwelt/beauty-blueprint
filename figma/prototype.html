@@ -4756,7 +4756,7 @@
     if (BEST.tab !== 'wkz' && !bestWkzRelevant()) return '';
     if (BEST.tab !== 'wkz') {
       return '<div class="best-wkzbar live"><div>Bestellwert für WKZ<small>ohne Aktionsware</small><b>' + bestMoney(t.base) + '</b></div>' +
-        '<div class="hl">WKZ ' + esc(String(BEST.wkzRate).replace('.', ',')) + ' %<small>dein WKZ-Guthaben</small><b>' + bestMoney(t.amount) + '</b></div>' +
+        '<div class="hl">WKZ-Guthaben<small>noch auszugeben</small><b>' + bestMoney(t.amount) + '</b></div>' +
         '</div>';
     }
     var note = over ? '<div class="best-msg warn" style="margin:0 0 .9rem">Der WKZ ist um <b>' + bestMoney(over) + '</b> überschritten — nur zur Info, die Bestellung geht trotzdem raus.</div>'
@@ -4766,14 +4766,14 @@
       '<div class="' + (over ? 'over' : '') + '">' + (over ? 'Überschreitung' : 'WKZ übrig') + '<b>' + bestMoney(over ? over : t.remaining) + '</b></div>' +
       '</div>' + note;
   }
-  // WKZ gibt es nur bei KLAPP: nur anzeigen, wenn KLAPP-Ware in der Bestellung ist oder gerade KLAPP gewählt/im WKZ-Reiter ist
+  // WKZ gibt es nur bei KLAPP: nur anzeigen, wenn KLAPP-Ware in der Bestellung liegt (oder der WKZ-Reiter schon offen ist / WKZ-Ware vorhanden)
   function bestWkzRelevant() {
-    return BEST.tab === 'wkz' || BEST.brand === 'KLAPP' || BEST.wkzItems.length > 0 || BEST.items.some(function (i) { return bestHasWkz(i.product.brand); });
+    return BEST.tab === 'wkz' || BEST.wkzItems.length > 0 || BEST.items.some(function (i) { return bestHasWkz(i.product.brand); });
   }
   function bestFooterHtml() {
     var t = bestTotals(), empty = !BEST.items.length && !BEST.wkzItems.length;
     var sum = '<div class="bst-sum"><b>' + t.deliveryQty + ' Artikel' + (t.freeQty ? ' (davon ' + t.freeQty + ' gratis)' : '') + ' · ' + bestMoney(t.regular) + '</b>' +
-      (bestWkzRelevant() ? '<span class="wkz">WKZ ' + esc(String(BEST.wkzRate).replace('.', ',')) + ' %: <b>' + bestMoney(t.amount) + '</b>' + (t.used ? ' · gewählt ' + bestMoney(t.used) + (t.remaining < 0 ? ' · Überschreitung ' + bestMoney(-t.remaining) : ' · übrig ' + bestMoney(t.remaining)) : '') + '</span>' : '') + '</div>';
+      (bestWkzRelevant() ? '<span class="wkz">WKZ-Guthaben: <b>' + bestMoney(t.amount) + '</b>' + (t.used ? ' · gewählt ' + bestMoney(t.used) + (t.remaining < 0 ? ' · Überschreitung ' + bestMoney(-t.remaining) : ' · übrig ' + bestMoney(t.remaining)) : '') + '</span>' : '') + '</div>';
     var hasK = BEST.items.some(function (i) { return bestHasWkz(i.product.brand); });
     if (BEST.tab === 'wkz')
       return '<button class="best-secondary" onclick="__bb.select(\'best-back\')">← Zurück</button>' + sum +
@@ -4901,7 +4901,7 @@
         (a.testerQty ? '<div class="best-sumrow acc"><span>Tester-Rabatt (−' + BEST_CONFIG.testerDiscountPercent + ' % auf EK, ' + a.testerQty + ' Stück) — im Bestellwert enthalten</span><b>−' + bestMoney(a.testerDiscount) + '</b></div>' : '') +
         '<div class="best-sumrow free"><span>Gratisware aus Aktionen (nicht berechnet)</span><b>' + bestMoney(a.free) + '</b></div>' +
         (a.hasWkz ? '<div class="best-sumrow acc"><span>WKZ-Basis (nur Ware ohne Aktion)</span><b>' + bestMoney(a.base) + '</b></div>' +
-        '<div class="best-sumrow acc"><span>WKZ ' + esc(String(o.wkzRate).replace('.', ',')) + ' %</span><b>' + bestMoney(a.amount) + '</b></div>' +
+        '<div class="best-sumrow acc"><span>WKZ-Guthaben</span><b>' + bestMoney(a.amount) + '</b></div>' +
         '<div class="best-sumrow acc"><span>WKZ-Ware gewählt</span><b>' + bestMoney(a.used) + '</b></div>' +
         '<div class="best-sumrow acc"><span>WKZ verbleibend</span><b>' + bestMoney(a.remaining) + '</b></div>' : '') + '</div>' +
         '<div class="best-sumbox"><div class="best-sumrow" style="border:none;padding-top:0"><b>Nach Verwendungszweck</b></div>' + bestPurposeTable(agg) + '</div></div>' + note;
