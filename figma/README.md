@@ -170,3 +170,5 @@ Kacheln kompakt (Update): Die Hersteller-Kacheln sind klein und flach (eine Zeil
 Aufgeräumte Herstelleransicht (Update): Nach der Wahl eines Herstellers steht oben nur noch „← Hersteller | KLAPP". Die Info-Kachel mit „Sammelbestellung … n Artikel · Namen" und dem Button „Prüfen & abschließen" ist entfernt; zur Prüfung geht es über den Button in der Fußleiste („Weiter zur Prüfung" / „Weiter zur WKZ-Ware"). „Sammelbestellung verwerfen" (nur Inhaberin) liegt jetzt auf dem Prüfen-Screen.
 
 Hersteller-Kachel (Update): Die Artikelanzahl steht jetzt **unter** dem Herstellernamen (zwei Zeilen: „KLAPP" / „2 Artikel"). Die Speichern-Meldung heißt „✓ Gespeichert — offene Bestellung KLAPP."
+
+Abgeschlossene Bestellungen (Update): Die Liste „Abgeschlossene Bestellungen (n)" ist immer **zugeklappt** und zeigt ihre Einträge erst nach einem Klick auf die Überschrift.

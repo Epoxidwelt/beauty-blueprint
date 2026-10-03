@@ -4917,7 +4917,7 @@
     };
     var openOrders = orders.filter(function (o) { return o.status !== 'completed'; }), doneOrders = orders.filter(function (o) { return o.status === 'completed'; });
     var hist = (openOrders.length ? '<details class="bst-hist" open><summary>Offene Bestellungen — warten auf Freigabe (' + openOrders.length + ')</summary><div class="best-history">' + openOrders.map(histRow).join('') + '</div></details>' : '') +
-      (doneOrders.length ? '<details class="bst-hist"' + (openOrders.length ? '' : ' open') + '><summary>Abgeschlossene Bestellungen (' + doneOrders.length + ')</summary><div class="best-history">' + doneOrders.map(histRow).join('') + '</div></details>' : '');
+      (doneOrders.length ? '<details class="bst-hist"><summary>Abgeschlossene Bestellungen (' + doneOrders.length + ')</summary><div class="best-history">' + doneOrders.map(histRow).join('') + '</div></details>' : '');
     if (!BEST.workBrand) { screenWrap('dezent', 0, contextLabel(), '<div class="best-wrap">' + bestMainTabs('bestellung') + bestHubHtml() + hist + '</div>'); flashDone(); return; }
     var body = '<div class="best-wrap">' + bestMainTabs('bestellung') + bestWhoChips() + bestEditBanner() + '<div class="bst-workhead"><button class="best-secondary" onclick="__bb.select(\'best-hub\')">← Hersteller</button><b>' + esc(BEST.workBrand) + '</b></div><div id="best-collective">' + bestCollectiveBanner() + '</div>' + bestTabsHtml() +
       '<div id="best-bar">' + bestBarHtml() + '</div>' + bestFiltersHtml() +
