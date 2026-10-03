@@ -4587,6 +4587,7 @@
   function bestBarHtml() {
     var t = bestTotals(), over = bestOverrun(t);
     if (BEST.tab === 'scan') return '';
+    if (BEST.tab !== 'wkz' && !bestWkzRelevant()) return '';
     if (BEST.tab !== 'wkz') {
       return '<div class="best-wkzbar live"><div>Bestellwert für WKZ<small>ohne Aktionsware</small><b>' + bestMoney(t.base) + '</b></div>' +
         '<div class="hl">WKZ ' + esc(String(BEST.wkzRate).replace('.', ',')) + ' %<small>dein WKZ-Guthaben</small><b>' + bestMoney(t.amount) + '</b></div>' +
@@ -4599,19 +4600,26 @@
       '<div class="' + (over ? 'over' : '') + '">' + (over ? 'Überschreitung' : 'WKZ übrig') + '<b>' + bestMoney(over ? over : t.remaining) + '</b></div>' +
       '<div class="rate">WKZ-Satz<span><button onclick="__bb.select(\'best-wkz-rate\',\'\',-1)">−</button><b>' + esc(String(BEST.wkzRate).replace('.', ',')) + ' %</b><button onclick="__bb.select(\'best-wkz-rate\',\'\',1)">+</button></span></div></div>' + note;
   }
+  // WKZ gibt es nur bei KLAPP: nur anzeigen, wenn KLAPP-Ware in der Bestellung ist oder gerade KLAPP gewählt/im WKZ-Reiter ist
+  function bestWkzRelevant() {
+    return BEST.tab === 'wkz' || BEST.brand === 'KLAPP' || BEST.wkzItems.length > 0 || BEST.items.some(function (i) { return bestHasWkz(i.product.brand); });
+  }
   function bestFooterHtml() {
     var t = bestTotals(), empty = !BEST.items.length && !BEST.wkzItems.length;
     var sum = '<div class="bst-sum"><b>' + t.deliveryQty + ' Artikel' + (t.freeQty ? ' (davon ' + t.freeQty + ' gratis)' : '') + ' · ' + bestMoney(t.regular) + '</b>' +
-      '<span class="wkz">WKZ ' + esc(String(BEST.wkzRate).replace('.', ',')) + ' %: <b>' + bestMoney(t.amount) + '</b>' + (t.used ? ' · gewählt ' + bestMoney(t.used) + (t.remaining < 0 ? ' · Überschreitung ' + bestMoney(-t.remaining) : ' · übrig ' + bestMoney(t.remaining)) : '') + '</span></div>';
+      (bestWkzRelevant() ? '<span class="wkz">WKZ ' + esc(String(BEST.wkzRate).replace('.', ',')) + ' %: <b>' + bestMoney(t.amount) + '</b>' + (t.used ? ' · gewählt ' + bestMoney(t.used) + (t.remaining < 0 ? ' · Überschreitung ' + bestMoney(-t.remaining) : ' · übrig ' + bestMoney(t.remaining)) : '') + '</span>' : '') + '</div>';
+    var hasK = BEST.items.some(function (i) { return bestHasWkz(i.product.brand); });
     if (BEST.tab === 'wkz')
       return '<button class="best-secondary" onclick="__bb.select(\'best-back\')">← Zurück</button>' + sum +
         '<button class="best-primary" ' + (BEST.items.length ? '' : 'disabled') + ' onclick="__bb.select(\'best-next\')">Weiter zur Prüfung</button>';
     return '<button class="best-secondary" onclick="__bb.select(\'best-back\')">← Zurück</button>' + sum +
-      '<button class="best-primary" ' + (BEST.items.length ? '' : 'disabled') + ' onclick="__bb.select(\'best-tab\',\'wkz\')">Weiter zur WKZ-Ware</button>';
+      (hasK ? '<button class="best-primary" ' + (BEST.items.length ? '' : 'disabled') + ' onclick="__bb.select(\'best-tab\',\'wkz\')">Weiter zur WKZ-Ware</button>'
+        : '<button class="best-primary" ' + (BEST.items.length ? '' : 'disabled') + ' onclick="__bb.select(\'best-next\')">Weiter zur Prüfung</button>');
   }
   function bestTabsHtml() {
-    return '<div class="bst-tabs"><button class="' + (BEST.tab === 'order' ? 'on' : '') + '" onclick="__bb.select(\'best-tab\',\'order\')">1 · Bestellung<small>' + BEST.items.length + ' Artikel</small></button>' +
-      '<button class="' + (BEST.tab === 'wkz' ? 'on' : '') + '" onclick="__bb.select(\'best-tab\',\'wkz\')">2 · WKZ-Ware<small>' + BEST.wkzItems.length + ' Artikel</small></button>' +
+    var showW = bestWkzRelevant();
+    return '<div class="bst-tabs" style="grid-template-columns:repeat(' + (showW ? 3 : 2) + ',1fr)"><button class="' + (BEST.tab === 'order' ? 'on' : '') + '" onclick="__bb.select(\'best-tab\',\'order\')">' + (showW ? '1 · ' : '') + 'Bestellung<small>' + BEST.items.length + ' Artikel</small></button>' +
+      (!showW ? '' : '<button class="' + (BEST.tab === 'wkz' ? 'on' : '') + '" onclick="__bb.select(\'best-tab\',\'wkz\')">2 · WKZ-Ware<small>' + BEST.wkzItems.length + ' Artikel</small></button>') +
       '<button class="' + (BEST.tab === 'scan' ? 'on' : '') + '" onclick="__bb.select(\'best-tab\',\'scan\')">Produkte scannen<small>EAN-Code</small></button></div>';
   }
   function bestFiltersHtml() {
