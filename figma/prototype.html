@@ -4268,11 +4268,10 @@
   function bestPersist() {
     bestSave(BEST_KEYS.draft, { besteller: BEST.besteller, items: BEST.items, wkzItems: BEST.wkzItems, wkzRate: BEST.wkzRate, wkzOverrunConfirmed: BEST.wkzOverrunConfirmed });
   }
+  // Besteller ist immer die angemeldete Mitarbeiterin — keine zweite Auswahl nötig.
   function bestEnsureBesteller() {
     var names = bestTeamNames();
-    if (!BEST.besteller || names.indexOf(BEST.besteller) === -1) {
-      BEST.besteller = (STATE.mitarbeiterin && names.indexOf(STATE.mitarbeiterin) > -1) ? STATE.mitarbeiterin : (names[0] || STATE.mitarbeiterin || '');
-    }
+    BEST.besteller = STATE.mitarbeiterin || names[0] || '';
   }
   function bestTeamNames() { return ADMIN_DATA.team.filter(function (m) { return m.sichtbar !== false; }).map(function (m) { return m.name; }); }
   function bestMember(name) { return ADMIN_DATA.team.filter(function (m) { return m.name === name; })[0] || { name: name || '?' }; }
@@ -4330,9 +4329,7 @@
       '<button class="main-tab' + (active === 'bestellung' ? ' current' : '') + '" onclick="__bb.replaceTop(\'bestellung\')">Bestellung</button></div>';
   }
   function bestWhoChips() {
-    return '<div class="bst-who"><span class="bst-lbl">Besteller</span>' + bestTeamNames().map(function (n) {
-      return '<button class="best-whochip bst-small' + (n === BEST.besteller ? ' current' : '') + '" onclick="__bb.select(\'best-besteller\',\'' + esc(n) + '\')">' + bestAvatar(n) + esc(n) + '</button>';
-    }).join('') + '</div>';
+    return '<div class="bst-who"><span class="bst-lbl">Besteller</span><span class="best-by">' + bestAvatar(BEST.besteller) + esc(BEST.besteller) + '</span></div>';
   }
   function bestSteps2(current) {
     return '<div class="bst-steps"><span class="' + (current === 1 ? 'on' : 'done') + '"><i>' + (current > 1 ? '✓' : '1') + '</i>Auswählen</span><span class="line"></span>' +
