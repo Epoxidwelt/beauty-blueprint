@@ -958,6 +958,7 @@
   .bst-catbar { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap; background: var(--rose-pale); border-radius: 16px; padding: 0.5rem 0.8rem; margin-bottom: 1rem; color: var(--rose-deep); }
   .bst-catbar small { color: var(--braun); font-weight: 500; }
   .bst-catbar span:last-child { display: flex; gap: 0.4rem; }
+  .bst-pick .best-bigbtn small { display: block; font-weight: 500; font-size: 0.72rem; opacity: 0.85; margin-top: 0.1rem; }
   @media (max-width: 760px) {
     .bst-row { grid-template-columns: 48px minmax(0, 1fr) 44px; }
     .bst-ctl { grid-column: 1 / -1; justify-self: end; }
@@ -4162,6 +4163,7 @@
   var BEST_CONFIG = {
     orderEmail: 'beauty_lounge@gmx.net', // Platzhalter-Empfänger der Bestell-Zusammenfassung
     defaultPromotion: '6+1',
+    testerDiscountPercent: 20,   // Tester: immer 20 % Nachlass auf den EK
     defaultWkzRate: 5,
     allowWkzOverrun: true,       // WKZ-Überschreitung überhaupt erlaubt?
     overrunNeedsConfirm: true,   // wenn ja: nur nach ausdrücklicher Bestätigung
@@ -4214,7 +4216,14 @@
   function calculateOrderTotal(items) { return round2(items.reduce(function (s, i) { return s + calculateLineCost(i); }, 0)); }
   // Wert der kostenlosen Aktionsware (nur Information, nie Teil des Bestellwerts)
   function calculateFreeGoods(items) { return round2(items.reduce(function (s, i) { return s + i.quantityFree * i.unitPurchasePrice; }, 0)); }
-  function calculateWKZBase(items) { return round2(items.reduce(function (s, i) { return s + i.quantityPaid * i.unitPurchasePrice; }, 0)); }
+  // WKZ-Basis: nur Ware OHNE Aktion. Zeilen mit gewählter Aktion (z. B. 6+1 = 7 Stück) zählen
+  // komplett nicht zum WKZ — weder die bezahlten noch die Gratisstücke.
+  function calculateWKZBase(items) { return round2(items.reduce(function (s, i) { return s + (i.promotionType === 'none' ? i.quantityPaid * i.unitPurchasePrice : 0); }, 0)); }
+  function bestPromoSize(promo) { return promoThreshold(promo, 0); }
+  // Tester bekommen immer den Nachlass auf den EK (voreingestellt 20 %).
+  function bestItemPrice(p, purpose) {
+    return purpose === 'tester' ? round2(p.purchasePrice * (1 - BEST_CONFIG.testerDiscountPercent / 100)) : p.purchasePrice;
+  }
   function calculateWKZAmount(base, ratePercent) { return round2(base * (Number(ratePercent) || 0) / 100); }
   function calculateWKZUsed(wkzItems) { return round2(wkzItems.reduce(function (s, i) { return s + i.quantity * i.unitPurchasePrice; }, 0)); }
   function calculateWKZRemaining(wkzAmount, wkzUsed) { return round2(wkzAmount - wkzUsed); }
@@ -4327,7 +4336,7 @@
       wkzRate: (typeof d.wkzRate === 'number') ? d.wkzRate : BEST_CONFIG.defaultWkzRate,
       wkzOverrunConfirmed: d.wkzOverrunConfirmed || 0,
       brand: null, group: '', search: '', lowStock: false, favOnly: false, limit: BEST_CONFIG.pageSize,
-      tab: 'order', pick: null, category: '', catOpen: false, moreFilters: false, completedId: null
+      tab: 'order', pick: null, pickPromo: '6+1', category: '', catOpen: false, moreFilters: false, completedId: null
     };
   })();
   var BEST_FAVS = bestLoad(BEST_KEYS.favs, []);
@@ -4452,14 +4461,23 @@
         var k = bestKey(it, false);
         return '<div class="bst-sub"><span class="bst-purpose">' + esc(bestPurposeLabel(it.purpose)) + '</span>' + bestStepper('best-q', k, it.quantityPaid) +
           '<button class="bst-chip' + (it.promotionType !== 'none' ? ' on' : '') + '" onclick="__bb.select(\'best-cyc-promo\',\'' + k + '\')">' + (it.promotionType === 'none' ? 'Aktion: keine' : 'Aktion ' + esc(bestPromoLabel(it))) + ' ⟳</button>' +
-          (it.quantityFree ? '<span class="bst-free">+ ' + it.quantityFree + ' gratis</span>' : '') +
+          (it.quantityFree ? '<span class="bst-free">+ ' + it.quantityFree + ' gratis = ' + (it.quantityPaid + it.quantityFree) + ' Stück</span>' : '') +
+          (it.purpose === 'tester' ? '<span class="bst-free">EK ' + bestMoney(it.product.purchasePrice) + ' −' + BEST_CONFIG.testerDiscountPercent + ' % = ' + bestMoney(it.unitPurchasePrice) + '</span>' : '') +
           '<span class="bst-val">' + bestMoney(calculateLineCost(it)) + '</span></div>';
       }).join('');
       if (BEST.pick === p.id) {
-        extra += '<div class="bst-pick"><div class="bst-pickq">Wofür wird <b>' + esc(p.name) + '</b> bestellt?</div><div class="best-bigbtns">' +
+        var pp = BEST.pickPromo;
+        extra += '<div class="bst-pick"><div class="bst-pickq">1 · <b>Aktion</b> wählen</div><div class="best-bigbtns">' +
+          BEST_PROMO_PICK.map(function (k) {
+            var size = bestPromoSize(k);
+            var lbl = k === 'none' ? 'Keine Aktion' : bestPromoLabel({ promotionType: k }) + '<small>' + (size + 1) + ' Stück</small>';
+            return '<button class="best-bigbtn' + (pp === k ? ' on' : '') + '" onclick="__bb.select(\'best-pickpromo\',\'' + k + '\')">' + lbl + '</button>';
+          }).join('') + '</div>' +
+          '<div class="bst-pickq" style="margin-top:.8rem">2 · <b>Verwendung</b> wählen — <span style="opacity:.8">' + esc(p.name) + '</span></div><div class="best-bigbtns">' +
           BEST_PURPOSES.map(function (x) {
             var used = bestFind(p.id + '|' + x.key, false);
-            return '<button class="best-bigbtn' + (used ? ' on' : '') + '" onclick="__bb.select(\'best-q\',\'' + p.id + '|' + x.key + '\',1)">' + esc(x.label) + (used ? ' ✓' : '') + '</button>';
+            var tip = x.key === 'tester' ? '<small>ohne Aktion · −' + BEST_CONFIG.testerDiscountPercent + ' % EK</small>' : '';
+            return '<button class="best-bigbtn' + (used ? ' on' : '') + '" onclick="__bb.select(\'best-add\',\'' + p.id + '|' + x.key + '\')">' + esc(x.label) + (used ? ' ✓' : '') + tip + '</button>';
           }).join('') + '</div></div>';
       }
     }
@@ -4479,7 +4497,7 @@
   function bestBarHtml() {
     var t = bestTotals(), over = bestOverrun(t);
     if (BEST.tab !== 'wkz') {
-      return '<div class="best-msg info" style="margin:0 0 .9rem">Beim Hinzufügen wählst du immer die Verwendung: <b>Verkauf, Tester, Kabinenware oder Sonstiges</b>.</div>';
+      return '<div class="best-msg info" style="margin:0 0 .9rem">Beim Hinzufügen wählst du erst die <b>Aktion</b> (6+1 = gleich 7 Stück), dann die <b>Verwendung</b> (Verkauf, Tester, Kabinenware, Sonstiges). Tester: −20 % auf den EK. Ware mit Aktion zählt <b>nicht</b> zum WKZ.</div>';
     }
     var note = over ? '<div class="best-msg warn" style="margin:0 0 .9rem">Der WKZ ist um <b>' + bestMoney(over) + '</b> überschritten — nur zur Info, die Bestellung geht trotzdem raus.</div>'
       : (t.remaining > 0 ? '<div class="best-msg info" style="margin:0 0 .9rem">Noch <b>' + bestMoney(t.remaining) + '</b> WKZ offen — nur eine Randnotiz, die Bestellung geht auch so raus.</div>'
@@ -4597,7 +4615,7 @@
     return '<div class="best-h2">Bestellung nach Marke</div><div class="best-sumbox" style="overflow-x:auto"><table class="best-table"><tr><th>Marke</th><th class="r">Bestellwert</th><th class="r">Artikel</th><th class="r">Gratis</th><th class="r">WKZ-Ware</th></tr>' + brandRows + '</table></div>' +
       '<div class="best-twocol" style="margin-top:1rem"><div class="best-sumbox">' +
       '<div class="best-sumrow big"><span>Reguläre Bestellung</span><b>' + bestMoney(o.regularOrderValue) + '</b></div>' +
-      '<div class="best-sumrow"><span>WKZ-Basis</span><b>' + bestMoney(o.wkzBase) + '</b></div>' +
+      '<div class="best-sumrow"><span>WKZ-Basis (nur Ware ohne Aktion)</span><b>' + bestMoney(o.wkzBase) + '</b></div>' +
       '<div class="best-sumrow"><span>WKZ-Satz</span><b>' + esc(String(o.wkzRate).replace('.', ',')) + ' %</b></div>' +
       '<div class="best-sumrow"><span>WKZ verfügbar</span><b>' + bestMoney(o.wkzAmount) + '</b></div>' +
       '<div class="best-sumrow"><span>WKZ genutzt (WKZ-Ware)</span><b>' + bestMoney(o.wkzUsed) + '</b></div>' +
@@ -4664,7 +4682,7 @@
     L.push('ZUSAMMENFASSUNG');
     L.push('Regulärer Bestellwert: ' + m(o.regularOrderValue));
     L.push('Gratisware aus Aktionen (nicht berechnet): ' + m(o.freeGoodsValue));
-    L.push('WKZ-Basis (nur bezahlte Ware): ' + m(o.wkzBase));
+    L.push('WKZ-Basis (nur Ware ohne Aktion): ' + m(o.wkzBase));
     L.push('WKZ-Satz: ' + String(o.wkzRate).replace('.', ',') + ' %');
     L.push('WKZ verfügbar: ' + m(o.wkzAmount));
     L.push('WKZ-Ware gewählt: ' + m(o.wkzUsed));
@@ -4791,7 +4809,7 @@
     var it = bestFind(key, wkz);
     if (!it && qty > 0) {
       if (wkz) { it = { id: bestUid('wi-'), productId: p.id, product: p, quantity: qty, unitPurchasePrice: p.purchasePrice }; }
-      else { it = { id: bestUid('oi-'), productId: p.id, product: p, purpose: purpose, quantityPaid: qty, quantityFree: 0, promotionType: BEST_CONFIG.defaultPromotion, unitPurchasePrice: p.purchasePrice }; }
+      else { it = { id: bestUid('oi-'), productId: p.id, product: p, purpose: purpose, quantityPaid: qty, quantityFree: 0, promotionType: purpose === 'tester' ? 'none' : BEST_CONFIG.defaultPromotion, unitPurchasePrice: bestItemPrice(p, purpose) }; }
       list.push(it);
     } else if (it && qty === 0) {
       list.splice(list.indexOf(it), 1);
@@ -4809,7 +4827,8 @@
     else if (name === 'qty') { bestSetQty(id, false, value); }
     else if (name === 'qtyw') { bestSetQty(id, true, value); }
   }
-  var BEST_PROMO_CYCLE = ['none', '3+1', '5+1', '6+1'];
+  var BEST_PROMO_CYCLE = ['6+1', '5+1', '3+1', 'none'];
+  var BEST_PROMO_PICK = ['6+1', '5+1', '3+1', 'none'];
   function bestellungHandler(kind, key, extra) {
     if (kind === 'best-besteller') { BEST.besteller = key; bestPersist(); render(); }
     else if (kind === 'best-tab') { BEST.tab = key; BEST.limit = BEST_CONFIG.pageSize; bestRefresh(); }
@@ -4822,12 +4841,24 @@
       var fi = BEST_FAVS.indexOf(key); if (fi > -1) BEST_FAVS.splice(fi, 1); else BEST_FAVS.push(key);
       bestSave(BEST_KEYS.favs, BEST_FAVS); bestRefresh();
     }
-    else if (kind === 'best-pick') { BEST.pick = (BEST.pick === key) ? null : key; bestRefresh(); }
+    else if (kind === 'best-pick') { BEST.pick = (BEST.pick === key) ? null : key; BEST.pickPromo = BEST_CONFIG.defaultPromotion; bestRefresh(); }
+    else if (kind === 'best-pickpromo') { BEST.pickPromo = key; bestRefresh(); }
+    else if (kind === 'best-add') {
+      var ap = String(key).split('|'), apr = bestProduct(ap[0]);
+      if (apr && BEST_PURPOSES.some(function (x) { return x.key === ap[1]; })) {
+        var promo = ap[1] === 'tester' ? 'none' : BEST.pickPromo;
+        var pkg = promo === 'none' ? 1 : bestPromoSize(promo);   // 6+1 → gleich 6 bezahlt + 1 gratis = 7 Stück
+        var line = bestFind(key, false);
+        if (line) { line.promotionType = promo; line.quantityPaid += pkg; }
+        else { line = { id: bestUid('oi-'), productId: apr.id, product: apr, purpose: ap[1], quantityPaid: pkg, quantityFree: 0, promotionType: promo, unitPurchasePrice: bestItemPrice(apr, ap[1]) }; BEST.items.push(line); }
+        bestRecalc(line); BEST.pick = null; BEST.wkzOverrunConfirmed = 0; bestPersist(); bestRefresh();
+      }
+    }
     else if (kind === 'best-q') { var it = bestFind(key, false); bestSetQty(key, false, bestQtyOf(it, false) + extra); }
     else if (kind === 'best-qw') { var iw = bestFind(key, true); bestSetQty(key, true, bestQtyOf(iw, true) + extra); }
     else if (kind === 'best-cyc-promo') {
       var im = bestFind(key, false);
-      if (im) { var pi = BEST_PROMO_CYCLE.indexOf(im.promotionType); im.promotionType = BEST_PROMO_CYCLE[(pi + 1) % BEST_PROMO_CYCLE.length]; bestRecalc(im); BEST.wkzOverrunConfirmed = 0; bestPersist(); bestRefresh(); }
+      if (im && im.purpose !== 'tester') { var pi = BEST_PROMO_CYCLE.indexOf(im.promotionType); im.promotionType = BEST_PROMO_CYCLE[(pi + 1) % BEST_PROMO_CYCLE.length]; var psz = bestPromoSize(im.promotionType); if (psz && im.quantityPaid < psz) im.quantityPaid = psz; bestRecalc(im); BEST.wkzOverrunConfirmed = 0; bestPersist(); bestRefresh(); }
     }
     else if (kind === 'best-wkz-rate') { BEST.wkzRate = Math.max(0, round2(BEST.wkzRate + extra)); BEST.wkzOverrunConfirmed = 0; bestPersist(); bestRefresh(); }
     else if (kind === 'best-next') { goTo('best-pruefen'); }
