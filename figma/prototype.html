@@ -4912,7 +4912,8 @@
     return '<div class="bst-mails">' + brands.map(function (b) {
       var n = o.items.filter(function (i) { return i.product.brand === b; }).length + o.wkzItems.filter(function (w) { return w.product.brand === b; }).length;
       var sent = o.emailSent && o.emailSent[b];
-      return '<div class="bst-mail"><div><b>' + esc(b) + '</b> · ' + n + ' Position' + (n === 1 ? '' : 'en') +
+      var ex = bestBrandPurposes(o, b).filter(function (k) { return k !== 'sale'; }).map(function (k) { return k === 'tester' ? 'Tester' : 'Kabinenware'; });
+      return '<div class="bst-mail"><div><b>' + esc(b) + '</b> · ' + n + ' Position' + (n === 1 ? '' : 'en') + (ex.length ? ' · <b>enthält ' + ex.join(' + ') + '</b> (in der Mail gekennzeichnet)' : '') +
         '<small>' + esc(bestBrandEmail(b)) + (bestBrandConfigured(b) ? '' : ' (Platzhalter — Hersteller-E-Mail im Admin-Bereich hinterlegen)') + '</small>' +
         (sent ? '<small class="ok">✓ E-Mail geöffnet am ' + esc(formatDateDE(new Date(sent))) + '</small>' : '') + '</div>' +
         '<button class="best-primary" onclick="__bb.select(\'best-email\',\'' + esc(o.id) + '\',\'' + b + '\')">✉ E-Mail an ' + esc(b) + '</button></div>';
@@ -4991,27 +4992,41 @@
       return o.items.some(function (i) { return i.product.brand === b; }) || o.wkzItems.some(function (w) { return w.product.brand === b; });
     });
   }
+  // Hersteller-Mail: Menge | Art.-Nr. | Bezeichnung — getrennt nach Verwendung, Tester und Kabinenware deutlich markiert
+  var BEST_MAIL_HEAD = { sale: 'VERKAUF', tester: '*** TESTER ***', cabin: '*** KABINENWARE ***' };
+  var BEST_MAIL_TAG = { sale: '', tester: ' | TESTER', cabin: ' | KABINENWARE' };
+  function bestBrandPurposes(o, brand) {
+    var set = {};
+    o.items.concat(o.wkzItems).forEach(function (i) { if (i.product.brand === brand) set[i.purpose || 'sale'] = 1; });
+    return ['sale', 'tester', 'cabin'].filter(function (k) { return set[k]; });
+  }
   function bestBrandEmailBody(o, brand) {
-    var L = ['Guten Tag,', '', 'bitte folgende Artikel liefern (Bestellung ' + o.id + ') — Menge | Art.-Nr. | Bezeichnung:', ''];
-    var lines = {}, order = [];
-    bestSortByPurpose(o.items.filter(function (i) { return i.product.brand === brand; })).forEach(function (i) {
-      var l = lines[i.productId] || (lines[i.productId] = { p: i.product, total: 0, freeNote: '', n: 0 }); if (!l.n) order.push(i.productId); l.n++;
-      l.total += i.quantityPaid + i.quantityFree;
-      if (i.quantityFree) l.freeNote = ' (' + i.quantityPaid + ' bezahlt + ' + i.quantityFree + ' gratis, Aktion ' + bestPromoLabel(i) + ')';
+    var L = ['Guten Tag,', '', 'bitte folgende Artikel liefern (Bestellung ' + o.id + ') — Menge | Art.-Nr. | Bezeichnung:'];
+    var purposes = bestBrandPurposes(o, brand);
+    if (purposes.some(function (k) { return k !== 'sale'; })) L.push('ACHTUNG: Diese Bestellung enthält ' + purposes.filter(function (k) { return k !== 'sale'; }).map(function (k) { return k === 'tester' ? 'TESTER' : 'KABINENWARE'; }).join(' und ') + ' — bitte getrennt ausweisen.');
+    L.push('');
+    purposes.forEach(function (k) {
+      var its = o.items.filter(function (i) { return i.product.brand === brand && (i.purpose || 'sale') === k; });
+      var wk = o.wkzItems.filter(function (w) { return w.product.brand === brand && (w.purpose || 'sale') === k; });
+      L.push(BEST_MAIL_HEAD[k]);
+      its.forEach(function (i) {
+        L.push((i.quantityPaid + i.quantityFree) + 'x | ' + i.product.articleNumber + ' | ' + i.product.name + BEST_MAIL_TAG[k] +
+          (i.quantityFree ? ' (' + i.quantityPaid + ' bezahlt + ' + i.quantityFree + ' gratis, Aktion ' + bestPromoLabel(i) + ')' : ''));
+      });
+      if (wk.length) {
+        L.push('WKZ-Ware' + (k === 'sale' ? '' : ' (' + (k === 'tester' ? 'Tester' : 'Kabinenware') + ')') + ':');
+        wk.forEach(function (w) { L.push(w.quantity + 'x | ' + w.product.articleNumber + ' | ' + w.product.name + BEST_MAIL_TAG[k]); });
+      }
+      L.push('');
     });
-    order.forEach(function (id) { var l = lines[id]; L.push(l.total + 'x | ' + l.p.articleNumber + ' | ' + l.p.name + (l.n === 1 ? l.freeNote : '')); });
-    var wk = o.wkzItems.filter(function (w) { return w.product.brand === brand; });
-    if (wk.length) {
-      L.push(''); L.push('WKZ-Ware:');
-      wk.forEach(function (w) { L.push(w.quantity + 'x | ' + w.product.articleNumber + ' | ' + w.product.name); });
-    }
-    L.push(''); L.push('Besteller: ' + (o.besteller || '—') + ' · ' + formatDateDE(new Date(o.createdAt)));
+    L.push('Besteller: ' + (o.besteller || '—') + ' · ' + formatDateDE(new Date(o.createdAt)));
     L.push(''); L.push('Mit freundlichen Grüßen'); L.push((o.besteller || 'Beauty Lounge') + ' · Beauty Lounge Neuss');
     L.push('Hoistener Str. 15 · 41466 Neuss · 02131 4506806');
     return L.join('\n');
   }
   function bestBrandHref(o, brand) {
-    var subject = 'Bestellung ' + o.id + ' – ' + brand + ' – Beauty Lounge Neuss';
+    var extra = bestBrandPurposes(o, brand).filter(function (k) { return k !== 'sale'; }).map(function (k) { return k === 'tester' ? 'TESTER' : 'KABINENWARE'; });
+    var subject = 'Bestellung ' + o.id + ' – ' + brand + (extra.length ? ' – enthält ' + extra.join(' + ') : '') + ' – Beauty Lounge Neuss';
     return 'mailto:' + bestBrandEmail(brand) + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(bestBrandEmailBody(o, brand));
   }
   function bestNextNumber() {
