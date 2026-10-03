@@ -4919,6 +4919,11 @@
       return '<button class="' + (has ? 'on' : '') + '" onclick="__bb.select(\'' + (wkz ? 'best-add-purpose-w' : 'best-add-purpose') + '\',\'' + p.id + '|' + key + '\')">' + esc(bestPurposeLabel(key)) + '</button>';
     }).join('') + '</span>';
   }
+  function bestUniqueProducts(items) {
+    var seen = {}, out = [];
+    items.forEach(function (i) { if (!seen[i.productId]) { seen[i.productId] = 1; out.push(i.product); } });
+    return out;
+  }
   function bestLineRow(it, wkz) {
     var kind = wkz ? 'best-qw' : 'best-q', p = it.product;
     var meta = wkz ? esc(p.articleNumber) + ' · ' + esc(p.brand) + ' · ' + esc(bestPurposeLabel(it.purpose || 'sale'))
@@ -4932,8 +4937,8 @@
     var t = bestTotals(), over = bestOverrun(t), o = bestDraftOrder();
     var ok = BEST.items.length && bestOverrunOk(t);
     var body = '<div class="best-wrap">' + bestSteps2(2) + bestWhoChips() +
-      '<div class="best-h2">Bestellung</div>' + (BEST.items.length ? '<div class="bst-lines">' + bestSortByPurpose(BEST.items).map(function (i) { return bestLineRow(i, false); }).join('') + '</div>' : '<div class="best-msg err">Noch keine Artikel in der Bestellung.</div>') +
-      (BEST.wkzItems.length ? '<div class="best-h2">WKZ-Ware</div><div class="bst-lines">' + BEST.wkzItems.map(function (i) { return bestLineRow(i, true); }).join('') + '</div>' : '') +
+      '<div class="best-h2">Bestellung</div>' + (BEST.items.length ? '<div class="bst-prodlist">' + bestUniqueProducts(BEST.items).map(function (p) { return bestRowHtml(p, false, 0); }).join('') + '</div>' : '<div class="best-msg err">Noch keine Artikel in der Bestellung.</div>') +
+      (BEST.wkzItems.length ? '<div class="best-h2">WKZ-Ware</div><div class="bst-prodlist">' + bestUniqueProducts(BEST.wkzItems).map(function (p) { return bestRowHtml(p, true, 0); }).join('') + '</div>' : '') +
       bestSummaryBlocks(o) +
       (bestIsApprover() && BEST.items.length ? '<div class="best-h2">Direkt an die Hersteller senden</div><div class="best-msg info">Einzelne Hersteller-E-Mails lassen sich auch ohne Abschluss der Bestellung versenden.</div>' + bestBrandMailCards(o) : '') +
       '<div class="best-actionrow bst-final"><button class="best-secondary" onclick="__bb.goBack()">' + (path[pointer - 1] === 'kunde-wahl' ? '← Zurück' : '← Bestellung bearbeiten') + '</button>' +
@@ -5299,7 +5304,7 @@
     else if (kind === 'best-pickpromo') { BEST.pickPromo = key; bestRefresh(); }
     else if (kind === 'best-add-purpose') {   // Button Tester / Kabinenware: eigene Zeile mit eigener Menge öffnen
       if (!bestFind(key, false)) { bestellungHandler('best-add', key); }
-      setTimeout(function () { var el = document.querySelector('input[data-k="' + key + '"]'); if (el) { el.focus(); el.select(); } }, 60);
+      setTimeout(function () { var el = document.querySelector('input[data-k="' + key + '"]'); if (el) { el.focus(); el.select(); try { el.scrollIntoView({ block: 'center' }); } catch (x) { /* egal */ } } }, 60);
     }
     else if (kind === 'best-scan-toggle') { if (SCAN.running) bestScanStop(); else bestScanStart(); }
     else if (kind === 'best-scan-manual') {
@@ -5309,7 +5314,7 @@
     }
     else if (kind === 'best-add-purpose-w') {
       if (!bestFind(key, true)) bestSetQty(key, true, 1);
-      setTimeout(function () { var el = document.querySelector('input[data-k="' + key + '"]'); if (el) { el.focus(); el.select(); } }, 60);
+      setTimeout(function () { var el = document.querySelector('input[data-k="' + key + '"]'); if (el) { el.focus(); el.select(); try { el.scrollIntoView({ block: 'center' }); } catch (x) { /* egal */ } } }, 60);
     }
     else if (kind === 'best-add-next') {   // + : erst Verkauf, dann Tester, dann Kabinenware; sind alle drei da, Verkauf +1
       var seq = ['sale', 'tester', 'cabin'], nx = seq.filter(function (k) { return !bestFind(key + '|' + k, false); })[0] || 'sale';
