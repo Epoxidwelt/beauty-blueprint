@@ -831,6 +831,10 @@
   .bst-purpose.pp-tester { background: #fff; color: #111; border: 2px solid #111; }
   .bst-purpose.pp-cabin { background: #e6e6e6; color: #111; border: 2px dashed #777; }
   .bst-row.has .bst-sub .bst-val { font-size: 1.05rem; }
+  /* WKZ-Reiter: schlanke Leiste statt großer Karte */
+  .best-wkzbar:not(.live) { padding: .55rem 1rem; border-width: 1px; box-shadow: none; position: static; margin-bottom: .8rem; }
+  .best-wkzbar:not(.live) b { font-size: 1.05rem; font-weight: 700; }
+  .best-wkzbar:not(.live) div { font-size: .72rem; }
   .bst-editbanner { display: flex; align-items: center; justify-content: space-between; gap: .8rem; }
   .best-img { background: #fff; border: 1px solid var(--rose-pale); border-radius: 14px; display: flex; align-items: center; justify-content: center; padding: 0.5rem; }
   .best-img img { width: 96px; height: 96px; display: block; object-fit: contain; }
@@ -4861,8 +4865,8 @@
   function bestBarHtml() {
     var t = bestTotals(), over = bestOverrun(t);
     if (BEST.tab === 'scan') return '';
-    if (BEST.tab !== 'wkz' && !bestWkzRelevant()) return '';
-    if (BEST.tab !== 'wkz') {
+    if (BEST.tab !== 'wkz') return '';   // Auswahl-Reiter: Artikel, Gesamtbetrag und WKZ stehen wie bei den anderen Herstellern nur in der Fußleiste
+    if (false) {
       return '<div class="best-wkzbar live"><div>Bestellwert für WKZ<small>ohne Aktionsware</small><b>' + bestMoney(t.base) + '</b></div>' +
         '<div class="hl">WKZ-Guthaben<small>noch auszugeben</small><b>' + bestMoney(t.amount) + '</b></div>' +
         '</div>';
