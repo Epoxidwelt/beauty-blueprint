@@ -883,6 +883,64 @@
     .best-paper { box-shadow: none !important; max-width: none !important; padding: 0 !important; }
     .best-previewbar { display: none !important; }
   }
+
+  /* ===== Bestellung — vereinfachte Bedienung ===== */
+  .bst-steps { display: flex; align-items: center; gap: 0.6rem; margin: 0 0 1rem; font-size: 0.8rem; font-weight: 600; color: var(--taupe); }
+  .bst-steps span { display: flex; align-items: center; gap: 0.4rem; }
+  .bst-steps i { width: 24px; height: 24px; border-radius: 50%; background: var(--beige); font-style: normal; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; }
+  .bst-steps .on { color: var(--rose-deep); } .bst-steps .on i { background: var(--rose-deep); color: #fff; }
+  .bst-steps .done { color: var(--braun); } .bst-steps .done i { background: var(--rose); color: #fff; }
+  .bst-steps .line { flex: 0 0 2rem; height: 2px; background: var(--beige-deep); }
+  .bst-lbl { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--taupe); margin-right: 0.3rem; }
+  .bst-who { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+  .best-whochip.bst-small { min-height: 46px; padding: 0.3rem 0.9rem 0.3rem 0.3rem; font-size: 0.95rem; border-radius: 14px; }
+  .best-whochip.bst-small .avatar-mini { width: 34px; height: 34px; }
+  .bst-tabs button { min-height: 52px !important; padding: 0.5rem !important; }
+  .best-wrap > .main-tabs { margin-bottom: 0.7rem; }
+  .bst-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; background: var(--beige); padding: 0.35rem; border-radius: 18px; margin-bottom: 0.9rem; }
+  .bst-tabs button { font-family: var(--font-body); font-size: 1.05rem; font-weight: 700; color: var(--braun); background: transparent; border: none; border-radius: 14px; padding: 0.8rem; min-height: 62px; cursor: pointer; }
+  .bst-tabs button small { display: block; font-weight: 500; font-size: 0.75rem; opacity: 0.8; }
+  .bst-tabs button.on { background: #fff; color: var(--rose-deep); box-shadow: 0 4px 14px rgba(122,92,75,0.16); }
+  .bst-defaults { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.9rem; }
+  .best-wkzbar .rate span { display: flex; align-items: center; gap: 0.4rem; }
+  .best-wkzbar .rate button { width: 40px; height: 40px; border-radius: 12px; border: none; background: rgba(255,255,255,0.22); color: #fff; font-size: 1.2rem; cursor: pointer; }
+  .best-wkzbar { grid-template-columns: repeat(4, 1fr); }
+  .bst-row { display: grid; grid-template-columns: 56px minmax(0, 1fr) 44px auto; gap: 0.4rem 0.8rem; align-items: center; background: #fff; border-radius: 16px; padding: 0.7rem 0.8rem; margin-bottom: 0.5rem; box-shadow: 0 3px 12px rgba(122,92,75,0.08); border: 2px solid transparent; }
+  .bst-row.has { border-color: var(--rose); background: #FFFBFC; }
+  .bst-row.above { opacity: 0.6; }
+  .bst-row .best-img { padding: 0.25rem; border-radius: 12px; } .bst-row .best-img img { width: 44px; height: 44px; }
+  .bst-name { font-weight: 700; font-size: 0.95rem; line-height: 1.25; }
+  .bst-meta { font-size: 0.74rem; color: var(--text-soft); margin-top: 0.1rem; }
+  .bst-meta b { color: var(--text); }
+  .bst-fav { width: 44px; height: 44px; border: none; background: transparent; font-size: 1.3rem; color: var(--taupe); cursor: pointer; }
+  .bst-fav.on { color: var(--rose-deep); }
+  .bst-plus { width: 64px; height: 56px; border: none; border-radius: 16px; background: var(--rose-deep); color: #fff; font-size: 1.9rem; cursor: pointer; box-shadow: 0 6px 14px rgba(154,75,102,0.28); }
+  .bst-step { display: inline-flex; align-items: center; gap: 0.3rem; }
+  .bst-step button { width: 52px; height: 52px; border: none; border-radius: 14px; background: var(--beige); color: var(--braun); font-size: 1.6rem; cursor: pointer; }
+  .bst-step button.add { background: var(--rose-pale); color: var(--rose-deep); }
+  .bst-step input { width: 4.2rem; height: 52px; text-align: center; font-size: 1.2rem; font-weight: 700; border: 2px solid var(--beige-deep); border-radius: 14px; background: #fff; color: var(--text); font-family: var(--font-body); }
+  .bst-extra { grid-column: 1 / -1; display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; padding-top: 0.2rem; }
+  .bst-chip { font-family: var(--font-body); font-size: 0.85rem; font-weight: 600; background: var(--beige); color: var(--braun); border: 2px solid transparent; border-radius: 999px; padding: 0.5rem 1rem; min-height: 44px; cursor: pointer; }
+  .bst-chip.on { background: var(--rose-pale); border-color: var(--rose-deep); color: var(--rose-deep); }
+  .bst-free { font-size: 0.9rem; font-weight: 700; color: var(--good); }
+  .bst-val { margin-left: auto; font-weight: 700; color: var(--braun); }
+  .bst-footer { position: sticky; bottom: -1.9rem; z-index: 30; display: flex; align-items: center; gap: 1rem; justify-content: space-between; flex-wrap: wrap; background: #fff; border-radius: 20px 20px 0 0; padding: 0.8rem 1.1rem; margin-top: 1rem; box-shadow: 0 -8px 24px rgba(122,92,75,0.18); }
+  .bst-sum b { display: block; font-size: 1.05rem; } .bst-sum span { font-size: 0.78rem; color: var(--text-soft); }
+  .bst-lines { display: flex; flex-direction: column; gap: 0.5rem; }
+  .bst-line { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto 6rem; gap: 0.8rem; align-items: center; background: #fff; border-radius: 16px; padding: 0.7rem 0.8rem; box-shadow: 0 3px 12px rgba(122,92,75,0.08); }
+  .bst-line .best-img { padding: 0.25rem; } .bst-line .best-img img { width: 44px; height: 44px; }
+  .bst-lineval { text-align: right; font-weight: 700; color: var(--braun); }
+  .bst-hist { margin-top: 1rem; background: var(--beige); border-radius: 16px; padding: 0.4rem 1rem; }
+  .bst-hist summary { cursor: pointer; font-weight: 700; color: var(--braun); min-height: 48px; display: flex; align-items: center; }
+  .bst-hist[open] { padding-bottom: 1rem; }
+  .bst-final { position: sticky; bottom: -1.9rem; background: #fff; padding: 0.8rem 0; margin-top: 1rem; }
+  @media (max-width: 760px) {
+    .bst-row { grid-template-columns: 48px minmax(0, 1fr) 44px; }
+    .bst-ctl { grid-column: 1 / -1; justify-self: end; }
+    .bst-line { grid-template-columns: 48px minmax(0, 1fr); }
+    .bst-line .bst-step { grid-column: 1 / -1; justify-self: start; }
+    .best-wkzbar { grid-template-columns: 1fr 1fr; }
+  }
 </style>
 
 <div class="device"><div class="screen" id="screen"></div></div>
@@ -2316,7 +2374,7 @@
 
   // Diese Screens haben bereits ein eigenes, zentriertes Logo im Inhalt —
   // dort entfällt das kleine Kopfzeilen-Logo, damit es nicht doppelt erscheint.
-  var SCREENS_WITH_OWN_LOGO = ['login', 'kunde-wahl', 'blueprint', 'abschluss', 'bestellung'];
+  var SCREENS_WITH_OWN_LOGO = ['login', 'kunde-wahl', 'blueprint', 'abschluss'];
 
   function topbar(mode, percent, contextText) {
     var backDisabled = pointer === 0 ? 'disabled' : '';
@@ -4199,7 +4257,7 @@
       wkzRate: (typeof d.wkzRate === 'number') ? d.wkzRate : BEST_CONFIG.defaultWkzRate,
       wkzOverrunConfirmed: d.wkzOverrunConfirmed || 0,
       brand: null, group: '', search: '', lowStock: false, favOnly: false, limit: BEST_CONFIG.pageSize,
-      detail: null, completedId: null
+      tab: 'order', defaultPurpose: 'sale', moreFilters: false, completedId: null
     };
   })();
   var BEST_FAVS = bestLoad(BEST_KEYS.favs, []);
@@ -4257,263 +4315,172 @@
     return BEST.wkzOverrunConfirmed === over;
   }
 
-  // ---------- Gemeinsame Bausteine ----------
+  // ---------- Bausteine ----------
   function bestAvatar(name, cls) {
     var m = bestMember(name);
     return '<span class="' + (cls || 'avatar-mini') + '">' + avatarInner(m) + '</span>';
-  }
-  function bestSteps(current) {
-    return '<div class="best-steps">' + BEST_STEP_LABELS.map(function (l, i) {
-      var n = i + 1, cls = n < current ? 'done' : (n === current ? 'current' : '');
-      return '<div class="best-step ' + cls + '"><span class="n">' + (n < current ? '✓' : n) + '</span>' + esc(l) + '</div>';
-    }).join('') + '</div>';
-  }
-  function bestTopRow(title, withWho) {
-    var t = bestTotals();
-    var who = withWho ? '<label class="best-who">' + bestAvatar(BEST.besteller) + '<span>Besteller<br/>' +
-      '<select onchange="__bb.bestInput(\'besteller\',this.value)" aria-label="Besteller wählen">' +
-      bestTeamNames().map(function (n) { return '<option value="' + esc(n) + '"' + (n === BEST.besteller ? ' selected' : '') + '>' + esc(n) + '</option>'; }).join('') +
-      '</select></span></label>' : '';
-    return '<div class="best-top"><h1>' + esc(title) + '</h1>' + who +
-      '<button class="best-cartbtn" onclick="__bb.select(\'best-to-cart\')">Warenkorb · ' + t.deliveryQty + ' Artikel<small>' + bestMoney(t.regular) + '</small></button></div>';
   }
   function bestMainTabs(active) {
     return '<div class="main-tabs">' +
       '<button class="main-tab' + (active === 'beratung' ? ' current' : '') + '" onclick="__bb.replaceTop(\'kunde-wahl\')">Beratung</button>' +
       '<button class="main-tab' + (active === 'bestellung' ? ' current' : '') + '" onclick="__bb.replaceTop(\'bestellung\')">Bestellung</button></div>';
   }
-  function bestBack() { return pointer > 0 ? '' : ''; }
-
-  // ---------- Screen: Start (Reiter "Bestellung") ----------
-  function renderBestStart() {
-    bestEnsureBesteller();
-    var orders = bestLoad(BEST_KEYS.orders, []).slice(-5).reverse();
-    var hist = orders.length ? '<div class="best-history">' + orders.map(function (o) {
-      return '<button class="best-hist" onclick="__bb.select(\'best-view-order\',\'' + esc(o.id) + '\')">' + bestAvatar(o.besteller) +
-        '<span><b>' + esc(o.id) + '</b><small>' + esc(o.besteller || '—') + ' · ' + esc(formatDateDE(new Date(o.createdAt))) + '</small></span>' +
-        '<span class="val">' + bestMoney(o.regularOrderValue) + '</span></button>';
-    }).join('') + '</div>' : '<p class="best-sub">Noch keine abgeschlossene Bestellung.</p>';
-    var body = '<div class="best-wrap">' + bestMainTabs('bestellung') +
-      '<img class="brand-logo md" src="' + LOGO_SRC + '" alt="Beauty Lounge" />' +
-      bestTopRow('Beauty Lounge – Bestellung', false) +
-      bestSteps(1) +
-      '<div class="best-h2">Wer bestellt?</div>' +
-      '<div class="best-whochips">' + bestTeamNames().map(function (n) {
-        return '<button class="best-whochip' + (n === BEST.besteller ? ' current' : '') + '" onclick="__bb.select(\'best-besteller\',\'' + esc(n) + '\')">' + bestAvatar(n) + esc(n) + '</button>';
-      }).join('') + '</div>' +
-      '<div class="best-h2">Marke wählen</div>' +
-      '<div class="best-brands">' + BEST_BRANDS.map(function (b) {
-        var st = BEST_BRAND_STYLE[b];
-        return '<button class="best-brand" style="background:' + st.bg + ';color:' + st.fg + '" onclick="__bb.select(\'best-brand\',\'' + b + '\')">' + esc(b) + '<small>' + esc(st.sub) + '</small></button>';
-      }).join('') + '</div>' +
-      '<div class="best-h2">Oder direkt suchen</div>' +
-      '<input class="best-search" id="best-start-search" type="search" placeholder="Produkt oder Artikelnummer suchen" oninput="__bb.bestInput(\'startsearch\',this.value)" autocomplete="off" />' +
-      '<div id="best-start-results"></div>' +
-      '<div class="best-actionrow"><button class="best-primary grow" onclick="__bb.select(\'best-start\')">Bestellung starten</button></div>' +
-      '<div class="best-h2">Letzte Bestellungen</div>' + hist + '</div>';
-    screenWrap('dezent', 0, contextLabel(), body);
+  function bestWhoChips() {
+    return '<div class="bst-who"><span class="bst-lbl">Besteller</span>' + bestTeamNames().map(function (n) {
+      return '<button class="best-whochip bst-small' + (n === BEST.besteller ? ' current' : '') + '" onclick="__bb.select(\'best-besteller\',\'' + esc(n) + '\')">' + bestAvatar(n) + esc(n) + '</button>';
+    }).join('') + '</div>';
   }
+  function bestSteps2(current) {
+    return '<div class="bst-steps"><span class="' + (current === 1 ? 'on' : 'done') + '"><i>' + (current > 1 ? '✓' : '1') + '</i>Auswählen</span><span class="line"></span>' +
+      '<span class="' + (current === 2 ? 'on' : '') + '"><i>2</i>Prüfen &amp; abschließen</span></div>';
+  }
+  function bestFind(productId, wkz) {
+    var list = wkz ? BEST.wkzItems : BEST.items;
+    for (var i = 0; i < list.length; i++) if (list[i].productId === productId) return list[i];
+    return null;
+  }
+  function bestQtyOf(it, wkz) { return it ? (wkz ? it.quantity : it.quantityPaid) : 0; }
 
-  // ---------- Produktübersicht ----------
-  function bestFiltered(wkz) {
+  // ---------- Einziger Auswahl-Screen (Reiter "Bestellung") ----------
+  function bestFiltered() {
     var q = BEST.search.trim().toLowerCase();
     return bestCatalog().filter(function (p) {
       if (BEST.brand && p.brand !== BEST.brand) return false;
       if (BEST.group && p.productGroup !== BEST.group) return false;
-      if (q && (p.name.toLowerCase().indexOf(q) === -1 && p.articleNumber.toLowerCase().indexOf(q) === -1 && (p.ean || '').indexOf(q) === -1)) return false;
+      if (q && p.name.toLowerCase().indexOf(q) === -1 && p.articleNumber.toLowerCase().indexOf(q) === -1) return false;
       if (BEST.lowStock && !(p.stock !== undefined && p.minimumStock !== undefined && p.stock <= p.minimumStock)) return false;
       if (BEST.favOnly && BEST_FAVS.indexOf(p.id) === -1) return false;
       return true;
     });
   }
-  function bestCardHtml(p, wkz, remaining) {
-    var low = p.stock !== undefined && p.minimumStock !== undefined && p.stock <= p.minimumStock;
-    var above = wkz && BEST_CONFIG.markProductsAboveWkzRest && p.purchasePrice > Math.max(remaining, 0);
-    var fav = BEST_FAVS.indexOf(p.id) > -1;
-    var badges = '';
-    if (p.purchasePrice === 0) badges += '<span class="best-badge bad">Kein EK-Preis</span>';
-    if (low) badges += '<span class="best-badge warn">Mindestbestand erreicht</span>';
-    if (above) badges += '<span class="best-badge warn">Über WKZ-Rest</span>';
-    var plusAction = wkz ? 'best-wkz-quick' : 'best-open';
-    return '<div class="best-card' + (above ? ' above' : '') + '">' +
-      '<button class="best-fav' + (fav ? ' on' : '') + '" aria-label="Favorit" onclick="__bb.select(\'best-fav\',\'' + p.id + '\')">' + (fav ? '♥' : '♡') + '</button>' +
-      '<div class="best-img"><img src="' + p.image + '" alt="" /></div>' +
-      '<div class="best-tag">' + esc(p.brand) + ' · ' + esc(p.productGroup) + '</div>' +
-      '<div class="best-name">' + esc(p.name) + '</div>' +
-      '<div class="best-meta">Art.-Nr. ' + esc(p.articleNumber) + '</div>' +
-      '<div class="best-pricerow"><span>EK <b>' + bestMoney(p.purchasePrice) + '</b></span><span>Bestand ' + (p.stock === undefined ? '—' : p.stock) + '</span></div>' +
-      '<div class="best-badges">' + badges + '</div>' +
-      '<div class="best-cardactions"><button class="det" onclick="__bb.select(\'best-open\',\'' + p.id + '\')">Details</button>' +
-      '<button class="best-plus" aria-label="Hinzufügen" onclick="__bb.select(\'' + plusAction + '\',\'' + p.id + '\')">+</button></div></div>';
+  function bestStepper(kind, id, qty) {
+    return '<div class="bst-step"><button aria-label="weniger" onclick="__bb.select(\'' + kind + '\',\'' + id + '\',-1)">−</button>' +
+      '<input type="number" min="0" value="' + qty + '" onchange="__bb.bestInput(\'' + (kind === 'best-qw' ? 'qtyw' : 'qty') + '\',this.value,\'' + id + '\')" aria-label="Menge" />' +
+      '<button class="add" aria-label="mehr" onclick="__bb.select(\'' + kind + '\',\'' + id + '\',1)">+</button></div>';
   }
-  function bestGridHtml(wkz) {
-    var list = bestFiltered(wkz);
-    var t = bestTotals();
-    var rem = t.remaining;
-    var shown = list.slice(0, BEST.limit);
+  function bestRowHtml(p, wkz, remaining) {
+    var it = bestFind(p.id, wkz), qty = bestQtyOf(it, wkz);
+    var kind = wkz ? 'best-qw' : 'best-q';
+    var fav = BEST_FAVS.indexOf(p.id) > -1;
+    var low = p.stock !== undefined && p.minimumStock !== undefined && p.stock <= p.minimumStock;
+    var above = wkz && !qty && BEST_CONFIG.markProductsAboveWkzRest && p.purchasePrice > Math.max(remaining, 0);
+    var info = esc(p.articleNumber) + ' · EK <b>' + bestMoney(p.purchasePrice) + '</b> · Bestand ' + (p.stock === undefined ? '—' : p.stock) +
+      (p.purchasePrice === 0 ? ' <span class="best-badge bad">Kein EK-Preis</span>' : '') +
+      (low ? ' <span class="best-badge warn">Mindestbestand</span>' : '') +
+      (above ? ' <span class="best-badge warn">über WKZ-Rest</span>' : '');
+    var control = qty ? bestStepper(kind, p.id, qty) : '<button class="bst-plus" aria-label="hinzufügen" onclick="__bb.select(\'' + kind + '\',\'' + p.id + '\',1)">+</button>';
+    var extra = '';
+    if (!wkz && it) {
+      extra = '<div class="bst-extra"><button class="bst-chip" onclick="__bb.select(\'best-cyc-purpose\',\'' + p.id + '\')">' + esc(bestPurposeLabel(it.purpose)) + ' ⟳</button>' +
+        '<button class="bst-chip' + (it.promotionType !== 'none' ? ' on' : '') + '" onclick="__bb.select(\'best-cyc-promo\',\'' + p.id + '\')">' + (it.promotionType === 'none' ? 'Aktion: keine' : 'Aktion ' + esc(bestPromoLabel(it))) + ' ⟳</button>' +
+        (it.quantityFree ? '<span class="bst-free">+ ' + it.quantityFree + ' gratis</span>' : '') +
+        '<span class="bst-val">' + bestMoney(calculateLineCost(it)) + '</span></div>';
+    } else if (wkz && it) {
+      extra = '<div class="bst-extra"><span class="bst-val">' + bestMoney(it.quantity * it.unitPurchasePrice) + '</span></div>';
+    }
+    return '<div class="bst-row' + (qty ? ' has' : '') + (above ? ' above' : '') + '"><div class="best-img"><img src="' + p.image + '" alt=""/></div>' +
+      '<div class="bst-info"><div class="bst-name">' + esc(p.name) + '</div><div class="bst-meta">' + esc(p.brand) + ' · ' + info + '</div></div>' +
+      '<button class="bst-fav' + (fav ? ' on' : '') + '" aria-label="Favorit" onclick="__bb.select(\'best-fav\',\'' + p.id + '\')">' + (fav ? '♥' : '♡') + '</button>' +
+      '<div class="bst-ctl">' + control + '</div>' + extra + '</div>';
+  }
+  function bestListHtml() {
+    var wkz = BEST.tab === 'wkz';
+    var list = bestFiltered(), t = bestTotals();
     if (!list.length) return '<div class="best-msg info">Keine Produkte gefunden — Filter oder Suche anpassen.</div>';
-    return '<div class="best-sub">' + list.length + ' Produkte</div><div class="best-grid">' +
-      shown.map(function (p) { return bestCardHtml(p, wkz, rem); }).join('') + '</div>' +
+    var shown = list.slice(0, BEST.limit);
+    return shown.map(function (p) { return bestRowHtml(p, wkz, t.remaining); }).join('') +
       (list.length > shown.length ? '<div class="best-actionrow"><button class="best-secondary grow" onclick="__bb.select(\'best-more\')">Mehr anzeigen (' + (list.length - shown.length) + ' weitere)</button></div>' : '');
   }
-  function bestFilterBar() {
+  function bestBarHtml() {
+    var t = bestTotals(), over = bestOverrun(t);
+    if (BEST.tab !== 'wkz') {
+      return '<div class="bst-defaults"><span class="bst-lbl">Neue Artikel als</span>' + BEST_PURPOSES.map(function (x) {
+        return '<button class="best-chip' + (BEST.defaultPurpose === x.key ? ' on' : '') + '" onclick="__bb.select(\'best-default-purpose\',\'' + x.key + '\')">' + esc(x.label) + '</button>';
+      }).join('') + '</div>';
+    }
+    return '<div class="best-wkzbar"><div>WKZ verfügbar<b>' + bestMoney(t.amount) + '</b></div><div>WKZ verwendet<b>' + bestMoney(t.used) + '</b></div>' +
+      '<div class="' + (over ? 'over' : '') + '">' + (over ? 'Überschreitung' : 'WKZ übrig') + '<b>' + bestMoney(over ? over : t.remaining) + '</b></div>' +
+      '<div class="rate">WKZ-Satz<span><button onclick="__bb.select(\'best-wkz-rate\',\'\',-1)">−</button><b>' + esc(String(BEST.wkzRate).replace('.', ',')) + ' %</b><button onclick="__bb.select(\'best-wkz-rate\',\'\',1)">+</button></span></div></div>';
+  }
+  function bestFooterHtml() {
+    var t = bestTotals(), empty = !BEST.items.length && !BEST.wkzItems.length;
+    return '<div class="bst-sum"><b>' + t.deliveryQty + ' Artikel' + (t.freeQty ? ' (davon ' + t.freeQty + ' gratis)' : '') + ' · ' + bestMoney(t.regular) + '</b>' +
+      '<span>WKZ ' + esc(String(BEST.wkzRate).replace('.', ',')) + ' % = ' + bestMoney(t.amount) + ' · gewählt ' + bestMoney(t.used) + '</span></div>' +
+      '<button class="best-primary" ' + (empty ? 'disabled' : '') + ' onclick="__bb.select(\'best-next\')">Weiter zur Prüfung</button>';
+  }
+  function bestTabsHtml() {
+    return '<div class="bst-tabs"><button class="' + (BEST.tab === 'order' ? 'on' : '') + '" onclick="__bb.select(\'best-tab\',\'order\')">1 · Bestellung<small>' + BEST.items.length + ' Artikel</small></button>' +
+      '<button class="' + (BEST.tab === 'wkz' ? 'on' : '') + '" onclick="__bb.select(\'best-tab\',\'wkz\')">2 · WKZ-Ware<small>' + BEST.wkzItems.length + ' Artikel</small></button></div>';
+  }
+  function bestFiltersHtml() {
     var groups = {};
     bestCatalog().forEach(function (p) { if (!BEST.brand || p.brand === BEST.brand) groups[p.productGroup] = (groups[p.productGroup] || 0) + 1; });
     var gKeys = Object.keys(groups).sort(function (a, b) { return groups[b] - groups[a] || a.localeCompare(b, 'de'); });
-    return '<div class="best-filters">' +
-      '<button class="best-chip' + (!BEST.brand ? ' on' : '') + '" onclick="__bb.select(\'best-filter-brand\',\'\')">Alle Marken</button>' +
+    return '<div class="best-filters"><button class="best-chip' + (!BEST.brand ? ' on' : '') + '" onclick="__bb.select(\'best-filter-brand\',\'\')">Alle</button>' +
       BEST_BRANDS.map(function (b) { return '<button class="best-chip' + (BEST.brand === b ? ' on' : '') + '" onclick="__bb.select(\'best-filter-brand\',\'' + b + '\')">' + esc(b) + '</button>'; }).join('') +
-      '</div><div class="best-filters">' +
-      '<input class="best-search" style="flex:1;min-width:14rem;width:auto" type="search" value="' + esc(BEST.search) + '" placeholder="Produkt oder Artikelnummer suchen" oninput="__bb.bestInput(\'search\',this.value)" autocomplete="off" />' +
-      '<select class="best-select" onchange="__bb.bestInput(\'group\',this.value)" aria-label="Produktgruppe"><option value="">Alle Produktgruppen</option>' +
-      gKeys.map(function (g) { return '<option value="' + esc(g) + '"' + (BEST.group === g ? ' selected' : '') + '>' + esc(g) + ' (' + groups[g] + ')</option>'; }).join('') + '</select>' +
-      '<button class="best-chip' + (BEST.lowStock ? ' on' : '') + '" onclick="__bb.select(\'best-toggle\',\'lowStock\')">Mindestbestand erreicht</button>' +
-      '<button class="best-chip' + (BEST.favOnly ? ' on' : '') + '" onclick="__bb.select(\'best-toggle\',\'favOnly\')">♥ Nur Favoriten</button></div>';
+      '<input class="best-search" style="flex:1;min-width:10rem;width:auto;min-height:48px;padding:.6rem 1rem" type="search" value="' + esc(BEST.search) + '" placeholder="Produkt / Art.-Nr. suchen" oninput="__bb.bestInput(\'search\',this.value)" autocomplete="off" />' +
+      '<button class="best-chip' + (BEST.favOnly ? ' on' : '') + '" onclick="__bb.select(\'best-toggle\',\'favOnly\')">♥ Favoriten</button>' +
+      '<button class="best-chip' + (BEST.moreFilters ? ' on' : '') + '" onclick="__bb.select(\'best-toggle\',\'moreFilters\')">Mehr Filter</button></div>' +
+      (BEST.moreFilters ? '<div class="best-filters"><select class="best-select" onchange="__bb.bestInput(\'group\',this.value)" aria-label="Produktgruppe"><option value="">Alle Produktgruppen</option>' +
+        gKeys.map(function (g) { return '<option value="' + esc(g) + '"' + (BEST.group === g ? ' selected' : '') + '>' + esc(g) + ' (' + groups[g] + ')</option>'; }).join('') + '</select>' +
+        '<button class="best-chip' + (BEST.lowStock ? ' on' : '') + '" onclick="__bb.select(\'best-toggle\',\'lowStock\')">Nur Mindestbestand erreicht</button></div>' : '');
   }
-  function bestWkzBar(t) {
-    var over = bestOverrun(t);
-    return '<div class="best-wkzbar"><div>WKZ verfügbar<b>' + bestMoney(t.amount) + '</b></div><div>WKZ verwendet<b>' + bestMoney(t.used) + '</b></div>' +
-      '<div class="' + (over ? 'over' : '') + '">WKZ verbleibend<b>' + bestMoney(t.remaining) + '</b></div></div>';
-  }
-  function bestWkzListHtml(t) {
-    var over = bestOverrun(t);
-    var list = BEST.wkzItems.length ? '<div class="best-lines">' + BEST.wkzItems.map(function (w) {
-      return '<div class="best-line" style="grid-template-columns:56px minmax(0,2fr) minmax(0,1fr) auto"><div class="best-img"><img src="' + w.product.image + '" alt=""/></div>' +
-        '<div><div class="nm">' + esc(w.product.name) + '</div><div class="cell">' + esc(w.product.brand) + ' · ' + esc(w.product.articleNumber) + '</div></div>' +
-        '<div class="best-mini"><button onclick="__bb.select(\'best-wkz-qty\',\'' + w.id + '\',-1)">−</button><span>' + w.quantity + '</span><button onclick="__bb.select(\'best-wkz-qty\',\'' + w.id + '\',1)">+</button></div>' +
-        '<div class="acts"><span class="cell"><b>' + bestMoney(w.quantity * w.unitPurchasePrice) + '</b></span><button class="del" onclick="__bb.select(\'best-wkz-del\',\'' + w.id + '\')">Entfernen</button></div></div>';
-    }).join('') + '</div>' : '<div class="best-msg info">Noch keine WKZ-Ware ausgewählt — mit + zum Produkt hinzufügen.</div>';
-    var warn = '';
-    if (over) {
-      warn = '<div class="best-msg warn"><b>Der verfügbare WKZ wird um ' + bestMoney(over) + ' überschritten.</b><br/>Produkt entfernen, Menge reduzieren' +
-        (BEST_CONFIG.allowWkzOverrun ? ' oder die Überschreitung bestätigen.' : ' — eine Überschreitung ist nicht erlaubt.') +
-        (BEST_CONFIG.allowWkzOverrun && BEST_CONFIG.overrunNeedsConfirm && BEST.wkzOverrunConfirmed !== over ?
-          '<div class="best-actionrow" style="margin-top:.6rem"><button class="best-secondary" onclick="__bb.select(\'best-overrun-ok\')">Überschreitung bestätigen</button></div>' : '') +
-        (BEST_CONFIG.allowWkzOverrun && BEST_CONFIG.overrunNeedsConfirm && BEST.wkzOverrunConfirmed === over ? '<br/><b>✓ Überschreitung bestätigt.</b>' : '') + '</div>';
-    }
-    return '<div class="best-h2">Gewählte WKZ-Ware</div>' + list + warn;
-  }
-  function renderBestProducts(wkz) {
+  function renderBestMain() {
     bestEnsureBesteller();
-    var t = bestTotals();
-    var body = '<div class="best-wrap">' +
-      bestTopRow(wkz ? 'WKZ-Produkte auswählen' : (BEST.brand ? BEST.brand + ' – Produkte' : 'Produkte'), true) +
-      bestSteps(wkz ? 5 : (BEST.detail ? 3 : 2)) +
-      (wkz ? bestWkzBar(t) : '') + (wkz ? bestWkzListHtml(t) : '') +
-      bestFilterBar() +
-      '<div id="best-grid">' + bestGridHtml(wkz) + '</div>' +
-      '<div class="best-actionrow">' +
-      (wkz ? '<button class="best-secondary" onclick="__bb.goBack()">Zurück zum WKZ</button><button class="best-primary grow" ' + (bestOverrunOk(t) ? '' : 'disabled') + ' onclick="__bb.select(\'best-to-summary\')">Weiter zur Zusammenfassung</button>'
-           : '<button class="best-secondary" onclick="__bb.goBack()">Zurück</button><button class="best-primary grow" onclick="__bb.select(\'best-to-cart\')">Zum Warenkorb (' + t.deliveryQty + ')</button>') +
-      '</div></div>' + (BEST.detail ? bestDetailHtml(wkz) : '');
+    var orders = bestLoad(BEST_KEYS.orders, []).slice(-5).reverse();
+    var hist = orders.length ? '<details class="bst-hist"><summary>Letzte Bestellungen (' + orders.length + ')</summary><div class="best-history">' + orders.map(function (o) {
+      return '<button class="best-hist" onclick="__bb.select(\'best-view-order\',\'' + esc(o.id) + '\')">' + bestAvatar(o.besteller) +
+        '<span><b>' + esc(o.id) + '</b><small>' + esc(o.besteller || '—') + ' · ' + esc(formatDateDE(new Date(o.createdAt))) + '</small></span><span class="val">' + bestMoney(o.regularOrderValue) + '</span></button>';
+    }).join('') + '</div></details>' : '';
+    var body = '<div class="best-wrap">' + bestMainTabs('bestellung') + bestWhoChips() + bestTabsHtml() +
+      '<div id="best-bar">' + bestBarHtml() + '</div>' + bestFiltersHtml() +
+      '<div id="best-list">' + bestListHtml() + '</div>' + hist +
+      '<div class="bst-footer" id="best-footer">' + bestFooterHtml() + '</div></div>';
+    screenWrap('dezent', 0, contextLabel(), body);
+  }
+  function bestRefresh() {
+    if (path[pointer] !== 'bestellung') return render();
+    var a = document.getElementById('best-list'), b = document.getElementById('best-bar'), c = document.getElementById('best-footer');
+    if (!a || !b || !c) return render();
+    a.innerHTML = bestListHtml(); b.innerHTML = bestBarHtml(); c.innerHTML = bestFooterHtml();
+    var tabs = document.querySelector('.bst-tabs'); if (tabs) tabs.outerHTML = bestTabsHtml();
+  }
+
+  // ---------- Screen 2: Prüfen & abschließen ----------
+  function bestLineRow(it, wkz) {
+    var kind = wkz ? 'best-qw' : 'best-q', p = it.product;
+    var meta = wkz ? esc(p.brand) + ' · ' + esc(p.articleNumber)
+      : esc(p.brand) + ' · ' + esc(bestPurposeLabel(it.purpose)) + ' · ' + esc(bestPromoLabel(it)) + (it.quantityFree ? ' · <b style="color:var(--good)">+' + it.quantityFree + ' gratis</b>' : '');
+    return '<div class="bst-line"><div class="best-img"><img src="' + p.image + '" alt=""/></div><div class="bst-info"><div class="bst-name">' + esc(p.name) + '</div><div class="bst-meta">' + meta + '</div></div>' +
+      bestStepper(kind, it.productId, wkz ? it.quantity : it.quantityPaid) +
+      '<div class="bst-lineval">' + bestMoney(wkz ? it.quantity * it.unitPurchasePrice : calculateLineCost(it)) + '</div></div>';
+  }
+  function renderBestPruefen() {
+    bestEnsureBesteller();
+    var t = bestTotals(), over = bestOverrun(t), o = bestDraftOrder();
+    var ok = BEST.items.length && bestOverrunOk(t);
+    var body = '<div class="best-wrap">' + bestSteps2(2) + bestWhoChips() +
+      '<div class="best-h2">Bestellung</div>' + (BEST.items.length ? '<div class="bst-lines">' + BEST.items.map(function (i) { return bestLineRow(i, false); }).join('') + '</div>' : '<div class="best-msg err">Noch keine Artikel in der Bestellung.</div>') +
+      (BEST.wkzItems.length ? '<div class="best-h2">WKZ-Ware</div><div class="bst-lines">' + BEST.wkzItems.map(function (i) { return bestLineRow(i, true); }).join('') + '</div>' : '') +
+      '<div class="best-h2">Zusammenfassung</div><div class="best-sumbox">' +
+      '<div class="best-sumrow big"><span>Regulärer Bestellwert</span><b>' + bestMoney(t.regular) + '</b></div>' +
+      '<div class="best-sumrow free"><span>Gratisware aus Aktionen (nicht berechnet)</span><b>' + bestMoney(t.free) + '</b></div>' +
+      '<div class="best-sumrow"><span>WKZ ' + esc(String(BEST.wkzRate).replace('.', ',')) + ' % auf ' + bestMoney(t.base) + '</span><b>' + bestMoney(t.amount) + '</b></div>' +
+      '<div class="best-sumrow"><span>WKZ-Ware gewählt</span><b>' + bestMoney(t.used) + '</b></div>' +
+      '<div class="best-sumrow"><span>WKZ Rest</span><b>' + bestMoney(t.remaining) + '</b></div></div>' +
+      (over ? '<div class="best-msg warn"><b>Der verfügbare WKZ wird um ' + bestMoney(over) + ' überschritten.</b> Menge reduzieren oder die Überschreitung bestätigen.' +
+        (BEST_CONFIG.allowWkzOverrun && BEST_CONFIG.overrunNeedsConfirm ? (BEST.wkzOverrunConfirmed === over ? '<br/><b>✓ Überschreitung bestätigt.</b>' : '<div class="best-actionrow" style="margin-top:.6rem"><button class="best-secondary" onclick="__bb.select(\'best-overrun-ok\')">Überschreitung bestätigen</button></div>') : '') + '</div>' : '') +
+      '<details class="bst-hist"><summary>Details nach Marke und Verwendungszweck</summary>' + bestSummaryBlocks(o) + '</details>' +
+      '<div class="best-actionrow bst-final"><button class="best-secondary" onclick="__bb.goBack()">← Zurück</button>' +
+      '<button class="best-secondary" onclick="__bb.select(\'best-preview\')">PDF Vorschau</button><button class="best-secondary" onclick="__bb.select(\'best-export\')">Exportieren</button>' +
+      '<button class="best-primary grow" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-finish\')">Bestellung abschließen</button></div></div>';
     screenWrap('dezent', 0, contextLabel(), body);
   }
 
-  // ---------- Produktdetail (Modal) ----------
-  function bestDetailCalcHtml(d, p, wkz) {
-    if (wkz) {
-      return '<div class="best-calc"><div>Menge<b>' + d.qty + '</b></div><div>Einzelpreis<b>' + bestMoney(p.purchasePrice) + '</b></div>' +
-        '<div class="total"><span>Wert WKZ-Ware</span><b>' + bestMoney(d.qty * p.purchasePrice) + '</b></div></div>';
-    }
-    var free = calculateFreeQuantity(d.qty, d.promo, d.customThreshold);
-    var line = round2(d.qty * p.purchasePrice);
-    return '<div class="best-calc"><div>Bezahlte Menge<b>' + d.qty + '</b></div><div class="free">Gratis<b>' + free + '</b></div>' +
-      '<div>Gesamtliefermenge<b>' + (d.qty + free) + '</b></div><div>Zeilenwert (EK)<b>' + bestMoney(line) + '</b></div>' +
-      (free ? '<div class="total free"><span>Gratisware (nicht berechnet)</span><b>' + bestMoney(free * p.purchasePrice) + '</b></div>' : '') + '</div>';
-  }
-  function bestDetailMsgs(d, p, wkz) {
-    var out = '';
-    if (p.purchasePrice === 0) out += '<div class="best-msg warn">Für diesen Artikel ist kein Einkaufspreis hinterlegt (0,00 €). Bitte Preis prüfen — die Zeile fließt sonst mit 0,00 € in den Bestellwert ein.</div>';
-    if (d.errors && d.errors.length) out += '<div class="best-msg err">' + d.errors.map(esc).join('<br/>') + '</div>';
-    return out;
-  }
-  function bestDetailHtml(wkz) {
-    var d = BEST.detail, p = bestProduct(d.productId);
-    var low = p.stock !== undefined && p.minimumStock !== undefined && p.stock <= p.minimumStock;
-    var purposes = wkz ? '' : '<div class="best-h2">Verwendungszweck <span style="color:var(--danger)">*</span></div><div class="best-bigbtns">' +
-      BEST_PURPOSES.map(function (x) { return '<button class="best-bigbtn' + (d.purpose === x.key ? ' on' : '') + '" onclick="__bb.select(\'best-detail-purpose\',\'' + x.key + '\')">' + esc(x.label) + '</button>'; }).join('') + '</div>';
-    var promos = wkz ? '' : '<div class="best-h2">Aktion</div><div class="best-bigbtns">' +
-      BEST_PROMOS.map(function (x) { return '<button class="best-bigbtn' + (d.promo === x.key ? ' on' : '') + '" onclick="__bb.select(\'best-detail-promo\',\'' + x.key + '\')">' + esc(x.label) + '</button>'; }).join('') + '</div>' +
-      (d.promo === 'custom' ? '<div class="best-msg info" style="display:flex;align-items:center;gap:.7rem;flex-wrap:wrap">Je <input class="best-search" style="width:6rem;text-align:center;min-height:48px;padding:.5rem" type="number" min="2" step="1" value="' + esc(d.customThreshold) + '" oninput="__bb.bestInput(\'customThreshold\',this.value)" /> bezahlten Artikeln 1 Artikel gratis</div>' : '');
-    return '<div class="best-overlay" onclick="if(event.target===this)__bb.select(\'best-detail-close\')"><div class="best-modal">' +
-      '<div class="best-modalhead"><div class="best-img"><img src="' + p.image + '" alt=""/></div><div><div class="best-tag">' + esc(p.brand) + ' · ' + esc(p.productGroup) + '</div><h2>' + esc(p.name) + '</h2></div>' +
-      '<button class="best-close" aria-label="Schließen" onclick="__bb.select(\'best-detail-close\')">✕</button></div>' +
-      '<div class="best-facts"><div class="best-fact">Artikelnummer<b>' + esc(p.articleNumber) + '</b></div><div class="best-fact">EK-Preis<b>' + bestMoney(p.purchasePrice) + '</b></div>' +
-      '<div class="best-fact">Lagerbestand<b>' + (p.stock === undefined ? '—' : p.stock) + (low ? ' ⚠' : '') + '</b></div></div>' +
-      '<div class="best-h2" style="margin-top:.2rem">Menge' + (wkz ? '' : ' (bezahlt)') + '</div>' +
-      '<div class="best-stepper"><button onclick="__bb.select(\'best-detail-qty\',\'\',-1)">−</button>' +
-      '<input type="number" min="1" step="1" value="' + d.qty + '" oninput="__bb.bestInput(\'detailQty\',this.value)" aria-label="Menge" />' +
-      '<button class="add" onclick="__bb.select(\'best-detail-qty\',\'\',1)">+</button></div>' +
-      purposes + promos +
-      '<div id="best-detail-calc">' + bestDetailCalcHtml(d, p, wkz) + '</div>' +
-      '<div id="best-detail-msgs">' + bestDetailMsgs(d, p, wkz) + '</div>' +
-      '<div class="best-actionrow"><button class="best-secondary" onclick="__bb.select(\'best-detail-close\')">Abbrechen</button>' +
-      '<button class="best-primary grow" onclick="__bb.select(\'best-detail-save\')">' + (wkz ? 'Zur WKZ-Ware hinzufügen' : (d.editItemId ? 'Änderung speichern' : 'Zum Warenkorb hinzufügen')) + '</button></div>' +
-      '</div></div>';
-  }
-  function bestOpenDetail(productId, editItem) {
-    var wkz = path[pointer] === 'best-wkz-produkte';
-    BEST.detail = editItem ? { productId: editItem.productId, qty: editItem.quantityPaid, purpose: editItem.purpose, promo: editItem.promotionType, customThreshold: editItem.customThreshold || 10, editItemId: editItem.id, errors: [] }
-      : { productId: productId, qty: 1, purpose: null, promo: 'none', customThreshold: 10, editItemId: null, errors: [] };
-    render();
-  }
-
-  // ---------- Warenkorb ----------
-  function bestLineHtml(i) {
-    var ek0 = i.unitPurchasePrice === 0;
-    return '<div class="best-line"><div class="best-img"><img src="' + i.product.image + '" alt=""/></div>' +
-      '<div><div class="nm">' + esc(i.product.name) + '</div><div class="cell">' + esc(i.product.brand) + ' · Art.-Nr. ' + esc(i.product.articleNumber) + (ek0 ? ' · <span style="color:var(--danger);font-weight:700">Kein EK-Preis</span>' : '') + '</div></div>' +
-      '<div class="cell sel">Verwendung<select onchange="__bb.bestInput(\'itemPurpose\',this.value,\'' + i.id + '\')">' +
-        BEST_PURPOSES.map(function (x) { return '<option value="' + x.key + '"' + (i.purpose === x.key ? ' selected' : '') + '>' + esc(x.label) + '</option>'; }).join('') + '</select></div>' +
-      '<div class="cell">Bezahlte Menge<div class="best-mini"><button onclick="__bb.select(\'best-item-qty\',\'' + i.id + '\',-1)">−</button><span>' + i.quantityPaid + '</span><button onclick="__bb.select(\'best-item-qty\',\'' + i.id + '\',1)">+</button></div></div>' +
-      '<div class="cell free">Gratis<b>' + i.quantityFree + '</b></div>' +
-      '<div class="cell sel">Aktion<select onchange="__bb.bestInput(\'itemPromo\',this.value,\'' + i.id + '\')">' +
-        BEST_PROMOS.map(function (x) { return '<option value="' + x.key + '"' + (i.promotionType === x.key ? ' selected' : '') + '>' + esc(x.label) + '</option>'; }).join('') + '</select></div>' +
-      '<div class="cell">EK ' + bestMoney(i.unitPurchasePrice) + '<b>' + bestMoney(calculateLineCost(i)) + '</b></div>' +
-      '<div class="acts"><button onclick="__bb.select(\'best-item-edit\',\'' + i.id + '\')">Bearbeiten</button><button class="del" onclick="__bb.select(\'best-item-del\',\'' + i.id + '\')">Löschen</button></div></div>';
-  }
   function bestPurposeTable(agg) {
     return '<table class="best-table"><tr><th>Verwendung</th><th class="r">Bezahlt</th><th class="r">Gratis</th><th class="r">Wert</th></tr>' +
       BEST_PURPOSES.map(function (p) { var a = agg.byPurpose[p.key]; return '<tr><td>' + esc(p.label) + '</td><td class="r">' + a.qty + '</td><td class="r">' + a.freeQty + '</td><td class="r">' + bestMoney(a.value) + '</td></tr>'; }).join('') + '</table>';
   }
-  function renderBestCart() {
-    bestEnsureBesteller();
-    var t = bestTotals(), agg = bestAggregate(BEST.items, BEST.wkzItems);
-    var body = '<div class="best-wrap">' + bestTopRow('Warenkorb', true) + bestSteps(4);
-    if (!BEST.items.length) {
-      body += '<div class="best-msg info">Der Warenkorb ist leer. Wähle zuerst Produkte aus.</div>' +
-        '<div class="best-actionrow"><button class="best-primary grow" onclick="__bb.select(\'best-more-products\')">Produkte auswählen</button></div></div>';
-      return screenWrap('dezent', 0, contextLabel(), body);
-    }
-    body += '<div class="best-lines">' + BEST.items.map(bestLineHtml).join('') + '</div>' +
-      '<div class="best-twocol" style="margin-top:1.2rem"><div class="best-sumbox">' +
-      '<div class="best-sumrow big"><span>Regulärer Bestellwert</span><b>' + bestMoney(t.regular) + '</b></div>' +
-      '<div class="best-sumrow free"><span>Aktionsware kostenlos</span><b>' + bestMoney(t.free) + '</b></div>' +
-      '<div class="best-sumrow"><span>Gesamtliefermenge</span><b>' + t.deliveryQty + ' Stück (' + t.paidQty + ' bezahlt + ' + t.freeQty + ' gratis)</b></div></div>' +
-      '<div class="best-sumbox">' + bestPurposeTable(agg) + '</div></div>' +
-      '<div class="best-actionrow"><button class="best-secondary" onclick="__bb.select(\'best-more-products\')">Weitere Produkte</button><button class="best-primary grow" onclick="__bb.select(\'best-to-wkz\')">Weiter zum WKZ</button></div></div>';
-    screenWrap('dezent', 0, contextLabel(), body);
-  }
-
-  // ---------- WKZ ----------
-  function renderBestWkz() {
-    bestEnsureBesteller();
-    var t = bestTotals();
-    var body = '<div class="best-wrap">' + bestTopRow('WKZ berechnen', true) + bestSteps(5) +
-      '<div class="best-sumbox"><div class="best-sumrow"><span>WKZ-relevanter Bestellwert (nur bezahlte Ware, ohne Gratisartikel)</span><b>' + bestMoney(t.base) + '</b></div>' +
-      '<div class="best-sumrow"><span>WKZ-Satz</span><span class="best-rate"><button onclick="__bb.select(\'best-wkz-rate\',\'\',-1)">−</button>' +
-      '<input type="number" min="0" step="0.5" value="' + BEST.wkzRate + '" onchange="__bb.bestInput(\'rate\',this.value)" aria-label="WKZ-Satz in Prozent" /><b>%</b>' +
-      '<button onclick="__bb.select(\'best-wkz-rate\',\'\',1)">+</button></span></div>' +
-      '<div class="best-sumrow big"><span>WKZ verfügbar</span><b>' + bestMoney(t.amount) + '</b></div>' +
-      '<div class="best-sumrow"><span>Bereits gewählte WKZ-Ware</span><b>' + bestMoney(t.used) + ' (' + t.wkzQty + ' Stück)</b></div></div>' +
-      (t.base === 0 ? '<div class="best-msg warn">Die Bestellung enthält keine bezahlte Ware — es entsteht kein WKZ.</div>' : '') +
-      '<div class="best-actionrow"><button class="best-secondary" onclick="__bb.goBack()">Zurück zum Warenkorb</button>' +
-      '<button class="best-secondary" onclick="__bb.select(\'best-to-summary\')">Ohne WKZ-Ware weiter</button>' +
-      '<button class="best-primary grow" onclick="__bb.select(\'best-wkz-start\')">WKZ-Produkte auswählen</button></div></div>';
-    screenWrap('dezent', 0, contextLabel(), body);
-  }
-
-  // ---------- Zusammenfassung ----------
   function bestSummaryBlocks(o) {
     var agg = bestAggregate(o.items, o.wkzItems);
     var brandRows = BEST_BRANDS.map(function (b) {
@@ -4536,22 +4503,6 @@
     return { id: 'Entwurf', createdAt: new Date().toISOString(), status: 'draft', besteller: BEST.besteller, items: BEST.items, wkzItems: BEST.wkzItems, wkzRate: BEST.wkzRate,
       regularOrderValue: t.regular, wkzBase: t.base, wkzAmount: t.amount, wkzUsed: t.used, wkzRemaining: t.remaining, freeGoodsValue: t.free };
   }
-  function renderBestSummary() {
-    bestEnsureBesteller();
-    var o = bestDraftOrder(), t = bestTotals();
-    var over = bestOverrun(t);
-    var body = '<div class="best-wrap">' + bestTopRow('Bestellung prüfen', true) + bestSteps(6) +
-      '<div style="margin-bottom:.4rem"><span class="best-by">' + bestAvatar(BEST.besteller) + 'Bestellt von ' + esc(BEST.besteller) + '</span></div>' +
-      bestSummaryBlocks(o) +
-      (over ? '<div class="best-msg warn">WKZ wird um ' + bestMoney(over) + ' überschritten' + (bestOverrunOk(t) ? ' (bestätigt).' : ' — bitte im WKZ-Schritt korrigieren oder bestätigen.') + '</div>' : '') +
-      (!BEST.items.length ? '<div class="best-msg err">Der Warenkorb ist leer — eine Bestellung ohne Positionen kann nicht abgeschlossen werden.</div>' : '') +
-      '<div class="best-actionrow"><button class="best-secondary" onclick="__bb.select(\'best-to-cart\')">Zurück zum Warenkorb</button>' +
-      '<button class="best-secondary" onclick="__bb.select(\'best-preview\')">PDF Vorschau</button>' +
-      '<button class="best-secondary" onclick="__bb.select(\'best-export\')">Bestellung exportieren</button>' +
-      '<button class="best-primary grow" ' + (BEST.items.length && bestOverrunOk(t) ? '' : 'disabled') + ' onclick="__bb.select(\'best-finish\')">Bestellung abschließen</button></div></div>';
-    screenWrap('dezent', 0, contextLabel(), body);
-  }
-
   // ---------- Abschluss ----------
   function bestFindOrder(id) { return bestLoad(BEST_KEYS.orders, []).filter(function (o) { return o.id === id; })[0]; }
   function renderBestDone() {
@@ -4635,137 +4586,76 @@
   }
   function bestPreviewClose() { var el = document.getElementById('best-preview-root'); if (el) el.parentNode.removeChild(el); }
 
-  // ---------- Eingaben (ohne Neuzeichnen, damit der Fokus bleibt) ----------
-  function bestRefreshGrid() {
-    var g = document.getElementById('best-grid');
-    if (g) g.innerHTML = bestGridHtml(path[pointer] === 'best-wkz-produkte');
-  }
-  function bestRefreshDetail() {
-    var d = BEST.detail; if (!d) return;
-    var p = bestProduct(d.productId), wkz = path[pointer] === 'best-wkz-produkte';
-    var c = document.getElementById('best-detail-calc'); if (c) c.innerHTML = bestDetailCalcHtml(d, p, wkz);
-    var m = document.getElementById('best-detail-msgs'); if (m) m.innerHTML = bestDetailMsgs(d, p, wkz);
+  // ---------- Eingaben ----------
+  function bestSetQty(productId, wkz, qty) {
+    var p = bestProduct(productId);
+    if (!p) return;
+    qty = Math.max(0, Math.floor(Number(qty)) || 0);
+    var list = wkz ? BEST.wkzItems : BEST.items;
+    var it = bestFind(productId, wkz);
+    if (!it && qty > 0) {
+      if (wkz) { it = { id: bestUid('wi-'), productId: p.id, product: p, quantity: qty, unitPurchasePrice: p.purchasePrice }; }
+      else { it = { id: bestUid('oi-'), productId: p.id, product: p, purpose: BEST.defaultPurpose, quantityPaid: qty, quantityFree: 0, promotionType: 'none', unitPurchasePrice: p.purchasePrice }; }
+      list.push(it);
+    } else if (it && qty === 0) {
+      list.splice(list.indexOf(it), 1);
+    } else if (it) {
+      if (wkz) it.quantity = qty; else it.quantityPaid = qty;
+    }
+    if (it && !wkz) bestRecalc(it);
+    BEST.wkzOverrunConfirmed = 0;
+    bestPersist(); bestRefresh();
   }
   function bestInput(name, value, id) {
-    if (name === 'search') { BEST.search = value; BEST.limit = BEST_CONFIG.pageSize; bestRefreshGrid(); }
+    if (name === 'search') { BEST.search = value; BEST.limit = BEST_CONFIG.pageSize; var l = document.getElementById('best-list'); if (l) l.innerHTML = bestListHtml(); }
     else if (name === 'group') { BEST.group = value; BEST.limit = BEST_CONFIG.pageSize; render(); }
-    else if (name === 'besteller') { BEST.besteller = value; bestPersist(); render(); }
-    else if (name === 'startsearch') {
-      var box = document.getElementById('best-start-results'); if (!box) return;
-      var q = value.trim().toLowerCase();
-      if (q.length < 2) { box.innerHTML = ''; return; }
-      var hits = bestCatalog().filter(function (p) { return p.name.toLowerCase().indexOf(q) > -1 || p.articleNumber.toLowerCase().indexOf(q) > -1; }).slice(0, 8);
-      box.innerHTML = hits.length ? '<div class="best-results">' + hits.map(function (p) {
-        return '<button class="best-result" onclick="__bb.select(\'best-open-from-search\',\'' + p.id + '\')"><img src="' + p.image + '" alt=""/><span>' + esc(p.name) + '<small>' + esc(p.brand) + ' · ' + esc(p.articleNumber) + ' · EK ' + esc(formatCurrency(p.purchasePrice)) + '</small></span></button>';
-      }).join('') + '</div>' : '<div class="best-msg info">Keine Treffer.</div>';
-    }
-    else if (name === 'detailQty') { var q2 = parseInt(value, 10); BEST.detail.qty = isNaN(q2) ? 0 : q2; BEST.detail.errors = []; bestRefreshDetail(); }
-    else if (name === 'customThreshold') { BEST.detail.customThreshold = parseInt(value, 10) || 0; BEST.detail.errors = []; bestRefreshDetail(); }
-    else if (name === 'rate') { var r = parseFloat(String(value).replace(',', '.')); BEST.wkzRate = isNaN(r) || r < 0 ? 0 : r; BEST.wkzOverrunConfirmed = 0; bestPersist(); render(); }
-    else if (name === 'itemPurpose') { var it = BEST.items.filter(function (x) { return x.id === id; })[0]; if (it) { it.purpose = value; bestPersist(); render(); } }
-    else if (name === 'itemPromo') {
-      var it2 = BEST.items.filter(function (x) { return x.id === id; })[0];
-      if (it2) { it2.promotionType = value; if (value === 'custom' && !it2.customThreshold) it2.customThreshold = 10; bestRecalc(it2); bestPersist(); render(); }
-    }
+    else if (name === 'qty') { bestSetQty(id, false, value); }
+    else if (name === 'qtyw') { bestSetQty(id, true, value); }
   }
-
-  // ---------- Aktionen ----------
-  function bestValidateDetail(d, p, wkz) {
-    var errs = [];
-    if (!wkz && !d.purpose) errs.push('Bitte einen Verwendungszweck wählen.');
-    if (!d.qty || d.qty < 1) errs.push('Die Menge muss mindestens 1 betragen.');
-    if (!wkz && d.promo === 'custom' && (!d.customThreshold || d.customThreshold < 2)) errs.push('Für die individuelle Aktion bitte eine Schwelle ab 2 eingeben.');
-    return errs;
-  }
+  var BEST_PROMO_CYCLE = ['none', '3+1', '5+1', '6+1'];
   function bestellungHandler(kind, key, extra) {
-    var wkzScreen = path[pointer] === 'best-wkz-produkte';
     if (kind === 'best-besteller') { BEST.besteller = key; bestPersist(); render(); }
-    else if (kind === 'best-brand') { BEST.brand = key || null; BEST.group = ''; BEST.search = ''; BEST.limit = BEST_CONFIG.pageSize; goTo('best-produkte'); }
-    else if (kind === 'best-start') { BEST.brand = null; BEST.group = ''; BEST.search = ''; BEST.limit = BEST_CONFIG.pageSize; goTo('best-produkte'); }
+    else if (kind === 'best-tab') { BEST.tab = key; BEST.limit = BEST_CONFIG.pageSize; bestRefresh(); }
     else if (kind === 'best-filter-brand') { BEST.brand = key || null; BEST.group = ''; BEST.limit = BEST_CONFIG.pageSize; render(); }
     else if (kind === 'best-toggle') { BEST[key] = !BEST[key]; BEST.limit = BEST_CONFIG.pageSize; render(); }
-    else if (kind === 'best-more') { BEST.limit += BEST_CONFIG.pageSize; bestRefreshGrid(); }
+    else if (kind === 'best-more') { BEST.limit += BEST_CONFIG.pageSize; bestRefresh(); }
     else if (kind === 'best-fav') {
       var fi = BEST_FAVS.indexOf(key); if (fi > -1) BEST_FAVS.splice(fi, 1); else BEST_FAVS.push(key);
-      bestSave(BEST_KEYS.favs, BEST_FAVS); render();
+      bestSave(BEST_KEYS.favs, BEST_FAVS); bestRefresh();
     }
-    else if (kind === 'best-open') { bestOpenDetail(key, null); }
-    else if (kind === 'best-open-from-search') {
-      var sp = bestProduct(key); BEST.brand = sp.brand; BEST.group = ''; BEST.search = ''; goTo('best-produkte'); bestOpenDetail(key, null);
+    else if (kind === 'best-default-purpose') { BEST.defaultPurpose = key; bestRefresh(); }
+    else if (kind === 'best-q') { var it = bestFind(key, false); bestSetQty(key, false, bestQtyOf(it, false) + extra); }
+    else if (kind === 'best-qw') { var iw = bestFind(key, true); bestSetQty(key, true, bestQtyOf(iw, true) + extra); }
+    else if (kind === 'best-cyc-purpose') {
+      var ip = bestFind(key, false);
+      if (ip) { var idx = BEST_PURPOSES.map(function (x) { return x.key; }).indexOf(ip.purpose); ip.purpose = BEST_PURPOSES[(idx + 1) % BEST_PURPOSES.length].key; bestPersist(); bestRefresh(); }
     }
-    else if (kind === 'best-detail-close') { BEST.detail = null; render(); }
-    else if (kind === 'best-detail-qty') { var nq = (BEST.detail.qty || 0) + extra; BEST.detail.qty = nq < 1 ? 1 : nq; BEST.detail.errors = []; render(); }
-    else if (kind === 'best-detail-purpose') { BEST.detail.purpose = key; BEST.detail.errors = []; render(); }
-    else if (kind === 'best-detail-promo') { BEST.detail.promo = key; BEST.detail.errors = []; render(); }
-    else if (kind === 'best-detail-save') {
-      var d = BEST.detail, p = bestProduct(d.productId);
-      var errs = bestValidateDetail(d, p, wkzScreen);
-      if (errs.length) { d.errors = errs; bestRefreshDetail(); return; }
-      if (wkzScreen) {
-        var ex = BEST.wkzItems.filter(function (w) { return w.productId === p.id; })[0];
-        if (ex) ex.quantity += d.qty; else BEST.wkzItems.push({ id: bestUid('wi-'), productId: p.id, product: p, quantity: d.qty, unitPurchasePrice: p.purchasePrice });
-        BEST.wkzOverrunConfirmed = 0;
-      } else if (d.editItemId) {
-        var item = BEST.items.filter(function (x) { return x.id === d.editItemId; })[0];
-        if (item) { item.quantityPaid = d.qty; item.purpose = d.purpose; item.promotionType = d.promo; item.customThreshold = d.promo === 'custom' ? d.customThreshold : undefined; bestRecalc(item); }
-      } else {
-        var same = BEST.items.filter(function (x) { return x.productId === p.id && x.purpose === d.purpose && x.promotionType === d.promo && (d.promo !== 'custom' || x.customThreshold === d.customThreshold); })[0];
-        if (same) { same.quantityPaid += d.qty; bestRecalc(same); }
-        else {
-          var ni = { id: bestUid('oi-'), productId: p.id, product: p, purpose: d.purpose, quantityPaid: d.qty, quantityFree: 0, promotionType: d.promo, unitPurchasePrice: p.purchasePrice };
-          if (d.promo === 'custom') ni.customThreshold = d.customThreshold;
-          bestRecalc(ni); BEST.items.push(ni);
-        }
-      }
-      BEST.detail = null; bestPersist(); render();
+    else if (kind === 'best-cyc-promo') {
+      var im = bestFind(key, false);
+      if (im) { var pi = BEST_PROMO_CYCLE.indexOf(im.promotionType); im.promotionType = BEST_PROMO_CYCLE[(pi + 1) % BEST_PROMO_CYCLE.length]; bestRecalc(im); BEST.wkzOverrunConfirmed = 0; bestPersist(); bestRefresh(); }
     }
-    else if (kind === 'best-wkz-quick') {
-      var qp = bestProduct(key);
-      var qe = BEST.wkzItems.filter(function (w) { return w.productId === key; })[0];
-      if (qe) qe.quantity += 1; else BEST.wkzItems.push({ id: bestUid('wi-'), productId: key, product: qp, quantity: 1, unitPurchasePrice: qp.purchasePrice });
-      BEST.wkzOverrunConfirmed = 0; bestPersist(); render();
-    }
-    else if (kind === 'best-item-qty') {
-      var qi = BEST.items.filter(function (x) { return x.id === key; })[0];
-      if (qi) { qi.quantityPaid = Math.max(1, qi.quantityPaid + extra); bestRecalc(qi); bestPersist(); render(); }
-    }
-    else if (kind === 'best-item-del') { BEST.items = BEST.items.filter(function (x) { return x.id !== key; }); bestPersist(); render(); }
-    else if (kind === 'best-item-edit') {
-      var ei = BEST.items.filter(function (x) { return x.id === key; })[0];
-      if (ei) { BEST.brand = ei.product.brand; goTo('best-produkte'); bestOpenDetail(null, ei); }
-    }
-    else if (kind === 'best-wkz-qty') {
-      var wq = BEST.wkzItems.filter(function (x) { return x.id === key; })[0];
-      if (wq) { wq.quantity = Math.max(1, wq.quantity + extra); BEST.wkzOverrunConfirmed = 0; bestPersist(); render(); }
-    }
-    else if (kind === 'best-wkz-del') { BEST.wkzItems = BEST.wkzItems.filter(function (x) { return x.id !== key; }); BEST.wkzOverrunConfirmed = 0; bestPersist(); render(); }
-    else if (kind === 'best-wkz-rate') { BEST.wkzRate = Math.max(0, round2(BEST.wkzRate + extra)); BEST.wkzOverrunConfirmed = 0; bestPersist(); render(); }
+    else if (kind === 'best-wkz-rate') { BEST.wkzRate = Math.max(0, round2(BEST.wkzRate + extra)); BEST.wkzOverrunConfirmed = 0; bestPersist(); bestRefresh(); }
+    else if (kind === 'best-next') { goTo('best-pruefen'); }
     else if (kind === 'best-overrun-ok') { BEST.wkzOverrunConfirmed = bestOverrun(bestTotals()); bestPersist(); render(); }
-    else if (kind === 'best-more-products') { BEST.detail = null; goTo('best-produkte'); }
-    else if (kind === 'best-to-cart') { BEST.detail = null; goTo('best-warenkorb'); }
-    else if (kind === 'best-to-wkz') { goTo('best-wkz'); }
-    else if (kind === 'best-wkz-start') { BEST.brand = null; BEST.group = ''; BEST.search = ''; BEST.limit = BEST_CONFIG.pageSize; goTo('best-wkz-produkte'); }
-    else if (kind === 'best-to-summary') { BEST.detail = null; goTo('best-summary'); }
     else if (kind === 'best-finish') {
       var t = bestTotals();
       if (!BEST.items.length || !bestOverrunOk(t)) { render(); return; }
       var o = bestDraftOrder();
       o.id = bestNextNumber(); o.status = 'completed'; o.createdAt = new Date().toISOString();
       var all = bestLoad(BEST_KEYS.orders, []); all.push(o); bestSave(BEST_KEYS.orders, all);
-      BEST.completedId = o.id; BEST.items = []; BEST.wkzItems = []; BEST.wkzOverrunConfirmed = 0; BEST.wkzRate = BEST_CONFIG.defaultWkzRate; bestPersist();
+      BEST.completedId = o.id; BEST.items = []; BEST.wkzItems = []; BEST.wkzOverrunConfirmed = 0; BEST.wkzRate = BEST_CONFIG.defaultWkzRate; BEST.tab = 'order'; bestPersist();
       path = ['login', 'kunde-wahl', 'best-fertig']; pointer = 2; render();
     }
     else if (kind === 'best-new') { BEST.completedId = null; replaceTop('bestellung'); }
     else if (kind === 'best-view-order') { BEST.completedId = key; goTo('best-fertig'); }
     else if (kind === 'best-preview') { bestPreview(key); }
     else if (kind === 'best-preview-close') { bestPreviewClose(); }
-    else if (kind === 'best-print') { try { window.print(); } catch (e) { /* Drucken im Sandbox-Fenster evtl. gesperrt */ } }
+    else if (kind === 'best-print') { try { window.print(); } catch (e) { /* Drucken evtl. gesperrt */ } }
     else if (kind === 'best-export') { bestExport(key); }
   }
 
   function render() {
     var id = path[pointer];
-    if (id !== 'best-produkte' && id !== 'best-wkz-produkte') BEST.detail = null;
     if (id === 'login') return renderLogin();
     if (id === 'kunde-wahl') return renderKundeWahl();
     if (id === 'aktionen-uebersicht') return renderAktionenUebersicht();
@@ -4782,12 +4672,8 @@
     if (id === 'empfehlungen') return renderEmpfehlungen();
     if (id === 'blueprint') return renderBlueprint();
     if (id === 'abschluss') return renderAbschluss();
-    if (id === 'bestellung') return renderBestStart();
-    if (id === 'best-produkte') return renderBestProducts(false);
-    if (id === 'best-wkz-produkte') return renderBestProducts(true);
-    if (id === 'best-warenkorb') return renderBestCart();
-    if (id === 'best-wkz') return renderBestWkz();
-    if (id === 'best-summary') return renderBestSummary();
+    if (id === 'bestellung') return renderBestMain();
+    if (id === 'best-pruefen') return renderBestPruefen();
     if (id === 'best-fertig') return renderBestDone();
     if (id === 'admin-login') return renderAdminLogin();
     if (id === 'admin-dashboard') return STATE.isAdmin ? renderAdminDashboard() : renderAdminLogin();
