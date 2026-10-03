@@ -4243,9 +4243,14 @@
       '<text x="60" y="74" text-anchor="middle" font-family="Georgia,serif" font-size="22" fill="' + st.fg + '">' + ini + '</text></svg>';
     return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
   }
+  // Produktlinie (= Rubrik) aus dem Namen: führende GROSSGESCHRIEBENE Wörter ("A CLASSIC", "CAVIAR POWER"),
+  // sonst das erste Wort ("Hyaluronic", "Cell Pro" → "Cell"). Linien mit weniger als 3 Produkten
+  // landen gesammelt unter "Weitere Pflege" (siehe ProductRepository.load).
   function bestGroupOf(name) {
     var m = name.match(/^([A-ZÄÖÜ][A-ZÄÖÜ0-9&\-\.]*(?: [A-ZÄÖÜ][A-ZÄÖÜ0-9&\-\.]*)*)(?= |$)/);
-    return (m && m[1].length >= 3) ? m[1] : 'Weitere Pflege';
+    if (m && m[1].length >= 3) return m[1].replace(/®/g, '');
+    var w = name.split(/\s+/)[0].replace(/[®™,:;]+$/g, '');
+    return /^[A-Za-zÄÖÜäöü]{3,}/.test(w) ? w : 'Weitere Pflege';
   }
   // Demo-Daten für Marken ohne Katalog: [Name, Produktgruppe, EK]
   var BEST_DEMO_GEHWOL = [
@@ -4273,42 +4278,23 @@
       image: bestImage(brand, name), active: true, categories: bestCategoriesFor(brand, name, group)
     };
   }
-  // Rubriken (zum schnelleren Finden): ein Produkt kann in mehreren Rubriken liegen, z. B. ein
-  // Retinol-Serum in "Vitamin A" und "Serum & Ampullen". Die Regeln arbeiten auf dem Namen —
-  // bei echten Katalogdaten (API/Excel) stattdessen die Rubrik direkt aus dem Datensatz nehmen.
-  var BEST_RUBRIKEN_KLAPP = [
-    ['Vitamin A', /retinol|vitamin\.?\s?a\b|^a classic|x-mas set a classic/i],
-    ['Vitamin B', /vitamin\.?\s?b\b|niacinamid|panthenol/i],
-    ['Vitamin C', /vitamin\.?\s?c\b|^c pure|ascorb/i],
-    ['Vitamin E', /vitamin\.?\s?e\b/i],
-    ['Hyaluron', /hyaluron/i],
-    ['Anti-Aging', /anti-?aging|collagen|diamond|caviar|cuvee|repagen exclusive|resist aging|kiwicha|skinconcellular|pro age|stem cell|imperial/i],
-    ['Sonnenschutz', /\bsun\b|spf|sonnen/i],
-    ['Serum & Ampullen', /serum|ampulle|elixier|concentrate|booster|capsule|kapsel/i],
-    ['Augenpflege', /\beye|augen/i],
-    ['Masken', /mask|maske|patch/i],
-    ['Peeling', /peeling|exfoliat|enzym|refining|\baha\b|\bpha\b|\boha\b/i],
-    ['Reinigung & Tonic', /cleans|cleaner|reinig|tonic|\bmilk\b|foam|waschgel|micellar|\bwash\b/i],
-    ['Körperpflege', /\bbody\b|körper|stri-pexan|bein|hand|fuß|fuss/i],
-    ['Männer', /^men\b/i],
-    ['Sets', /\bset\b|x-?mas|geschenk|edition/i],
-    ['Creme & Pflege', /cream|creme|lotion|balm|fluid|emulsion|\boil\b|\böl\b|gel\b|salbe/i]
-  ];
-  function bestCategoriesFor(brand, name, group) {
-    if (brand !== 'KLAPP') return [group];
-    var cats = [];
-    BEST_RUBRIKEN_KLAPP.forEach(function (r) { if (r[1].test(name)) cats.push(r[0]); });
-    return cats.length ? cats : ['Weitere Pflege'];
-  }
+  // Rubriken = Produktlinien der jeweiligen Marke (z. B. KLAPP: A CLASSIC, CAVIAR POWER, IMMUN …).
+  // Bei echten Katalogdaten (API/Excel) hier die Linie direkt aus dem Datensatz übernehmen.
+  function bestCategoriesFor(brand, name, group) { return [group]; }
   // Austauschbare Quelle: später z. B. fetch('/api/products'), Datenbank, Excel oder CSV —
   // nur load() ersetzen, der Rest der Bestellung arbeitet ausschließlich mit Product[].
   var ProductRepository = {
     load: function () {
       var list = [];
+      var rawGroups = ALL_PRODUCTS.map(function (p) { return bestGroupOf(p.name); });
+      var gCount = {}, gLabel = {};
+      rawGroups.forEach(function (g) { var k = g.toLowerCase(); gCount[k] = (gCount[k] || 0) + 1; if (!gLabel[k] || g === g.toUpperCase()) gLabel[k] = g; });
       ALL_PRODUCTS.forEach(function (p, i) {
+        var gk = rawGroups[i].toLowerCase();
+        var group = gCount[gk] >= 3 ? gLabel[gk] : 'Weitere Pflege';
         var sales = bestParsePrice(p.preis);
         var ek = (bestHash(p.name) % 53 === 0) ? 0 : round2(sales * 0.5); // Demo-Annahme: EK = 50 % vom Listenpreis
-        list.push(bestMakeProduct('klapp-' + i, 'KLAPP', p.name, bestGroupOf(p.name), ek, sales, 'KL', i));
+        list.push(bestMakeProduct('klapp-' + i, 'KLAPP', p.name, group, ek, sales, 'KL', i));
       });
       BEST_DEMO_GEHWOL.forEach(function (r, i) { list.push(bestMakeProduct('gehwol-' + i, 'GEHWOL', r[0], r[1], r[2], round2(r[2] * 2), 'GW', i)); });
       BEST_DEMO_ALESSANDRO.forEach(function (r, i) { list.push(bestMakeProduct('alessandro-' + i, 'Alessandro', r[0], r[1], r[2], round2(r[2] * 2), 'AL', i)); });
@@ -4519,24 +4505,23 @@
       '<button class="' + (BEST.tab === 'wkz' ? 'on' : '') + '" onclick="__bb.select(\'best-tab\',\'wkz\')">2 · WKZ-Ware<small>' + BEST.wkzItems.length + ' Artikel</small></button></div>';
   }
   function bestFiltersHtml() {
-    var groups = {};
-    bestCatalog().forEach(function (p) { if (!BEST.brand || p.brand === BEST.brand) groups[p.productGroup] = (groups[p.productGroup] || 0) + 1; });
-    var gKeys = Object.keys(groups).sort(function (a, b) { return groups[b] - groups[a] || a.localeCompare(b, 'de'); });
-    var catCount = {}, catOrder = [];
-    BEST_RUBRIKEN_KLAPP.forEach(function (r) { catOrder.push(r[0]); });
-    catOrder.push('Weitere Pflege');
+    var catCount = {};
     bestCatalog().forEach(function (p) {
       if (BEST.brand && p.brand !== BEST.brand) return;
-      p.categories.forEach(function (c) { catCount[c] = (catCount[c] || 0) + 1; if (catOrder.indexOf(c) === -1) catOrder.push(c); });
+      p.categories.forEach(function (c) { catCount[c] = (catCount[c] || 0) + 1; });
     });
-    var catList = catOrder.filter(function (c) { return catCount[c]; });
+    // Größte Linien zuerst, "Weitere Pflege" immer ganz am Ende
+    var catList = Object.keys(catCount).sort(function (a, b) {
+      if (a === 'Weitere Pflege') return 1; if (b === 'Weitere Pflege') return -1;
+      return catCount[b] - catCount[a] || a.localeCompare(b, 'de');
+    });
     var total = 0; bestCatalog().forEach(function (p) { if (!BEST.brand || p.brand === BEST.brand) total++; });
     var tiles = '<button class="bst-tile all' + (!BEST.category ? ' on' : '') + '" onclick="__bb.select(\'best-cat\',\'\')">Alle Rubriken<small>' + total + ' Produkte</small></button>' +
       catList.map(function (c) {
         return '<button class="bst-tile' + (BEST.category === c ? ' on' : '') + '" onclick="__bb.select(\'best-cat\',\'' + esc(c) + '\')">' + esc(c) + '<small>' + catCount[c] + ' Produkte</small></button>';
       }).join('');
     var catBlock;
-    if (!BEST.brand) catBlock = '<div class="bst-hint">Marke wählen (KLAPP, GEHWOL, Alessandro), dann erscheinen die Rubriken — z. B. Vitamin A, Vitamin B, Serum &amp; Ampullen.</div>';
+    if (!BEST.brand) catBlock = '<div class="bst-hint">Marke wählen (KLAPP, GEHWOL, Alessandro), dann erscheinen die Produktlinien als Rubriken.</div>';
     else if (BEST.category && !BEST.catOpen) catBlock = '<div class="bst-catbar"><span>Rubrik: <b>' + esc(BEST.category) + '</b> <small>' + (catCount[BEST.category] || 0) + ' Produkte</small></span>' +
       '<span><button class="best-chip" onclick="__bb.select(\'best-cat-toggle\')">Rubrik ändern</button><button class="best-chip" onclick="__bb.select(\'best-cat\',\'\')">✕ Alle</button></span></div>';
     else catBlock = '<div class="bst-catgrid-wrap"><div class="bst-cathead">Rubrik wählen<small>' + esc(BEST.brand) + '</small></div><div class="bst-catgrid">' + tiles + '</div></div>';
@@ -4546,9 +4531,7 @@
       '<button class="best-chip' + (BEST.favOnly ? ' on' : '') + '" onclick="__bb.select(\'best-toggle\',\'favOnly\')">♥ Favoriten</button>' +
       '<button class="best-chip' + (BEST.moreFilters ? ' on' : '') + '" onclick="__bb.select(\'best-toggle\',\'moreFilters\')">Mehr Filter</button></div>' +
       catBlock +
-      (BEST.moreFilters ? '<div class="best-filters"><select class="best-select" onchange="__bb.bestInput(\'group\',this.value)" aria-label="Produktlinie"><option value="">Alle Produktlinien</option>' +
-        gKeys.map(function (g) { return '<option value="' + esc(g) + '"' + (BEST.group === g ? ' selected' : '') + '>' + esc(g) + ' (' + groups[g] + ')</option>'; }).join('') + '</select>' +
-        '<button class="best-chip' + (BEST.lowStock ? ' on' : '') + '" onclick="__bb.select(\'best-toggle\',\'lowStock\')">Nur Mindestbestand erreicht</button></div>' : '');
+      (BEST.moreFilters ? '<div class="best-filters"><button class="best-chip' + (BEST.lowStock ? ' on' : '') + '" onclick="__bb.select(\'best-toggle\',\'lowStock\')">Nur Mindestbestand erreicht</button></div>' : '');
   }
   function renderBestMain() {
     bestEnsureBesteller();
