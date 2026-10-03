@@ -816,6 +816,19 @@
   .bst-tabs button small { font-weight: 400 !important; }
   .bst-final2 { display: flex; flex-direction: column; gap: .55rem; padding: .7rem 0 .8rem; }
   .bst-discardrow { display: flex; justify-content: flex-end; margin: .4rem 0 1rem; }
+  /* Produktauswahl: gewählte Produkte deutlich erkennbar */
+  .bst-row { border: 2px solid transparent; }
+  .bst-row.has { background: #f6f6f6; border-color: #111; box-shadow: 0 4px 14px rgba(0,0,0,.14); }
+  .bst-qtychip { display: inline-block; vertical-align: middle; margin-left: .45rem; background: #111; color: #fff; border-radius: 999px; padding: .12rem .6rem; font-size: .74rem; font-weight: 600; white-space: nowrap; }
+  .bst-row.has .bst-plus { background: #111; }
+  .bst-row .bst-purposes button { min-height: 36px; padding: .25rem .8rem; font-size: .8rem; background: #fff; }
+  .bst-row .bst-purposes button.on { background: #fff; color: #111; border: 2px solid #111; font-weight: 700; }
+  .bst-row .bst-sub { border-top: 1px solid #e0e0e0; padding-top: .55rem; }
+  .bst-purpose { min-width: 7.2rem; }
+  .bst-purpose.pp-sale { background: #111; color: #fff; }
+  .bst-purpose.pp-tester { background: #fff; color: #111; border: 2px solid #111; }
+  .bst-purpose.pp-cabin { background: #e6e6e6; color: #111; border: 2px dashed #777; }
+  .bst-row.has .bst-sub .bst-val { font-size: 1.05rem; }
   .bst-editbanner { display: flex; align-items: center; justify-content: space-between; gap: .8rem; }
   .best-img { background: #fff; border: 1px solid var(--rose-pale); border-radius: 14px; display: flex; align-items: center; justify-content: center; padding: 0.5rem; }
   .best-img img { width: 96px; height: 96px; display: block; object-fit: contain; }
@@ -4727,7 +4740,7 @@
     var extra = lines.map(function (it) {
       var k = bestKey(it, wkz), q = wkz ? it.quantity : it.quantityPaid;
       var promoOk = !wkz && it.purpose === 'sale' && bestPromosFor(p.brand).length > 1;   // Aktionen gibt es nur auf Verkaufsware
-      return '<div class="bst-sub"><span class="bst-purpose">' + esc(bestPurposeLabel(it.purpose || 'sale')) + '</span>' + bestStepper(qk, k, q) +
+      return '<div class="bst-sub"><span class="bst-purpose pp-' + esc(it.purpose || 'sale') + '">' + esc(bestPurposeLabel(it.purpose || 'sale')) + '</span>' + bestStepper(qk, k, q) +
         (!wkz && bestContribText(it) ? '<span class="bst-by" title="eingetragen von">' + bestContribText(it) + '</span>' : '') +
         (promoOk ? '<button class="bst-chip' + (it.promotionType !== 'none' ? ' on' : '') + '" onclick="__bb.select(\'best-cyc-promo\',\'' + k + '\')">' + (it.promotionType === 'none' ? 'Aktion: keine' : 'Aktion ' + esc(bestPromoLabel(it))) + ' ⟳</button>' : '') +
         ((!wkz && it.quantityFree) ? '<span class="bst-free">+ ' + it.quantityFree + ' gratis = ' + (it.quantityPaid + it.quantityFree) + ' Stück</span>' : '') +
@@ -4736,10 +4749,10 @@
     if (has) extra = '<div class="bst-sub"><span class="bst-purposes" role="group" aria-label="Menge je Verwendung eingeben">' +
       bestPurposesFor(p.brand).map(function (key) {
         var has2 = !!bestFind(p.id + '|' + key, wkz);
-        return '<button class="' + (has2 ? 'on' : '') + '" onclick="__bb.select(\'' + (wkz ? 'best-add-purpose-w' : 'best-add-purpose') + '\',\'' + p.id + '|' + key + '\')">' + esc(bestPurposeLabel(key)) + '</button>';
+        return '<button class="' + (has2 ? 'on' : '') + '" onclick="__bb.select(\'' + (wkz ? 'best-add-purpose-w' : 'best-add-purpose') + '\',\'' + p.id + '|' + key + '\')">' + (has2 ? '✓ ' : '+ ') + esc(bestPurposeLabel(key)) + '</button>';
       }).join('') + '</span></div>' + extra;
     return '<div class="bst-row' + (has ? ' has' : '') + (above ? ' above' : '') + '"><div class="best-img"><img src="' + p.image + '" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'' + (p.fallbackImage || '').replace(/'/g, '%27') + '\'"/></div>' +
-      '<div class="bst-info"><div class="bst-name">' + esc(p.name) + '</div><div class="bst-meta">' + esc(p.brand) + ' · ' + info + '</div></div>' +
+      '<div class="bst-info"><div class="bst-name">' + esc(p.name) + (has ? ' <span class="bst-qtychip">' + lines.reduce(function (a, l) { return a + (wkz ? l.quantity : l.quantityPaid + l.quantityFree); }, 0) + ' gewählt</span>' : '') + '</div><div class="bst-meta">' + esc(p.brand) + ' · ' + info + '</div></div>' +
       '<button class="bst-fav' + (fav ? ' on' : '') + '" aria-label="Favorit" onclick="__bb.select(\'best-fav\',\'' + p.id + '\')">' + (fav ? '♥' : '♡') + '</button>' +
       '<div class="bst-ctl">' + control + '</div>' + extra + '</div>';
   }
