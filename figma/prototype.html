@@ -658,6 +658,231 @@
 
   /* Admin: Löschen-Bestätigung / doppeltes Nachfragen für Aktions- und Mitarbeiter-Formulare */
   .admin-item.ausgeblendet { opacity: 0.5; }
+
+  /* ===== Bestellung (interne Bestell-App) ===== */
+  :root {
+    --beige: #F4EDE6;
+    --beige-deep: #E9DED3;
+    --taupe: #A89888;
+    --braun: #7A5C4B;
+  }
+  .main-tabs {
+    display: flex; gap: 0.4rem; background: var(--beige); padding: 0.35rem; border-radius: 16px;
+    width: 100%; max-width: 28rem; margin: 0 auto 1.2rem;
+  }
+  .main-tab {
+    flex: 1; font-family: var(--font-body); font-size: 1rem; font-weight: 700; color: var(--braun);
+    background: transparent; border: none; border-radius: 12px; padding: 0.85rem 1rem; cursor: pointer;
+    min-height: 52px;
+  }
+  .main-tab.current { background: #fff; color: var(--rose-deep); box-shadow: 0 4px 14px rgba(122,92,75,0.16); }
+
+  .best-wrap { width: 100%; max-width: 1100px; margin: 0 auto; }
+  .best-top { display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap; margin: 0 0 0.9rem; }
+  .best-top h1 { font-family: var(--font-display); font-size: 1.6rem; font-weight: 600; margin: 0; color: var(--text); flex: 1; min-width: 12rem; }
+  .best-who {
+    display: flex; align-items: center; gap: 0.5rem; background: var(--beige); border-radius: 14px;
+    padding: 0.35rem 0.7rem 0.35rem 0.35rem; font-size: 0.8rem; color: var(--braun); min-height: 48px;
+  }
+  .best-who .avatar-mini { width: 36px; height: 36px; border-radius: 50%; overflow: hidden; background: var(--rose-pale); color: var(--rose-deep); display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; }
+  .best-who .avatar-mini img { width: 100%; height: 100%; object-fit: cover; }
+  .best-who select { font: inherit; font-weight: 700; color: var(--text); background: transparent; border: none; padding: 0.3rem 0.2rem; cursor: pointer; }
+  .best-cartbtn {
+    font-family: var(--font-body); font-weight: 700; font-size: 0.9rem; color: #fff; background: var(--rose-deep);
+    border: none; border-radius: 14px; padding: 0.7rem 1.1rem; min-height: 48px; cursor: pointer; display: flex; flex-direction: column; align-items: flex-start; line-height: 1.25;
+    box-shadow: 0 6px 16px rgba(154,75,102,0.28);
+  }
+  .best-cartbtn small { font-weight: 500; opacity: 0.9; font-size: 0.72rem; }
+
+  .best-steps { display: flex; gap: 0.3rem; margin: 0 0 1.2rem; overflow-x: auto; padding-bottom: 0.2rem; }
+  .best-step {
+    flex: 1; min-width: 7.2rem; background: var(--beige); border-radius: 12px; padding: 0.55rem 0.7rem; font-size: 0.72rem; font-weight: 600;
+    color: var(--taupe); display: flex; align-items: center; gap: 0.45rem; white-space: nowrap;
+  }
+  .best-step .n { width: 22px; height: 22px; border-radius: 50%; background: #fff; color: var(--taupe); display: flex; align-items: center; justify-content: center; font-size: 0.72rem; flex-shrink: 0; }
+  .best-step.done { color: var(--braun); }
+  .best-step.done .n { background: var(--rose); color: #fff; }
+  .best-step.current { background: var(--rose-pale); color: var(--rose-deep); }
+  .best-step.current .n { background: var(--rose-deep); color: #fff; }
+
+  .best-h2 { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--rose-deep); margin: 1.4rem 0 0.6rem; }
+  .best-sub { font-size: 0.85rem; color: var(--text-soft); margin: 0 0 1rem; }
+
+  .best-whochips { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+  .best-whochip {
+    display: flex; align-items: center; gap: 0.6rem; background: #fff; border: 2px solid var(--beige-deep); border-radius: 16px;
+    padding: 0.5rem 1rem 0.5rem 0.5rem; cursor: pointer; font-family: var(--font-body); font-size: 1rem; font-weight: 600; color: var(--text); min-height: 60px;
+  }
+  .best-whochip .avatar-mini { width: 44px; height: 44px; border-radius: 50%; overflow: hidden; background: var(--rose-pale); color: var(--rose-deep); display: flex; align-items: center; justify-content: center; font-weight: 700; }
+  .best-whochip .avatar-mini img { width: 100%; height: 100%; object-fit: cover; }
+  .best-whochip.current { border-color: var(--rose-deep); background: var(--rose-pale); color: var(--rose-deep); }
+
+  .best-brands { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0.9rem; }
+  .best-brand {
+    border: none; border-radius: 22px; padding: 2rem 1.2rem; min-height: 150px; cursor: pointer; font-family: var(--font-display);
+    font-size: 1.9rem; font-weight: 600; letter-spacing: 0.04em; box-shadow: 0 10px 26px rgba(122,92,75,0.14); transition: transform .12s ease, box-shadow .12s ease;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem;
+  }
+  .best-brand small { font-family: var(--font-body); font-size: 0.78rem; font-weight: 600; letter-spacing: 0; opacity: 0.8; }
+  .best-brand:hover { transform: translateY(-2px); box-shadow: 0 14px 30px rgba(122,92,75,0.2); }
+  .best-brand:active { transform: scale(0.98); }
+
+  .best-search {
+    width: 100%; font-family: var(--font-body); font-size: 1.05rem; padding: 1rem 1.2rem; border: 2px solid var(--beige-deep); border-radius: 16px;
+    background: #fff; color: var(--text); min-height: 56px;
+  }
+  .best-search:focus { outline: none; border-color: var(--rose-deep); }
+  .best-primary {
+    font-family: var(--font-body); font-size: 1.05rem; font-weight: 700; color: #fff; background: var(--anthrazit); border: none;
+    border-radius: 16px; padding: 1.1rem 1.6rem; min-height: 58px; cursor: pointer; box-shadow: 0 8px 20px rgba(63,63,65,0.22);
+  }
+  .best-primary:hover { opacity: 0.92; }
+  .best-primary[disabled] { opacity: 0.35; cursor: not-allowed; box-shadow: none; }
+  .best-secondary {
+    font-family: var(--font-body); font-size: 1rem; font-weight: 600; color: var(--braun); background: var(--beige); border: none;
+    border-radius: 16px; padding: 1rem 1.4rem; min-height: 56px; cursor: pointer;
+  }
+  .best-secondary:hover { background: var(--beige-deep); }
+  .best-danger { color: var(--danger); background: rgba(166,71,62,0.08); }
+  .best-actionrow { display: flex; gap: 0.7rem; flex-wrap: wrap; margin-top: 1.4rem; }
+  .best-actionrow .grow { flex: 1; }
+
+  .best-results { background: #fff; border-radius: 14px; margin-top: 0.5rem; box-shadow: 0 8px 22px rgba(122,92,75,0.14); overflow: hidden; }
+  .best-result { display: flex; gap: 0.8rem; align-items: center; width: 100%; text-align: left; background: none; border: none; border-bottom: 1px solid var(--beige); padding: 0.7rem 1rem; cursor: pointer; font-family: var(--font-body); font-size: 0.9rem; color: var(--text); min-height: 56px; }
+  .best-result:hover { background: var(--beige); }
+  .best-result img { width: 40px; height: 40px; border-radius: 8px; }
+  .best-result small { color: var(--text-soft); display: block; }
+
+  .best-history { display: flex; flex-direction: column; gap: 0.5rem; }
+  .best-hist {
+    display: flex; align-items: center; gap: 0.8rem; background: #fff; border: 1px solid var(--beige-deep); border-radius: 14px; padding: 0.7rem 1rem;
+    cursor: pointer; font-family: var(--font-body); text-align: left; width: 100%; min-height: 58px;
+  }
+  .best-hist b { color: var(--text); }
+  .best-hist small { color: var(--text-soft); display: block; }
+  .best-hist .val { margin-left: auto; font-weight: 700; color: var(--braun); white-space: nowrap; }
+
+  .best-filters { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin: 0 0 1rem; }
+  .best-chip {
+    font-family: var(--font-body); font-size: 0.9rem; font-weight: 600; color: var(--braun); background: var(--beige); border: 2px solid transparent;
+    border-radius: 999px; padding: 0.55rem 1.1rem; cursor: pointer; min-height: 46px;
+  }
+  .best-chip.on { background: var(--rose-pale); border-color: var(--rose-deep); color: var(--rose-deep); }
+  .best-select { font-family: var(--font-body); font-size: 0.9rem; padding: 0.6rem 0.9rem; border-radius: 14px; border: 2px solid var(--beige-deep); background: #fff; color: var(--text); min-height: 46px; max-width: 14rem; }
+
+  .best-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); gap: 0.9rem; }
+  .best-card {
+    position: relative; background: #fff; border-radius: 20px; padding: 0.9rem; box-shadow: 0 6px 20px rgba(122,92,75,0.12); display: flex; flex-direction: column; gap: 0.35rem;
+    border: 2px solid transparent;
+  }
+  .best-card.above { opacity: 0.6; border-color: rgba(169,122,46,0.45); }
+  .best-img { background: var(--beige); border-radius: 14px; display: flex; align-items: center; justify-content: center; padding: 0.5rem; }
+  .best-img img { width: 96px; height: 96px; display: block; }
+  .best-fav { position: absolute; top: 0.6rem; right: 0.6rem; width: 44px; height: 44px; border-radius: 50%; border: none; background: rgba(255,255,255,0.9); font-size: 1.25rem; cursor: pointer; color: var(--taupe); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  .best-fav.on { color: var(--rose-deep); }
+  .best-tag { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--taupe); }
+  .best-name { font-weight: 700; font-size: 0.95rem; line-height: 1.25; color: var(--text); min-height: 2.4em; }
+  .best-meta { font-size: 0.75rem; color: var(--text-soft); }
+  .best-pricerow { display: flex; justify-content: space-between; align-items: baseline; font-size: 0.82rem; color: var(--text-soft); }
+  .best-pricerow b { font-size: 1.05rem; color: var(--text); }
+  .best-badges { display: flex; flex-wrap: wrap; gap: 0.3rem; min-height: 1.4rem; }
+  .best-badge { font-size: 0.66rem; font-weight: 700; border-radius: 999px; padding: 0.15rem 0.55rem; background: var(--beige); color: var(--braun); }
+  .best-badge.warn { background: rgba(169,122,46,0.16); color: var(--warn); }
+  .best-badge.bad { background: rgba(166,71,62,0.14); color: var(--danger); }
+  .best-badge.good { background: rgba(82,112,79,0.14); color: var(--good); }
+  .best-cardactions { display: flex; gap: 0.5rem; margin-top: 0.3rem; }
+  .best-cardactions .det { flex: 1; font-family: var(--font-body); font-weight: 600; font-size: 0.85rem; background: var(--beige); color: var(--braun); border: none; border-radius: 14px; min-height: 52px; cursor: pointer; }
+  .best-plus { width: 60px; min-height: 52px; font-size: 1.7rem; font-weight: 400; line-height: 1; color: #fff; background: var(--rose-deep); border: none; border-radius: 14px; cursor: pointer; box-shadow: 0 6px 14px rgba(154,75,102,0.3); }
+
+  .best-overlay { position: fixed; inset: 0; background: rgba(63,63,65,0.5); z-index: 500; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+  .best-modal { background: #FFFDFB; border-radius: 26px; width: 100%; max-width: 640px; max-height: 94vh; overflow-y: auto; padding: 1.5rem; box-shadow: 0 30px 70px rgba(0,0,0,0.3); }
+  .best-modalhead { display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem; }
+  .best-modalhead .best-img img { width: 84px; height: 84px; }
+  .best-modalhead h2 { margin: 0; font-size: 1.2rem; line-height: 1.25; }
+  .best-close { margin-left: auto; width: 48px; height: 48px; border-radius: 50%; border: none; background: var(--beige); font-size: 1.3rem; cursor: pointer; color: var(--braun); flex-shrink: 0; }
+  .best-facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-bottom: 1rem; }
+  .best-fact { background: var(--beige); border-radius: 12px; padding: 0.6rem 0.8rem; font-size: 0.72rem; color: var(--text-soft); }
+  .best-fact b { display: block; font-size: 1rem; color: var(--text); margin-top: 0.1rem; }
+  .best-stepper { display: flex; align-items: center; justify-content: center; gap: 0.8rem; margin: 0.3rem 0; }
+  .best-stepper button { width: 64px; height: 64px; border-radius: 18px; border: none; background: var(--beige); font-size: 1.8rem; color: var(--braun); cursor: pointer; }
+  .best-stepper button.add { background: var(--rose-pale); color: var(--rose-deep); }
+  .best-stepper input { width: 6.5rem; text-align: center; font-family: var(--font-body); font-size: 1.7rem; font-weight: 700; padding: 0.6rem; border: 2px solid var(--beige-deep); border-radius: 16px; background: #fff; color: var(--text); }
+  .best-bigbtns { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.6rem; }
+  .best-bigbtn { font-family: var(--font-body); font-size: 1rem; font-weight: 700; color: var(--braun); background: var(--beige); border: 2px solid transparent; border-radius: 16px; padding: 1rem 0.6rem; min-height: 62px; cursor: pointer; }
+  .best-bigbtn.on { background: var(--rose-pale); border-color: var(--rose-deep); color: var(--rose-deep); }
+  .best-calc { background: var(--beige); border-radius: 16px; padding: 0.9rem 1.1rem; margin-top: 1rem; display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.3rem 1rem; font-size: 0.9rem; }
+  .best-calc div { display: flex; justify-content: space-between; gap: 0.5rem; }
+  .best-calc .free b { color: var(--good); }
+  .best-calc .total { grid-column: 1 / -1; border-top: 1px solid var(--beige-deep); padding-top: 0.4rem; margin-top: 0.2rem; font-weight: 700; }
+  .best-msg { border-radius: 12px; padding: 0.7rem 1rem; font-size: 0.85rem; margin-top: 0.8rem; }
+  .best-msg.warn { background: rgba(169,122,46,0.14); color: var(--warn); }
+  .best-msg.err { background: rgba(166,71,62,0.12); color: var(--danger); font-weight: 600; }
+  .best-msg.info { background: var(--beige); color: var(--braun); }
+
+  .best-lines { display: flex; flex-direction: column; gap: 0.7rem; }
+  .best-line { background: #fff; border-radius: 18px; padding: 0.9rem 1rem; box-shadow: 0 5px 16px rgba(122,92,75,0.1); display: grid; grid-template-columns: 64px minmax(0, 2.2fr) repeat(3, minmax(0, 1fr)) minmax(0, 1.1fr) auto; gap: 0.5rem 0.9rem; align-items: center; }
+  .best-line .best-img img { width: 52px; height: 52px; }
+  .best-line .nm { font-weight: 700; font-size: 0.92rem; }
+  .best-line .cell { font-size: 0.78rem; color: var(--text-soft); }
+  .best-line .cell b { display: block; font-size: 0.95rem; color: var(--text); }
+  .best-line .cell.free b { color: var(--good); }
+  .best-mini { display: inline-flex; align-items: center; gap: 0.3rem; }
+  .best-mini button { width: 40px; height: 40px; border-radius: 12px; border: none; background: var(--beige); font-size: 1.2rem; color: var(--braun); cursor: pointer; }
+  .best-mini span { min-width: 1.8rem; text-align: center; font-weight: 700; font-size: 1rem; }
+  .best-line select { font-family: var(--font-body); font-size: 0.85rem; padding: 0.5rem 0.4rem; border-radius: 10px; border: 1.5px solid var(--beige-deep); background: #fff; color: var(--text); min-height: 44px; width: 100%; }
+  .best-line .acts { display: flex; gap: 0.4rem; }
+  .best-line .acts button { min-height: 44px; min-width: 44px; border-radius: 12px; border: none; background: var(--beige); color: var(--braun); font-weight: 600; font-size: 0.8rem; cursor: pointer; padding: 0 0.7rem; }
+  .best-line .acts button.del { color: var(--danger); background: rgba(166,71,62,0.08); }
+
+  .best-sumbox { background: #fff; border-radius: 20px; padding: 1.1rem 1.3rem; box-shadow: 0 6px 20px rgba(122,92,75,0.1); }
+  .best-sumrow { display: flex; justify-content: space-between; gap: 1rem; padding: 0.5rem 0; border-bottom: 1px solid var(--beige); font-size: 0.95rem; }
+  .best-sumrow:last-child { border-bottom: none; }
+  .best-sumrow b { color: var(--text); }
+  .best-sumrow.big { font-size: 1.15rem; }
+  .best-sumrow.free b { color: var(--good); }
+  .best-twocol { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+  .best-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  .best-table th { text-align: left; font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--taupe); padding: 0.4rem 0.4rem; border-bottom: 1px solid var(--beige-deep); }
+  .best-table td { padding: 0.6rem 0.4rem; border-bottom: 1px solid var(--beige); }
+  .best-table th.r, .best-table td.r { text-align: right; }
+
+  .best-wkzbar {
+    position: sticky; top: 0; z-index: 20; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; background: var(--rose-deep); color: #fff; border-radius: 18px;
+    padding: 0.8rem 1rem; margin: 0 0 1rem; box-shadow: 0 10px 24px rgba(154,75,102,0.3);
+  }
+  .best-wkzbar div { font-size: 0.7rem; opacity: 0.9; }
+  .best-wkzbar b { display: block; font-size: 1.15rem; opacity: 1; }
+  .best-wkzbar .over b { color: #FFD9A8; }
+  .best-rate { display: flex; align-items: center; gap: 0.6rem; }
+  .best-rate input { width: 6rem; text-align: center; font-size: 1.5rem; font-weight: 700; padding: 0.5rem; border-radius: 14px; border: 2px solid var(--beige-deep); font-family: var(--font-body); }
+  .best-rate button { width: 60px; height: 60px; border-radius: 16px; border: none; background: var(--beige); font-size: 1.7rem; color: var(--braun); cursor: pointer; }
+  .best-done { text-align: center; padding: 1rem 0; }
+  .best-done .check { width: 84px; height: 84px; border-radius: 50%; background: rgba(82,112,79,0.14); color: var(--good); font-size: 2.6rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; }
+  .best-done .nr { font-family: var(--font-display); font-size: 2.2rem; color: var(--rose-deep); margin: 0.2rem 0; }
+  .best-by { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--beige); border-radius: 999px; padding: 0.3rem 0.9rem 0.3rem 0.3rem; font-weight: 700; font-size: 0.9rem; color: var(--braun); }
+  .best-by .avatar-mini { width: 30px; height: 30px; border-radius: 50%; overflow: hidden; background: var(--rose-pale); color: var(--rose-deep); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; }
+  .best-by .avatar-mini img { width: 100%; height: 100%; object-fit: cover; }
+
+  .best-preview { position: fixed; inset: 0; z-index: 600; background: rgba(63,63,65,0.55); overflow-y: auto; padding: 1.2rem; display: flex; justify-content: center; }
+  .best-paper { background: #fff; width: 100%; max-width: 780px; border-radius: 6px; padding: 2rem 2.2rem; box-shadow: 0 30px 70px rgba(0,0,0,0.35); height: fit-content; color: var(--text); font-size: 0.85rem; }
+  .best-paper h1 { font-family: var(--font-display); font-size: 1.5rem; margin: 0 0 0.2rem; }
+  .best-paper img.logo { height: 64px; display: block; margin-bottom: 0.8rem; }
+  .best-previewbar { display: flex; gap: 0.6rem; justify-content: flex-end; margin: 0 0 1rem; flex-wrap: wrap; }
+
+  @media (max-width: 900px) {
+    .best-line { grid-template-columns: 56px minmax(0, 1fr) auto; }
+    .best-line .cell, .best-line .sel { grid-column: 2 / -1; }
+    .best-line .acts { grid-column: 1 / -1; justify-content: flex-end; }
+    .best-facts { grid-template-columns: 1fr 1fr; }
+  }
+  @media print {
+    .device { display: none !important; }
+    .best-overlay { display: none !important; }
+    body { height: auto !important; overflow: visible !important; display: block !important; }
+    .best-preview { position: static !important; background: none !important; padding: 0 !important; display: block !important; overflow: visible !important; }
+    .best-paper { box-shadow: none !important; max-width: none !important; padding: 0 !important; }
+    .best-previewbar { display: none !important; }
+  }
 </style>
 
 <div class="device"><div class="screen" id="screen"></div></div>
@@ -1772,6 +1997,7 @@
     filterTreatments: filterTreatments, pickTreatment: pickTreatment, pickKurOption: pickKurOption,
     downloadPdfReport: downloadPdfReport,
     sendKundeEmail: sendKundeEmail,
+    bestInput: bestInput,
     handleMitarbeiterFotoChange: handleMitarbeiterFotoChange,
     filterAktionVerknuepfung: filterAktionVerknuepfung,
     pickAktionVerknuepfung: pickAktionVerknuepfung,
@@ -1779,6 +2005,7 @@
   };
 
   function selectHandler(kind, key, extra) {
+    if (kind.indexOf('best-') === 0) return bestellungHandler(kind, key, extra);
     if (kind === 'mitarbeiterin') { STATE.mitarbeiterin = key; goTo('kunde-wahl'); }
     else if (kind === 'kunde-bestehend') { STATE.kundeName = key; STATE.aktionHinweisDismissed = false; goTo('ziel'); }
     else if (kind === 'kunde-neu-weiter') {
@@ -2089,7 +2316,7 @@
 
   // Diese Screens haben bereits ein eigenes, zentriertes Logo im Inhalt —
   // dort entfällt das kleine Kopfzeilen-Logo, damit es nicht doppelt erscheint.
-  var SCREENS_WITH_OWN_LOGO = ['login', 'kunde-wahl', 'blueprint', 'abschluss'];
+  var SCREENS_WITH_OWN_LOGO = ['login', 'kunde-wahl', 'blueprint', 'abschluss', 'bestellung'];
 
   function topbar(mode, percent, contextText) {
     var backDisabled = pointer === 0 ? 'disabled' : '';
@@ -2359,6 +2586,7 @@
       return '<div class="aktion-login-hinweis ' + countdownKlasse + '"><strong>Startet in ' + h.tage + ' Tag' + (h.tage === 1 ? '' : 'en') + ':</strong> ' + esc(h.aktion.titel) + '</div>';
     }).join('');
     var body = '' +
+      bestMainTabs('beratung') +
       '<img class="brand-logo md" src="' + LOGO_SRC + '" alt="Beauty Lounge" />' +
       '<p class="welcome-title">Willkommen, ' + esc(STATE.mitarbeiterin || '') + '</p>' +
       loginHinweise +
@@ -3818,8 +4046,726 @@
     screenWrap('brand', 100, contextLabel(), body, true);
   }
 
+  // =====================================================================================
+  // Bestellung — interne Bestell-App (Reiter auf dem Hauptbildschirm)
+  //
+  // Datenmodell (siehe auch README):
+  //   Product   { id, name, brand, articleNumber, ean?, productGroup, purchasePrice, salesPrice?,
+  //               stock?, minimumStock?, image, active }
+  //   OrderItem { id, productId, product, purpose, quantityPaid, quantityFree, promotionType,
+  //               customThreshold?, unitPurchasePrice }
+  //   WKZItem   { id, productId, product, quantity, unitPurchasePrice }
+  //   Order     { id, createdAt, status, besteller, items, wkzItems, wkzRate, regularOrderValue,
+  //               wkzBase, wkzAmount, wkzUsed, wkzRemaining, freeGoodsValue }
+  // Alle Preise sind intern reine Zahlen; formatiert wird nur bei der Ausgabe (formatCurrency).
+  // =====================================================================================
+
+  var BEST_CONFIG = {
+    defaultWkzRate: 5,
+    allowWkzOverrun: true,       // WKZ-Überschreitung überhaupt erlaubt?
+    overrunNeedsConfirm: true,   // wenn ja: nur nach ausdrücklicher Bestätigung
+    markProductsAboveWkzRest: true,
+    pageSize: 48
+  };
+  var BEST_BRANDS = ['KLAPP', 'GEHWOL', 'Alessandro'];
+  var BEST_BRAND_STYLE = {
+    KLAPP: { bg: '#ECD9DF', fg: '#9A4B66', sub: 'Kosmetik & Homecare' },
+    GEHWOL: { bg: '#E6DDD2', fg: '#6B5A4A', sub: 'Fußpflege' },
+    Alessandro: { bg: '#F0E4D4', fg: '#7A5C4B', sub: 'Nagelpflege & Lack' }
+  };
+  var BEST_PURPOSES = [
+    { key: 'sale', label: 'Verkauf' }, { key: 'tester', label: 'Tester' },
+    { key: 'cabin', label: 'Kabinenware' }, { key: 'other', label: 'Sonstiges' }
+  ];
+  var BEST_PROMOS = [
+    { key: 'none', label: 'Keine Aktion', threshold: 0 }, { key: '3+1', label: '3 + 1', threshold: 3 },
+    { key: '5+1', label: '5 + 1', threshold: 5 }, { key: '6+1', label: '6 + 1', threshold: 6 },
+    { key: 'custom', label: 'Individuell', threshold: 0 }
+  ];
+  var BEST_STEP_LABELS = ['Marke', 'Produkte', 'Verwendung & Menge', 'Warenkorb', 'WKZ', 'Zusammenfassung'];
+
+  // ---------- Hilfsfunktionen: Zahlen, Speicher ----------
+  function round2(n) { return Math.round((n + 1e-9) * 100) / 100; }
+  var BEST_FMT = (typeof Intl !== 'undefined') ? new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }) : null;
+  function formatCurrency(value) {
+    var v = round2(Number(value) || 0);
+    if (BEST_FMT) return BEST_FMT.format(v).replace(/ /g, ' ');
+    return v.toFixed(2).replace('.', ',') + ' €';
+  }
+  function bestLoad(key, fallback) {
+    try { var raw = window.localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; } catch (e) { return fallback; }
+  }
+  function bestSave(key, val) { try { window.localStorage.setItem(key, JSON.stringify(val)); } catch (e) { /* ohne Speicher weiterarbeiten */ } }
+
+  // ---------- Berechnungen (reine Funktionen) ----------
+  function promoThreshold(promotionType, customThreshold) {
+    if (promotionType === 'custom') return Math.floor(Number(customThreshold)) || 0;
+    var p = BEST_PROMOS.filter(function (x) { return x.key === promotionType; })[0];
+    return p ? p.threshold : 0;
+  }
+  // quantityFree = floor(quantityPaid / threshold)
+  function calculateFreeQuantity(quantityPaid, promotionType, customThreshold) {
+    var t = promoThreshold(promotionType, customThreshold);
+    if (!t || t < 1 || quantityPaid < 1) return 0;
+    return Math.floor(quantityPaid / t);
+  }
+  function calculateLineCost(item) { return round2(item.quantityPaid * item.unitPurchasePrice); } // Gratisware zählt nicht
+  function calculateOrderTotal(items) { return round2(items.reduce(function (s, i) { return s + calculateLineCost(i); }, 0)); }
+  // Wert der kostenlosen Aktionsware (nur Information, nie Teil des Bestellwerts)
+  function calculateFreeGoods(items) { return round2(items.reduce(function (s, i) { return s + i.quantityFree * i.unitPurchasePrice; }, 0)); }
+  function calculateWKZBase(items) { return round2(items.reduce(function (s, i) { return s + i.quantityPaid * i.unitPurchasePrice; }, 0)); }
+  function calculateWKZAmount(base, ratePercent) { return round2(base * (Number(ratePercent) || 0) / 100); }
+  function calculateWKZUsed(wkzItems) { return round2(wkzItems.reduce(function (s, i) { return s + i.quantity * i.unitPurchasePrice; }, 0)); }
+  function calculateWKZRemaining(wkzAmount, wkzUsed) { return round2(wkzAmount - wkzUsed); }
+
+  function bestRecalc(item) {
+    item.quantityFree = calculateFreeQuantity(item.quantityPaid, item.promotionType, item.customThreshold);
+  }
+
+  // ---------- Produktkatalog (Quelle austauschbar) ----------
+  function bestHash(s) { var h = 5381; for (var i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return Math.abs(h); }
+  function bestParsePrice(str) { return parseFloat(String(str).replace(/[^\d,]/g, '').replace(',', '.')) || 0; }
+  function bestImage(brand, name) {
+    var st = BEST_BRAND_STYLE[brand];
+    var ini = (name.match(/[A-Za-zÄÖÜäöü0-9]/g) || ['?']).slice(0, 2).join('').toUpperCase();
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" rx="20" fill="' + st.bg + '"/>' +
+      '<rect x="46" y="14" width="28" height="14" rx="4" fill="' + st.fg + '" opacity=".6"/><rect x="36" y="26" width="48" height="82" rx="14" fill="#fff" opacity=".9"/>' +
+      '<text x="60" y="74" text-anchor="middle" font-family="Georgia,serif" font-size="22" fill="' + st.fg + '">' + ini + '</text></svg>';
+    return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+  }
+  function bestGroupOf(name) {
+    var m = name.match(/^([A-ZÄÖÜ][A-ZÄÖÜ0-9&\-\.]*(?: [A-ZÄÖÜ][A-ZÄÖÜ0-9&\-\.]*)*)(?= |$)/);
+    return (m && m[1].length >= 3) ? m[1] : 'Weitere Pflege';
+  }
+  // Demo-Daten für Marken ohne Katalog: [Name, Produktgruppe, EK]
+  var BEST_DEMO_GEHWOL = [
+    ['GEHWOL Fusskraft Blau 75 ml', 'Fusskraft', 7.9], ['GEHWOL Fusskraft Grün 75 ml', 'Fusskraft', 7.9],
+    ['GEHWOL Fusskraft Soft Feet 75 ml', 'Fusskraft', 8.4], ['GEHWOL Hornhaut-Creme 75 ml', 'Hornhaut', 6.8],
+    ['GEHWOL Hornhaut-Hobel Ersatzklingen 10 Stk.', 'Zubehör', 4.5], ['GEHWOL med Lipidro-Creme 75 ml', 'med', 8.2],
+    ['GEHWOL med Salve für rissige Haut 75 ml', 'med', 8.6], ['GEHWOL Fussbad 400 g', 'Bäder', 9.3],
+    ['GEHWOL Nagel- und Hautschutzcreme 40 ml', 'Nagelpflege', 5.7], ['GEHWOL Frische-Fuß-Spray 150 ml', 'Frische', 6.4],
+    ['GEHWOL Schrunden-Salbe 25 ml', 'Spezial', 0], ['GEHWOL Fusspflege-Handschuhe 100 Stk.', 'Zubehör', 11.5]
+  ];
+  var BEST_DEMO_ALESSANDRO = [
+    ['Striplac Gel Polish 08 Pink Powder 8 ml', 'Striplac', 6.9], ['Striplac Gel Polish 42 Nude Rose 8 ml', 'Striplac', 6.9],
+    ['Striplac Gel Polish 66 Berry Kiss 8 ml', 'Striplac', 6.9], ['Striplac Base Coat 8 ml', 'Striplac Basics', 7.4],
+    ['Striplac Top Coat Glossy 8 ml', 'Striplac Basics', 7.4], ['Striplac Peel or Soak Remover 100 ml', 'Entferner', 5.6],
+    ['Nagellack Pure Nude 10 ml', 'Nagellack', 4.9], ['Spa Manicure Hand Cream 75 ml', 'Spa', 8.1],
+    ['Nagelhautöl Almond 15 ml', 'Pflege', 5.2], ['Nail Prep Dehydrator 15 ml', 'Basics', 0],
+    ['Cuticle Remover 30 ml', 'Pflege', 5.9], ['Hybrid Lamp LED 48 W', 'Geräte', 74.0]
+  ];
+  function bestMakeProduct(id, brand, name, group, purchase, sales, prefix, idx) {
+    var h = bestHash(name);
+    var min = 3 + (h % 5);
+    return {
+      id: id, name: name, brand: brand, articleNumber: prefix + '-' + (10000 + idx), productGroup: group,
+      purchasePrice: purchase, salesPrice: sales, stock: bestHash(name + 'lager') % 31, minimumStock: min,
+      image: bestImage(brand, name), active: true
+    };
+  }
+  // Austauschbare Quelle: später z. B. fetch('/api/products'), Datenbank, Excel oder CSV —
+  // nur load() ersetzen, der Rest der Bestellung arbeitet ausschließlich mit Product[].
+  var ProductRepository = {
+    load: function () {
+      var list = [];
+      ALL_PRODUCTS.forEach(function (p, i) {
+        var sales = bestParsePrice(p.preis);
+        var ek = (bestHash(p.name) % 53 === 0) ? 0 : round2(sales * 0.5); // Demo-Annahme: EK = 50 % vom Listenpreis
+        list.push(bestMakeProduct('klapp-' + i, 'KLAPP', p.name, bestGroupOf(p.name), ek, sales, 'KL', i));
+      });
+      BEST_DEMO_GEHWOL.forEach(function (r, i) { list.push(bestMakeProduct('gehwol-' + i, 'GEHWOL', r[0], r[1], r[2], round2(r[2] * 2), 'GW', i)); });
+      BEST_DEMO_ALESSANDRO.forEach(function (r, i) { list.push(bestMakeProduct('alessandro-' + i, 'Alessandro', r[0], r[1], r[2], round2(r[2] * 2), 'AL', i)); });
+      return list;
+    }
+  };
+  var BEST_CATALOG = null, BEST_BY_ID = {};
+  function bestCatalog() {
+    if (!BEST_CATALOG) {
+      BEST_CATALOG = ProductRepository.load().filter(function (p) { return p.active; });
+      BEST_CATALOG.sort(function (a, b) { return a.name.localeCompare(b.name, 'de'); });
+      BEST_CATALOG.forEach(function (p) { BEST_BY_ID[p.id] = p; });
+    }
+    return BEST_CATALOG;
+  }
+  function bestProduct(id) { bestCatalog(); return BEST_BY_ID[id]; }
+
+  // ---------- Zustand ----------
+  var BEST_KEYS = { draft: 'bb_best_draft_v1', orders: 'bb_orders_v1', seq: 'bb_order_seq_v1', favs: 'bb_best_favs_v1' };
+  var BEST = (function () {
+    var d = bestLoad(BEST_KEYS.draft, {}) || {};
+    return {
+      besteller: d.besteller || null,
+      items: d.items || [], wkzItems: d.wkzItems || [],
+      wkzRate: (typeof d.wkzRate === 'number') ? d.wkzRate : BEST_CONFIG.defaultWkzRate,
+      wkzOverrunConfirmed: d.wkzOverrunConfirmed || 0,
+      brand: null, group: '', search: '', lowStock: false, favOnly: false, limit: BEST_CONFIG.pageSize,
+      detail: null, completedId: null
+    };
+  })();
+  var BEST_FAVS = bestLoad(BEST_KEYS.favs, []);
+  function bestPersist() {
+    bestSave(BEST_KEYS.draft, { besteller: BEST.besteller, items: BEST.items, wkzItems: BEST.wkzItems, wkzRate: BEST.wkzRate, wkzOverrunConfirmed: BEST.wkzOverrunConfirmed });
+  }
+  function bestEnsureBesteller() {
+    var names = bestTeamNames();
+    if (!BEST.besteller || names.indexOf(BEST.besteller) === -1) {
+      BEST.besteller = (STATE.mitarbeiterin && names.indexOf(STATE.mitarbeiterin) > -1) ? STATE.mitarbeiterin : (names[0] || STATE.mitarbeiterin || '');
+    }
+  }
+  function bestTeamNames() { return ADMIN_DATA.team.filter(function (m) { return m.sichtbar !== false; }).map(function (m) { return m.name; }); }
+  function bestMember(name) { return ADMIN_DATA.team.filter(function (m) { return m.name === name; })[0] || { name: name || '?' }; }
+  function bestUid(prefix) { return prefix + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+  function bestMoney(v) { return esc(formatCurrency(v)); }
+
+  function bestTotals() {
+    var regular = calculateOrderTotal(BEST.items);
+    var base = calculateWKZBase(BEST.items);
+    var amount = calculateWKZAmount(base, BEST.wkzRate);
+    var used = calculateWKZUsed(BEST.wkzItems);
+    var deliveryQty = BEST.items.reduce(function (s, i) { return s + i.quantityPaid + i.quantityFree; }, 0);
+    return {
+      regular: regular, free: calculateFreeGoods(BEST.items), base: base, amount: amount, used: used,
+      remaining: calculateWKZRemaining(amount, used), deliveryQty: deliveryQty,
+      paidQty: BEST.items.reduce(function (s, i) { return s + i.quantityPaid; }, 0),
+      freeQty: BEST.items.reduce(function (s, i) { return s + i.quantityFree; }, 0),
+      wkzQty: BEST.wkzItems.reduce(function (s, i) { return s + i.quantity; }, 0)
+    };
+  }
+  function bestAggregate(items, wkzItems) {
+    var byBrand = {}, byPurpose = {};
+    BEST_BRANDS.forEach(function (b) { byBrand[b] = { value: 0, qty: 0, freeQty: 0, freeValue: 0, wkzValue: 0, wkzQty: 0 }; });
+    BEST_PURPOSES.forEach(function (p) { byPurpose[p.key] = { value: 0, qty: 0, freeQty: 0 }; });
+    items.forEach(function (i) {
+      var b = byBrand[i.product.brand];
+      b.value += calculateLineCost(i); b.qty += i.quantityPaid + i.quantityFree; b.freeQty += i.quantityFree; b.freeValue += i.quantityFree * i.unitPurchasePrice;
+      var p = byPurpose[i.purpose]; p.value += calculateLineCost(i); p.qty += i.quantityPaid; p.freeQty += i.quantityFree;
+    });
+    wkzItems.forEach(function (w) { var b = byBrand[w.product.brand]; b.wkzValue += w.quantity * w.unitPurchasePrice; b.wkzQty += w.quantity; });
+    return { byBrand: byBrand, byPurpose: byPurpose };
+  }
+  function bestPurposeLabel(key) { var p = BEST_PURPOSES.filter(function (x) { return x.key === key; })[0]; return p ? p.label : key; }
+  function bestPromoLabel(item) {
+    if (item.promotionType === 'custom') return 'Individuell (' + promoThreshold('custom', item.customThreshold) + ' + 1)';
+    var p = BEST_PROMOS.filter(function (x) { return x.key === item.promotionType; })[0]; return p ? p.label : item.promotionType;
+  }
+  function bestOverrun(t) { return t.remaining < 0 ? round2(-t.remaining) : 0; }
+  function bestOverrunOk(t) {
+    var over = bestOverrun(t);
+    if (!over) return true;
+    if (!BEST_CONFIG.allowWkzOverrun) return false;
+    if (!BEST_CONFIG.overrunNeedsConfirm) return true;
+    return BEST.wkzOverrunConfirmed === over;
+  }
+
+  // ---------- Gemeinsame Bausteine ----------
+  function bestAvatar(name, cls) {
+    var m = bestMember(name);
+    return '<span class="' + (cls || 'avatar-mini') + '">' + avatarInner(m) + '</span>';
+  }
+  function bestSteps(current) {
+    return '<div class="best-steps">' + BEST_STEP_LABELS.map(function (l, i) {
+      var n = i + 1, cls = n < current ? 'done' : (n === current ? 'current' : '');
+      return '<div class="best-step ' + cls + '"><span class="n">' + (n < current ? '✓' : n) + '</span>' + esc(l) + '</div>';
+    }).join('') + '</div>';
+  }
+  function bestTopRow(title, withWho) {
+    var t = bestTotals();
+    var who = withWho ? '<label class="best-who">' + bestAvatar(BEST.besteller) + '<span>Besteller<br/>' +
+      '<select onchange="__bb.bestInput(\'besteller\',this.value)" aria-label="Besteller wählen">' +
+      bestTeamNames().map(function (n) { return '<option value="' + esc(n) + '"' + (n === BEST.besteller ? ' selected' : '') + '>' + esc(n) + '</option>'; }).join('') +
+      '</select></span></label>' : '';
+    return '<div class="best-top"><h1>' + esc(title) + '</h1>' + who +
+      '<button class="best-cartbtn" onclick="__bb.select(\'best-to-cart\')">Warenkorb · ' + t.deliveryQty + ' Artikel<small>' + bestMoney(t.regular) + '</small></button></div>';
+  }
+  function bestMainTabs(active) {
+    return '<div class="main-tabs">' +
+      '<button class="main-tab' + (active === 'beratung' ? ' current' : '') + '" onclick="__bb.replaceTop(\'kunde-wahl\')">Beratung</button>' +
+      '<button class="main-tab' + (active === 'bestellung' ? ' current' : '') + '" onclick="__bb.replaceTop(\'bestellung\')">Bestellung</button></div>';
+  }
+  function bestBack() { return pointer > 0 ? '' : ''; }
+
+  // ---------- Screen: Start (Reiter "Bestellung") ----------
+  function renderBestStart() {
+    bestEnsureBesteller();
+    var orders = bestLoad(BEST_KEYS.orders, []).slice(-5).reverse();
+    var hist = orders.length ? '<div class="best-history">' + orders.map(function (o) {
+      return '<button class="best-hist" onclick="__bb.select(\'best-view-order\',\'' + esc(o.id) + '\')">' + bestAvatar(o.besteller) +
+        '<span><b>' + esc(o.id) + '</b><small>' + esc(o.besteller || '—') + ' · ' + esc(formatDateDE(new Date(o.createdAt))) + '</small></span>' +
+        '<span class="val">' + bestMoney(o.regularOrderValue) + '</span></button>';
+    }).join('') + '</div>' : '<p class="best-sub">Noch keine abgeschlossene Bestellung.</p>';
+    var body = '<div class="best-wrap">' + bestMainTabs('bestellung') +
+      '<img class="brand-logo md" src="' + LOGO_SRC + '" alt="Beauty Lounge" />' +
+      bestTopRow('Beauty Lounge – Bestellung', false) +
+      bestSteps(1) +
+      '<div class="best-h2">Wer bestellt?</div>' +
+      '<div class="best-whochips">' + bestTeamNames().map(function (n) {
+        return '<button class="best-whochip' + (n === BEST.besteller ? ' current' : '') + '" onclick="__bb.select(\'best-besteller\',\'' + esc(n) + '\')">' + bestAvatar(n) + esc(n) + '</button>';
+      }).join('') + '</div>' +
+      '<div class="best-h2">Marke wählen</div>' +
+      '<div class="best-brands">' + BEST_BRANDS.map(function (b) {
+        var st = BEST_BRAND_STYLE[b];
+        return '<button class="best-brand" style="background:' + st.bg + ';color:' + st.fg + '" onclick="__bb.select(\'best-brand\',\'' + b + '\')">' + esc(b) + '<small>' + esc(st.sub) + '</small></button>';
+      }).join('') + '</div>' +
+      '<div class="best-h2">Oder direkt suchen</div>' +
+      '<input class="best-search" id="best-start-search" type="search" placeholder="Produkt oder Artikelnummer suchen" oninput="__bb.bestInput(\'startsearch\',this.value)" autocomplete="off" />' +
+      '<div id="best-start-results"></div>' +
+      '<div class="best-actionrow"><button class="best-primary grow" onclick="__bb.select(\'best-start\')">Bestellung starten</button></div>' +
+      '<div class="best-h2">Letzte Bestellungen</div>' + hist + '</div>';
+    screenWrap('dezent', 0, contextLabel(), body);
+  }
+
+  // ---------- Produktübersicht ----------
+  function bestFiltered(wkz) {
+    var q = BEST.search.trim().toLowerCase();
+    return bestCatalog().filter(function (p) {
+      if (BEST.brand && p.brand !== BEST.brand) return false;
+      if (BEST.group && p.productGroup !== BEST.group) return false;
+      if (q && (p.name.toLowerCase().indexOf(q) === -1 && p.articleNumber.toLowerCase().indexOf(q) === -1 && (p.ean || '').indexOf(q) === -1)) return false;
+      if (BEST.lowStock && !(p.stock !== undefined && p.minimumStock !== undefined && p.stock <= p.minimumStock)) return false;
+      if (BEST.favOnly && BEST_FAVS.indexOf(p.id) === -1) return false;
+      return true;
+    });
+  }
+  function bestCardHtml(p, wkz, remaining) {
+    var low = p.stock !== undefined && p.minimumStock !== undefined && p.stock <= p.minimumStock;
+    var above = wkz && BEST_CONFIG.markProductsAboveWkzRest && p.purchasePrice > Math.max(remaining, 0);
+    var fav = BEST_FAVS.indexOf(p.id) > -1;
+    var badges = '';
+    if (p.purchasePrice === 0) badges += '<span class="best-badge bad">Kein EK-Preis</span>';
+    if (low) badges += '<span class="best-badge warn">Mindestbestand erreicht</span>';
+    if (above) badges += '<span class="best-badge warn">Über WKZ-Rest</span>';
+    var plusAction = wkz ? 'best-wkz-quick' : 'best-open';
+    return '<div class="best-card' + (above ? ' above' : '') + '">' +
+      '<button class="best-fav' + (fav ? ' on' : '') + '" aria-label="Favorit" onclick="__bb.select(\'best-fav\',\'' + p.id + '\')">' + (fav ? '♥' : '♡') + '</button>' +
+      '<div class="best-img"><img src="' + p.image + '" alt="" /></div>' +
+      '<div class="best-tag">' + esc(p.brand) + ' · ' + esc(p.productGroup) + '</div>' +
+      '<div class="best-name">' + esc(p.name) + '</div>' +
+      '<div class="best-meta">Art.-Nr. ' + esc(p.articleNumber) + '</div>' +
+      '<div class="best-pricerow"><span>EK <b>' + bestMoney(p.purchasePrice) + '</b></span><span>Bestand ' + (p.stock === undefined ? '—' : p.stock) + '</span></div>' +
+      '<div class="best-badges">' + badges + '</div>' +
+      '<div class="best-cardactions"><button class="det" onclick="__bb.select(\'best-open\',\'' + p.id + '\')">Details</button>' +
+      '<button class="best-plus" aria-label="Hinzufügen" onclick="__bb.select(\'' + plusAction + '\',\'' + p.id + '\')">+</button></div></div>';
+  }
+  function bestGridHtml(wkz) {
+    var list = bestFiltered(wkz);
+    var t = bestTotals();
+    var rem = t.remaining;
+    var shown = list.slice(0, BEST.limit);
+    if (!list.length) return '<div class="best-msg info">Keine Produkte gefunden — Filter oder Suche anpassen.</div>';
+    return '<div class="best-sub">' + list.length + ' Produkte</div><div class="best-grid">' +
+      shown.map(function (p) { return bestCardHtml(p, wkz, rem); }).join('') + '</div>' +
+      (list.length > shown.length ? '<div class="best-actionrow"><button class="best-secondary grow" onclick="__bb.select(\'best-more\')">Mehr anzeigen (' + (list.length - shown.length) + ' weitere)</button></div>' : '');
+  }
+  function bestFilterBar() {
+    var groups = {};
+    bestCatalog().forEach(function (p) { if (!BEST.brand || p.brand === BEST.brand) groups[p.productGroup] = (groups[p.productGroup] || 0) + 1; });
+    var gKeys = Object.keys(groups).sort(function (a, b) { return groups[b] - groups[a] || a.localeCompare(b, 'de'); });
+    return '<div class="best-filters">' +
+      '<button class="best-chip' + (!BEST.brand ? ' on' : '') + '" onclick="__bb.select(\'best-filter-brand\',\'\')">Alle Marken</button>' +
+      BEST_BRANDS.map(function (b) { return '<button class="best-chip' + (BEST.brand === b ? ' on' : '') + '" onclick="__bb.select(\'best-filter-brand\',\'' + b + '\')">' + esc(b) + '</button>'; }).join('') +
+      '</div><div class="best-filters">' +
+      '<input class="best-search" style="flex:1;min-width:14rem;width:auto" type="search" value="' + esc(BEST.search) + '" placeholder="Produkt oder Artikelnummer suchen" oninput="__bb.bestInput(\'search\',this.value)" autocomplete="off" />' +
+      '<select class="best-select" onchange="__bb.bestInput(\'group\',this.value)" aria-label="Produktgruppe"><option value="">Alle Produktgruppen</option>' +
+      gKeys.map(function (g) { return '<option value="' + esc(g) + '"' + (BEST.group === g ? ' selected' : '') + '>' + esc(g) + ' (' + groups[g] + ')</option>'; }).join('') + '</select>' +
+      '<button class="best-chip' + (BEST.lowStock ? ' on' : '') + '" onclick="__bb.select(\'best-toggle\',\'lowStock\')">Mindestbestand erreicht</button>' +
+      '<button class="best-chip' + (BEST.favOnly ? ' on' : '') + '" onclick="__bb.select(\'best-toggle\',\'favOnly\')">♥ Nur Favoriten</button></div>';
+  }
+  function bestWkzBar(t) {
+    var over = bestOverrun(t);
+    return '<div class="best-wkzbar"><div>WKZ verfügbar<b>' + bestMoney(t.amount) + '</b></div><div>WKZ verwendet<b>' + bestMoney(t.used) + '</b></div>' +
+      '<div class="' + (over ? 'over' : '') + '">WKZ verbleibend<b>' + bestMoney(t.remaining) + '</b></div></div>';
+  }
+  function bestWkzListHtml(t) {
+    var over = bestOverrun(t);
+    var list = BEST.wkzItems.length ? '<div class="best-lines">' + BEST.wkzItems.map(function (w) {
+      return '<div class="best-line" style="grid-template-columns:56px minmax(0,2fr) minmax(0,1fr) auto"><div class="best-img"><img src="' + w.product.image + '" alt=""/></div>' +
+        '<div><div class="nm">' + esc(w.product.name) + '</div><div class="cell">' + esc(w.product.brand) + ' · ' + esc(w.product.articleNumber) + '</div></div>' +
+        '<div class="best-mini"><button onclick="__bb.select(\'best-wkz-qty\',\'' + w.id + '\',-1)">−</button><span>' + w.quantity + '</span><button onclick="__bb.select(\'best-wkz-qty\',\'' + w.id + '\',1)">+</button></div>' +
+        '<div class="acts"><span class="cell"><b>' + bestMoney(w.quantity * w.unitPurchasePrice) + '</b></span><button class="del" onclick="__bb.select(\'best-wkz-del\',\'' + w.id + '\')">Entfernen</button></div></div>';
+    }).join('') + '</div>' : '<div class="best-msg info">Noch keine WKZ-Ware ausgewählt — mit + zum Produkt hinzufügen.</div>';
+    var warn = '';
+    if (over) {
+      warn = '<div class="best-msg warn"><b>Der verfügbare WKZ wird um ' + bestMoney(over) + ' überschritten.</b><br/>Produkt entfernen, Menge reduzieren' +
+        (BEST_CONFIG.allowWkzOverrun ? ' oder die Überschreitung bestätigen.' : ' — eine Überschreitung ist nicht erlaubt.') +
+        (BEST_CONFIG.allowWkzOverrun && BEST_CONFIG.overrunNeedsConfirm && BEST.wkzOverrunConfirmed !== over ?
+          '<div class="best-actionrow" style="margin-top:.6rem"><button class="best-secondary" onclick="__bb.select(\'best-overrun-ok\')">Überschreitung bestätigen</button></div>' : '') +
+        (BEST_CONFIG.allowWkzOverrun && BEST_CONFIG.overrunNeedsConfirm && BEST.wkzOverrunConfirmed === over ? '<br/><b>✓ Überschreitung bestätigt.</b>' : '') + '</div>';
+    }
+    return '<div class="best-h2">Gewählte WKZ-Ware</div>' + list + warn;
+  }
+  function renderBestProducts(wkz) {
+    bestEnsureBesteller();
+    var t = bestTotals();
+    var body = '<div class="best-wrap">' +
+      bestTopRow(wkz ? 'WKZ-Produkte auswählen' : (BEST.brand ? BEST.brand + ' – Produkte' : 'Produkte'), true) +
+      bestSteps(wkz ? 5 : (BEST.detail ? 3 : 2)) +
+      (wkz ? bestWkzBar(t) : '') + (wkz ? bestWkzListHtml(t) : '') +
+      bestFilterBar() +
+      '<div id="best-grid">' + bestGridHtml(wkz) + '</div>' +
+      '<div class="best-actionrow">' +
+      (wkz ? '<button class="best-secondary" onclick="__bb.goBack()">Zurück zum WKZ</button><button class="best-primary grow" ' + (bestOverrunOk(t) ? '' : 'disabled') + ' onclick="__bb.select(\'best-to-summary\')">Weiter zur Zusammenfassung</button>'
+           : '<button class="best-secondary" onclick="__bb.goBack()">Zurück</button><button class="best-primary grow" onclick="__bb.select(\'best-to-cart\')">Zum Warenkorb (' + t.deliveryQty + ')</button>') +
+      '</div></div>' + (BEST.detail ? bestDetailHtml(wkz) : '');
+    screenWrap('dezent', 0, contextLabel(), body);
+  }
+
+  // ---------- Produktdetail (Modal) ----------
+  function bestDetailCalcHtml(d, p, wkz) {
+    if (wkz) {
+      return '<div class="best-calc"><div>Menge<b>' + d.qty + '</b></div><div>Einzelpreis<b>' + bestMoney(p.purchasePrice) + '</b></div>' +
+        '<div class="total"><span>Wert WKZ-Ware</span><b>' + bestMoney(d.qty * p.purchasePrice) + '</b></div></div>';
+    }
+    var free = calculateFreeQuantity(d.qty, d.promo, d.customThreshold);
+    var line = round2(d.qty * p.purchasePrice);
+    return '<div class="best-calc"><div>Bezahlte Menge<b>' + d.qty + '</b></div><div class="free">Gratis<b>' + free + '</b></div>' +
+      '<div>Gesamtliefermenge<b>' + (d.qty + free) + '</b></div><div>Zeilenwert (EK)<b>' + bestMoney(line) + '</b></div>' +
+      (free ? '<div class="total free"><span>Gratisware (nicht berechnet)</span><b>' + bestMoney(free * p.purchasePrice) + '</b></div>' : '') + '</div>';
+  }
+  function bestDetailMsgs(d, p, wkz) {
+    var out = '';
+    if (p.purchasePrice === 0) out += '<div class="best-msg warn">Für diesen Artikel ist kein Einkaufspreis hinterlegt (0,00 €). Bitte Preis prüfen — die Zeile fließt sonst mit 0,00 € in den Bestellwert ein.</div>';
+    if (d.errors && d.errors.length) out += '<div class="best-msg err">' + d.errors.map(esc).join('<br/>') + '</div>';
+    return out;
+  }
+  function bestDetailHtml(wkz) {
+    var d = BEST.detail, p = bestProduct(d.productId);
+    var low = p.stock !== undefined && p.minimumStock !== undefined && p.stock <= p.minimumStock;
+    var purposes = wkz ? '' : '<div class="best-h2">Verwendungszweck <span style="color:var(--danger)">*</span></div><div class="best-bigbtns">' +
+      BEST_PURPOSES.map(function (x) { return '<button class="best-bigbtn' + (d.purpose === x.key ? ' on' : '') + '" onclick="__bb.select(\'best-detail-purpose\',\'' + x.key + '\')">' + esc(x.label) + '</button>'; }).join('') + '</div>';
+    var promos = wkz ? '' : '<div class="best-h2">Aktion</div><div class="best-bigbtns">' +
+      BEST_PROMOS.map(function (x) { return '<button class="best-bigbtn' + (d.promo === x.key ? ' on' : '') + '" onclick="__bb.select(\'best-detail-promo\',\'' + x.key + '\')">' + esc(x.label) + '</button>'; }).join('') + '</div>' +
+      (d.promo === 'custom' ? '<div class="best-msg info" style="display:flex;align-items:center;gap:.7rem;flex-wrap:wrap">Je <input class="best-search" style="width:6rem;text-align:center;min-height:48px;padding:.5rem" type="number" min="2" step="1" value="' + esc(d.customThreshold) + '" oninput="__bb.bestInput(\'customThreshold\',this.value)" /> bezahlten Artikeln 1 Artikel gratis</div>' : '');
+    return '<div class="best-overlay" onclick="if(event.target===this)__bb.select(\'best-detail-close\')"><div class="best-modal">' +
+      '<div class="best-modalhead"><div class="best-img"><img src="' + p.image + '" alt=""/></div><div><div class="best-tag">' + esc(p.brand) + ' · ' + esc(p.productGroup) + '</div><h2>' + esc(p.name) + '</h2></div>' +
+      '<button class="best-close" aria-label="Schließen" onclick="__bb.select(\'best-detail-close\')">✕</button></div>' +
+      '<div class="best-facts"><div class="best-fact">Artikelnummer<b>' + esc(p.articleNumber) + '</b></div><div class="best-fact">EK-Preis<b>' + bestMoney(p.purchasePrice) + '</b></div>' +
+      '<div class="best-fact">Lagerbestand<b>' + (p.stock === undefined ? '—' : p.stock) + (low ? ' ⚠' : '') + '</b></div></div>' +
+      '<div class="best-h2" style="margin-top:.2rem">Menge' + (wkz ? '' : ' (bezahlt)') + '</div>' +
+      '<div class="best-stepper"><button onclick="__bb.select(\'best-detail-qty\',\'\',-1)">−</button>' +
+      '<input type="number" min="1" step="1" value="' + d.qty + '" oninput="__bb.bestInput(\'detailQty\',this.value)" aria-label="Menge" />' +
+      '<button class="add" onclick="__bb.select(\'best-detail-qty\',\'\',1)">+</button></div>' +
+      purposes + promos +
+      '<div id="best-detail-calc">' + bestDetailCalcHtml(d, p, wkz) + '</div>' +
+      '<div id="best-detail-msgs">' + bestDetailMsgs(d, p, wkz) + '</div>' +
+      '<div class="best-actionrow"><button class="best-secondary" onclick="__bb.select(\'best-detail-close\')">Abbrechen</button>' +
+      '<button class="best-primary grow" onclick="__bb.select(\'best-detail-save\')">' + (wkz ? 'Zur WKZ-Ware hinzufügen' : (d.editItemId ? 'Änderung speichern' : 'Zum Warenkorb hinzufügen')) + '</button></div>' +
+      '</div></div>';
+  }
+  function bestOpenDetail(productId, editItem) {
+    var wkz = path[pointer] === 'best-wkz-produkte';
+    BEST.detail = editItem ? { productId: editItem.productId, qty: editItem.quantityPaid, purpose: editItem.purpose, promo: editItem.promotionType, customThreshold: editItem.customThreshold || 10, editItemId: editItem.id, errors: [] }
+      : { productId: productId, qty: 1, purpose: null, promo: 'none', customThreshold: 10, editItemId: null, errors: [] };
+    render();
+  }
+
+  // ---------- Warenkorb ----------
+  function bestLineHtml(i) {
+    var ek0 = i.unitPurchasePrice === 0;
+    return '<div class="best-line"><div class="best-img"><img src="' + i.product.image + '" alt=""/></div>' +
+      '<div><div class="nm">' + esc(i.product.name) + '</div><div class="cell">' + esc(i.product.brand) + ' · Art.-Nr. ' + esc(i.product.articleNumber) + (ek0 ? ' · <span style="color:var(--danger);font-weight:700">Kein EK-Preis</span>' : '') + '</div></div>' +
+      '<div class="cell sel">Verwendung<select onchange="__bb.bestInput(\'itemPurpose\',this.value,\'' + i.id + '\')">' +
+        BEST_PURPOSES.map(function (x) { return '<option value="' + x.key + '"' + (i.purpose === x.key ? ' selected' : '') + '>' + esc(x.label) + '</option>'; }).join('') + '</select></div>' +
+      '<div class="cell">Bezahlte Menge<div class="best-mini"><button onclick="__bb.select(\'best-item-qty\',\'' + i.id + '\',-1)">−</button><span>' + i.quantityPaid + '</span><button onclick="__bb.select(\'best-item-qty\',\'' + i.id + '\',1)">+</button></div></div>' +
+      '<div class="cell free">Gratis<b>' + i.quantityFree + '</b></div>' +
+      '<div class="cell sel">Aktion<select onchange="__bb.bestInput(\'itemPromo\',this.value,\'' + i.id + '\')">' +
+        BEST_PROMOS.map(function (x) { return '<option value="' + x.key + '"' + (i.promotionType === x.key ? ' selected' : '') + '>' + esc(x.label) + '</option>'; }).join('') + '</select></div>' +
+      '<div class="cell">EK ' + bestMoney(i.unitPurchasePrice) + '<b>' + bestMoney(calculateLineCost(i)) + '</b></div>' +
+      '<div class="acts"><button onclick="__bb.select(\'best-item-edit\',\'' + i.id + '\')">Bearbeiten</button><button class="del" onclick="__bb.select(\'best-item-del\',\'' + i.id + '\')">Löschen</button></div></div>';
+  }
+  function bestPurposeTable(agg) {
+    return '<table class="best-table"><tr><th>Verwendung</th><th class="r">Bezahlt</th><th class="r">Gratis</th><th class="r">Wert</th></tr>' +
+      BEST_PURPOSES.map(function (p) { var a = agg.byPurpose[p.key]; return '<tr><td>' + esc(p.label) + '</td><td class="r">' + a.qty + '</td><td class="r">' + a.freeQty + '</td><td class="r">' + bestMoney(a.value) + '</td></tr>'; }).join('') + '</table>';
+  }
+  function renderBestCart() {
+    bestEnsureBesteller();
+    var t = bestTotals(), agg = bestAggregate(BEST.items, BEST.wkzItems);
+    var body = '<div class="best-wrap">' + bestTopRow('Warenkorb', true) + bestSteps(4);
+    if (!BEST.items.length) {
+      body += '<div class="best-msg info">Der Warenkorb ist leer. Wähle zuerst Produkte aus.</div>' +
+        '<div class="best-actionrow"><button class="best-primary grow" onclick="__bb.select(\'best-more-products\')">Produkte auswählen</button></div></div>';
+      return screenWrap('dezent', 0, contextLabel(), body);
+    }
+    body += '<div class="best-lines">' + BEST.items.map(bestLineHtml).join('') + '</div>' +
+      '<div class="best-twocol" style="margin-top:1.2rem"><div class="best-sumbox">' +
+      '<div class="best-sumrow big"><span>Regulärer Bestellwert</span><b>' + bestMoney(t.regular) + '</b></div>' +
+      '<div class="best-sumrow free"><span>Aktionsware kostenlos</span><b>' + bestMoney(t.free) + '</b></div>' +
+      '<div class="best-sumrow"><span>Gesamtliefermenge</span><b>' + t.deliveryQty + ' Stück (' + t.paidQty + ' bezahlt + ' + t.freeQty + ' gratis)</b></div></div>' +
+      '<div class="best-sumbox">' + bestPurposeTable(agg) + '</div></div>' +
+      '<div class="best-actionrow"><button class="best-secondary" onclick="__bb.select(\'best-more-products\')">Weitere Produkte</button><button class="best-primary grow" onclick="__bb.select(\'best-to-wkz\')">Weiter zum WKZ</button></div></div>';
+    screenWrap('dezent', 0, contextLabel(), body);
+  }
+
+  // ---------- WKZ ----------
+  function renderBestWkz() {
+    bestEnsureBesteller();
+    var t = bestTotals();
+    var body = '<div class="best-wrap">' + bestTopRow('WKZ berechnen', true) + bestSteps(5) +
+      '<div class="best-sumbox"><div class="best-sumrow"><span>WKZ-relevanter Bestellwert (nur bezahlte Ware, ohne Gratisartikel)</span><b>' + bestMoney(t.base) + '</b></div>' +
+      '<div class="best-sumrow"><span>WKZ-Satz</span><span class="best-rate"><button onclick="__bb.select(\'best-wkz-rate\',\'\',-1)">−</button>' +
+      '<input type="number" min="0" step="0.5" value="' + BEST.wkzRate + '" onchange="__bb.bestInput(\'rate\',this.value)" aria-label="WKZ-Satz in Prozent" /><b>%</b>' +
+      '<button onclick="__bb.select(\'best-wkz-rate\',\'\',1)">+</button></span></div>' +
+      '<div class="best-sumrow big"><span>WKZ verfügbar</span><b>' + bestMoney(t.amount) + '</b></div>' +
+      '<div class="best-sumrow"><span>Bereits gewählte WKZ-Ware</span><b>' + bestMoney(t.used) + ' (' + t.wkzQty + ' Stück)</b></div></div>' +
+      (t.base === 0 ? '<div class="best-msg warn">Die Bestellung enthält keine bezahlte Ware — es entsteht kein WKZ.</div>' : '') +
+      '<div class="best-actionrow"><button class="best-secondary" onclick="__bb.goBack()">Zurück zum Warenkorb</button>' +
+      '<button class="best-secondary" onclick="__bb.select(\'best-to-summary\')">Ohne WKZ-Ware weiter</button>' +
+      '<button class="best-primary grow" onclick="__bb.select(\'best-wkz-start\')">WKZ-Produkte auswählen</button></div></div>';
+    screenWrap('dezent', 0, contextLabel(), body);
+  }
+
+  // ---------- Zusammenfassung ----------
+  function bestSummaryBlocks(o) {
+    var agg = bestAggregate(o.items, o.wkzItems);
+    var brandRows = BEST_BRANDS.map(function (b) {
+      var a = agg.byBrand[b];
+      return '<tr><td><b>' + esc(b) + '</b></td><td class="r">' + bestMoney(a.value) + '</td><td class="r">' + a.qty + '</td><td class="r">' + a.freeQty + '</td><td class="r">' + bestMoney(a.wkzValue) + '</td></tr>';
+    }).join('');
+    return '<div class="best-h2">Bestellung nach Marke</div><div class="best-sumbox" style="overflow-x:auto"><table class="best-table"><tr><th>Marke</th><th class="r">Bestellwert</th><th class="r">Artikel</th><th class="r">Gratis</th><th class="r">WKZ-Ware</th></tr>' + brandRows + '</table></div>' +
+      '<div class="best-twocol" style="margin-top:1rem"><div class="best-sumbox">' +
+      '<div class="best-sumrow big"><span>Reguläre Bestellung</span><b>' + bestMoney(o.regularOrderValue) + '</b></div>' +
+      '<div class="best-sumrow"><span>WKZ-Basis</span><b>' + bestMoney(o.wkzBase) + '</b></div>' +
+      '<div class="best-sumrow"><span>WKZ-Satz</span><b>' + esc(String(o.wkzRate).replace('.', ',')) + ' %</b></div>' +
+      '<div class="best-sumrow"><span>WKZ verfügbar</span><b>' + bestMoney(o.wkzAmount) + '</b></div>' +
+      '<div class="best-sumrow"><span>WKZ genutzt (WKZ-Ware)</span><b>' + bestMoney(o.wkzUsed) + '</b></div>' +
+      '<div class="best-sumrow"><span>WKZ verbleibend</span><b>' + bestMoney(o.wkzRemaining) + '</b></div>' +
+      '<div class="best-sumrow free"><span>Gratisware aus Aktionen</span><b>' + bestMoney(o.freeGoodsValue) + '</b></div></div>' +
+      '<div class="best-sumbox"><div class="best-sumrow" style="border:none;padding-top:0"><b>Nach Verwendungszweck</b></div>' + bestPurposeTable(agg) + '</div></div>';
+  }
+  function bestDraftOrder() {
+    var t = bestTotals();
+    return { id: 'Entwurf', createdAt: new Date().toISOString(), status: 'draft', besteller: BEST.besteller, items: BEST.items, wkzItems: BEST.wkzItems, wkzRate: BEST.wkzRate,
+      regularOrderValue: t.regular, wkzBase: t.base, wkzAmount: t.amount, wkzUsed: t.used, wkzRemaining: t.remaining, freeGoodsValue: t.free };
+  }
+  function renderBestSummary() {
+    bestEnsureBesteller();
+    var o = bestDraftOrder(), t = bestTotals();
+    var over = bestOverrun(t);
+    var body = '<div class="best-wrap">' + bestTopRow('Bestellung prüfen', true) + bestSteps(6) +
+      '<div style="margin-bottom:.4rem"><span class="best-by">' + bestAvatar(BEST.besteller) + 'Bestellt von ' + esc(BEST.besteller) + '</span></div>' +
+      bestSummaryBlocks(o) +
+      (over ? '<div class="best-msg warn">WKZ wird um ' + bestMoney(over) + ' überschritten' + (bestOverrunOk(t) ? ' (bestätigt).' : ' — bitte im WKZ-Schritt korrigieren oder bestätigen.') + '</div>' : '') +
+      (!BEST.items.length ? '<div class="best-msg err">Der Warenkorb ist leer — eine Bestellung ohne Positionen kann nicht abgeschlossen werden.</div>' : '') +
+      '<div class="best-actionrow"><button class="best-secondary" onclick="__bb.select(\'best-to-cart\')">Zurück zum Warenkorb</button>' +
+      '<button class="best-secondary" onclick="__bb.select(\'best-preview\')">PDF Vorschau</button>' +
+      '<button class="best-secondary" onclick="__bb.select(\'best-export\')">Bestellung exportieren</button>' +
+      '<button class="best-primary grow" ' + (BEST.items.length && bestOverrunOk(t) ? '' : 'disabled') + ' onclick="__bb.select(\'best-finish\')">Bestellung abschließen</button></div></div>';
+    screenWrap('dezent', 0, contextLabel(), body);
+  }
+
+  // ---------- Abschluss ----------
+  function bestFindOrder(id) { return bestLoad(BEST_KEYS.orders, []).filter(function (o) { return o.id === id; })[0]; }
+  function renderBestDone() {
+    var o = bestFindOrder(BEST.completedId);
+    if (!o) { return replaceTop('bestellung'); }
+    var body = '<div class="best-wrap"><div class="best-done"><div class="check">✓</div><p class="best-h2" style="margin:0">Bestellung erfolgreich erstellt</p>' +
+      '<div class="nr">' + esc(o.id) + '</div><div style="margin:.4rem 0 1.2rem"><span class="best-by">' + bestAvatar(o.besteller) + 'Bestellt von ' + esc(o.besteller || '—') + '</span>' +
+      '<div class="best-sub" style="margin-top:.5rem">' + esc(formatDateDE(new Date(o.createdAt))) + ' · Status: abgeschlossen</div></div></div>' +
+      bestSummaryBlocks(o) +
+      '<div class="best-actionrow"><button class="best-secondary" onclick="__bb.select(\'best-preview\',\'' + esc(o.id) + '\')">PDF Vorschau</button>' +
+      '<button class="best-secondary" onclick="__bb.select(\'best-export\',\'' + esc(o.id) + '\')">Bestellung exportieren</button>' +
+      '<button class="best-secondary" onclick="__bb.replaceTop(\'kunde-wahl\')">Zum Hauptbildschirm</button>' +
+      '<button class="best-primary grow" onclick="__bb.select(\'best-new\')">Neue Bestellung</button></div></div>';
+    screenWrap('dezent', 0, contextLabel(), body);
+  }
+  function bestNextNumber() {
+    var seq = (bestLoad(BEST_KEYS.seq, 0) || 0) + 1;
+    bestSave(BEST_KEYS.seq, seq);
+    return 'BL-' + new Date().getFullYear() + '-' + ('000000' + seq).slice(-6);
+  }
+
+  // ---------- Export / Vorschau ----------
+  function bestOrderForOutput(id) { return id ? bestFindOrder(id) : bestDraftOrder(); }
+  function bestCsv(o) {
+    function c(v) { return '"' + String(v).replace(/"/g, '""') + '"'; }
+    function n(v) { return String(round2(v)).replace('.', ','); }
+    var rows = [['Bestellnummer', 'Datum', 'Besteller', 'Art', 'Marke', 'Artikelnummer', 'Produkt', 'Verwendung', 'Aktion', 'Bezahlte Menge', 'Gratis', 'EK', 'Zeilenwert']];
+    var date = formatDateDE(new Date(o.createdAt));
+    o.items.forEach(function (i) { rows.push([o.id, date, o.besteller, 'Bestellung', i.product.brand, i.product.articleNumber, i.product.name, bestPurposeLabel(i.purpose), bestPromoLabel(i), i.quantityPaid, i.quantityFree, n(i.unitPurchasePrice), n(calculateLineCost(i))]); });
+    o.wkzItems.forEach(function (w) { rows.push([o.id, date, o.besteller, 'WKZ-Ware', w.product.brand, w.product.articleNumber, w.product.name, '', '', w.quantity, 0, n(w.unitPurchasePrice), n(w.quantity * w.unitPurchasePrice)]); });
+    rows.push([]);
+    rows.push([o.id, date, o.besteller, 'Summe', '', '', 'Regulärer Bestellwert', '', '', '', '', '', n(o.regularOrderValue)]);
+    rows.push([o.id, date, o.besteller, 'Summe', '', '', 'WKZ ' + o.wkzRate + ' % verfügbar', '', '', '', '', '', n(o.wkzAmount)]);
+    rows.push([o.id, date, o.besteller, 'Summe', '', '', 'WKZ genutzt', '', '', '', '', '', n(o.wkzUsed)]);
+    rows.push([o.id, date, o.besteller, 'Summe', '', '', 'Gratisware aus Aktionen', '', '', '', '', '', n(o.freeGoodsValue)]);
+    return '﻿' + rows.map(function (r) { return r.map(c).join(';'); }).join('\r\n');
+  }
+  function bestDownloadText(fileName, text, mime) {
+    var bytes = new TextEncoder().encode(text);
+    function fallback() {
+      var blob = new Blob([bytes], { type: mime });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = fileName; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+    }
+    if (window.claude && typeof window.claude.use === 'function') {
+      window.claude.use('downloads').then(function (d) {
+        if (!d) { fallback(); return; }
+        d.save({ filename: fileName, data: bytes }).then(function () {}, function (err) { if (!(err && err.code === 'declined')) fallback(); });
+      }, fallback);
+    } else { fallback(); }
+  }
+  function bestExport(id) {
+    var o = bestOrderForOutput(id);
+    if (!o) return;
+    bestDownloadText('Bestellung-' + o.id.replace(/[^\w\-]+/g, '_') + '.csv', bestCsv(o), 'text/csv;charset=utf-8');
+  }
+  function bestPreview(id) {
+    var o = bestOrderForOutput(id);
+    if (!o) return;
+    var agg = bestAggregate(o.items, o.wkzItems);
+    var rows = o.items.map(function (i) {
+      return '<tr><td>' + esc(i.product.name) + '<br/><small>' + esc(i.product.brand) + ' · ' + esc(i.product.articleNumber) + '</small></td><td>' + esc(bestPurposeLabel(i.purpose)) + '</td><td>' + esc(bestPromoLabel(i)) + '</td><td class="r">' + i.quantityPaid + '</td><td class="r">' + i.quantityFree + '</td><td class="r">' + bestMoney(i.unitPurchasePrice) + '</td><td class="r">' + bestMoney(calculateLineCost(i)) + '</td></tr>';
+    }).join('');
+    var wrows = o.wkzItems.map(function (w) {
+      return '<tr><td>' + esc(w.product.name) + '<br/><small>' + esc(w.product.brand) + ' · ' + esc(w.product.articleNumber) + '</small></td><td class="r">' + w.quantity + '</td><td class="r">' + bestMoney(w.unitPurchasePrice) + '</td><td class="r">' + bestMoney(w.quantity * w.unitPurchasePrice) + '</td></tr>';
+    }).join('');
+    var el = document.getElementById('best-preview-root');
+    if (el) el.parentNode.removeChild(el);
+    el = document.createElement('div');
+    el.id = 'best-preview-root'; el.className = 'best-preview';
+    el.innerHTML = '<div style="width:100%;max-width:780px"><div class="best-previewbar"><button class="best-secondary" onclick="__bb.select(\'best-preview-close\')">Schließen</button>' +
+      '<button class="best-primary" onclick="__bb.select(\'best-print\')">Drucken / Als PDF sichern</button></div>' +
+      '<div class="best-paper"><img class="logo" src="' + LOGO_SRC + '" alt="Beauty Lounge" /><h1>Bestellung ' + esc(o.id) + '</h1>' +
+      '<p>Bestellt von <b>' + esc(o.besteller || '—') + '</b> · ' + esc(formatDateDE(new Date(o.createdAt))) + ' · Status: ' + (o.status === 'completed' ? 'abgeschlossen' : 'Entwurf') + '</p>' +
+      '<div class="best-h2">Positionen</div><table class="best-table"><tr><th>Produkt</th><th>Verwendung</th><th>Aktion</th><th class="r">Bezahlt</th><th class="r">Gratis</th><th class="r">EK</th><th class="r">Gesamt</th></tr>' + rows + '</table>' +
+      (wrows ? '<div class="best-h2">WKZ-Ware</div><table class="best-table"><tr><th>Produkt</th><th class="r">Menge</th><th class="r">EK</th><th class="r">Gesamt</th></tr>' + wrows + '</table>' : '') +
+      bestSummaryBlocks(o) + '</div></div>';
+    document.body.appendChild(el);
+  }
+  function bestPreviewClose() { var el = document.getElementById('best-preview-root'); if (el) el.parentNode.removeChild(el); }
+
+  // ---------- Eingaben (ohne Neuzeichnen, damit der Fokus bleibt) ----------
+  function bestRefreshGrid() {
+    var g = document.getElementById('best-grid');
+    if (g) g.innerHTML = bestGridHtml(path[pointer] === 'best-wkz-produkte');
+  }
+  function bestRefreshDetail() {
+    var d = BEST.detail; if (!d) return;
+    var p = bestProduct(d.productId), wkz = path[pointer] === 'best-wkz-produkte';
+    var c = document.getElementById('best-detail-calc'); if (c) c.innerHTML = bestDetailCalcHtml(d, p, wkz);
+    var m = document.getElementById('best-detail-msgs'); if (m) m.innerHTML = bestDetailMsgs(d, p, wkz);
+  }
+  function bestInput(name, value, id) {
+    if (name === 'search') { BEST.search = value; BEST.limit = BEST_CONFIG.pageSize; bestRefreshGrid(); }
+    else if (name === 'group') { BEST.group = value; BEST.limit = BEST_CONFIG.pageSize; render(); }
+    else if (name === 'besteller') { BEST.besteller = value; bestPersist(); render(); }
+    else if (name === 'startsearch') {
+      var box = document.getElementById('best-start-results'); if (!box) return;
+      var q = value.trim().toLowerCase();
+      if (q.length < 2) { box.innerHTML = ''; return; }
+      var hits = bestCatalog().filter(function (p) { return p.name.toLowerCase().indexOf(q) > -1 || p.articleNumber.toLowerCase().indexOf(q) > -1; }).slice(0, 8);
+      box.innerHTML = hits.length ? '<div class="best-results">' + hits.map(function (p) {
+        return '<button class="best-result" onclick="__bb.select(\'best-open-from-search\',\'' + p.id + '\')"><img src="' + p.image + '" alt=""/><span>' + esc(p.name) + '<small>' + esc(p.brand) + ' · ' + esc(p.articleNumber) + ' · EK ' + esc(formatCurrency(p.purchasePrice)) + '</small></span></button>';
+      }).join('') + '</div>' : '<div class="best-msg info">Keine Treffer.</div>';
+    }
+    else if (name === 'detailQty') { var q2 = parseInt(value, 10); BEST.detail.qty = isNaN(q2) ? 0 : q2; BEST.detail.errors = []; bestRefreshDetail(); }
+    else if (name === 'customThreshold') { BEST.detail.customThreshold = parseInt(value, 10) || 0; BEST.detail.errors = []; bestRefreshDetail(); }
+    else if (name === 'rate') { var r = parseFloat(String(value).replace(',', '.')); BEST.wkzRate = isNaN(r) || r < 0 ? 0 : r; BEST.wkzOverrunConfirmed = 0; bestPersist(); render(); }
+    else if (name === 'itemPurpose') { var it = BEST.items.filter(function (x) { return x.id === id; })[0]; if (it) { it.purpose = value; bestPersist(); render(); } }
+    else if (name === 'itemPromo') {
+      var it2 = BEST.items.filter(function (x) { return x.id === id; })[0];
+      if (it2) { it2.promotionType = value; if (value === 'custom' && !it2.customThreshold) it2.customThreshold = 10; bestRecalc(it2); bestPersist(); render(); }
+    }
+  }
+
+  // ---------- Aktionen ----------
+  function bestValidateDetail(d, p, wkz) {
+    var errs = [];
+    if (!wkz && !d.purpose) errs.push('Bitte einen Verwendungszweck wählen.');
+    if (!d.qty || d.qty < 1) errs.push('Die Menge muss mindestens 1 betragen.');
+    if (!wkz && d.promo === 'custom' && (!d.customThreshold || d.customThreshold < 2)) errs.push('Für die individuelle Aktion bitte eine Schwelle ab 2 eingeben.');
+    return errs;
+  }
+  function bestellungHandler(kind, key, extra) {
+    var wkzScreen = path[pointer] === 'best-wkz-produkte';
+    if (kind === 'best-besteller') { BEST.besteller = key; bestPersist(); render(); }
+    else if (kind === 'best-brand') { BEST.brand = key || null; BEST.group = ''; BEST.search = ''; BEST.limit = BEST_CONFIG.pageSize; goTo('best-produkte'); }
+    else if (kind === 'best-start') { BEST.brand = null; BEST.group = ''; BEST.search = ''; BEST.limit = BEST_CONFIG.pageSize; goTo('best-produkte'); }
+    else if (kind === 'best-filter-brand') { BEST.brand = key || null; BEST.group = ''; BEST.limit = BEST_CONFIG.pageSize; render(); }
+    else if (kind === 'best-toggle') { BEST[key] = !BEST[key]; BEST.limit = BEST_CONFIG.pageSize; render(); }
+    else if (kind === 'best-more') { BEST.limit += BEST_CONFIG.pageSize; bestRefreshGrid(); }
+    else if (kind === 'best-fav') {
+      var fi = BEST_FAVS.indexOf(key); if (fi > -1) BEST_FAVS.splice(fi, 1); else BEST_FAVS.push(key);
+      bestSave(BEST_KEYS.favs, BEST_FAVS); render();
+    }
+    else if (kind === 'best-open') { bestOpenDetail(key, null); }
+    else if (kind === 'best-open-from-search') {
+      var sp = bestProduct(key); BEST.brand = sp.brand; BEST.group = ''; BEST.search = ''; goTo('best-produkte'); bestOpenDetail(key, null);
+    }
+    else if (kind === 'best-detail-close') { BEST.detail = null; render(); }
+    else if (kind === 'best-detail-qty') { var nq = (BEST.detail.qty || 0) + extra; BEST.detail.qty = nq < 1 ? 1 : nq; BEST.detail.errors = []; render(); }
+    else if (kind === 'best-detail-purpose') { BEST.detail.purpose = key; BEST.detail.errors = []; render(); }
+    else if (kind === 'best-detail-promo') { BEST.detail.promo = key; BEST.detail.errors = []; render(); }
+    else if (kind === 'best-detail-save') {
+      var d = BEST.detail, p = bestProduct(d.productId);
+      var errs = bestValidateDetail(d, p, wkzScreen);
+      if (errs.length) { d.errors = errs; bestRefreshDetail(); return; }
+      if (wkzScreen) {
+        var ex = BEST.wkzItems.filter(function (w) { return w.productId === p.id; })[0];
+        if (ex) ex.quantity += d.qty; else BEST.wkzItems.push({ id: bestUid('wi-'), productId: p.id, product: p, quantity: d.qty, unitPurchasePrice: p.purchasePrice });
+        BEST.wkzOverrunConfirmed = 0;
+      } else if (d.editItemId) {
+        var item = BEST.items.filter(function (x) { return x.id === d.editItemId; })[0];
+        if (item) { item.quantityPaid = d.qty; item.purpose = d.purpose; item.promotionType = d.promo; item.customThreshold = d.promo === 'custom' ? d.customThreshold : undefined; bestRecalc(item); }
+      } else {
+        var same = BEST.items.filter(function (x) { return x.productId === p.id && x.purpose === d.purpose && x.promotionType === d.promo && (d.promo !== 'custom' || x.customThreshold === d.customThreshold); })[0];
+        if (same) { same.quantityPaid += d.qty; bestRecalc(same); }
+        else {
+          var ni = { id: bestUid('oi-'), productId: p.id, product: p, purpose: d.purpose, quantityPaid: d.qty, quantityFree: 0, promotionType: d.promo, unitPurchasePrice: p.purchasePrice };
+          if (d.promo === 'custom') ni.customThreshold = d.customThreshold;
+          bestRecalc(ni); BEST.items.push(ni);
+        }
+      }
+      BEST.detail = null; bestPersist(); render();
+    }
+    else if (kind === 'best-wkz-quick') {
+      var qp = bestProduct(key);
+      var qe = BEST.wkzItems.filter(function (w) { return w.productId === key; })[0];
+      if (qe) qe.quantity += 1; else BEST.wkzItems.push({ id: bestUid('wi-'), productId: key, product: qp, quantity: 1, unitPurchasePrice: qp.purchasePrice });
+      BEST.wkzOverrunConfirmed = 0; bestPersist(); render();
+    }
+    else if (kind === 'best-item-qty') {
+      var qi = BEST.items.filter(function (x) { return x.id === key; })[0];
+      if (qi) { qi.quantityPaid = Math.max(1, qi.quantityPaid + extra); bestRecalc(qi); bestPersist(); render(); }
+    }
+    else if (kind === 'best-item-del') { BEST.items = BEST.items.filter(function (x) { return x.id !== key; }); bestPersist(); render(); }
+    else if (kind === 'best-item-edit') {
+      var ei = BEST.items.filter(function (x) { return x.id === key; })[0];
+      if (ei) { BEST.brand = ei.product.brand; goTo('best-produkte'); bestOpenDetail(null, ei); }
+    }
+    else if (kind === 'best-wkz-qty') {
+      var wq = BEST.wkzItems.filter(function (x) { return x.id === key; })[0];
+      if (wq) { wq.quantity = Math.max(1, wq.quantity + extra); BEST.wkzOverrunConfirmed = 0; bestPersist(); render(); }
+    }
+    else if (kind === 'best-wkz-del') { BEST.wkzItems = BEST.wkzItems.filter(function (x) { return x.id !== key; }); BEST.wkzOverrunConfirmed = 0; bestPersist(); render(); }
+    else if (kind === 'best-wkz-rate') { BEST.wkzRate = Math.max(0, round2(BEST.wkzRate + extra)); BEST.wkzOverrunConfirmed = 0; bestPersist(); render(); }
+    else if (kind === 'best-overrun-ok') { BEST.wkzOverrunConfirmed = bestOverrun(bestTotals()); bestPersist(); render(); }
+    else if (kind === 'best-more-products') { BEST.detail = null; goTo('best-produkte'); }
+    else if (kind === 'best-to-cart') { BEST.detail = null; goTo('best-warenkorb'); }
+    else if (kind === 'best-to-wkz') { goTo('best-wkz'); }
+    else if (kind === 'best-wkz-start') { BEST.brand = null; BEST.group = ''; BEST.search = ''; BEST.limit = BEST_CONFIG.pageSize; goTo('best-wkz-produkte'); }
+    else if (kind === 'best-to-summary') { BEST.detail = null; goTo('best-summary'); }
+    else if (kind === 'best-finish') {
+      var t = bestTotals();
+      if (!BEST.items.length || !bestOverrunOk(t)) { render(); return; }
+      var o = bestDraftOrder();
+      o.id = bestNextNumber(); o.status = 'completed'; o.createdAt = new Date().toISOString();
+      var all = bestLoad(BEST_KEYS.orders, []); all.push(o); bestSave(BEST_KEYS.orders, all);
+      BEST.completedId = o.id; BEST.items = []; BEST.wkzItems = []; BEST.wkzOverrunConfirmed = 0; BEST.wkzRate = BEST_CONFIG.defaultWkzRate; bestPersist();
+      path = ['login', 'kunde-wahl', 'best-fertig']; pointer = 2; render();
+    }
+    else if (kind === 'best-new') { BEST.completedId = null; replaceTop('bestellung'); }
+    else if (kind === 'best-view-order') { BEST.completedId = key; goTo('best-fertig'); }
+    else if (kind === 'best-preview') { bestPreview(key); }
+    else if (kind === 'best-preview-close') { bestPreviewClose(); }
+    else if (kind === 'best-print') { try { window.print(); } catch (e) { /* Drucken im Sandbox-Fenster evtl. gesperrt */ } }
+    else if (kind === 'best-export') { bestExport(key); }
+  }
+
   function render() {
     var id = path[pointer];
+    if (id !== 'best-produkte' && id !== 'best-wkz-produkte') BEST.detail = null;
     if (id === 'login') return renderLogin();
     if (id === 'kunde-wahl') return renderKundeWahl();
     if (id === 'aktionen-uebersicht') return renderAktionenUebersicht();
@@ -3836,6 +4782,13 @@
     if (id === 'empfehlungen') return renderEmpfehlungen();
     if (id === 'blueprint') return renderBlueprint();
     if (id === 'abschluss') return renderAbschluss();
+    if (id === 'bestellung') return renderBestStart();
+    if (id === 'best-produkte') return renderBestProducts(false);
+    if (id === 'best-wkz-produkte') return renderBestProducts(true);
+    if (id === 'best-warenkorb') return renderBestCart();
+    if (id === 'best-wkz') return renderBestWkz();
+    if (id === 'best-summary') return renderBestSummary();
+    if (id === 'best-fertig') return renderBestDone();
     if (id === 'admin-login') return renderAdminLogin();
     if (id === 'admin-dashboard') return STATE.isAdmin ? renderAdminDashboard() : renderAdminLogin();
   }
