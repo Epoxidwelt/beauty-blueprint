@@ -99,3 +99,5 @@ Farben (Update, ersetzt die Rosé-Akzente): Die App enthält **keine Logo-Farben
 Nach Verwendungszweck (Update): „Sonstiges" wird in der Zusammenfassung (App, PDF, interne E-Mail) nicht mehr aufgeführt — es gibt Verkauf, Tester und Kabinenware.
 
 Einfacheres Hinzufügen (Update): Das **+** legt das Produkt sofort als **Verkauf** an (1 Stück, Aktion: keine) — kein Auswahlschritt mehr. In jeder Zeile sitzt ein Umschalter **Verkauf | Tester | Kabinenware**, mit dem die Verwendung nachträglich geändert wird (Preis passt sich an: Tester −20 % auf EK, Tester ohne Aktion). Gibt es das Produkt bereits mit der Ziel-Verwendung, werden die Mengen zusammengeführt. Weiteres **+** erhöht die Verkaufs-Zeile um 1.
+
+Verwendung jederzeit ändern (Update): Der Umschalter **Verkauf | Tester | Kabinenware** steht bei jeder Bestellzeile — in der Produktauswahl und auf dem Prüfen-Screen (`bestPurposeSwitch()`). Bereits ausgewählte Produkte lassen sich also jederzeit von Verkauf auf Tester (oder zurück) stellen; Preis, Tester-Rabatt und WKZ-Basis werden sofort neu berechnet. Auch beim Bearbeiten einer gespeicherten Bestellung verfügbar.

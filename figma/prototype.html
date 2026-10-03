@@ -4483,9 +4483,7 @@
     if (!wkz) {
       extra = lines.map(function (it) {
         var k = bestKey(it, false);
-        return '<div class="bst-sub"><span class="bst-purposes" role="group" aria-label="Verwendung">' + BEST_PURPOSES.filter(function (x) { return x.key !== 'other'; }).map(function (x) {
-          return '<button class="' + (x.key === it.purpose ? 'on' : '') + '" onclick="__bb.select(\'best-set-purpose\',\'' + it.productId + '|' + it.purpose + '|' + x.key + '\')">' + esc(x.label) + '</button>';
-        }).join('') + '</span>' + bestStepper('best-q', k, it.quantityPaid) +
+        return '<div class="bst-sub">' + bestPurposeSwitch(it) +  + bestStepper('best-q', k, it.quantityPaid) +
           (it.purpose === 'tester' ? '' : '<button class="bst-chip' + (it.promotionType !== 'none' ? ' on' : '') + '" onclick="__bb.select(\'best-cyc-promo\',\'' + k + '\')">' + (it.promotionType === 'none' ? 'Aktion: keine' : 'Aktion ' + esc(bestPromoLabel(it))) + ' ⟳</button>') +
           (it.quantityFree ? '<span class="bst-free">+ ' + it.quantityFree + ' gratis = ' + (it.quantityPaid + it.quantityFree) + ' Stück</span>' : '') +
           '<span class="bst-val">' + bestMoney(calculateLineCost(it)) + '</span></div>';
@@ -4588,11 +4586,17 @@
   }
 
   // ---------- Screen 2: Prüfen & abschließen ----------
+  // Verwendung (Verkauf / Tester / Kabinenware) jederzeit umschaltbar — in der Auswahl und auf dem Prüfen-Screen
+  function bestPurposeSwitch(it) {
+    return '<span class="bst-purposes" role="group" aria-label="Verwendung">' + BEST_PURPOSES.filter(function (x) { return x.key !== 'other'; }).map(function (x) {
+      return '<button class="' + (x.key === it.purpose ? 'on' : '') + '" onclick="__bb.select(\'best-set-purpose\',\'' + it.productId + '|' + it.purpose + '|' + x.key + '\')">' + esc(x.label) + '</button>';
+    }).join('') + '</span>';
+  }
   function bestLineRow(it, wkz) {
     var kind = wkz ? 'best-qw' : 'best-q', p = it.product;
     var meta = wkz ? esc(p.articleNumber) + ' · ' + esc(p.brand)
-      : esc(p.articleNumber) + ' · ' + esc(p.brand) + ' · ' + esc(bestPurposeLabel(it.purpose)) + ' · ' + esc(bestPromoLabel(it)) + (it.quantityFree ? ' · <b style="color:var(--good)">+' + it.quantityFree + ' gratis</b>' : '');
-    return '<div class="bst-line"><div class="best-img"><img src="' + p.image + '" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'' + (p.fallbackImage || '').replace(/'/g, '%27') + '\'"/></div><div class="bst-info"><div class="bst-name">' + esc(p.name) + '</div><div class="bst-meta">' + meta + '</div></div>' +
+      : esc(p.articleNumber) + ' · ' + esc(p.brand) + ' · ' + esc(bestPromoLabel(it)) + (it.quantityFree ? ' · <b style="color:var(--good)">+' + it.quantityFree + ' gratis</b>' : '');
+    return '<div class="bst-line"><div class="best-img"><img src="' + p.image + '" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'' + (p.fallbackImage || '').replace(/'/g, '%27') + '\'"/></div><div class="bst-info"><div class="bst-name">' + esc(p.name) + '</div><div class="bst-meta">' + meta + '</div>' + (wkz ? '' : '<div style="margin-top:.4rem">' + bestPurposeSwitch(it) + '</div>') + '</div>' +
       bestStepper(kind, bestKey(it, wkz), wkz ? it.quantity : it.quantityPaid) +
       '<div class="bst-lineval">' + bestMoney(wkz ? it.quantity * it.unitPurchasePrice : calculateLineCost(it)) + '</div></div>';
   }
