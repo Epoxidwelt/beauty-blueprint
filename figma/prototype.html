@@ -801,6 +801,7 @@
   .bst-askbox h3 { margin: 0 0 .5rem; font-size: 1.2rem; } .bst-askbox p { margin: 0 0 1.1rem; color: var(--text-soft); }
   .bst-askyes { background: var(--danger) !important; }
   .bst-meta .bst-purposetag, .bst-purposetag { background: var(--text); color: #fff !important; border-radius: 999px; padding: .1rem .55rem; font-size: .75rem; }
+  .best-histwrap { margin-bottom: .5rem; } .bst-histmail { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; padding: .3rem .4rem 0; font-size: .8rem; color: var(--text-soft); }
   .bst-editbanner { display: flex; align-items: center; justify-content: space-between; gap: .8rem; }
   .best-img { background: #fff; border: 1px solid var(--rose-pale); border-radius: 14px; display: flex; align-items: center; justify-content: center; padding: 0.5rem; }
   .best-img img { width: 96px; height: 96px; display: block; object-fit: contain; }
@@ -4880,8 +4881,9 @@
     var orders = bestLoad(BEST_KEYS.orders, []).slice().reverse();
     var histRow = function (o) {
       var open = o.status !== 'completed';
-      return '<button class="best-hist" onclick="__bb.select(\'best-view-order\',\'' + esc(o.id) + '\')">' + bestAvatar(o.besteller) +
-        '<span><b>' + esc(o.id) + '</b>' + (open ? ' <span class="best-badge warn">offen</span>' : '') + '<small>' + esc(o.besteller || '—') + ' · ' + esc(formatDateDE(new Date(o.createdAt))) + ' · ' + esc(bestOrderBrands(o).join(', ')) + '</small></span>' + (bestShowPrices() ? '<span class="val">' + bestMoney(o.regularOrderValue) + '</span>' : '') + '</button>';
+      return '<div class="best-histwrap"><button class="best-hist" onclick="__bb.select(\'best-view-order\',\'' + esc(o.id) + '\')">' + bestAvatar(o.besteller) +
+        '<span><b>' + esc(o.id) + '</b>' + (open ? ' <span class="best-badge warn">offen</span>' : '') + '<small>' + esc(o.besteller || '—') + ' · ' + esc(formatDateDE(new Date(o.createdAt))) + ' · ' + esc(bestOrderBrands(o).join(', ')) + '</small></span>' + (bestShowPrices() ? '<span class="val">' + bestMoney(o.regularOrderValue) + '</span>' : '') + '</button>' +
+        (bestIsApprover() ? '<div class="bst-histmail"><span>Direkt senden:</span>' + bestOrderBrands(o).map(function (b) { return '<button class="best-chip" onclick="__bb.select(\'best-email\',\'' + esc(o.id) + '\',\'' + b + '\')">✉ ' + esc(b) + '</button>'; }).join('') + '</div>' : '') + '</div>';
     };
     var openOrders = orders.filter(function (o) { return o.status !== 'completed'; }), doneOrders = orders.filter(function (o) { return o.status === 'completed'; });
     var hist = (openOrders.length ? '<details class="bst-hist" open><summary>Offene Bestellungen — warten auf Freigabe (' + openOrders.length + ')</summary><div class="best-history">' + openOrders.map(histRow).join('') + '</div></details>' : '') +
@@ -4933,6 +4935,7 @@
       '<div class="best-h2">Bestellung</div>' + (BEST.items.length ? '<div class="bst-lines">' + bestSortByPurpose(BEST.items).map(function (i) { return bestLineRow(i, false); }).join('') + '</div>' : '<div class="best-msg err">Noch keine Artikel in der Bestellung.</div>') +
       (BEST.wkzItems.length ? '<div class="best-h2">WKZ-Ware</div><div class="bst-lines">' + BEST.wkzItems.map(function (i) { return bestLineRow(i, true); }).join('') + '</div>' : '') +
       bestSummaryBlocks(o) +
+      (bestIsApprover() && BEST.items.length ? '<div class="best-h2">Direkt an die Hersteller senden</div><div class="best-msg info">Einzelne Hersteller-E-Mails lassen sich auch ohne Abschluss der Bestellung versenden.</div>' + bestBrandMailCards(o) : '') +
       '<div class="best-actionrow bst-final"><button class="best-secondary" onclick="__bb.goBack()">' + (path[pointer - 1] === 'kunde-wahl' ? '← Zurück' : '← Bestellung bearbeiten') + '</button>' +
       (bestIsApprover()
         ? '<button class="best-secondary" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-save\')">Speichern</button>' +
@@ -5058,7 +5061,7 @@
       '<div class="nr">' + id + '</div><div style="margin:.4rem 0 1.2rem"><span class="best-by">' + bestAvatar(o.besteller) + 'Eingetragen von ' + esc((o.contributors && o.contributors.length) ? o.contributors.join(', ') : (o.besteller || '—')) + '</span>' +
       '<div class="best-sub" style="margin-top:.5rem">' + esc(formatDateDE(new Date(o.createdAt))) + ' · Status: ' + (done ? 'abgeschlossen' + (o.approvedBy ? ' von ' + esc(o.approvedBy) : '') : '<b>offen — wartet auf Freigabe durch ' + esc(bestApproverLabel()) + '</b>') + '</div></div></div>' +
       bestSummaryBlocks(o) +
-      ((done && ap) ? '<div class="best-h2">E-Mails an die Hersteller</div>' + bestBrandMailCards(o) : '') +
+      (ap ? '<div class="best-h2">E-Mails an die Hersteller</div>' + bestBrandMailCards(o) : '') +
       '<div class="best-actionrow">' +
       (ap ? '<button class="best-secondary" onclick="__bb.select(\'best-preview\',\'' + id + '\')">PDF Vorschau</button><button class="best-secondary" onclick="__bb.select(\'best-export\',\'' + id + '\')">Bestellung exportieren</button>' : '') +
       ((done && ap) ? '<button class="best-secondary" onclick="__bb.select(\'best-email-intern\',\'' + id + '\')">✉ Interne Gesamtzusammenfassung</button>' : '') +
@@ -5135,8 +5138,9 @@
     o.items.concat(o.wkzItems).forEach(function (i) { if (i.product.brand === brand) set[i.purpose || 'sale'] = 1; });
     return ['sale', 'tester', 'cabin'].filter(function (k) { return set[k]; });
   }
+  function bestOrderLabel(o) { return o.id === 'Entwurf' ? 'Sammelbestellung vom ' + formatDateDE(new Date(o.createdAt)) : o.id; }
   function bestBrandEmailBody(o, brand) {
-    var L = ['Guten Tag,', '', 'bitte folgende Artikel liefern (Bestellung ' + o.id + ') — Menge | Art.-Nr. | Bezeichnung:'];
+    var L = ['Guten Tag,', '', 'bitte folgende Artikel liefern (' + (o.id === 'Entwurf' ? bestOrderLabel(o) : 'Bestellung ' + o.id) + ') — Menge | Art.-Nr. | Bezeichnung:'];
     var purposes = bestBrandPurposes(o, brand);
     if (purposes.some(function (k) { return k !== 'sale'; })) L.push('ACHTUNG: Diese Bestellung enthält ' + purposes.filter(function (k) { return k !== 'sale'; }).map(function (k) { return k === 'tester' ? 'TESTER' : 'KABINENWARE'; }).join(' und ') + ' — bitte getrennt ausweisen.');
     L.push('');
@@ -5161,7 +5165,7 @@
   }
   function bestBrandHref(o, brand) {
     var extra = bestBrandPurposes(o, brand).filter(function (k) { return k !== 'sale'; }).map(function (k) { return k === 'tester' ? 'TESTER' : 'KABINENWARE'; });
-    var subject = 'Bestellung ' + o.id + ' – ' + brand + (extra.length ? ' – enthält ' + extra.join(' + ') : '') + ' – Beauty Lounge Neuss';
+    var subject = (o.id === 'Entwurf' ? 'Bestellung' : 'Bestellung ' + o.id) + ' – ' + brand + (extra.length ? ' – enthält ' + extra.join(' + ') : '') + ' – Beauty Lounge Neuss';
     return 'mailto:' + bestBrandEmail(brand) + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(bestBrandEmailBody(o, brand));
   }
   function bestNextNumber() {
@@ -5392,10 +5396,9 @@
     else if (kind === 'best-export') { if (bestIsApprover()) bestExport(key); }
     else if (kind === 'best-email' && !bestIsApprover()) { /* nur Freigabe-Person */ }
     else if (kind === 'best-email') {
-      var all2 = bestLoad(BEST_KEYS.orders, []), eo = all2.filter(function (x) { return x.id === key; })[0];
+      var all2 = bestLoad(BEST_KEYS.orders, []), eo = key === 'Entwurf' ? bestDraftOrder() : all2.filter(function (x) { return x.id === key; })[0];
       if (eo) {
-        eo.emailSent = eo.emailSent || {}; eo.emailSent[extra] = new Date().toISOString();
-        bestSave(BEST_KEYS.orders, all2);
+        if (key !== 'Entwurf') { eo.emailSent = eo.emailSent || {}; eo.emailSent[extra] = new Date().toISOString(); bestSave(BEST_KEYS.orders, all2); }
         window.location.href = bestBrandHref(eo, extra);
         render();
       }
