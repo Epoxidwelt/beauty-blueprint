@@ -4592,15 +4592,7 @@
     var body = '<div class="best-wrap">' + bestSteps2(2) + bestWhoChips() +
       '<div class="best-h2">Bestellung</div>' + (BEST.items.length ? '<div class="bst-lines">' + bestSortByPurpose(BEST.items).map(function (i) { return bestLineRow(i, false); }).join('') + '</div>' : '<div class="best-msg err">Noch keine Artikel in der Bestellung.</div>') +
       (BEST.wkzItems.length ? '<div class="best-h2">WKZ-Ware</div><div class="bst-lines">' + BEST.wkzItems.map(function (i) { return bestLineRow(i, true); }).join('') + '</div>' : '') +
-      '<div class="best-h2">Zusammenfassung</div><div class="best-sumbox">' +
-      '<div class="best-sumrow big"><span>Regulärer Bestellwert</span><b>' + bestMoney(t.regular) + '</b></div>' +
-      '<div class="best-sumrow free"><span>Gratisware aus Aktionen (nicht berechnet)</span><b>' + bestMoney(t.free) + '</b></div>' +
-      '<div class="best-sumrow"><span>WKZ ' + esc(String(BEST.wkzRate).replace('.', ',')) + ' % auf ' + bestMoney(t.base) + '</span><b>' + bestMoney(t.amount) + '</b></div>' +
-      '<div class="best-sumrow"><span>WKZ-Ware gewählt</span><b>' + bestMoney(t.used) + '</b></div>' +
-      '<div class="best-sumrow"><span>WKZ Rest</span><b>' + bestMoney(t.remaining) + '</b></div></div>' +
-      (over ? '<div class="best-msg warn">Randnotiz: Der WKZ ist um <b>' + bestMoney(over) + '</b> überschritten. Die Bestellung kann trotzdem abgeschlossen werden.</div>'
-        : (t.remaining > 0 ? '<div class="best-msg info">Randnotiz: Noch <b>' + bestMoney(t.remaining) + '</b> WKZ offen.</div>' : '')) +
-      '<details class="bst-hist"><summary>Details nach Marke und Verwendungszweck</summary>' + bestSummaryBlocks(o) + '</details>' +
+      bestSummaryBlocks(o) +
       '<div class="best-actionrow bst-final"><button class="best-secondary" onclick="__bb.goBack()">← Bestellung bearbeiten</button>' +
       '<button class="best-secondary" onclick="__bb.select(\'best-preview\')">PDF Vorschau</button><button class="best-secondary" onclick="__bb.select(\'best-export\')">Exportieren</button>' +
       '<button class="best-primary grow" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-finish\')">' + (BEST.editingId ? 'Bestellung speichern' : 'Bestellung abschließen') + '</button></div></div>';
@@ -4611,22 +4603,35 @@
     return '<table class="best-table"><tr><th>Verwendung</th><th class="r">Bezahlt</th><th class="r">Gratis</th><th class="r">Wert</th></tr>' +
       BEST_PURPOSES.map(function (p) { var a = agg.byPurpose[p.key]; return '<tr><td>' + esc(p.label) + '</td><td class="r">' + a.qty + '</td><td class="r">' + a.freeQty + '</td><td class="r">' + bestMoney(a.value) + '</td></tr>'; }).join('') + '</table>';
   }
+  // Kennzahlen je Marke — jede Marke wird getrennt bestellt, deshalb nie Marken vermischen.
+  function bestBrandStats(o, b) {
+    var its = o.items.filter(function (i) { return i.product.brand === b; });
+    var wk = o.wkzItems.filter(function (w) { return w.product.brand === b; });
+    var base = calculateWKZBase(its), amount = calculateWKZAmount(base, o.wkzRate), used = calculateWKZUsed(wk);
+    var tester = 0, testerQty = 0;
+    its.forEach(function (i) { if (i.purpose === 'tester') { tester += i.quantityPaid * (i.product.purchasePrice - i.unitPurchasePrice); testerQty += i.quantityPaid; } });
+    return { items: its, wkz: wk, regular: calculateOrderTotal(its), free: calculateFreeGoods(its), base: base, amount: amount, used: used,
+      remaining: calculateWKZRemaining(amount, used), testerDiscount: round2(tester), testerQty: testerQty,
+      qty: its.reduce(function (s, i) { return s + i.quantityPaid + i.quantityFree; }, 0) };
+  }
+  function bestOrderBrandsOf(o) { return BEST_BRANDS.filter(function (b) { return o.items.some(function (i) { return i.product.brand === b; }) || o.wkzItems.some(function (w) { return w.product.brand === b; }); }); }
   function bestSummaryBlocks(o) {
-    var agg = bestAggregate(o.items, o.wkzItems);
-    var brandRows = BEST_BRANDS.map(function (b) {
-      var a = agg.byBrand[b];
-      return '<tr><td><b>' + esc(b) + '</b></td><td class="r">' + bestMoney(a.value) + '</td><td class="r">' + a.qty + '</td><td class="r">' + a.freeQty + '</td><td class="r">' + bestMoney(a.wkzValue) + '</td></tr>';
+    return bestOrderBrandsOf(o).map(function (b) {
+      var a = bestBrandStats(o, b), agg = bestAggregate(a.items, a.wkz);
+      var over = a.remaining < 0 ? round2(-a.remaining) : 0;
+      var note = over ? '<div class="best-msg warn">Randnotiz: Der WKZ ist um <b>' + bestMoney(over) + '</b> überschritten.</div>'
+        : (a.remaining > 0 && a.amount > 0 ? '<div class="best-msg info">Randnotiz: Noch <b>' + bestMoney(a.remaining) + '</b> WKZ offen.</div>' : '');
+      return '<div class="best-h2">' + esc(b) + ' — Bestellübersicht</div><div class="best-twocol"><div class="best-sumbox">' +
+        '<div class="best-sumrow big"><span>Bestellwert ' + esc(b) + '</span><b>' + bestMoney(a.regular) + '</b></div>' +
+        '<div class="best-sumrow"><span>Artikel (inkl. Gratisware)</span><b>' + a.qty + '</b></div>' +
+        (a.testerQty ? '<div class="best-sumrow"><span>Tester-Rabatt (−' + BEST_CONFIG.testerDiscountPercent + ' % auf EK, ' + a.testerQty + ' Stück) — im Bestellwert enthalten</span><b>−' + bestMoney(a.testerDiscount) + '</b></div>' : '') +
+        '<div class="best-sumrow free"><span>Gratisware aus Aktionen (nicht berechnet)</span><b>' + bestMoney(a.free) + '</b></div>' +
+        '<div class="best-sumrow"><span>WKZ-Basis (nur Ware ohne Aktion)</span><b>' + bestMoney(a.base) + '</b></div>' +
+        '<div class="best-sumrow"><span>WKZ ' + esc(String(o.wkzRate).replace('.', ',')) + ' %</span><b>' + bestMoney(a.amount) + '</b></div>' +
+        '<div class="best-sumrow"><span>WKZ-Ware gewählt</span><b>' + bestMoney(a.used) + '</b></div>' +
+        '<div class="best-sumrow"><span>WKZ verbleibend</span><b>' + bestMoney(a.remaining) + '</b></div></div>' +
+        '<div class="best-sumbox"><div class="best-sumrow" style="border:none;padding-top:0"><b>Nach Verwendungszweck</b></div>' + bestPurposeTable(agg) + '</div></div>' + note;
     }).join('');
-    return '<div class="best-h2">Bestellung nach Marke</div><div class="best-sumbox" style="overflow-x:auto"><table class="best-table"><tr><th>Marke</th><th class="r">Bestellwert</th><th class="r">Artikel</th><th class="r">Gratis</th><th class="r">WKZ-Ware</th></tr>' + brandRows + '</table></div>' +
-      '<div class="best-twocol" style="margin-top:1rem"><div class="best-sumbox">' +
-      '<div class="best-sumrow big"><span>Reguläre Bestellung</span><b>' + bestMoney(o.regularOrderValue) + '</b></div>' +
-      '<div class="best-sumrow"><span>WKZ-Basis (nur Ware ohne Aktion)</span><b>' + bestMoney(o.wkzBase) + '</b></div>' +
-      '<div class="best-sumrow"><span>WKZ-Satz</span><b>' + esc(String(o.wkzRate).replace('.', ',')) + ' %</b></div>' +
-      '<div class="best-sumrow"><span>WKZ verfügbar</span><b>' + bestMoney(o.wkzAmount) + '</b></div>' +
-      '<div class="best-sumrow"><span>WKZ genutzt (WKZ-Ware)</span><b>' + bestMoney(o.wkzUsed) + '</b></div>' +
-      '<div class="best-sumrow"><span>WKZ verbleibend</span><b>' + bestMoney(o.wkzRemaining) + '</b></div>' +
-      '<div class="best-sumrow free"><span>Gratisware aus Aktionen</span><b>' + bestMoney(o.freeGoodsValue) + '</b></div></div>' +
-      '<div class="best-sumbox"><div class="best-sumrow" style="border:none;padding-top:0"><b>Nach Verwendungszweck</b></div>' + bestPurposeTable(agg) + '</div></div>';
   }
   function bestDraftOrder() {
     var t = bestTotals();
@@ -4685,18 +4690,20 @@
       o.wkzItems.forEach(function (w) { L.push('- ' + w.quantity + 'x | ' + w.product.articleNumber + ' | ' + w.product.name + ' (' + w.product.brand + ') | EK ' + m(w.unitPurchasePrice) + ' | ' + m(w.quantity * w.unitPurchasePrice)); });
       L.push('');
     }
-    L.push('ZUSAMMENFASSUNG');
-    L.push('Regulärer Bestellwert: ' + m(o.regularOrderValue));
-    L.push('Gratisware aus Aktionen (nicht berechnet): ' + m(o.freeGoodsValue));
-    L.push('WKZ-Basis (nur Ware ohne Aktion): ' + m(o.wkzBase));
-    L.push('WKZ-Satz: ' + String(o.wkzRate).replace('.', ',') + ' %');
-    L.push('WKZ verfügbar: ' + m(o.wkzAmount));
-    L.push('WKZ-Ware gewählt: ' + m(o.wkzUsed));
-    L.push('WKZ ' + (o.wkzRemaining < 0 ? 'überschritten um: ' + m(-o.wkzRemaining) : 'Rest: ' + m(o.wkzRemaining)) + ' (nur Randnotiz)');
-    L.push('');
-    var agg = bestAggregate(o.items, o.wkzItems);
-    L.push('Nach Verwendungszweck (bezahlt / gratis / Wert):');
-    BEST_PURPOSES.forEach(function (p) { var a = agg.byPurpose[p.key]; L.push('- ' + p.label + ': ' + a.qty + ' / ' + a.freeQty + ' / ' + m(a.value)); });
+    bestOrderBrandsOf(o).forEach(function (b) {
+      var a = bestBrandStats(o, b), agg = bestAggregate(a.items, a.wkz);
+      L.push('ÜBERSICHT ' + b.toUpperCase());
+      L.push('Bestellwert: ' + m(a.regular));
+      if (a.testerQty) L.push('Tester-Rabatt (−' + BEST_CONFIG.testerDiscountPercent + ' % auf EK, ' + a.testerQty + ' Stück, im Bestellwert enthalten): −' + m(a.testerDiscount));
+      L.push('Gratisware aus Aktionen (nicht berechnet): ' + m(a.free));
+      L.push('WKZ-Basis (nur Ware ohne Aktion): ' + m(a.base));
+      L.push('WKZ ' + String(o.wkzRate).replace('.', ',') + ' %: ' + m(a.amount));
+      L.push('WKZ-Ware gewählt: ' + m(a.used));
+      L.push('WKZ ' + (a.remaining < 0 ? 'überschritten um: ' + m(-a.remaining) : 'Rest: ' + m(a.remaining)) + ' (nur Randnotiz)');
+      L.push('Nach Verwendungszweck (bezahlt / gratis / Wert):');
+      BEST_PURPOSES.forEach(function (p) { var x = agg.byPurpose[p.key]; if (x.qty || x.freeQty) L.push('- ' + p.label + ': ' + x.qty + ' / ' + x.freeQty + ' / ' + m(x.value)); });
+      L.push('');
+    });
     return L.join('\n');
   }
   function bestEmailHref(o) {
@@ -4717,11 +4724,13 @@
   }
   function bestBrandEmailBody(o, brand) {
     var L = ['Guten Tag,', '', 'bitte folgende Artikel liefern (Bestellung ' + o.id + ') — Menge | Art.-Nr. | Bezeichnung:', ''];
+    var lines = {}, order = [];
     bestSortByPurpose(o.items.filter(function (i) { return i.product.brand === brand; })).forEach(function (i) {
-      var total = i.quantityPaid + i.quantityFree;
-      L.push(total + 'x | ' + i.product.articleNumber + ' | ' + i.product.name +
-        (i.quantityFree ? ' (' + i.quantityPaid + ' bezahlt + ' + i.quantityFree + ' gratis, Aktion ' + bestPromoLabel(i) + ')' : ''));
+      var l = lines[i.productId] || (lines[i.productId] = { p: i.product, total: 0, freeNote: '', n: 0 }); if (!l.n) order.push(i.productId); l.n++;
+      l.total += i.quantityPaid + i.quantityFree;
+      if (i.quantityFree) l.freeNote = ' (' + i.quantityPaid + ' bezahlt + ' + i.quantityFree + ' gratis, Aktion ' + bestPromoLabel(i) + ')';
     });
+    order.forEach(function (id) { var l = lines[id]; L.push(l.total + 'x | ' + l.p.articleNumber + ' | ' + l.p.name + (l.n === 1 ? l.freeNote : '')); });
     var wk = o.wkzItems.filter(function (w) { return w.product.brand === brand; });
     if (wk.length) {
       L.push(''); L.push('WKZ-Ware:');
@@ -4783,7 +4792,7 @@
     var o = bestOrderForOutput(id);
     if (!o) return;
     var agg = bestAggregate(o.items, o.wkzItems);
-    var rows = o.items.map(function (i) {
+    var rows = o.items.slice().sort(function (x, y) { return BEST_BRANDS.indexOf(x.product.brand) - BEST_BRANDS.indexOf(y.product.brand); }).map(function (i) {
       return '<tr><td class="r">' + i.quantityPaid + '</td><td class="r">' + i.quantityFree + '</td><td>' + esc(i.product.articleNumber) + '</td><td>' + esc(i.product.name) + '<br/><small>' + esc(i.product.brand) + '</small></td><td>' + esc(bestPurposeLabel(i.purpose)) + '</td><td>' + esc(bestPromoLabel(i)) + '</td><td class="r">' + bestMoney(i.unitPurchasePrice) + '</td><td class="r">' + bestMoney(calculateLineCost(i)) + '</td></tr>';
     }).join('');
     var wrows = o.wkzItems.map(function (w) {
