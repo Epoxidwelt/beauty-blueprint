@@ -4403,7 +4403,14 @@
     for (var i = 0; i < list.length; i++) if (bestKey(list[i], wkz) === key) return list[i];
     return null;
   }
-  function bestLinesOf(productId) { return BEST.items.filter(function (i) { return i.productId === productId; }); }
+  // Reihenfolge der Verwendung überall gleich: Verkauf → Tester → Kabinenware → Sonstiges.
+  function bestSortByPurpose(list) {
+    var order = BEST_PURPOSES.map(function (x) { return x.key; });
+    return list.map(function (it, idx) { return { it: it, idx: idx }; }).sort(function (a, b) {
+      return (order.indexOf(a.it.purpose) - order.indexOf(b.it.purpose)) || (a.idx - b.idx);
+    }).map(function (x) { return x.it; });
+  }
+  function bestLinesOf(productId) { return bestSortByPurpose(BEST.items.filter(function (i) { return i.productId === productId; })); }
   function bestQtyOf(it, wkz) { return it ? (wkz ? it.quantity : it.quantityPaid) : 0; }
 
   // ---------- Einziger Auswahl-Screen (Reiter "Bestellung") ----------
@@ -4560,7 +4567,7 @@
     var t = bestTotals(), over = bestOverrun(t), o = bestDraftOrder();
     var ok = BEST.items.length && bestOverrunOk(t);
     var body = '<div class="best-wrap">' + bestSteps2(2) + bestWhoChips() +
-      '<div class="best-h2">Bestellung</div>' + (BEST.items.length ? '<div class="bst-lines">' + BEST.items.map(function (i) { return bestLineRow(i, false); }).join('') + '</div>' : '<div class="best-msg err">Noch keine Artikel in der Bestellung.</div>') +
+      '<div class="best-h2">Bestellung</div>' + (BEST.items.length ? '<div class="bst-lines">' + bestSortByPurpose(BEST.items).map(function (i) { return bestLineRow(i, false); }).join('') + '</div>' : '<div class="best-msg err">Noch keine Artikel in der Bestellung.</div>') +
       (BEST.wkzItems.length ? '<div class="best-h2">WKZ-Ware</div><div class="bst-lines">' + BEST.wkzItems.map(function (i) { return bestLineRow(i, true); }).join('') + '</div>' : '') +
       '<div class="best-h2">Zusammenfassung</div><div class="best-sumbox">' +
       '<div class="best-sumrow big"><span>Regulärer Bestellwert</span><b>' + bestMoney(t.regular) + '</b></div>' +
@@ -4640,7 +4647,7 @@
     L.push('Besteller: ' + (o.besteller || '—'));
     L.push('');
     BEST_BRANDS.forEach(function (b) {
-      var rows = o.items.filter(function (i) { return i.product.brand === b; });
+      var rows = bestSortByPurpose(o.items.filter(function (i) { return i.product.brand === b; }));
       if (!rows.length) return;
       L.push(b.toUpperCase());
       rows.forEach(function (i) {
@@ -4686,7 +4693,7 @@
   }
   function bestBrandEmailBody(o, brand) {
     var L = ['Guten Tag,', '', 'bitte folgende Artikel liefern (Bestellung ' + o.id + '):', ''];
-    o.items.filter(function (i) { return i.product.brand === brand; }).forEach(function (i) {
+    bestSortByPurpose(o.items.filter(function (i) { return i.product.brand === brand; })).forEach(function (i) {
       var total = i.quantityPaid + i.quantityFree;
       L.push('Art.-Nr. ' + i.product.articleNumber + ' | ' + i.product.name + ' | Menge: ' + total +
         (i.quantityFree ? ' (' + i.quantityPaid + ' bezahlt + ' + i.quantityFree + ' gratis, Aktion ' + bestPromoLabel(i) + ')' : ''));
