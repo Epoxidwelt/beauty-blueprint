@@ -79,3 +79,5 @@ Bestellung bearbeiten (Update): Man kommt immer zurück. Auf dem Prüfen-Screen 
 Filter (Update): Der Knopf „Mehr Filter" mit „Nur Mindestbestand erreicht" ist entfernt. Gefiltert wird über Marke, Produktlinie (Rubrik), Suche und Favoriten.
 
 Favoriten (Update): Favoriten sind die **regelmäßig bestellten Produkte** — automatisch alle Artikel, die in mindestens 2 gespeicherten Bestellungen vorkommen (`bestOrderCounts()`/`bestIsFav()`), plus per ♥ von Hand markierte. Im Filter „♥ Favoriten" stehen die am häufigsten bestellten zuerst, mit kurzem Erklärtext. Die Schwelle (2) lässt sich in `bestIsFav()` ändern.
+
+WKZ live & Bestand (Update): Bestand/Mindestbestand werden nicht mehr angezeigt (kein Abgleich mit Abverkauf/Meldebestand). Im Reiter „1 · Bestellung" steht oben eine **Live-WKZ-Leiste**: Bestellwert für WKZ (ohne Aktionsware), **WKZ 5 % = Guthaben** und der WKZ-Satz (−/+); sie aktualisiert sich bei jedem Produkt/jeder Menge/jeder Aktion. Die untere Leiste zeigt ebenfalls fett „WKZ 5 %: x €" (und nach der WKZ-Wahl gewählt/übrig), sodass man nach der Auswahl sofort sieht, wie hoch der WKZ ist.
