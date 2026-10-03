@@ -795,6 +795,7 @@
   .bst-collective small { display: block; color: var(--text-soft); font-size: .8rem; font-weight: 400; }
   .bst-collective .who { font-size: .85rem; font-weight: 600; }
   .bst-by { font-size: .78rem; color: var(--text-soft); background: var(--beige); border-radius: 999px; padding: .2rem .6rem; white-space: nowrap; }
+  .best-secondary.bst-danger { color: var(--danger); border-color: var(--danger); }
   .bst-editbanner { display: flex; align-items: center; justify-content: space-between; gap: .8rem; }
   .best-img { background: #fff; border: 1px solid var(--rose-pale); border-radius: 14px; display: flex; align-items: center; justify-content: center; padding: 0.5rem; }
   .best-img img { width: 96px; height: 96px; display: block; object-fit: contain; }
@@ -4846,7 +4847,8 @@
     var n = BEST.items.reduce(function (a, i) { return a + i.quantityPaid + i.quantityFree; }, 0), who = bestContributors(BEST.items), ks = Object.keys(who);
     return (BEST.flash ? '<div class="best-msg info">' + esc(BEST.flash) + '</div>' : '') +
       '<div class="bst-collective"><div><b>Gemeinsame Sammelbestellung</b><small>' + (BEST.items.length ? n + ' Artikel · ' + BEST.items.length + ' Position' + (BEST.items.length === 1 ? '' : 'en') : 'noch leer — neue Sammlung') + ' · alle Mitarbeiter tragen in dieselbe Bestellung ein</small></div>' +
-      (ks.length ? '<div class="who">' + ks.map(function (k) { return esc(k) + ' <b>' + who[k] + '</b>'; }).join(' · ') + '</div>' : '') + '</div>';
+      (ks.length ? '<div class="who">' + ks.map(function (k) { return esc(k) + ' <b>' + who[k] + '</b>'; }).join(' · ') + '</div>' : '') +
+      ((BEST.items.length && bestIsApprover()) ? '<button class="best-secondary bst-danger" onclick="__bb.select(\'best-discard-collective\')">Sammelbestellung verwerfen</button>' : '') + '</div>';
   }
   function bestEditBanner() {
     if (!BEST.editingId) return '';
@@ -5026,6 +5028,7 @@
       (ap ? '<button class="best-secondary" onclick="__bb.select(\'best-preview\',\'' + id + '\')">PDF Vorschau</button><button class="best-secondary" onclick="__bb.select(\'best-export\',\'' + id + '\')">Bestellung exportieren</button>' : '') +
       ((done && ap) ? '<button class="best-secondary" onclick="__bb.select(\'best-email-intern\',\'' + id + '\')">✉ Interne Gesamtzusammenfassung</button>' : '') +
       (canEdit ? '<button class="best-secondary" onclick="__bb.select(\'best-edit-order\',\'' + id + '\')">✎ Bestellung bearbeiten</button>' : '') +
+      (ap ? '<button class="best-secondary bst-danger" onclick="__bb.select(\'best-delete-order\',\'' + id + '\')">Bestellung löschen</button>' : '') +
       '<button class="best-secondary" onclick="__bb.replaceTop(\'kunde-wahl\')">Zum Hauptbildschirm</button>' +
       ((!done && ap) ? '<button class="best-primary grow" onclick="__bb.select(\'best-approve\',\'' + id + '\')">Bestellung abschließen</button>' : '') +
       '<button class="' + ((!done && ap) ? 'best-secondary' : 'best-primary grow') + '" onclick="__bb.select(\'best-new\')">Neue Bestellung</button></div></div>';
@@ -5307,6 +5310,19 @@
     }
     else if (kind === 'best-next') { goTo('best-pruefen'); }
     else if (kind === 'best-overrun-ok') { BEST.wkzOverrunConfirmed = bestOverrun(bestTotals()); bestPersist(); render(); }
+    else if (kind === 'best-delete-order') {   // nur Inhaberin: abgeschlossene/gespeicherte Bestellung endgültig löschen
+      var dord = bestFindOrder(key);
+      if (!dord || !bestIsApprover()) return;
+      if (!window.confirm('Bestellung ' + dord.id + ' endgültig löschen? Das kann nicht rückgängig gemacht werden.')) return;
+      bestSave(BEST_KEYS.orders, bestLoad(BEST_KEYS.orders, []).filter(function (x) { return x.id !== dord.id; }));
+      if (BEST.editingId === dord.id) { BEST.editingId = null; BEST.items = []; BEST.wkzItems = []; bestPersist(); }
+      BEST.completedId = null; BEST.flash = 'Bestellung ' + dord.id + ' wurde gelöscht.'; replaceTop('bestellung');
+    }
+    else if (kind === 'best-discard-collective') {   // nur Inhaberin: aktuelle Sammelbestellung verwerfen
+      if (!bestIsApprover() || !BEST.items.length) return;
+      if (!window.confirm('Die gemeinsame Sammelbestellung mit allen Einträgen verwerfen? Das kann nicht rückgängig gemacht werden.')) return;
+      BEST.items = []; BEST.wkzItems = []; BEST.editingId = null; BEST.wkzOverrunConfirmed = 0; bestPersist(); BEST.flash = 'Sammelbestellung wurde verworfen.'; render();
+    }
     else if (kind === 'best-save') {   // Mitarbeiterin: Eintrag ist Teil der gemeinsamen Sammelbestellung (liegt schon im gemeinsamen Entwurf)
       bestPersist(); BEST.flash = '✓ Gespeichert — dein Eintrag ist Teil der gemeinsamen Sammelbestellung.'; BEST.tab = 'order';
       path = ['login', 'kunde-wahl', 'bestellung']; pointer = 2; render();
