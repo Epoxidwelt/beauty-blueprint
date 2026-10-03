@@ -802,6 +802,13 @@
   .bst-askyes { background: var(--danger) !important; }
   .bst-meta .bst-purposetag, .bst-purposetag { background: var(--text); color: #fff !important; border-radius: 999px; padding: .1rem .55rem; font-size: .75rem; }
   .best-histwrap { margin-bottom: .5rem; } .bst-histmail { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; padding: .3rem .4rem 0; font-size: .8rem; color: var(--text-soft); }
+  .bst-hub { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: .8rem; margin-bottom: 1.2rem; }
+  .bst-hubbtn { display: flex; flex-direction: column; align-items: flex-start; gap: .25rem; text-align: left; font-family: var(--font-body); background: #fff; border: 2px solid var(--border-strong); border-radius: 18px; padding: 1.1rem 1.2rem; min-height: 120px; cursor: pointer; box-shadow: 0 3px 12px rgba(0,0,0,.08); }
+  .bst-hubbtn .bn { font-size: 1.35rem; font-weight: 800; color: var(--text); } .bst-hubbtn .bc { font-size: 1.05rem; font-weight: 700; color: var(--text); }
+  .bst-hubbtn small { color: var(--text-soft); font-size: .8rem; } .bst-hubbtn.has { border-color: var(--text); background: var(--beige); }
+  .bst-workhead { display: flex; align-items: center; gap: .8rem; margin-bottom: .8rem; } .bst-workhead b { font-size: 1.3rem; }
+  .best-hist .avatar-mini { width: 44px; height: 44px; border-radius: 50%; overflow: hidden; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; background: var(--rose-pale); }
+  .best-hist .avatar-mini img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .bst-editbanner { display: flex; align-items: center; justify-content: space-between; gap: .8rem; }
   .best-img { background: #fff; border: 1px solid var(--rose-pale); border-radius: 14px; display: flex; align-items: center; justify-content: center; padding: 0.5rem; }
   .best-img img { width: 96px; height: 96px; display: block; object-fit: contain; }
@@ -2773,7 +2780,7 @@
       '<div class="stack">' +
         '<button class="stack-btn primary" onclick="__bb.goTo(\'kunde-neu\')">Neue Beratung</button>' +
         '<button class="stack-btn" onclick="__bb.goTo(\'kunde-bestehend\')">Kundin auswählen</button>' +
-        '<button class="stack-btn" onclick="__bb.goTo(\'best-pruefen\')">Sammelbestellung öffnen<span class="hint">' + bestCollectiveSummary() + '</span></button>' +
+        '<button class="stack-btn" onclick="__bb.goTo(\'bestellung\')">Sammelbestellung öffnen<span class="hint">' + bestCollectiveSummary() + '</span></button>' +
         '<button class="stack-btn" disabled>Beratung fortsetzen<span class="hint">Keine offene Beratung vorhanden</span></button>' +
       '</div>' +
       // Damit eine Mitarbeiterin schon VOR der ersten Beratung kurz nachsehen kann, welche
@@ -4536,6 +4543,7 @@
       items: d.items || [], wkzItems: d.wkzItems || [],
       wkzRate: (typeof d.wkzRate === 'number') ? d.wkzRate : BEST_CONFIG.defaultWkzRate,
       wkzOverrunConfirmed: d.wkzOverrunConfirmed || 0, editingId: d.editingId || null,
+      workBrand: null, rest: [], restW: [],
       brand: null, group: '', search: '', lowStock: false, favOnly: false, limit: BEST_CONFIG.pageSize,
       tab: 'order', pick: null, pickPromo: '6+1', category: '', catOpen: false, moreFilters: false, completedId: null
     };
@@ -4546,11 +4554,29 @@
   window.addEventListener('storage', function (e) {
     if (e.key !== BEST_KEYS.draft) return;
     var d = bestLoad(BEST_KEYS.draft, {}) || {};
-    BEST.items = d.items || []; BEST.wkzItems = d.wkzItems || [];
+    BEST.items = d.items || []; BEST.wkzItems = d.wkzItems || []; BEST.rest = []; BEST.restW = [];
+    if (BEST.workBrand) bestSplit(BEST.workBrand);
     if (path[pointer] === 'bestellung') { try { render(); } catch (x) { /* egal */ } }
   });
+  // Sammelbestellung je Hersteller: BEST.items/wkzItems enthalten nur die Ware des gerade geöffneten Herstellers (BEST.workBrand);
+  // die übrigen Hersteller liegen in BEST.rest/restW und werden beim Speichern wieder zusammengeführt.
+  function bestAllItems() { return BEST.items.concat(BEST.rest || []); }
+  function bestAllWkz() { return BEST.wkzItems.concat(BEST.restW || []); }
+  function bestSplit(brand) {
+    var all = bestAllItems(), allW = bestAllWkz();
+    BEST.items = all.filter(function (i) { return i.product.brand === brand; }); BEST.rest = all.filter(function (i) { return i.product.brand !== brand; });
+    BEST.wkzItems = allW.filter(function (i) { return i.product.brand === brand; }); BEST.restW = allW.filter(function (i) { return i.product.brand !== brand; });
+    BEST.workBrand = brand;
+  }
+  function bestMerge() { BEST.items = bestAllItems(); BEST.wkzItems = bestAllWkz(); BEST.rest = []; BEST.restW = []; BEST.workBrand = null; }
+  function bestEnterBrand(brand) {
+    bestScanStop(); bestMerge(); bestSplit(brand);
+    BEST.brand = brand; BEST.group = ''; BEST.category = ''; BEST.catOpen = false; BEST.search = ''; BEST.favOnly = false; BEST.tab = 'order'; BEST.limit = BEST_CONFIG.pageSize; BEST.pick = null;
+    render();
+  }
+  function bestLeaveBrand() { bestScanStop(); bestMerge(); BEST.brand = null; BEST.category = ''; BEST.catOpen = false; BEST.tab = 'order'; bestPersist(); }
   function bestPersist() {
-    bestSave(BEST_KEYS.draft, { besteller: BEST.besteller, items: BEST.items, wkzItems: BEST.wkzItems, wkzRate: BEST.wkzRate, wkzOverrunConfirmed: BEST.wkzOverrunConfirmed, editingId: BEST.editingId || null });
+    bestSave(BEST_KEYS.draft, { besteller: BEST.besteller, items: bestAllItems(), wkzItems: bestAllWkz(), wkzRate: BEST.wkzRate, wkzOverrunConfirmed: BEST.wkzOverrunConfirmed, editingId: BEST.editingId || null });
   }
   // Besteller ist immer die angemeldete Mitarbeiterin — keine zweite Auswahl nötig.
   function bestAdminWkzRate() { var r = (ADMIN_DATA.wkzRates || {}).KLAPP; return (typeof r === 'number' && r >= 0) ? r : BEST_CONFIG.defaultWkzRate; }
@@ -4736,7 +4762,7 @@
         var p = bestProduct(e.id);   // dieselbe Zeile wie in der Produktauswahl: Verkauf/Tester/Kabinenware je Marke, Aktion, Menge
         if (p) html += bestRowHtml(p, false, 0);
       } else {
-        html += '<div class="bst-scanrow bad"><span>✗</span><span class="grow"><b>EAN nicht gefunden</b><small>' + esc(e.code) + ' · nicht im Katalog hinterlegt</small></span></div>';
+        html += '<div class="bst-scanrow bad"><span>✗</span><span class="grow"><b>' + (e.other ? 'Gehört zu ' + esc(e.other) : 'EAN nicht gefunden') + '</b><small>' + esc(e.code) + (e.other ? ' · bitte dort scannen' : ' · nicht im Katalog hinterlegt') + '</small></span></div>';
       }
     });
     return html;
@@ -4748,6 +4774,7 @@
     if (code === SCAN.last && now - SCAN.lastAt < 2500) return;   // gleiche Packung nicht doppelt zählen
     SCAN.last = code; SCAN.lastAt = now;
     var p = bestProductByEan(code);
+    if (p && BEST.workBrand && p.brand !== BEST.workBrand) { SCAN.log.unshift({ ok: false, code: code, id: '', name: '', other: p.brand }); bestScanLogRefresh(); bestScanMsg(p.name + ' gehört zu ' + p.brand + ' — bitte in der Sammelbestellung ' + p.brand + ' scannen.'); return; }
     SCAN.log.unshift({ ok: !!p, code: code, id: p ? p.id : '', name: p ? p.name : '' });
     if (p) { try { if (navigator.vibrate) navigator.vibrate(60); } catch (e) { /* egal */ } bestellungHandler('best-add', p.id + '|sale'); }
     bestScanLogRefresh();
@@ -4850,29 +4877,37 @@
     else if (BEST.category && !BEST.catOpen) catBlock = '<div class="bst-catbar"><span>Rubrik: <b>' + esc(BEST.category) + '</b> <small>' + (catCount[BEST.category] || 0) + ' Produkte</small></span>' +
       '<span><button class="best-chip" onclick="__bb.select(\'best-cat-toggle\')">Rubrik ändern</button><button class="best-chip" onclick="__bb.select(\'best-cat\',\'\')">✕ Alle</button></span></div>';
     else catBlock = '<div class="bst-catgrid-wrap"><div class="bst-cathead">Rubrik wählen<small>' + esc(BEST.brand) + '</small></div><div class="bst-catgrid">' + tiles + '</div></div>';
-    var wkzTab = BEST.tab === 'wkz';
-    return '<div class="best-filters">' + (wkzTab ? '' : '<button class="best-chip' + (!BEST.brand ? ' on' : '') + '" onclick="__bb.select(\'best-filter-brand\',\'\')">Alle</button>') +
-      BEST_BRANDS.filter(function (b) { return !wkzTab || bestHasWkz(b); }).map(function (b) { return '<button class="best-chip' + (BEST.brand === b ? ' on' : '') + '" onclick="__bb.select(\'best-filter-brand\',\'' + b + '\')">' + esc(b) + '</button>'; }).join('') +
+    return '<div class="best-filters">' +
       '<input class="best-search" style="flex:1;min-width:10rem;width:auto;min-height:48px;padding:.6rem 1rem" type="search" value="' + esc(BEST.search) + '" placeholder="Produkt / Art.-Nr. suchen" oninput="__bb.bestInput(\'search\',this.value)" autocomplete="off" />' +
       '<button class="best-chip' + (BEST.favOnly ? ' on' : '') + '" onclick="__bb.select(\'best-toggle\',\'favOnly\')">♥ Favoriten</button></div>' +
       catBlock;
   }
   function bestCollectiveSummary() {
-    var n = BEST.items.reduce(function (a, i) { return a + i.quantityPaid + i.quantityFree; }, 0), ks = Object.keys(bestContributors(BEST.items));
+    var all = bestAllItems(), n = all.reduce(function (a, i) { return a + i.quantityPaid + i.quantityFree; }, 0), ks = Object.keys(bestContributors(all));
     return n ? n + ' Artikel · ' + ks.join(', ') : 'noch leer';
   }
   function bestCollectiveBanner() {
     var n = BEST.items.reduce(function (a, i) { return a + i.quantityPaid + i.quantityFree; }, 0), who = bestContributors(BEST.items), ks = Object.keys(who);
     return (BEST.flash ? '<div class="best-msg info">' + esc(BEST.flash) + '</div>' : '') +
-      '<div class="bst-collective"><div><b>Gemeinsame Sammelbestellung</b><small>' + (BEST.items.length ? n + ' Artikel · ' + BEST.items.length + ' Position' + (BEST.items.length === 1 ? '' : 'en') : 'noch leer — neue Sammlung') + ' · alle Mitarbeiter tragen in dieselbe Bestellung ein</small></div>' +
+      '<div class="bst-collective"><div><b>Sammelbestellung ' + esc(BEST.workBrand || '') + '</b><small>' + (BEST.items.length ? n + ' Artikel · ' + BEST.items.length + ' Position' + (BEST.items.length === 1 ? '' : 'en') : 'noch leer') + ' · alle tragen hier ein</small></div>' +
       (ks.length ? '<div class="who">' + ks.map(function (k) { return esc(k) + ' <b>' + who[k] + '</b>'; }).join(' · ') + '</div>' : '') +
-      (BEST.items.length ? '<button class="best-secondary" onclick="__bb.select(\'best-next\')">Gesamte Sammelbestellung öffnen</button>' : '') +
+      (BEST.items.length ? '<button class="best-secondary" onclick="__bb.select(\'best-next\')">Prüfen &amp; abschließen</button>' : '') +
       ((BEST.items.length && bestIsApprover()) ? '<button class="best-secondary bst-danger" onclick="__bb.select(\'best-discard-collective\')">Sammelbestellung verwerfen</button>' : '') + '</div>';
   }
   function bestEditBanner() {
     if (!BEST.editingId) return '';
     return '<div class="best-msg info bst-editbanner"><span>✎ Du bearbeitest <b>' + esc(BEST.editingId) + '</b> — Änderungen mit „Bestellung speichern" übernehmen.</span>' +
       '<button class="best-secondary" onclick="__bb.select(\'best-edit-cancel\')">Abbrechen</button></div>';
+  }
+  // Startseite der Bestellung: ein großer Button je Hersteller mit dem Stand der jeweiligen Sammelbestellung
+  function bestHubHtml() {
+    var all = bestAllItems();
+    return (BEST.flash ? '<div class="best-msg info">' + esc(BEST.flash) + '</div>' : '') + '<div class="best-h2">Sammelbestellung je Hersteller</div><div class="bst-hub">' +
+      BEST_BRANDS.map(function (b) {
+        var its = all.filter(function (i) { return i.product.brand === b; });
+        var n = its.reduce(function (a, i) { return a + i.quantityPaid + i.quantityFree; }, 0), ks = Object.keys(bestContributors(its));
+        return '<button class="bst-hubbtn' + (n ? ' has' : '') + '" onclick="__bb.select(\'best-brand\',\'' + b + '\')"><span class="bn">' + esc(b) + '</span><span class="bc">' + (n ? n + ' Artikel' : 'noch leer') + '</span><small>' + (ks.length ? esc(ks.join(', ')) : BEST_BRAND_STYLE[b].sub) + '</small></button>';
+      }).join('') + '</div>';
   }
   function renderBestMain() {
     bestEnsureBesteller();
@@ -4888,7 +4923,8 @@
     var openOrders = orders.filter(function (o) { return o.status !== 'completed'; }), doneOrders = orders.filter(function (o) { return o.status === 'completed'; });
     var hist = (openOrders.length ? '<details class="bst-hist" open><summary>Offene Bestellungen — warten auf Freigabe (' + openOrders.length + ')</summary><div class="best-history">' + openOrders.map(histRow).join('') + '</div></details>' : '') +
       (doneOrders.length ? '<details class="bst-hist"' + (openOrders.length ? '' : ' open') + '><summary>Abgeschlossene Bestellungen (' + doneOrders.length + ')</summary><div class="best-history">' + doneOrders.map(histRow).join('') + '</div></details>' : '');
-    var body = '<div class="best-wrap">' + bestMainTabs('bestellung') + bestWhoChips() + bestEditBanner() + '<div id="best-collective">' + bestCollectiveBanner() + '</div>' + bestTabsHtml() +
+    if (!BEST.workBrand) { screenWrap('dezent', 0, contextLabel(), '<div class="best-wrap">' + bestMainTabs('bestellung') + bestHubHtml() + hist + '</div>'); flashDone(); return; }
+    var body = '<div class="best-wrap">' + bestMainTabs('bestellung') + bestWhoChips() + bestEditBanner() + '<div class="bst-workhead"><button class="best-secondary" onclick="__bb.select(\'best-hub\')">← Hersteller</button><b>' + esc(BEST.workBrand) + '</b></div><div id="best-collective">' + bestCollectiveBanner() + '</div>' + bestTabsHtml() +
       '<div id="best-bar">' + bestBarHtml() + '</div>' + bestFiltersHtml() +
       '<div id="best-list">' + bestListHtml() + '</div>' + hist +
       '<div class="bst-footer" id="best-footer">' + bestFooterHtml() + '</div></div>';
@@ -4933,6 +4969,7 @@
       (bestShowPrices() ? '<div class="bst-lineval">' + bestMoney(wkz ? it.quantity * it.unitPurchasePrice : calculateLineCost(it)) + '</div>' : '<div></div>') + '</div>';
   }
   function renderBestPruefen() {
+    if (!BEST.workBrand) { return replaceTop('bestellung'); }
     bestEnsureBesteller();
     var t = bestTotals(), over = bestOverrun(t), o = bestDraftOrder();
     var ok = BEST.items.length && bestOverrunOk(t);
@@ -5041,7 +5078,7 @@
     } else { o.id = bestNextNumber(); o.createdAt = now; all.push(o); }
     if (status === 'completed') { o.approvedBy = STATE.mitarbeiterin; o.approvedAt = now; }
     bestSave(BEST_KEYS.orders, all); BEST.editingId = null;
-    BEST.completedId = o.id; BEST.items = []; BEST.wkzItems = []; BEST.wkzOverrunConfirmed = 0; BEST.wkzRate = BEST_CONFIG.defaultWkzRate; BEST.tab = 'order'; BEST.pick = null; bestPersist();
+    BEST.completedId = o.id; BEST.items = []; BEST.wkzItems = []; BEST.wkzOverrunConfirmed = 0; BEST.wkzRate = BEST_CONFIG.defaultWkzRate; BEST.tab = 'order'; BEST.pick = null; bestLeaveBrand();
     path = ['login', 'kunde-wahl', 'best-fertig']; pointer = 2; render();
   }
   function bestFindOrder(id) { return bestLoad(BEST_KEYS.orders, []).filter(function (o) { return o.id === id; })[0]; }
@@ -5283,13 +5320,15 @@
       render();
     }
     else if (kind === 'best-cat') { BEST.category = (BEST.category === key) ? '' : key; BEST.catOpen = false; BEST.limit = BEST_CONFIG.pageSize; render(); }
+    else if (kind === 'best-brand') { bestEnterBrand(key); }
+    else if (kind === 'best-hub') { bestLeaveBrand(); render(); }
     else if (kind === 'best-back') {   // genau ein Schritt zurück: WKZ-Ware → Bestellung → Produkte → Produktlinien → Marke → Hauptbildschirm
       BEST.pick = null; BEST.limit = BEST_CONFIG.pageSize;
       if (BEST.tab === 'wkz' || BEST.tab === 'scan') { bestScanStop(); BEST.tab = 'order'; }
       else if (BEST.favOnly) BEST.favOnly = false;
       else if (BEST.category) { BEST.category = ''; BEST.catOpen = false; }
-      else if (BEST.brand) { BEST.brand = null; BEST.group = ''; }
-      else { replaceTop('kunde-wahl'); return; }   // erster Schritt: zurück zum Hauptbildschirm
+      else if (BEST.workBrand) { bestLeaveBrand(); }   // zurück zur Hersteller-Übersicht
+      else { replaceTop('kunde-wahl'); return; }   // von der Hersteller-Übersicht: Hauptbildschirm
       render();
     }
     else if (kind === 'best-cat-toggle') { BEST.catOpen = !BEST.catOpen; render(); }
@@ -5365,12 +5404,12 @@
     }
     else if (kind === 'best-discard-collective') {   // nur Inhaberin: aktuelle Sammelbestellung verwerfen
       if (!bestIsApprover() || !BEST.items.length) return;
-      bestAsk('Sammelbestellung verwerfen?', 'Bist du sicher, dass du die gemeinsame Sammelbestellung mit allen Einträgen verwerfen möchtest? Das kann nicht rückgängig gemacht werden.', 'Ja, endgültig verwerfen', function () {
-        BEST.items = []; BEST.wkzItems = []; BEST.editingId = null; BEST.wkzOverrunConfirmed = 0; bestPersist(); BEST.flash = 'Sammelbestellung wurde verworfen.'; render();
+      bestAsk('Sammelbestellung verwerfen?', 'Bist du sicher, dass du die Sammelbestellung ' + BEST.workBrand + ' mit allen Einträgen verwerfen möchtest? Das kann nicht rückgängig gemacht werden.', 'Ja, endgültig verwerfen', function () {
+        BEST.items = []; BEST.wkzItems = []; BEST.editingId = null; BEST.wkzOverrunConfirmed = 0; BEST.flash = 'Sammelbestellung ' + BEST.workBrand + ' wurde verworfen.'; bestLeaveBrand(); render();
       });
     }
     else if (kind === 'best-save') {   // Mitarbeiterin: Eintrag ist Teil der gemeinsamen Sammelbestellung (liegt schon im gemeinsamen Entwurf)
-      bestPersist(); BEST.flash = '✓ Gespeichert — dein Eintrag ist Teil der gemeinsamen Sammelbestellung.'; BEST.tab = 'order';
+      bestPersist(); BEST.flash = '✓ Gespeichert — dein Eintrag ist Teil der Sammelbestellung ' + BEST.workBrand + '.'; bestLeaveBrand();
       path = ['login', 'kunde-wahl', 'bestellung']; pointer = 2; render();
     }
     else if (kind === 'best-finish') { if (bestIsApprover()) bestCommitOrder('completed'); }
@@ -5385,13 +5424,16 @@
     else if (kind === 'best-edit-order') {
       var eo = bestFindOrder(key);
       if (!eo || (eo.status === 'completed' && !bestIsApprover())) return;   // abgeschlossene Bestellungen nur durch die Freigabe-Person änderbar
-      if (BEST.items.length && !BEST.editingId && !window.confirm('Der aktuelle Entwurf wird durch diese Bestellung ersetzt. Fortfahren?')) return;
+      var eb = (eo.items[0] || eo.wkzItems[0] || {}).product; eb = eb ? eb.brand : null;
+      bestMerge();
+      if (eb && BEST.items.some(function (i) { return i.product.brand === eb; }) && !BEST.editingId && !window.confirm('Die aktuelle Sammelbestellung ' + eb + ' wird durch diese Bestellung ersetzt. Fortfahren?')) return;
+      if (eb) { bestSplit(eb); BEST.brand = eb; }
       BEST.items = JSON.parse(JSON.stringify(eo.items)); BEST.wkzItems = JSON.parse(JSON.stringify(eo.wkzItems)); BEST.wkzRate = eo.wkzRate;
-      BEST.editingId = eo.id; BEST.tab = 'order'; BEST.pick = null; BEST.wkzOverrunConfirmed = 0; BEST.completedId = null; bestPersist();
+      BEST.editingId = eo.id; BEST.tab = 'order'; BEST.category = ''; BEST.catOpen = false; BEST.pick = null; BEST.wkzOverrunConfirmed = 0; BEST.completedId = null; bestPersist();
       path = ['login', 'kunde-wahl', 'bestellung']; pointer = 2; render();
     }
     else if (kind === 'best-edit-cancel') {
-      BEST.editingId = null; BEST.items = []; BEST.wkzItems = []; BEST.wkzRate = BEST_CONFIG.defaultWkzRate; BEST.wkzOverrunConfirmed = 0; bestPersist(); render();
+      BEST.editingId = null; BEST.items = []; BEST.wkzItems = []; BEST.wkzRate = BEST_CONFIG.defaultWkzRate; BEST.wkzOverrunConfirmed = 0; bestLeaveBrand(); render();
     }
     else if (kind === 'best-new') { BEST.completedId = null; replaceTop('bestellung'); }
     else if (kind === 'best-view-order') { BEST.completedId = key; goTo('best-fertig'); }
