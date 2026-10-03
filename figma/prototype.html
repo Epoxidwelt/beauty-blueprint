@@ -814,6 +814,7 @@
   .bst-sum b { font-weight: 400 !important; }
   .bst-hubbtn .bc { font-weight: 400 !important; }
   .bst-tabs button small { font-weight: 400 !important; }
+  .bst-discardrow { display: flex; justify-content: flex-end; margin: .4rem 0 1rem; }
   .bst-editbanner { display: flex; align-items: center; justify-content: space-between; gap: .8rem; }
   .best-img { background: #fff; border: 1px solid var(--rose-pale); border-radius: 14px; display: flex; align-items: center; justify-content: center; padding: 0.5rem; }
   .best-img img { width: 96px; height: 96px; display: block; object-fit: contain; }
@@ -4989,12 +4990,12 @@
       '<div class="best-h2">Bestellung</div>' + (BEST.items.length ? '<div class="bst-prodlist">' + bestUniqueProducts(BEST.items).map(function (p) { return bestRowHtml(p, false, 0); }).join('') + '</div>' : '<div class="best-msg err">Noch keine Artikel in der Bestellung.</div>') +
       (BEST.wkzItems.length ? '<div class="best-h2">WKZ-Ware</div><div class="bst-prodlist">' + bestUniqueProducts(BEST.wkzItems).map(function (p) { return bestRowHtml(p, true, 0); }).join('') + '</div>' : '') +
       bestSummaryBlocks(o) +
-      (bestIsApprover() && BEST.items.length ? '<div class="best-actionrow"><button class="best-secondary bst-danger" onclick="__bb.select(\'best-discard-collective\')">Bestellung verwerfen</button></div>' : '') +
       '<div class="best-actionrow bst-final"><button class="best-secondary" onclick="__bb.goBack()">' + (path[pointer - 1] === 'kunde-wahl' ? '← Zurück' : '← Bestellung bearbeiten') + '</button>' +
       (bestIsApprover()
         ? '<button class="best-secondary" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-save\')">Speichern</button>' +
           '<button class="best-primary grow" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-finish\')">' + (BEST.editingId ? 'Bestellung speichern' : 'Bestellung abschließen') + '</button>'
         : '<button class="best-primary grow" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-save\')">Speichern</button>') + '</div>' +
+      (bestIsApprover() && BEST.items.length ? '<div class="bst-discardrow"><button class="best-secondary bst-danger" onclick="__bb.select(\'best-discard-collective\')">Bestellung verwerfen</button></div>' : '') +
       '</div>';
     screenWrap('dezent', 0, contextLabel(), body);
   }
