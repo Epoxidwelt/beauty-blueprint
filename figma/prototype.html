@@ -4941,7 +4941,7 @@
   function bestFooterHtml() {
     if (BEST.scanAll) {
       var all = BEST.items, n = all.reduce(function (a, i) { return a + i.quantityPaid + i.quantityFree; }, 0);
-      var per = BEST_BRANDS.map(function (b) { var c = all.filter(function (i) { return i.product.brand === b; }).reduce(function (a, i) { return a + i.quantityPaid + i.quantityFree; }, 0); return c ? esc(b) + ' ' + c : ''; }).filter(Boolean).join(' · ');
+      var per = BEST_BRANDS.map(function (b) { var c = all.filter(function (i) { return i.product.brand === b; }).reduce(function (a, i) { return a + i.quantityPaid + i.quantityFree; }, 0); return c ? esc(b) : ''; }).filter(Boolean).join(' · ');   // nur die Herstellernamen, ohne Stückzahl
       return '<div class="bst-sumline"><span class="cnt"><span class="n">' + n + '</span> Artikel</span><span class="r">' + per + '</span></div>' +
         '<div class="bst-navrow"><button class="best-secondary" onclick="__bb.select(\'best-hub\')">← Zurück</button><button class="best-primary" onclick="__bb.select(\'best-save\')">Fertig</button></div>';
     }
