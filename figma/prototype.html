@@ -823,6 +823,7 @@
   .bst-hubbtn .bc { font-weight: 400 !important; }
   .bst-tabs button small { font-weight: 400 !important; }
   .bst-final2 { display: flex; flex-direction: column; gap: .55rem; padding: .7rem 0 .8rem; }
+  .bst-scanall { width: 100%; min-height: 54px; margin: 0 0 1rem; font-size: 1.05rem; } .bst-scanall small { font-weight: 400; color: var(--text-soft); margin-left: .4rem; }
   .bst-donenav { margin: 1.2rem 0 1rem; } .bst-donenav button { min-width: 7.5rem; }
   .bst-discardrow { display: block; margin: .2rem 0 1rem; } .bst-discardrow button { width: 100%; min-height: 44px; padding-top: .45rem; padding-bottom: .45rem; font-size: .95rem; border-radius: 14px; }
   /* Produktauswahl: gewählte Produkte deutlich erkennbar */
@@ -2211,6 +2212,7 @@
     bestInput: bestInput,
     produkteImportFile: function (f) { produkteImportFile(f); },   // Test-/Automatisierungszugang
     scanFile: function (f) { bestScanFromFile(f); },
+    openScanAll: function () { bestOpenScanAll(); },
     setEanTable: function (map) { Object.keys(map || {}).forEach(function (k) { BEST_EAN_TABLE[k] = map[k]; }); },   // EAN → Artikelnummer, z. B. aus CSV/Excel
     bestBrandEmailBody: function (id, brand) { return bestBrandEmailBody(bestFindOrder(id), brand); },
     bestBrandEmailHtml: function (id, brand) { return bestBrandEmailHtml(bestFindOrder(id), brand); },
@@ -4637,11 +4639,11 @@
   }
   function bestMerge() { BEST.items = bestAllItems(); BEST.wkzItems = bestAllWkz(); BEST.rest = []; BEST.restW = []; BEST.workBrand = null; }
   function bestEnterBrand(brand) {
-    bestScanStop(); bestMerge(); bestSplit(brand);
+    BEST.scanAll = false; bestScanStop(); bestMerge(); bestSplit(brand);
     BEST.brand = brand; BEST.group = ''; BEST.category = ''; BEST.catOpen = false; BEST.search = ''; BEST.favOnly = false; BEST.tab = 'order'; BEST.limit = BEST_CONFIG.pageSize; BEST.pick = null;
     render();
   }
-  function bestLeaveBrand() { bestScanStop(); bestMerge(); BEST.brand = null; BEST.category = ''; BEST.catOpen = false; BEST.tab = 'order'; bestPersist(); }
+  function bestLeaveBrand() { BEST.scanAll = false; bestScanStop(); bestMerge(); BEST.brand = null; BEST.category = ''; BEST.catOpen = false; BEST.tab = 'order'; bestPersist(); }
   function bestPersist() {
     bestSave(BEST_KEYS.draft, { besteller: BEST.besteller, items: bestAllItems(), wkzItems: bestAllWkz(), wkzRate: BEST.wkzRate, wkzOverrunConfirmed: BEST.wkzOverrunConfirmed, editingId: BEST.editingId || null });
   }
@@ -4937,6 +4939,12 @@
   }
   // Fußleiste: oben die Zusammenfassung (Artikelzahl links, Werte rechts), darunter „Speichern" in voller Breite, ganz unten „← Zurück" links und „Weiter →" rechts
   function bestFooterHtml() {
+    if (BEST.scanAll) {
+      var all = BEST.items, n = all.reduce(function (a, i) { return a + i.quantityPaid + i.quantityFree; }, 0);
+      var per = BEST_BRANDS.map(function (b) { var c = all.filter(function (i) { return i.product.brand === b; }).reduce(function (a, i) { return a + i.quantityPaid + i.quantityFree; }, 0); return c ? esc(b) + ' ' + c : ''; }).filter(Boolean).join(' · ');
+      return '<div class="bst-sumline"><span class="cnt"><span class="n">' + n + '</span> Artikel</span><span class="r">' + per + '</span></div>' +
+        '<div class="bst-navrow"><button class="best-secondary" onclick="__bb.select(\'best-hub\')">← Zurück</button><button class="best-primary" onclick="__bb.select(\'best-save\')">Fertig</button></div>';
+    }
     var t = bestTotals(), has = BEST.items.length > 0;
     var left = '<span class="cnt"><span class="n">' + t.deliveryQty + '</span> Artikel' + (t.freeQty ? '<small> · davon ' + t.freeQty + ' gratis</small>' : '') + '</span>';
     var right = '';
@@ -4995,9 +5003,14 @@
       '<button class="best-secondary" onclick="__bb.select(\'best-edit-cancel\')">Abbrechen</button></div>';
   }
   // Startseite der Bestellung: ein großer Button je Hersteller mit dem Stand der jeweiligen Bestellung
+  // Produkte scannen ohne Herstellerwahl: jeder Scan landet automatisch in der Bestellung des passenden Herstellers
+  function bestOpenScanAll() {
+    bestScanStop(); bestMerge(); BEST.scanAll = true; BEST.brand = null; BEST.category = ''; BEST.tab = 'scan'; BEST.pick = null; SCAN.log = [];
+    path = ['login', 'kunde-wahl', 'bestellung']; pointer = 2; render();
+  }
   function bestHubHtml() {
     var all = bestAllItems();
-    return (BEST.flash ? '<div class="best-msg info">' + esc(BEST.flash) + '</div>' : '') + '<div class="best-h2">Offene Bestellungen</div><div class="bst-hub">' +
+    return (BEST.flash ? '<div class="best-msg info">' + esc(BEST.flash) + '</div>' : '') + '<button class="best-secondary bst-scanall" onclick="__bb.select(\'best-scan-all\')">📷 Produkte scannen <small>— wird automatisch dem passenden Hersteller zugeordnet</small></button>' + '<div class="best-h2">Offene Bestellungen</div><div class="bst-hub">' +
       BEST_BRANDS.map(function (b) {
         var its = all.filter(function (i) { return i.product.brand === b; });
         var n = its.reduce(function (a, i) { return a + i.quantityPaid + i.quantityFree; }, 0), ks = Object.keys(bestContributors(its));
@@ -5017,6 +5030,11 @@
     var openOrders = orders.filter(function (o) { return o.status !== 'completed'; }), doneOrders = orders.filter(function (o) { return o.status === 'completed'; });
     var hist = (openOrders.length ? '<details class="bst-hist" open><summary>Offene Bestellungen — warten auf Freigabe (' + openOrders.length + ')</summary><div class="best-history">' + openOrders.map(histRow).join('') + '</div></details>' : '') +
       (doneOrders.length ? '<details class="bst-hist"><summary>Abgeschlossene Bestellungen (' + doneOrders.length + ')</summary><div class="best-history">' + doneOrders.map(histRow).join('') + '</div></details>' : '');
+    if (BEST.scanAll) {
+      screenWrap('dezent', 0, contextLabel(), '<div class="best-wrap">' + bestMainTabs('bestellung') + '<div class="bst-workhead"><button class="best-secondary" onclick="__bb.select(\'best-hub\')">← Bestellungen</button><b>Produkte scannen</b></div>' +
+        '<div id="best-collective"></div><div id="best-bar"></div><div id="best-list">' + bestScanHtml() + '</div><div class="bst-footer" id="best-footer">' + bestFooterHtml() + '</div></div>');
+      flashDone(); return;
+    }
     if (!BEST.workBrand) { screenWrap('dezent', 0, contextLabel(), '<div class="best-wrap">' + bestMainTabs('bestellung') + bestHubHtml() + hist + '</div>'); flashDone(); return; }
     var body = '<div class="best-wrap">' + bestMainTabs('bestellung') + bestWhoChips() + bestEditBanner() + '<div class="bst-workhead"><button class="best-secondary" onclick="__bb.select(\'best-hub\')">← Hersteller</button><b>' + esc(BEST.workBrand) + '</b></div><div id="best-collective">' + bestCollectiveBanner() + '</div>' + bestTabsHtml() +
       '<div id="best-bar">' + bestBarHtml() + '</div>' + bestFiltersHtml() +
@@ -5209,6 +5227,7 @@
         (canEdit ? '<button class="best-secondary" onclick="__bb.select(\'best-edit-order\',\'' + id + '\')">✎ Bestellung bearbeiten</button>' : '') + '</div>') +
       (ap && !BEST.fresh ? '<div class="bst-discardrow"><button class="best-secondary bst-danger" onclick="__bb.select(\'best-delete-order\',\'' + id + '\')">Bestellung löschen</button></div>' : '') +
       ((!done && ap) ? '<div class="bst-discardrow"><button class="best-primary" style="width:100%;min-height:44px" onclick="__bb.select(\'best-approve\',\'' + id + '\')">Bestellung abschließen</button></div>' : '') +
+      '<div class="bst-discardrow"><button class="best-secondary" onclick="__bb.select(\'best-scan-all\')">📷 Produkte scannen</button></div>' +
       '<div class="bst-navrow bst-donenav"><button class="best-secondary" onclick="__bb.replaceTop(\'kunde-wahl\')">Hauptmenü</button><button class="best-primary" onclick="__bb.select(\'best-new\')">Neue Bestellung</button></div></div>';
     screenWrap('dezent', 0, contextLabel(), body);
   }
@@ -5506,6 +5525,7 @@
       render();
     }
     else if (kind === 'best-cat') { BEST.category = (BEST.category === key) ? '' : key; BEST.catOpen = false; BEST.limit = BEST_CONFIG.pageSize; render(); }
+    else if (kind === 'best-scan-all') { bestOpenScanAll(); }
     else if (kind === 'best-brand') { bestEnterBrand(key); }
     else if (kind === 'best-hub') { bestLeaveBrand(); render(); }
     else if (kind === 'best-back') {   // genau ein Schritt zurück: WKZ-Ware → Bestellung → Produkte → Produktlinien → Marke → Hauptbildschirm
@@ -5595,7 +5615,7 @@
       });
     }
     else if (kind === 'best-save') {   // Mitarbeiterin: Eintrag ist Teil der gemeinsamen Bestellung (liegt schon im gemeinsamen Entwurf)
-      bestPersist(); BEST.flash = '✓ Gespeichert — offene Bestellung ' + BEST.workBrand + '.'; bestLeaveBrand();
+      bestPersist(); BEST.flash = BEST.scanAll ? '✓ Gescannte Produkte wurden den Herstellern zugeordnet und gespeichert.' : '✓ Gespeichert — offene Bestellung ' + BEST.workBrand + '.'; bestLeaveBrand();
       path = ['login', 'kunde-wahl', 'bestellung']; pointer = 2; render();
     }
     else if (kind === 'best-finish') { if (bestIsApprover()) bestCommitOrder('completed'); }
