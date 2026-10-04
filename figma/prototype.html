@@ -827,6 +827,8 @@
   .bst-final2 .bst-navrow button { flex: 1; white-space: normal; line-height: 1.15; }
   .bst-final2 .bst-navrow .bst-danger { color: var(--danger); border: 1px solid var(--danger); }
   .bst-final2 { gap: .5rem; }
+  .bst-warn { color: var(--danger) !important; font-weight: 600; }
+  .admin-herst { border: 1px solid var(--border); border-radius: 14px; padding: .8rem 1rem; margin-bottom: .8rem; } .admin-herst-name { font-weight: 800; margin-bottom: .4rem; }
   .bst-donenav { margin: 1.2rem 0 1rem; } .bst-donenav button { min-width: 7.5rem; }
   .bst-discardrow { display: block; margin: .2rem 0 1rem; } .bst-discardrow button { width: 100%; min-height: 44px; padding-top: .45rem; padding-bottom: .45rem; font-size: .95rem; border-radius: 14px; }
   /* Produktauswahl: gewählte Produkte deutlich erkennbar */
@@ -957,7 +959,7 @@
   .a4-head { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #111; padding-bottom: 4mm; margin-bottom: 4mm; }
   .a4-head img.logo { height: 16mm; width: auto; display: block; }
   .a4-title { text-align: right; } .a4-title span { display: block; font-size: 8pt; letter-spacing: .2em; color: #555; } .a4-title b { font-size: 17pt; letter-spacing: .02em; }
-  .a4-meta { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; margin-bottom: 5mm; }
+  .a4-meta { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3mm; margin-bottom: 5mm; }
   .a4-meta div { border: 1px solid #ccc; border-radius: 2mm; padding: 1.6mm 2.4mm; } .a4-meta small, .a4-cells small { display: block; font-size: 7pt; color: #666; text-transform: uppercase; letter-spacing: .06em; } .a4-meta b { font-size: 9.5pt; }
   .a4-table { width: 100%; border-collapse: collapse; font-size: 9pt; margin-bottom: 4mm; }
   .a4-table th { text-align: left; font-size: 7pt; text-transform: uppercase; letter-spacing: .06em; color: #555; border-bottom: 1.5px solid #111; padding: 1.2mm 1.5mm; }
@@ -2307,7 +2309,11 @@
     else if (kind === 'admin-logout') { adminLogout(); }
     else if (kind === 'hersteller-save') {
       ADMIN_DATA.herstellerEmails = ADMIN_DATA.herstellerEmails || {};
-      BEST_BRANDS.forEach(function (b) { var el = document.getElementById('hersteller-email-' + b); if (el) ADMIN_DATA.herstellerEmails[b] = el.value.trim(); });
+      ADMIN_DATA.herstellerKdNr = ADMIN_DATA.herstellerKdNr || {};
+      BEST_BRANDS.forEach(function (b) {
+        var el = document.getElementById('hersteller-email-' + b); if (el) ADMIN_DATA.herstellerEmails[b] = el.value.trim();
+        var kd = document.getElementById('hersteller-kdnr-' + b); if (kd) ADMIN_DATA.herstellerKdNr[b] = kd.value.trim();
+      });
       var wk = document.getElementById('hersteller-wkz-KLAPP');
       if (wk) { var wv = parseFloat(String(wk.value).replace(',', '.')); ADMIN_DATA.wkzRates = ADMIN_DATA.wkzRates || {}; ADMIN_DATA.wkzRates.KLAPP = (isNaN(wv) || wv < 0) ? BEST_CONFIG.defaultWkzRate : wv; }
       saveAdminData(); render();
@@ -2798,9 +2804,12 @@
   function renderAdminHerstellerTab() {
     var em = ADMIN_DATA.herstellerEmails || {};
     return '<p class="admin-section-title">E-Mail-Adressen der Hersteller</p>' +
-      '<p class="admin-hint">Jede Bestellung geht pro Hersteller als eigene E-Mail raus. Solange hier nichts steht, wird der Platzhalter ' + esc(BEST_CONFIG.orderEmail) + ' verwendet.</p>' +
+      '<p class="admin-hint">Jede Bestellung geht pro Hersteller als eigene E-Mail raus. Hier hinterlegst du je Hersteller die <b>E-Mail-Adresse</b> und die <b>Kundennummer</b> — sie steht dann automatisch in jeder Bestell-E-Mail und im Bestellformular. Solange keine E-Mail steht, wird der Platzhalter ' + esc(BEST_CONFIG.orderEmail) + ' verwendet.</p>' +
       '<div class="admin-form">' + BEST_BRANDS.map(function (b) {
-        return '<label class="file-label">' + esc(b) + '<input id="hersteller-email-' + b + '" class="text-input" type="email" placeholder="bestellung@hersteller.de" value="' + esc(em[b] || '') + '" /></label>';
+        var kd = (ADMIN_DATA.herstellerKdNr || {})[b] || '';
+        return '<div class="admin-herst"><div class="admin-herst-name">' + esc(b) + '</div>' +
+          '<label class="file-label">E-Mail-Adresse für Bestellungen<input id="hersteller-email-' + b + '" class="text-input" type="email" placeholder="bestellung@hersteller.de" value="' + esc(em[b] || '') + '" /></label>' +
+          '<label class="file-label">Kundennummer (KD-Nr.) bei ' + esc(b) + '<input id="hersteller-kdnr-' + b + '" class="text-input" type="text" placeholder="z. B. 123456" value="' + esc(kd) + '" /></label></div>';
       }).join('') +
       '<p class="admin-section-title" style="margin-top:1.4rem">WKZ-Satz</p><p class="admin-hint">Warenkreditzinsen/WKZ in Prozent auf die Bestellung ohne Aktionsware. Gilt nur für Hersteller mit WKZ (aktuell KLAPP) und wird in neuen Bestellungen automatisch verwendet.</p>' +
       '<label class="file-label">KLAPP — WKZ-Satz in %<input id="hersteller-wkz-KLAPP" class="text-input" type="text" inputmode="decimal" placeholder="5" value="' + esc(String(bestAdminWkzRate()).replace('.', ',')) + '" /></label>' +
@@ -5214,6 +5223,7 @@
       var ex = bestBrandPurposes(o, b).filter(function (k) { return k !== 'sale'; }).map(function (k) { return k === 'tester' ? 'Tester' : 'Kabinenware'; });
       return '<div class="bst-mail"><div><b>' + esc(b) + '</b> · ' + n + ' Position' + (n === 1 ? '' : 'en') + (ex.length ? ' · <b>enthält ' + ex.join(' + ') + '</b> (in der Mail gekennzeichnet)' : '') +
         '<small>' + esc(bestBrandEmail(b)) + (bestBrandConfigured(b) ? '' : ' (Platzhalter — Hersteller-E-Mail im Admin-Bereich hinterlegen)') + '</small>' +
+        (bestBrandKdNr(b) ? '<small>Kundennummer: ' + esc(bestBrandKdNr(b)) + '</small>' : '<small class="bst-warn">⚠ Keine Kundennummer hinterlegt (Admin → Hersteller)</small>') +
         (sent ? '<small class="ok">✓ E-Mail geöffnet am ' + esc(formatDateDE(new Date(sent))) + '</small>' : '') + '</div>' +
         '<button class="best-secondary" onclick="__bb.select(\'best-copy-html\',\'' + esc(o.id) + '\',\'' + b + '\')">Formatiert kopieren</button>' +
         '<button class="best-primary" onclick="__bb.select(\'best-email\',\'' + esc(o.id) + '\',\'' + b + '\')">' + (sent ? '✉ Erneut senden an ' : '✉ E-Mail an ') + esc(b) + '</button></div>';
@@ -5292,6 +5302,7 @@
     var e = (ADMIN_DATA.herstellerEmails || {})[brand];
     return (e && e.trim()) || BEST_CONFIG.orderEmail;
   }
+  function bestBrandKdNr(brand) { var k = (ADMIN_DATA.herstellerKdNr || {})[brand]; return (k && String(k).trim()) || ''; }
   function bestBrandConfigured(brand) { var e = (ADMIN_DATA.herstellerEmails || {})[brand]; return !!(e && e.trim()); }
   function bestOrderBrands(o) {
     return BEST_BRANDS.filter(function (b) {
@@ -5334,6 +5345,7 @@
     var rule = '────────────────────────────────────';
     var L = ['Sehr geehrte Damen und Herren,', '', 'hiermit bestellen wir bei Ihnen die unten aufgeführten Artikel.', ''];
     L.push(rule, nr.toUpperCase() + ' · ' + brand.toUpperCase(), rule);
+    if (bestBrandKdNr(brand)) L.push('Kundennummer:    ' + bestBrandKdNr(brand));
     L.push('Datum:           ' + formatDateDE(new Date(o.createdAt)));
     L.push('Besteller:       ' + (o.besteller || '—') + ' · Beauty Lounge Neuss');
     L.push('Lieferadresse:   Beauty Lounge, Hoistener Str. 15, 41466 Neuss');
@@ -5368,7 +5380,7 @@
     return '<div style="font-family:Arial,Helvetica,sans-serif;color:#111;max-width:680px;line-height:1.45">' +
       '<p>Sehr geehrte Damen und Herren,</p><p>hiermit bestellen wir bei Ihnen die unten aufgeführten Artikel.</p>' +
       '<table cellspacing="0" cellpadding="0" style="border:1px solid #ccc;width:100%;font-size:13px"><tr><td style="padding:8px 12px"><b style="font-size:15px">' + esc(nr) + '</b> · ' + esc(brand) + '</td><td style="padding:8px 12px" align="right">' + esc(formatDateDE(new Date(o.createdAt))) + '</td></tr>' +
-      '<tr><td colspan="2" style="padding:0 12px 8px;color:#444">Besteller: ' + esc(o.besteller || '—') + ' · Lieferadresse: Beauty Lounge, Hoistener Str. 15, 41466 Neuss</td></tr></table>' +
+      '<tr><td colspan="2" style="padding:0 12px 8px;color:#444">' + (bestBrandKdNr(brand) ? '<b>Kundennummer: ' + esc(bestBrandKdNr(brand)) + '</b> · ' : '') + 'Besteller: ' + esc(o.besteller || '—') + ' · Lieferadresse: Beauty Lounge, Hoistener Str. 15, 41466 Neuss</td></tr></table>' +
       (special.length ? '<p style="background:#fff3cd;border:1px solid #e0c36a;padding:8px 12px;margin:14px 0 0"><b>Wichtig:</b> Die Bestellung enthält <b>' + special.join(' und ') + '</b> — bitte getrennt ausweisen und liefern.</p>' : '') +
       blocks + '<p style="margin-top:16px;font-weight:700;border-top:2px solid #111;padding-top:8px">Gesamt: ' + grand + ' Stück</p>' +
       '<p>Bitte bestätigen Sie uns den Eingang der Bestellung und den voraussichtlichen Liefertermin.</p><p>Vielen Dank und freundliche Grüße</p>' +
@@ -5376,7 +5388,7 @@
   }
   function bestBrandHref(o, brand) {
     var extra = bestBrandPurposes(o, brand).filter(function (k) { return k !== 'sale'; }).map(function (k) { return k === 'tester' ? 'TESTER' : 'KABINENWARE'; });
-    var subject = (o.id === 'Entwurf' ? 'Bestellung' : 'Bestellung ' + o.id) + ' – ' + brand + (extra.length ? ' – enthält ' + extra.join(' + ') : '') + ' – Beauty Lounge Neuss';
+    var subject = (o.id === 'Entwurf' ? 'Bestellung' : 'Bestellung ' + o.id) + (bestBrandKdNr(brand) ? ' – KD-Nr. ' + bestBrandKdNr(brand) : '') + ' – ' + brand + (extra.length ? ' – enthält ' + extra.join(' + ') : '') + ' – Beauty Lounge Neuss';
     return 'mailto:' + bestBrandEmail(brand) + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(bestBrandEmailBody(o, brand));
   }
   function bestNextNumber() {
@@ -5450,7 +5462,7 @@
     return '<div class="a4"><div class="a4-body"><div class="a4-fit">' +
       '<div class="a4-head"><img class="logo" src="' + LOGO_SRC + '" alt="Beauty Lounge" />' +
         '<div class="a4-title"><span>BESTELLFORMULAR</span><b>' + esc(o.id === 'Entwurf' ? 'Entwurf' : o.id) + '</b></div></div>' +
-      '<div class="a4-meta"><div><small>Hersteller</small><b>' + esc(brands.join(', ') || '—') + '</b></div><div><small>Datum</small><b>' + esc(formatDateDE(new Date(o.createdAt))) + '</b></div>' +
+      '<div class="a4-meta"><div><small>Hersteller</small><b>' + esc(brands.join(', ') || '—') + '</b></div><div><small>Kundennummer</small><b>' + esc(brands.map(bestBrandKdNr).filter(Boolean).join(', ') || '—') + '</b></div><div><small>Datum</small><b>' + esc(formatDateDE(new Date(o.createdAt))) + '</b></div>' +
         '<div><small>Eingetragen von</small><b>' + esc(who) + '</b></div><div><small>Status</small><b>' + (done ? 'abgeschlossen' + (o.approvedBy ? ' (' + esc(o.approvedBy) + ')' : '') : 'in Bearbeitung') + '</b></div></div>' +
       '<table class="a4-table"><thead><tr><th class="r">Menge</th><th class="r">Gratis</th><th>Art.-Nr.</th><th>Bezeichnung</th><th>Verwendung</th><th>Aktion</th><th class="r">EK</th><th class="r">Gesamt</th></tr></thead><tbody>' + (rows || '<tr><td colspan="8">Keine Positionen</td></tr>') + '</tbody></table>' +
       (wrows ? '<div class="a4-sub">WKZ-Ware</div><table class="a4-table"><thead><tr><th class="r">Menge</th><th>Art.-Nr.</th><th>Bezeichnung</th><th>Verwendung</th><th class="r">EK</th><th class="r">Gesamt</th></tr></thead><tbody>' + wrows + '</tbody></table>' : '') +
