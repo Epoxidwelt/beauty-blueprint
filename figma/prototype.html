@@ -829,6 +829,9 @@
   .bst-final2 { gap: .5rem; }
   .bst-warn { color: var(--danger) !important; font-weight: 600; }
   .admin-herst { border: 1px solid var(--border); border-radius: 14px; padding: .8rem 1rem; margin-bottom: .8rem; } .admin-herst-name { font-weight: 800; margin-bottom: .4rem; }
+  .bst-lastscan { border: 3px solid #111; border-radius: 20px; padding: .6rem .6rem .2rem; background: #fff; margin: .6rem 0 1rem; box-shadow: 0 6px 20px rgba(0,0,0,.16); }
+  .bst-lastlbl { font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 800; padding: 0 .4rem .4rem; }
+  .bst-lastscan .bst-row { box-shadow: none; margin-bottom: .3rem; }
   .bst-donenav { margin: 1.2rem 0 1rem; } .bst-donenav button { min-width: 7.5rem; }
   .bst-discardrow { display: block; margin: .2rem 0 1rem; } .bst-discardrow button { width: 100%; min-height: 44px; padding-top: .45rem; padding-bottom: .45rem; font-size: .95rem; border-radius: 14px; }
   /* Produktauswahl: gewählte Produkte deutlich erkennbar */
@@ -4834,23 +4837,26 @@
       '<div class="best-actionrow"><button class="best-primary grow" id="bst-scanbtn" onclick="__bb.select(\'best-scan-toggle\')">' + (SCAN.running ? 'Kamera stoppen' : 'Kamera starten') + '</button></div>' +
       '<div class="best-actionrow" style="margin-top:.5rem"><label class="best-secondary bst-photobtn">📷 Foto vom Barcode aufnehmen<input id="bst-photo" type="file" accept="image/*" capture="environment" style="display:none" onchange="__bb.scanFile(this.files[0]); this.value=\'\'" /></label></div>' +
       '<div class="bst-scanmsg" id="bst-scanmsg" role="status"></div>' +
+      '<div id="bst-scanlog">' + bestScanLogHtml() + '</div>' +
       '<div class="best-h2">EAN von Hand eingeben</div><div class="bst-manual"><input id="bst-ean" type="text" inputmode="numeric" placeholder="EAN-Code (8–13 Ziffern)" autocomplete="off" onkeydown="if(event.key===\'Enter\'){__bb.select(\'best-scan-manual\')}" />' +
       '<button class="best-secondary" onclick="__bb.select(\'best-scan-manual\')">Hinzufügen</button></div>' +
-      '<div class="best-h2">Gescannt — Menge anpassen</div><div id="bst-scanlog">' + bestScanLogHtml() + '</div></div>';
+      '</div>';
   }
   function bestScanLogHtml() {
     if (!SCAN.log.length) return '<div class="best-msg info">Noch nichts gescannt.</div>';
-    var seen = {}, html = '';
+    var seen = {}, first = true, html = '', rest = '';
     SCAN.log.slice(0, 30).forEach(function (e) {
       if (e.ok) {
         if (seen[e.id]) return; seen[e.id] = 1;
         var p = bestProduct(e.id);   // dieselbe Zeile wie in der Produktauswahl: Verkauf/Tester/Kabinenware je Marke, Aktion, Menge
-        if (p) html += bestRowHtml(p, false, 0);
+        if (!p) return;
+        if (first) { first = false; html += '<div class="bst-lastscan"><div class="bst-lastlbl">Gerade gescannt — Menge eintragen und Bereich wählen</div>' + bestRowHtml(p, false, 0) + '</div>'; }
+        else rest += bestRowHtml(p, false, 0);
       } else {
         html += '<div class="bst-scanrow bad"><span>✗</span><span class="grow"><b>' + (e.other ? 'Gehört zu ' + esc(e.other) : 'EAN nicht gefunden') + '</b><small>' + esc(e.code) + (e.other ? ' · bitte dort scannen' : ' · nicht im Katalog hinterlegt') + '</small></span></div>';
       }
     });
-    return html;
+    return html + (rest ? '<div class="best-h2">Weitere gescannte Produkte</div>' + rest : '');
   }
   function bestScanLogRefresh() { var el = document.getElementById('bst-scanlog'); if (el) el.innerHTML = bestScanLogHtml(); }
   function bestScanMsg(t) { var el = document.getElementById('bst-scanmsg'); if (el) el.textContent = t || ''; }
@@ -4863,6 +4869,7 @@
     SCAN.log.unshift({ ok: !!p, code: code, id: p ? p.id : '', name: p ? p.name : '' });
     if (p) { try { if (navigator.vibrate) navigator.vibrate(60); } catch (e) { /* egal */ } bestellungHandler('best-add', p.id + '|sale'); }
     bestScanLogRefresh();
+    if (p && !SCAN.running) setTimeout(function () { var el = document.querySelector('.bst-lastscan input[data-k$="|sale"]'); if (el) { el.focus(); el.select(); } }, 80);
     bestScanMsg(p ? p.name + ' hinzugefügt' : 'EAN ' + code + ' ist nicht hinterlegt');
   }
   function bestScanStop() {
