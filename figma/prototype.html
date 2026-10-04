@@ -787,6 +787,7 @@
   .bst-purposes { display: inline-flex; flex-wrap: wrap; gap: 0.5rem; }
   .bst-purposes button { font-family: var(--font-body); font-size: 0.85rem; font-weight: 600; color: var(--text); background: #fff; border: 1.5px solid var(--border-strong); border-radius: 999px; padding: 0.45rem 1rem; min-height: 44px; cursor: pointer; }
   .bst-purposes button.on { background: var(--text); color: #fff; border-color: var(--text); font-weight: 700; }
+  .bst-photobtn { display: inline-flex; align-items: center; justify-content: center; width: 100%; min-height: 48px; cursor: pointer; box-sizing: border-box; }
   .bst-scanhint { font-size: 0.9rem; color: var(--text-soft); margin: 0 0 .8rem; }
   .bst-videowrap { position: relative; background: #111; border-radius: 18px; overflow: hidden; aspect-ratio: 4 / 3; max-width: 560px; margin: 0 auto .9rem; }
   .bst-videowrap video { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -2209,6 +2210,7 @@
     sendKundeEmail: sendKundeEmail,
     bestInput: bestInput,
     produkteImportFile: function (f) { produkteImportFile(f); },   // Test-/Automatisierungszugang
+    scanFile: function (f) { bestScanFromFile(f); },
     setEanTable: function (map) { Object.keys(map || {}).forEach(function (k) { BEST_EAN_TABLE[k] = map[k]; }); },   // EAN → Artikelnummer, z. B. aus CSV/Excel
     bestBrandEmailBody: function (id, brand) { return bestBrandEmailBody(bestFindOrder(id), brand); },
     bestBrandEmailHtml: function (id, brand) { return bestBrandEmailHtml(bestFindOrder(id), brand); },
@@ -4813,6 +4815,7 @@
     return '<div class="bst-scan"><div class="best-h2">Produkte scannen</div>' +
       '<div class="bst-videowrap"><video id="bst-video" playsinline muted></video><div class="bst-scanframe" aria-hidden="true"></div></div>' +
       '<div class="best-actionrow"><button class="best-primary grow" id="bst-scanbtn" onclick="__bb.select(\'best-scan-toggle\')">' + (SCAN.running ? 'Kamera stoppen' : 'Kamera starten') + '</button></div>' +
+      '<div class="best-actionrow" style="margin-top:.5rem"><label class="best-secondary bst-photobtn">📷 Foto vom Barcode aufnehmen<input id="bst-photo" type="file" accept="image/*" capture="environment" style="display:none" onchange="__bb.scanFile(this.files[0]); this.value=\'\'" /></label></div>' +
       '<div class="bst-scanmsg" id="bst-scanmsg" role="status"></div>' +
       '<div class="best-h2">EAN von Hand eingeben</div><div class="bst-manual"><input id="bst-ean" type="text" inputmode="numeric" placeholder="EAN-Code (8–13 Ziffern)" autocomplete="off" onkeydown="if(event.key===\'Enter\'){__bb.select(\'best-scan-manual\')}" />' +
       '<button class="best-secondary" onclick="__bb.select(\'best-scan-manual\')">Hinzufügen</button></div>' +
@@ -4853,12 +4856,41 @@
     var v = document.getElementById('bst-video'); if (v) v.srcObject = null;
     var b = document.getElementById('bst-scanbtn'); if (b) b.textContent = 'Kamera starten';
   }
+  function bestLoadZXing(ok, fail) {
+    if (window.ZXing) return ok();
+    var sc = document.createElement('script'); sc.src = 'https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js';
+    sc.onload = ok; sc.onerror = function () { fail({ name: 'Scanner-Bibliothek nicht ladbar (Internet?)' }); }; document.head.appendChild(sc);
+  }
+  // Ersatz, wenn die Live-Kamera blockiert ist (z. B. eingebettete Ansicht): Foto des Barcodes aufnehmen und auslesen
+  function bestScanFromFile(file) {
+    if (!file) return;
+    bestScanMsg('Foto wird gelesen …');
+    var url = URL.createObjectURL(file);
+    var viaZx = function () {
+      bestLoadZXing(function () {
+        try {
+          new window.ZXing.BrowserMultiFormatReader().decodeFromImageUrl(url).then(function (res) { bestScanCode(res.getText()); }, function () { bestScanMsg('Kein Barcode erkannt — bitte näher, gerade und scharf fotografieren (oder EAN von Hand eingeben).'); });
+        } catch (e) { bestScanMsg('Kein Barcode erkannt — bitte EAN von Hand eingeben.'); }
+      }, function (e) { bestScanMsg('Foto konnte nicht gelesen werden (' + ((e && e.name) || 'Fehler') + '). Bitte EAN von Hand eingeben.'); });
+    };
+    if ('BarcodeDetector' in window && window.createImageBitmap) {
+      createImageBitmap(file).then(function (bm) { return new window.BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e'] }).detect(bm); })
+        .then(function (r) { if (r && r.length) bestScanCode(r[0].rawValue); else viaZx(); }).catch(viaZx);
+    } else viaZx();
+  }
   function bestScanStart() {
     var v = document.getElementById('bst-video'), b = document.getElementById('bst-scanbtn');
     if (!v) return;
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { bestScanMsg('Kamera nicht verfügbar (Seite muss über https geöffnet sein). EAN bitte von Hand eingeben.'); return; }
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { bestScanMsg('Live-Kamera hier nicht verfügbar (die Seite muss über https geöffnet sein). Nutze „Foto vom Barcode aufnehmen“ oder gib die EAN von Hand ein.'); return; }
     SCAN.running = true; if (b) b.textContent = 'Kamera stoppen'; bestScanMsg('Kamera wird gestartet …');
-    function fail(e) { bestScanStop(); bestScanMsg('Kamera konnte nicht gestartet werden (' + ((e && e.name) || 'Fehler') + '). Bitte Kamera-Zugriff erlauben oder EAN von Hand eingeben.'); }
+    function fail(e) {
+      bestScanStop();
+      var emb = false; try { emb = window.self !== window.top; } catch (x) { emb = true; }
+      var denied = e && (e.name === 'NotAllowedError' || e.name === 'SecurityError');
+      bestScanMsg(emb && denied ? 'Die Live-Kamera ist in dieser eingebetteten Ansicht gesperrt. Nutze „Foto vom Barcode aufnehmen“ oder öffne die App direkt über ihre eigene Adresse (dort funktioniert die Kamera).'
+        : denied ? 'Kamera-Zugriff wurde nicht erlaubt. Bitte in den Browser-Einstellungen für diese Seite die Kamera erlauben — oder „Foto vom Barcode aufnehmen“ nutzen.'
+        : 'Kamera konnte nicht gestartet werden (' + ((e && e.name) || 'Fehler') + '). Bitte „Foto vom Barcode aufnehmen“ nutzen oder EAN von Hand eingeben.');
+    }
     if ('BarcodeDetector' in window) {
       navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false }).then(function (stream) {
         SCAN.stream = stream; v.srcObject = stream; return v.play();
