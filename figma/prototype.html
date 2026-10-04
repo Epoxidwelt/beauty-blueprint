@@ -841,6 +841,19 @@
   .best-wkzbar:not(.live) { padding: .55rem 1rem; border-width: 1px; box-shadow: none; position: static; margin-bottom: .8rem; }
   .best-wkzbar:not(.live) b { font-size: 1.05rem; font-weight: 700; }
   .best-wkzbar:not(.live) div { font-size: .72rem; }
+  /* PC-Ansicht (breiter Bildschirm + Maus): Aktionsleiste als schmale Seitenleiste rechts, läuft beim Scrollen mit. Touch-Geräte (iPad/Handy) behalten die untere Leiste. */
+  @media (min-width: 1100px) and (hover: hover) and (pointer: fine) {
+    .best-wrap:has(> .bst-footer), .best-wrap:has(> .bst-final2) { display: grid; grid-template-columns: minmax(0, 1fr) 270px; column-gap: 1.6rem; align-items: start; }
+    .best-wrap:has(> .bst-footer) > *, .best-wrap:has(> .bst-final2) > * { grid-column: 1; }
+    .best-wrap > .bst-footer, .best-wrap > .bst-final2 { grid-column: 2; grid-row: 1 / span 40; position: sticky; top: 1rem; bottom: auto; align-self: start; margin-top: 0; border-radius: 18px; box-shadow: 0 6px 22px rgba(0,0,0,.14); border: 1px solid var(--border); padding: 1rem; background: #fff; gap: .7rem; }
+    html.embedded .bst-footer, html.embedded .bst-final { bottom: auto; }
+    html.embedded .content { padding-bottom: 2rem; }
+    .bst-footer .bst-sumline { flex-direction: column; align-items: flex-start; gap: .25rem; font-size: 1rem; padding: 0 0 .5rem; border-bottom: 1px solid var(--border); }
+    .bst-footer .bst-sumline .r { justify-content: flex-start; flex-direction: column; gap: .15rem; align-items: flex-start; }
+    .bst-footer .bst-navrow, .bst-final2 .bst-navrow { flex-direction: column-reverse; gap: .6rem; }
+    .bst-footer .bst-navrow button, .bst-final2 .bst-navrow button { width: 100%; }
+    .bst-final2 { padding: 1rem !important; }
+  }
   .bst-editbanner { display: flex; align-items: center; justify-content: space-between; gap: .8rem; }
   .best-img { background: #fff; border: 1px solid var(--rose-pale); border-radius: 14px; display: flex; align-items: center; justify-content: center; padding: 0.5rem; }
   .best-img img { width: 96px; height: 96px; display: block; object-fit: contain; }
