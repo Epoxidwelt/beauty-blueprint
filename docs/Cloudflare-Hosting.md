@@ -33,3 +33,11 @@ Adresse öffnen → Anmelden → Teilen → **„Zum Home-Bildschirm"** → star
 ## Nach dem Veröffentlichen
 - Update einspielen = Änderung in GitHub pushen (ich mache das), Cloudflare baut in ~1 Minute neu.
 - Wichtig: Der bisherige Prototyp-Link (Artifact) wird nicht mehr gebraucht und nicht weitergegeben.
+
+## Schnellstart ohne GitHub-Verbindung („Direct Upload") — damit die Live-Kamera sofort funktioniert
+Die Live-Kamera zum Barcode-Scannen geht **nur auf einer eigenen https-Adresse** (nicht in der Claude-Artifact-Ansicht).
+1. `Bestell-App-Upload.zip` (im Projektordner) entpacken **oder** direkt den Ordner `dist` verwenden.
+2. Cloudflare → Workers & Pages → **Create → Pages → Upload assets** → Projektname `beauty-lounge-bestellung` → den **Ordner `dist` (oder den entpackten Inhalt der ZIP)** ins Fenster ziehen → **Deploy**.
+3. Die angezeigte Adresse (`…pages.dev`) am Handy öffnen → Scannen → **Kamera erlauben**.
+4. Danach sofort den Zugangsschutz (Access) einrichten, siehe oben.
+Updates: neue `dist` erzeugen (`bash scripts/build-pages.sh`) und erneut hochladen — oder später die Git-Verbindung nutzen.
