@@ -824,6 +824,9 @@
   .bst-tabs button small { font-weight: 400 !important; }
   .bst-final2 { display: flex; flex-direction: column; gap: .55rem; padding: .7rem 0 .8rem; }
   .bst-scanall { width: 100%; min-height: 54px; margin: 0 0 1rem; font-size: 1.05rem; } .bst-scanall small { font-weight: 400; color: var(--text-soft); margin-left: .4rem; }
+  .bst-final2 .bst-navrow button { flex: 1; white-space: normal; line-height: 1.15; }
+  .bst-final2 .bst-navrow .bst-danger { color: var(--danger); border: 1px solid var(--danger); }
+  .bst-final2 { gap: .5rem; }
   .bst-donenav { margin: 1.2rem 0 1rem; } .bst-donenav button { min-width: 7.5rem; }
   .bst-discardrow { display: block; margin: .2rem 0 1rem; } .bst-discardrow button { width: 100%; min-height: 44px; padding-top: .45rem; padding-bottom: .45rem; font-size: .95rem; border-radius: 14px; }
   /* Produktauswahl: gewählte Produkte deutlich erkennbar */
@@ -855,6 +858,9 @@
     .bst-footer .bst-navrow, .bst-final2 .bst-navrow { flex-direction: column-reverse; gap: .6rem; }
     .bst-footer .bst-navrow button, .bst-final2 .bst-navrow button { width: 100%; }
     .bst-final2 { padding: 1rem !important; }
+    .bst-final2 .bst-navrow { display: contents; }
+    .bst-final2 .bst-navrow button { width: 100%; flex: none; }
+    .bst-final2 .bst-b-finish { order: 1; } .bst-final2 .bst-b-save { order: 2; } .bst-final2 .bst-b-discard { order: 3; } .bst-final2 .bst-b-back { order: 4; }
   }
   .bst-editbanner { display: flex; align-items: center; justify-content: space-between; gap: .8rem; }
   .best-img { background: #fff; border: 1px solid var(--rose-pale); border-radius: 14px; display: flex; align-items: center; justify-content: center; padding: 0.5rem; }
@@ -5090,12 +5096,15 @@
       (BEST.wkzItems.length ? '<div class="best-h2">WKZ-Ware</div><div class="bst-prodlist">' + bestUniqueProducts(BEST.wkzItems).map(function (p) { return bestRowHtml(p, true, 0); }).join('') + '</div>' : '') +
       bestSummaryBlocks(o) +
       '<div class="bst-final bst-final2">' +
-        (bestIsApprover() ? '<button class="best-secondary bst-savefull" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-save\')">Speichern</button>' : '') +
-        '<div class="bst-navrow"><button class="best-secondary" onclick="__bb.goBack()">← Zurück</button>' +
         (bestIsApprover()
-          ? '<button class="best-primary" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-finish\')">' + (BEST.editingId ? 'Bestellung speichern' : 'Bestellung abschließen') + '</button>'
-          : '<button class="best-primary" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-save\')">Speichern</button>') + '</div></div>' +
-      (bestIsApprover() && BEST.items.length ? '<div class="bst-discardrow"><button class="best-secondary bst-danger" onclick="__bb.select(\'best-discard-collective\')">Bestellung verwerfen</button></div>' : '') +
+          // Inhaberin: 2 Zeilen — oben Speichern | Verwerfen, unten Zurück | Abschließen
+          ? '<div class="bst-navrow"><button class="best-secondary bst-b-save" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-save\')">Speichern</button>' +
+            '<button class="best-secondary bst-danger bst-b-discard" ' + (BEST.items.length ? '' : 'disabled') + ' onclick="__bb.select(\'best-discard-collective\')">Bestellung verwerfen</button></div>' +
+            '<div class="bst-navrow"><button class="best-secondary bst-b-back" onclick="__bb.goBack()">← Zurück</button>' +
+            '<button class="best-primary bst-b-finish" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-finish\')">' + (BEST.editingId ? 'Bestellung speichern' : 'Bestellung abschließen') + '</button></div>'
+          : '<div class="bst-navrow"><button class="best-secondary bst-b-back" onclick="__bb.goBack()">← Zurück</button>' +
+            '<button class="best-primary bst-b-finish" ' + (ok ? '' : 'disabled') + ' onclick="__bb.select(\'best-save\')">Speichern</button></div>') +
+      '</div>' +
       '</div>';
     screenWrap('dezent', 0, contextLabel(), body);
   }
