@@ -2288,9 +2288,14 @@
     else if (kind === 'sicherheit') { STATE.sicherheit[key] = extra; advanceFlow('sicherheit', SAFETY_ITEMS, 'sicherheit-summary'); }
     else if (kind === 'analyse') { STATE.analyse[key] = extra; advanceFlow('analyse', ANALYSE_ITEMS, 'auswertung'); }
     else if (kind === 'behandlung-add') {
-      // Anhängen statt Toggle: derselbe Need kann mehrfach ausgewählt werden (z. B. ASA
-      // 3x für eine Kur) — jeder Klick fügt einen weiteren Eintrag am Ende hinzu.
-      STATE.rec.behandlungOrder.push(key);
+      // Anhängen statt Toggle: derselbe Need kann mehrfach ausgewählt werden — jeder Klick
+      // fügt einen weiteren Eintrag am Ende hinzu. Ausnahme ASA Peel: nur als 3er-Kur
+      // buchbar, die Auswahl belegt automatisch 3 aufeinanderfolgende Monate (kurSequence()),
+      // ein zweiter Klick wäre daher wirkungslos.
+      var addInfo = NEED_INFO[key];
+      var isAsa = addInfo && isAsaPeel(addInfo.behandlung);
+      var asaSchonDa = STATE.rec.behandlungOrder.some(function (n) { return NEED_INFO[n] && isAsaPeel(NEED_INFO[n].behandlung); });
+      if (!(isAsa && asaSchonDa)) STATE.rec.behandlungOrder.push(key);
       render();
     }
     else if (kind === 'behandlung-remove') {
@@ -3920,6 +3925,7 @@
       if (!byNeed[r.need]) { byNeed[r.need] = { need: r.need, behandlung: r.behandlung, dauer: r.dauer, preis: r.preis, count: 0 }; order.push(byNeed[r.need]); }
       byNeed[r.need].count++;
     });
+    order.forEach(function (g) { if (isAsaPeel(g.behandlung)) g.count = ASA_BLOCK; });
     return order;
   }
 
@@ -3942,8 +3948,38 @@
   // Jeder Termin bleibt einzeln editierbar (Suche, Zurücksetzen, Entfernen).
   var KUR_MONTHS_MIN = 6;
 
+  // ASA Peel Fruchtsäure ist nur als 3er-Kur direkt hintereinander buchbar: eine einzige
+  // Auswahl belegt deshalb automatisch drei aufeinanderfolgende Monate. Die Reihenfolge der
+  // übrigen Behandlungen bleibt wie angeklickt; alles danach rückt entsprechend nach hinten.
+  var ASA_BLOCK = 3;
+
+  function kurSequence(plan) {
+    var seq = [];
+    var asaDone = false;
+    plan.active.forEach(function (r) {
+      if (isAsaPeel(r.behandlung)) {
+        if (asaDone) return;   // ein ASA-Block genügt
+        asaDone = true;
+        for (var i = 0; i < ASA_BLOCK; i++) seq.push(r);
+      } else {
+        seq.push(r);
+      }
+    });
+    return seq;
+  }
+
+  // Erster belegter Monat (1-basiert) einer ausgewählten Behandlung — für den Hinweis auf der Karte.
+  function kurStartMonth(plan, need) {
+    var m = 0;
+    for (var i = 0; i < plan.active.length; i++) {
+      if (plan.active[i].need === need) return m + 1;
+      m += isAsaPeel(plan.active[i].behandlung) ? ASA_BLOCK : 1;
+    }
+    return 0;
+  }
+
   function kurMonthsCount(plan) {
-    return Math.max(KUR_MONTHS_MIN, plan.active.length || 1);
+    return Math.max(KUR_MONTHS_MIN, kurSequence(plan).length || 1);
   }
 
   // Wächst STATE.rec.kur bei Bedarf nach, ohne bestehende Termine (inkl. manueller
@@ -3956,12 +3992,19 @@
   }
 
   function kurDefaultSlots(plan) {
-    var pool = plan.active.length ? plan.active : [plan.ranked[0]];
+    var seq = kurSequence(plan);
     var months = kurMonthsCount(plan);
     ensureKurSlots(months);
+    // Auffüllen ab dem ersten freien Monat — ohne ASA wie bisher im Kreis über die Auswahl;
+    // ein ASA-Block wird nie wiederholt (sonst ergäbe sich eine zweite 3er-Kur).
+    var filler = seq.filter(function (r) { return !isAsaPeel(r.behandlung); });
+    if (!filler.length) filler = plan.ranked.filter(function (r) { return !isAsaPeel(r.behandlung); });
+    if (!filler.length) filler = seq.length ? seq : [plan.ranked[0]];
     var slots = [];
     for (var m = 0; m < months; m++) {
-      slots.push(pool[m % pool.length]);
+      if (m < seq.length) slots.push(seq[m]);
+      else if (!seq.length) slots.push(plan.ranked[0]);
+      else slots.push(filler[(m - seq.length) % filler.length]);
     }
     return slots;
   }
@@ -4087,8 +4130,13 @@
         '<span class="rec-name">' + esc(r.behandlung) + '</span>' +
         '<span style="font-size:.8125rem;color:var(--text-soft)">' + esc([r.dauer, r.preis].filter(Boolean).join(' · ')) + '</span>' +
         '<p class="sub" style="margin:0;font-size:.8125rem">' + esc(needReason(r.need)) + '</p>' +
+        (isAsaPeel(r.behandlung)
+          ? '<p class="sub" style="margin:0;font-size:.8125rem;font-weight:600">' + (selected
+              ? 'Blockt 3 Termine hintereinander: Monat ' + kurStartMonth(plan, r.need) + '–' + (kurStartMonth(plan, r.need) + ASA_BLOCK - 1)
+              : 'Nur als 3er-Kur — belegt automatisch 3 Monate') + '</p>'
+          : '') +
         '<div class="rec-round-row">' +
-          '<button class="rec-round-btn add' + (selected ? ' active' : '') + '" onclick="__bb.select(\'behandlung-add\',\'' + r.need + '\')" title="' + (selected ? 'Nochmal wählen' : 'Auswählen') + '" aria-label="' + (selected ? 'Nochmal wählen' : 'Auswählen') + '">+</button>' +
+          (selected && isAsaPeel(r.behandlung) ? '' : '<button class="rec-round-btn add' + (selected ? ' active' : '') + '" onclick="__bb.select(\'behandlung-add\',\'' + r.need + '\')" title="' + (selected ? 'Nochmal wählen' : 'Auswählen') + '" aria-label="' + (selected ? 'Nochmal wählen' : 'Auswählen') + '">+</button>') +
           (selected ? '<button class="rec-round-btn remove" onclick="__bb.select(\'behandlung-remove\',\'' + r.need + '\')" title="Entfernen" aria-label="Entfernen">−</button>' : '') +
         '</div></div>';
     }
