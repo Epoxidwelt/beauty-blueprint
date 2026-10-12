@@ -2177,7 +2177,6 @@
 
   var STATE = {
     mitarbeiterin: null,
-    kundeName: '',
     // Admin-Bereich: nicht Teil einer Kundenberatung, deshalb eigene, oben angesiedelte Felder.
     isAdmin: false,
     adminTab: 'aktionen',
@@ -2221,7 +2220,6 @@
   // Beratungsdaten werden nur im Arbeitsspeicher gehalten (nie in localStorage o. Ä.).
   // Diese Funktion setzt sie vollständig zurück — beim Abschließen und bei jeder neuen Beratung.
   function resetBeratung() {
-    STATE.kundeName = '';
     STATE.aktionHinweisDismissed = false;
     STATE.ziel = [];
     STATE.painpoint = [];
@@ -2281,12 +2279,8 @@
   function selectHandler(kind, key, extra) {
     if (kind.indexOf('best-') === 0) return bestellungHandler(kind, key, extra);
     if (kind === 'mitarbeiterin') { resetBeratung(); STATE.mitarbeiterin = key; goTo('kunde-wahl'); }
-    else if (kind === 'beratung-neu') { resetBeratung(); goTo('kunde-neu'); }
+    else if (kind === 'beratung-neu') { resetBeratung(); goTo('ziel'); }   // bewusst ohne Namensabfrage (anonym)
     else if (kind === 'beratung-abschliessen') { resetBeratung(); STATE.mitarbeiterin = null; path = ['login']; pointer = 0; render(); }
-    else if (kind === 'kunde-neu-weiter') {
-      var val = document.getElementById('kunde-name-input');
-      if (val && val.value.trim()) { STATE.kundeName = val.value.trim(); STATE.aktionHinweisDismissed = false; goTo('ziel'); }
-    }
     else if (kind === 'ziel') { toggleMulti(STATE.ziel, key); render(); }
     else if (kind === 'painpoint') { toggleMulti(STATE.painpoint, key); render(); }
     else if (kind === 'anlass') { STATE.anlass = key; goTo('lifestyle:0'); }
@@ -2673,7 +2667,6 @@
   function contextLabel() {
     var parts = [];
     if (STATE.mitarbeiterin) parts.push(STATE.mitarbeiterin);
-    if (STATE.kundeName) parts.push('Kundin: ' + STATE.kundeName);
     return parts.join(' · ');
   }
 
@@ -2953,21 +2946,10 @@
     screenWrap('dezent', phasePercent('kunde', 0, 3), contextLabel(), body);
   }
 
-  function renderKundeNeu() {
-    var body = '' +
-      '<p class="eyebrow">Neue Kundin</p>' +
-      '<h1 class="q">Wie heißt die Kundin?</h1>' +
-      '<input id="kunde-name-input" class="text-input" type="text" placeholder="Vor- und Nachname" value="' + esc(STATE.kundeName) + '" />' +
-      '<div class="footer-actions">' +
-        '<button class="btn-primary" onclick="__bb.select(\'kunde-neu-weiter\')">Weiter</button>' +
-      '</div>';
-    screenWrap('dezent', phasePercent('kunde', 2, 3), contextLabel(), body);
-  }
-
   function renderZiel() {
     var body = '' +
       '<p class="eyebrow">Ziel</p>' +
-      '<h1 class="q">Was möchte ' + (STATE.kundeName ? esc(STATE.kundeName) : 'die Kundin') + ' erreichen?</h1>' +
+      '<h1 class="q">Was möchte die Kundin erreichen?</h1>' +
       '<p class="sub">Mehrfachauswahl möglich — antippen zum Auswählen.</p>' +
       '<div class="grid cols-3">' +
       ZIELE.map(function (z) {
@@ -3191,7 +3173,7 @@
   function buildKundeEmailPlain() {
     var plan = getPlan();
     var lines = [
-      'Hallo' + (STATE.kundeName ? ' ' + STATE.kundeName : '') + ',',
+      'Guten Tag,',
       '',
       'vielen Dank für Ihren Besuch in der Beauty Lounge Neuss — hier ist Ihr persönlicher Beauty Blueprint.',
       ''
@@ -3214,7 +3196,6 @@
     var plan = getPlan();
     var i1 = NEED_INFO[(plan.active[0] || plan.ranked[0]).need];
     var i2 = plan.active[1] ? NEED_INFO[plan.active[1].need] : i1;
-    var name = STATE.kundeName ? esc(STATE.kundeName) : '';
     var kurSlots = kurDefaultSlots(plan);
 
     var behandlungenRows = plan.active.length ? groupedActive(plan).map(function (r) {
@@ -3264,7 +3245,7 @@
           '<img src="' + LOGO_SRC + '" width="140" alt="Beauty Lounge" style="display:block;margin:0 auto;" />' +
         '</td></tr>' +
         '<tr><td style="padding:28px 40px 0 40px;text-align:center;">' +
-          '<p style="margin:0 0 6px;font-family:Georgia,\'Times New Roman\',serif;font-style:italic;font-size:30px;color:#111111;">Hallo' + (name ? ' ' + name : '') + ',</p>' +
+          '<p style="margin:0 0 6px;font-family:Georgia,\'Times New Roman\',serif;font-style:italic;font-size:30px;color:#111111;">Guten Tag,</p>' +
           '<p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#6B6B6B;">vielen Dank für Ihren Besuch in der Beauty Lounge Neuss — hier ist Ihr persönlicher Beauty Blueprint.</p>' +
         '</td></tr>' +
         '<tr><td style="padding:28px 40px 0 40px;"><hr style="border:none;border-top:1px solid #EDEDED;margin:0;" /></td></tr>' +
@@ -3651,7 +3632,7 @@
     y = PAGE_H - panelH - 100;
     trackedTextCentered('BEAUTY BLUEPRINT', 10.5, 'F1', ROSE_DEEP, 2.2);
     y -= 34;
-    textCentered(STATE.kundeName || 'Kundin', 29, 'F3', INK);
+    textCentered(formatDateDE(new Date()), 29, 'F3', INK);
     y -= 20;
     rect((PAGE_W - 34) / 2, y, 34, 2.2, ROSE_DEEP);
     y -= 26;
@@ -3861,7 +3842,7 @@
   // der Vorschau (window.claude.use('downloads')), die dem Betrachter eine Bestätigung zeigt.
   function downloadPdfReport(btn) {
     var bytes = buildBeautyBlueprintPdfBytes();
-    var fileName = 'Beauty-Blueprint-' + (STATE.kundeName || 'Kundin').replace(/[^\w\-]+/g, '_') + '.pdf';
+    var fileName = 'Beauty-Blueprint-' + new Date().toISOString().slice(0, 10) + '.pdf';
     function markDone() {
       if (btn) btn.outerHTML = '<span class="sub" style="margin:0">PDF heruntergeladen ✓</span>';
     }
@@ -4265,7 +4246,7 @@
     var body = '' +
       '<img class="brand-logo md logo-home" src="' + LOGO_SRC + '" alt="Beauty Lounge — zum Hauptmenü" title="Zum Hauptmenü" role="button" tabindex="0" onclick="__bb.goHome()" onkeydown="if(event.key===\'Enter\'){__bb.goHome()}" />' +
       '<p class="eyebrow" style="text-align:center">Beauty Blueprint</p>' +
-      '<p class="blueprint-hero" style="text-align:center">' + esc(STATE.kundeName || 'Kundin') + '</p>' +
+      '<p class="blueprint-hero" style="text-align:center">Dein persönlicher Plan</p>' +
       '<p class="bp-goal">' + esc(zielText()) + '</p>' +
       '<div class="bp-facts">' +
         '<div class="bp-fact"><span class="k">Programm</span><span class="v">' + esc(plan.family.name) + '</span></div>' +
@@ -4308,7 +4289,7 @@
       '<img class="brand-logo md logo-home" src="' + LOGO_SRC + '" alt="Beauty Lounge — zum Hauptmenü" title="Zum Hauptmenü" role="button" tabindex="0" onclick="__bb.goHome()" onkeydown="if(event.key===\'Enter\'){__bb.goHome()}" />' +
       '<p class="eyebrow" style="text-align:center">Abgeschlossen</p>' +
       '<h1 class="q" style="text-align:center">Beauty Blueprint fertig</h1>' +
-      '<p class="sub" style="text-align:center">' + esc(STATE.kundeName || 'Die Kundin') + ' erhält ihren persönlichen Plan.</p>' +
+      '<p class="sub" style="text-align:center">' + 'Die Kundin erhält ihren persönlichen Plan.</p>' +
       '<div style="text-align:center">' + bookingCaption() + '</div>' +
       '<div class="footer-actions">' +
         bookingButton() +
@@ -5700,7 +5681,6 @@
     if (id === 'login') return renderLogin();
     if (id === 'kunde-wahl') return renderKundeWahl();
     if (id === 'aktionen-uebersicht') return renderAktionenUebersicht();
-    if (id === 'kunde-neu') return renderKundeNeu();
     if (id === 'ziel') return renderZiel();
     if (id === 'painpoint') return renderPainpoint();
     if (id === 'anlass') return renderAnlass();

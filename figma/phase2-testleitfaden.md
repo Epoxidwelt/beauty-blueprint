@@ -31,7 +31,7 @@ Nach jeder Testberatung kurz notieren (Zettel, Notiz-App, egal):
 
 ## Was noch nicht "echt" ist (bewusst, für den Test unkritisch)
 
-- Kundinnenliste ist nur ein Platzhalter (Anna Weber, Julia Sommer) — bei echten Kundinnen einfach "Neue Kundin" nehmen
+- Es gibt keine Kundenliste und keine Namensabfrage mehr — die Beratung läuft anonym; mit „Abschließen & Daten löschen" ist alles wieder leer
 - Kein Speichern zwischen Sitzungen — nach "Neue Beratung starten" ist der vorherige Fall weg
 - Homecare-Produkte sind noch Platzhalter ("Klapp Heimpflege")
 
