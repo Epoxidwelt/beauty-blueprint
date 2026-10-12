@@ -4888,11 +4888,40 @@
   }
   function bestScanLogRefresh() { var el = document.getElementById('bst-scanlog'); if (el) el.innerHTML = bestScanLogHtml(); }
   function bestScanMsg(t) { var el = document.getElementById('bst-scanmsg'); if (el) el.textContent = t || ''; }
+  // Signalton beim Scannen: kurzer hoher Piep = Artikel erkannt, zwei tiefe Töne = nicht hinterlegt
+  // bzw. anderer Hersteller. Der AudioContext wird beim Kamerastart (Tipp = Nutzeraktion) angelegt.
+  var BEEP_CTX = null;
+  function bestAudioUnlock() {
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      if (!BEEP_CTX) BEEP_CTX = new AC();
+      if (BEEP_CTX.state === 'suspended') BEEP_CTX.resume();
+    } catch (e) { /* ohne Ton weiterarbeiten */ }
+  }
+  function bestBeep(kind) {
+    try {
+      bestAudioUnlock();
+      if (!BEEP_CTX) return;
+      var tones = kind === 'ok' ? [{ f: 1760, at: 0, d: 0.11 }] : [{ f: 330, at: 0, d: 0.13 }, { f: 330, at: 0.19, d: 0.13 }];
+      var t0 = BEEP_CTX.currentTime;
+      tones.forEach(function (t) {
+        var o = BEEP_CTX.createOscillator(), g = BEEP_CTX.createGain();
+        o.type = 'square'; o.frequency.value = t.f;
+        g.gain.setValueAtTime(0.0001, t0 + t.at);
+        g.gain.exponentialRampToValueAtTime(0.25, t0 + t.at + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + t.at + t.d);
+        o.connect(g); g.connect(BEEP_CTX.destination);
+        o.start(t0 + t.at); o.stop(t0 + t.at + t.d + 0.02);
+      });
+    } catch (e) { /* ohne Ton weiterarbeiten */ }
+  }
   function bestScanCode(code) {
     var now = Date.now();
     if (code === SCAN.last && now - SCAN.lastAt < 2500) return;   // gleiche Packung nicht doppelt zählen
     SCAN.last = code; SCAN.lastAt = now;
     var p = bestProductByEan(code);
+    bestBeep(p && !(BEST.workBrand && p.brand !== BEST.workBrand) ? 'ok' : 'warn');
     if (p && BEST.workBrand && p.brand !== BEST.workBrand) { SCAN.log.unshift({ ok: false, code: code, id: '', name: '', other: p.brand }); bestScanLogRefresh(); bestScanMsg(p.name + ' gehört zu ' + p.brand + ' — bitte in der Bestellung ' + p.brand + ' scannen.'); return; }
     SCAN.log.unshift({ ok: !!p, code: code, id: p ? p.id : '', name: p ? p.name : '' });
     if (p) { try { if (navigator.vibrate) navigator.vibrate(60); } catch (e) { /* egal */ } bestellungHandler('best-add', p.id + '|sale'); }
@@ -4934,6 +4963,7 @@
     var v = document.getElementById('bst-video'), b = document.getElementById('bst-scanbtn');
     if (!v) return;
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { bestScanMsg('Live-Kamera hier nicht verfügbar (die Seite muss über https geöffnet sein). Nutze „Foto vom Barcode aufnehmen“ oder gib die EAN von Hand ein.'); return; }
+    bestAudioUnlock();
     SCAN.running = true; if (b) b.textContent = 'Kamera stoppen'; bestScanMsg('Kamera wird gestartet …');
     function fail(e) {
       bestScanStop();
