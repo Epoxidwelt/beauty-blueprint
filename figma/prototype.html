@@ -486,6 +486,28 @@
   }
   .divider { height: 1px; background: var(--border-strong); margin: 1.1rem 0; border: none; }
 
+  /* Beauty-Blueprint-Ansicht für die Kundin: ruhige Karten statt gedrängter Zeilen/Spalten */
+  .bp-goal { text-align: center; margin: 0.2rem auto 0; max-width: 32rem; color: var(--text-soft); font-size: 1rem; }
+  .bp-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0.75rem; margin: 1.6rem 0 0; }
+  .bp-fact { border: 1px solid var(--border); border-radius: 12px; padding: 0.9rem 1rem; display: flex; flex-direction: column; gap: 0.3rem; }
+  .bp-fact .k { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-soft); }
+  .bp-fact .v { font-size: 1.0625rem; font-weight: 600; line-height: 1.3; }
+  .bp-h { font-size: 0.8125rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; margin: 2.1rem 0 0.7rem; color: var(--text); }
+  .bp-list { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; flex-shrink: 0; }
+  .bp-goal, .bp-facts, .bp-h { flex-shrink: 0; }
+  .bp-group { margin-top: 0.8rem; }
+  .bp-h + .bp-group { margin-top: 0; }
+  .bp-listhead { padding: 0.55rem 1rem; background: var(--rose-pale); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+  .bp-item { display: flex; align-items: center; gap: 0.9rem; padding: 0.85rem 1rem; }
+  .bp-item + .bp-item { border-top: 1px solid var(--border); }
+  .bp-badge { flex: none; width: 1.9rem; height: 1.9rem; border-radius: 50%; background: var(--rose-pale); display: grid; place-items: center; font-size: 0.8125rem; font-weight: 700; }
+  .bp-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.15rem; }
+  .bp-name { font-weight: 600; line-height: 1.3; }
+  .bp-meta { font-size: 0.8125rem; color: var(--text-soft); }
+  .bp-price { font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .bp-total { background: var(--rose-pale); }
+  .bp-total .bp-name, .bp-total .bp-price { font-size: 1.0625rem; }
+
   .routine-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; }
   .kur-warning {
     background: rgba(169,122,46,0.12);
@@ -4202,57 +4224,64 @@
     var augencremeInfo = homecareInfoFor('augencreme', { product: i1.augencreme, produktpreis: i1.augencremepreis });
     var maskeInfo = homecareInfoFor('maske', { product: i1.maske, produktpreis: i1.maskepreis });
     var sonnenschutzInfo = homecareInfoFor('sonnenschutz', { product: i1.sonnenschutz, produktpreis: i1.sonnenschutzpreis });
-    var homecareRow = !homeAM && !homePM ? 'Entfernt' :
-      (productLine(homeAM) === productLine(homePM) ? productLine(homeAM) : productLine(homeAM) + ' + ' + productLine(homePM));
     var kurSlotsForBlueprint = kurDefaultSlots(plan);
+    function bpItem(name, meta, price, badge) {
+      return '<div class="bp-item">' +
+        (badge ? '<span class="bp-badge">' + esc(badge) + '</span>' : '') +
+        '<div class="bp-main"><span class="bp-name">' + esc(name) + '</span>' +
+          (meta ? '<span class="bp-meta">' + esc(meta) + '</span>' : '') + '</div>' +
+        (price ? '<span class="bp-price">' + esc(price) + '</span>' : '') +
+      '</div>';
+    }
+    function bpProd(info, label, badge) {
+      if (!info) return '';
+      return bpItem(info.product, label || '', info.produktpreis || '', badge);
+    }
+    function bpGroup(title, itemsHtml) {
+      return itemsHtml ? '<div class="bp-list bp-group"><div class="bp-listhead">' + esc(title) + '</div>' + itemsHtml + '</div>' : '';
+    }
     var kurRows = kurSlotsForBlueprint.map(function (baseInfo, idx) {
       var info = kurInfoFor(idx, baseInfo);
-      return '<div class="summary-row"><span class="k">Monat ' + (idx + 1) + '</span><span class="v">' + esc(info ? treatLine(info) : 'Entfernt') + '</span></div>';
+      return info ? bpItem(info.behandlung, info.dauer || '', info.preis || '', String(idx + 1))
+                  : bpItem('Entfernt', '', '', String(idx + 1));
     }).join('');
-    var behandlungRows = groupedActive(plan).map(function (r, i) {
-      var label = treatLine(r) + (r.count > 1 ? ' — ' + r.count + 'x im Kurplan' : '');
-      return '<div class="summary-row"><span class="k">Behandlung ' + (i + 1) + '</span><span class="v">' + esc(label) + '</span></div>';
+    var behandlungRows = groupedActive(plan).map(function (r) {
+      var meta = [r.dauer, r.count > 1 ? r.count + 'x im Kurplan' : ''].filter(Boolean).join(' · ');
+      return bpItem(r.behandlung, meta, r.preis || '');
     }).join('');
+    // Homecare: je Tageszeit eine eigene, volle Karte (statt drei schmaler Spalten)
+    var morgens = [
+      reinigungInfo ? bpProd(reinigungInfo, 'Reinigung') : bpItem('Reinigung', '', ''),
+      bpProd(tonicInfo, 'Tonic'), bpProd(serumInfo, 'Serum'), bpProd(augencremeInfo, 'Augenpflege'),
+      homeAM ? bpProd(homeAM, 'Tagespflege') : bpItem('Entfernt', 'Tagespflege', ''),
+      bpProd(sonnenschutzInfo, 'Sonnenschutz')
+    ].join('');
+    var abends = [
+      reinigungInfo ? bpProd(reinigungInfo, 'Reinigung') : bpItem('Reinigung', '', ''),
+      bpProd(tonicInfo, 'Tonic'), bpProd(serumInfo, 'Serum'), bpProd(augencremeInfo, 'Augenpflege'),
+      homePM ? bpProd(homePM, 'Nachtpflege') : bpItem('Entfernt', 'Nachtpflege', '')
+    ].join('');
+    var woechentlich = bpProd(peelingInfo, 'Peeling') + bpProd(maskeInfo, 'Maske');
     var body = '' +
       '<img class="brand-logo md logo-home" src="' + LOGO_SRC + '" alt="Beauty Lounge — zum Hauptmenü" title="Zum Hauptmenü" role="button" tabindex="0" onclick="__bb.goHome()" onkeydown="if(event.key===\'Enter\'){__bb.goHome()}" />' +
       '<p class="eyebrow" style="text-align:center">Beauty Blueprint</p>' +
       '<p class="blueprint-hero" style="text-align:center">' + esc(STATE.kundeName || 'Kundin') + '</p>' +
-      '<p class="sub" style="margin-top:0;text-align:center">' + esc(zielText()) + '</p>' +
-      '<hr class="divider"/>' +
-      '<div class="summary-list">' +
-        '<div class="summary-row"><span class="k">Programm</span><span class="v">' + esc(plan.family.name) + '</span></div>' +
-        (behandlungRows || '<div class="summary-row"><span class="k">Behandlung</span><span class="v">Keine ausgewählt</span></div>') +
-        '<div class="summary-row"><span class="k">Nächster Checkpoint</span><span class="v">in 4 Wochen</span></div>' +
-        '<div class="summary-row"><span class="k">Homecare</span><span class="v">' + esc(homecareRow) + '</span></div>' +
+      '<p class="bp-goal">' + esc(zielText()) + '</p>' +
+      '<div class="bp-facts">' +
+        '<div class="bp-fact"><span class="k">Programm</span><span class="v">' + esc(plan.family.name) + '</span></div>' +
+        '<div class="bp-fact"><span class="k">Nächster Checkpoint</span><span class="v">in 4 Wochen</span></div>' +
       '</div>' +
-      '<h3 class="section-label">' + kurSlotsForBlueprint.length + '-Monats-Kurplan</h3>' +
-      '<div class="summary-list">' + kurRows +
-        '<div class="summary-row"><span class="k" style="font-weight:700">Kur-Gesamtpreis (' + kurSlotsForBlueprint.length + ' Monate)</span><span class="v" style="font-weight:700">' + esc(formatPrice(kurTotal(plan))) + '</span></div>' +
+      '<h3 class="bp-h">Deine Behandlungen</h3>' +
+      '<div class="bp-list">' + (behandlungRows || bpItem('Keine ausgewählt', '', '')) + '</div>' +
+      '<h3 class="bp-h">' + kurSlotsForBlueprint.length + '-Monats-Kurplan</h3>' +
+      '<div class="bp-list">' + kurRows +
+        '<div class="bp-item bp-total"><div class="bp-main"><span class="bp-name">Kur-Gesamtpreis</span><span class="bp-meta">' + kurSlotsForBlueprint.length + ' Monate</span></div><span class="bp-price">' + esc(formatPrice(kurTotal(plan))) + '</span></div>' +
       '</div>' +
       (homeAM || homePM ? '' +
-        '<h3 class="section-label">Homecare-Routine</h3>' +
-        '<div class="routine-cols">' +
-          '<div class="routine-col"><h3>Morgens</h3><ol>' +
-            '<li>' + esc(reinigungInfo ? productLine(reinigungInfo) : 'Reinigung') + '</li>' +
-            (tonicInfo ? '<li>' + esc(productLine(tonicInfo)) + '</li>' : '') +
-            (serumInfo ? '<li>' + esc(productLine(serumInfo)) + '</li>' : '') +
-            (augencremeInfo ? '<li>' + esc(productLine(augencremeInfo)) + '</li>' : '') +
-            '<li>' + esc(homeAM ? productLine(homeAM) : 'entfernt') + '</li>' +
-            (sonnenschutzInfo ? '<li>' + esc(productLine(sonnenschutzInfo)) + '</li>' : '') +
-          '</ol></div>' +
-          '<div class="routine-col"><h3>Abends</h3><ol>' +
-            '<li>' + esc(reinigungInfo ? productLine(reinigungInfo) : 'Reinigung') + '</li>' +
-            (tonicInfo ? '<li>' + esc(productLine(tonicInfo)) + '</li>' : '') +
-            (serumInfo ? '<li>' + esc(productLine(serumInfo)) + '</li>' : '') +
-            (augencremeInfo ? '<li>' + esc(productLine(augencremeInfo)) + '</li>' : '') +
-            '<li>' + esc(homePM ? productLine(homePM) : 'entfernt') + '</li>' +
-          '</ol></div>' +
-          (peelingInfo || maskeInfo ?
-            '<div class="routine-col"><h3>1-2x wöchentlich</h3><ol>' +
-              (peelingInfo ? '<li>Peeling: ' + esc(productLine(peelingInfo)) + '</li>' : '') +
-              (maskeInfo ? '<li>Maske: ' + esc(productLine(maskeInfo)) + '</li>' : '') +
-            '</ol></div>' : '') +
-        '</div>' : '') +
+        '<h3 class="bp-h">Homecare-Routine</h3>' +
+        bpGroup('Morgens', morgens) +
+        bpGroup('Abends', abends) +
+        (woechentlich ? bpGroup('1–2× wöchentlich', woechentlich) : '') : '') +
       bookingCaption() +
       '<div class="footer-actions">' +
         bookingButton() +
