@@ -1417,3 +1417,67 @@ if (localNav) {
   closeBtn.addEventListener('click', close);
   overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
 })();
+
+// "Ihr Besuch" am Handy als laufendes Banner: die drei Schritte wechseln automatisch (alle ~4 s),
+// der aktive Schritt ist hervorgehoben, darunter zeigen Punkte den Fortschritt. Wischen bleibt
+// möglich und stoppt den Automatik-Lauf; bei "reduzierter Bewegung" gibt es keinen Autolauf.
+(function () {
+  const steps = document.querySelector('.steps');
+  if (!steps) return;
+  const cards = Array.from(steps.querySelectorAll('.step'));
+  if (cards.length < 2) return;
+  const mq = window.matchMedia('(max-width: 760px)');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const INTERVAL = 4200;
+
+  const dots = document.createElement('div');
+  dots.className = 'steps-dots';
+  dots.setAttribute('aria-hidden', 'true');
+  cards.forEach(() => { dots.appendChild(document.createElement('span')); });
+  steps.insertAdjacentElement('afterend', dots);
+
+  let active = 0, timer = null, inView = false, userTouched = false;
+
+  function setActive(i) {
+    active = i;
+    cards.forEach((c, k) => c.classList.toggle('is-active', k === i));
+    Array.from(dots.children).forEach((d, k) => d.classList.toggle('on', k === i));
+  }
+  function goTo(i) {
+    const c = cards[i];
+    steps.scrollTo({ left: c.offsetLeft - (steps.clientWidth - c.offsetWidth) / 2, behavior: reduce ? 'auto' : 'smooth' });
+    setActive(i);
+  }
+  function stop() { if (timer) { clearInterval(timer); timer = null; } }
+  function start() {
+    stop();
+    if (reduce || userTouched || !mq.matches || !inView) return;
+    timer = setInterval(() => goTo((active + 1) % cards.length), INTERVAL);
+  }
+
+  // aktiven Schritt beim Wischen nachführen
+  let raf = 0;
+  steps.addEventListener('scroll', () => {
+    if (raf) return;
+    raf = requestAnimationFrame(() => {
+      raf = 0;
+      const mid = steps.scrollLeft + steps.clientWidth / 2;
+      let best = 0, bestD = Infinity;
+      cards.forEach((c, k) => {
+        const d = Math.abs(c.offsetLeft + c.offsetWidth / 2 - mid);
+        if (d < bestD) { bestD = d; best = k; }
+      });
+      if (best !== active) setActive(best);
+    });
+  }, { passive: true });
+  ['touchstart', 'pointerdown', 'wheel'].forEach((ev) => {
+    steps.addEventListener(ev, () => { userTouched = true; stop(); }, { passive: true });
+  });
+
+  new IntersectionObserver((entries) => {
+    inView = entries[0].isIntersecting;
+    inView ? start() : stop();
+  }, { threshold: 0.4 }).observe(steps);
+  mq.addEventListener('change', () => { setActive(0); steps.scrollLeft = 0; start(); });
+  setActive(0);
+})();
