@@ -887,7 +887,7 @@ if (localNav) {
     }
   ];
 
-  // Je nach Angabe (Frau / Mann) zeigt der Selbsttest nur passende Bereiche und Anliegen.
+  // Je nach Angabe (Frau / Mann) zeigt der Behandlungsfinder nur passende Bereiche und Anliegen.
   // Ohne Angabe ("alle") bleibt die gemeinsame Liste, dort wird beim Thema Haarentfernung nachgefragt.
   const AREAS_F = AREAS.map((a) => a.id !== 'haarentfernung' ? a : Object.assign({}, a, {
     concerns: a.concerns.map((c) => Object.assign({}, c, { flow: 'hair_f' }))
@@ -1108,7 +1108,7 @@ if (localNav) {
     const subject = 'Terminanfrage: ' + TREATMENTS[r.treatment].name;
     const body =
       'Hallo liebes Beauty-Lounge-Team,\n\n' +
-      'über den Selbsttest auf eurer Webseite interessiere ich mich für:\n' + list + '\n\n' +
+      'über „Passende Behandlung finden“ auf eurer Webseite interessiere ich mich für:\n' + list + '\n\n' +
       'Mein Anliegen: ' + selection.concern.label + '\n' +
       'Meine Angaben: ' + r.summary + '\n' +
       'Zeitrahmen: ' + selection.occasion.label + '\n\n' +
@@ -1157,7 +1157,7 @@ if (localNav) {
       '<a href="' + buildBookingMailto(r) + '" class="btn btn-ghost">Per E-Mail anfragen</a>' +
       '</div>' +
       '<button type="button" class="finder-secondary-link" id="finderGoToTreatment">Mehr über diese Behandlung erfahren</button>' +
-      '<button type="button" class="finder-restart" id="finderRestart">Selbsttest wiederholen</button>' +
+      '<button type="button" class="finder-restart" id="finderRestart">Noch einmal starten</button>' +
       '</div>';
 
     document.getElementById('finderGoToTreatment').addEventListener('click', () => {
