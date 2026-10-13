@@ -194,7 +194,7 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
 /* header — schlanke, milchig-transparente Leiste wie bei Apple */
 .site-header{
   position:fixed;top:0;left:0;right:0;z-index:900;
-  padding:.6rem 0;
+  padding:.4rem 0;
   background:rgba(255,253,250,0.74);
   -webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
   border-bottom:1px solid rgba(18,16,14,0.06);
@@ -205,8 +205,9 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
   max-width:1320px;margin:0 auto;padding:0 1.6rem;
   display:flex;align-items:center;justify-content:space-between;
 }
-.brand img{height:52px;transition:height .3s var(--ease);width:auto;}
-.site-header.scrolled .brand img{height:46px;}
+.brand{flex:none;}
+.brand img{height:88px;transition:height .3s var(--ease);width:auto;max-width:none;display:block;}
+.site-header.scrolled .brand img{height:70px;}
 .main-nav{display:flex;align-items:center;gap:1.9rem;}
 .main-nav a,.main-nav button.js-open-finder{
   font-size:.875rem;letter-spacing:0;text-transform:none;font-weight:500;
@@ -960,7 +961,7 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
   max-width:1220px;margin:0 auto;display:flex;align-items:center;gap:1.6rem;
   flex-wrap:wrap;padding-bottom:1.8rem;
 }
-.footer-logo{height:30px;}
+.footer-logo{height:46px;}
 .footer-inner p{margin:0;font-size:0.85rem;flex:1;color:var(--text-soft);}
 .link-btn{
   background:none;border:none;color:var(--black);font-size:0.8rem;font-weight:600;
@@ -985,7 +986,7 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
 @media (max-width:1180px){
   .main-nav{gap:1.5rem;}
 }
-@media (max-width:1060px){
+@media (max-width:1100px){
   .main-nav{
     position:fixed;top:0;right:0;height:100vh;height:100dvh;width:min(320px,80vw);
     background:var(--white);flex-direction:column;justify-content:center;
@@ -1069,7 +1070,7 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
    Lokale Navigation auf den Behandlungsseiten (Überblick · Ablauf · Preise …)
    --------------------------------------------------------------------------- */
 .local-nav{
-  position:sticky;top:64px;z-index:800;
+  position:sticky;top:88px;z-index:800;
   background:rgba(255,253,250,0.82);
   -webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
   border-bottom:1px solid rgba(18,16,14,0.07);
@@ -1358,3 +1359,10 @@ h1.reveal.in,h2.reveal.in{filter:blur(0);}
 .page-hero.page-hero--white{background:#ffffff;}
 .page-hero.page-hero--white::before{display:none;}
 .page-hero--white + .filter-bar{background:#ffffff;margin:0;padding-top:0.4rem;padding-bottom:2.4rem;}
+
+/* Logo größer und gut lesbar (Kopfleiste): am Handy etwas kleiner, aber deutlich größer als zuvor */
+@media (max-width:600px){
+  .brand img{height:70px;}
+  .site-header.scrolled .brand img{height:58px;}
+  .local-nav{top:76px;}
+}
