@@ -61,8 +61,28 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.beautylounge-neuss.de/herren.html</loc>
+    <loc>https://www.beautylounge-neuss.de/maenner.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.beautylounge-neuss.de/maenner/haarentfernung.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.beautylounge-neuss.de/maenner/forma.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.beautylounge-neuss.de/maenner/gesicht.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.beautylounge-neuss.de/maenner/fusspflege.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
 </urlset>

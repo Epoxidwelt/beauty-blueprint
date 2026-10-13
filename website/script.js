@@ -300,7 +300,7 @@ if (localNav) {
     }
   };
 
-  const ROOT_PREFIX = window.location.pathname.indexOf('/behandlungen/') !== -1 ? '../' : '';
+  const ROOT_PREFIX = (window.location.pathname.indexOf('/behandlungen/') !== -1 || window.location.pathname.indexOf('/maenner/') !== -1) ? '../' : '';
 
   // Bildmaße je Behandlung — dieselben Dateien wie in behandlungen.html/index.html,
   // hier klein für die Ergebniskarte im Finder-Modal.
@@ -311,6 +311,9 @@ if (localNav) {
     haende: { w: 1400, h: 933 },
     diolaze: { w: 1400, h: 933 },
     'diolaze-herren': { w: 1400, h: 933 },
+    'herren-gesicht': { w: 1400, h: 933 },
+    'herren-fuesse': { w: 1400, h: 933 },
+    'maenner-forma': { w: 1400, h: 933 },
     wimpern: { w: 1400, h: 933 }
   };
 
@@ -1125,8 +1128,13 @@ if (localNav) {
     const timing = occasionSentence(occasion.id) + (occasion.id === 'anlass' && r.anlass ? ' ' + r.anlass : '');
     const notesHtml = r.notes.slice(0, 4).map((n) => '<span class="finder-note">' + n + '</span>').join('');
     const hint = bookingHint(r);
-    const forMen = r.treatment === 'diolaze' && (selection.concern.flow === 'hair_m' || (selection.concern.flow === 'hair' && selection.a1.id === 'mann'));
-    const mainImg = forMen ? 'diolaze-herren' : r.treatment;
+    // Männer sehen Männerbilder und landen auf den Seiten der Männer-Sparte
+    const isMan = !!(selection.gender && selection.gender.id === 'mann');
+    const MEN_IMG = { diolaze: 'diolaze-herren', forma: 'maenner-forma', gesicht: 'herren-gesicht', fuesse: 'herren-fuesse' };
+    const MEN_PAGE = { diolaze: 'maenner/haarentfernung.html', forma: 'maenner/forma.html', gesicht: 'maenner/gesicht.html', fuesse: 'maenner/fusspflege.html' };
+    const imgFor = (key) => (isMan && MEN_IMG[key]) || key;
+    const forMen = isMan;
+    const mainImg = imgFor(r.treatment);
 
     finderBody.innerHTML =
       '<div class="finder-result">' +
@@ -1148,7 +1156,7 @@ if (localNav) {
       '<p>' + treatment.desc + '</p>' +
       '</div></div>' +
       servicesHtml(r) +
-      (secondary ? '<div class="finder-treatment-card">' + treatmentPictureHtml(r.secondary, secondary.name) + '<div class="finder-treatment-body"><p class="finder-treatment-label">Sinnvolle Ergänzung</p><h4>' + secondary.name + '</h4><p>' + secondary.desc + '</p></div></div>' : '') +
+      (secondary ? '<div class="finder-treatment-card">' + treatmentPictureHtml(imgFor(r.secondary), secondary.name) + '<div class="finder-treatment-body"><p class="finder-treatment-label">Sinnvolle Ergänzung</p><h4>' + secondary.name + '</h4><p>' + secondary.desc + '</p></div></div>' : '') +
       '<p class="finder-booking-label">So können Sie diese Behandlung buchen</p>' +
       (hint ? '<p class="finder-booking-hint">' + hint + '</p>' : '') +
       '<div class="finder-result-actions">' +
@@ -1161,7 +1169,7 @@ if (localNav) {
       '</div>';
 
     document.getElementById('finderGoToTreatment').addEventListener('click', () => {
-      window.location.href = ROOT_PREFIX + (forMen ? 'herren.html#haarentfernung' : treatment.page);
+      window.location.href = ROOT_PREFIX + (isMan ? (MEN_PAGE[r.treatment] || 'maenner.html#weitere') : treatment.page);
     });
     document.getElementById('finderRestart').addEventListener('click', () => {
       selection = emptySelection();

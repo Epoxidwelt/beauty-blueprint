@@ -1344,3 +1344,13 @@ h1.reveal.in,h2.reveal.in{filter:blur(0);}
   .step,.steps-dots span{transition:none;}
   .step.is-active .step-num{animation:none;}
 }
+
+/* Männer-Sparte: gleicher Aufbau wie die Behandlungsübersicht, durchgehend dunkel und markant */
+.showcase-meta{font-size:0.92rem;color:rgba(255,255,255,0.58);margin:-0.6rem 0 1.5rem;max-width:46ch;}
+.showcase-row.on-dark + .showcase-row.on-dark{border-top:1px solid rgba(255,255,255,0.07);}
+.filter-bar.on-dark{background:var(--black);margin:0;padding:2.2rem 1.5rem 2.2rem;}
+.filter-bar.on-dark .chip{background:transparent;color:rgba(255,255,255,0.82);border-color:rgba(255,255,255,0.28);}
+.filter-bar.on-dark .chip:hover{border-color:var(--white);color:var(--white);}
+.filter-bar.on-dark .chip.active{background:var(--white);color:var(--black);border-color:var(--white);}
+.herren-cards .way-wide .way-meta{color:var(--text-soft);}
+.herren-hero--compact{padding-bottom:3rem;}
