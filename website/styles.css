@@ -1367,3 +1367,25 @@ h1.reveal.in,h2.reveal.in{filter:blur(0);}
   .site-header.scrolled .brand img{height:68px;}
   .local-nav{top:82px;}
 }
+
+/* Männer-Seite: Selbsttest-Band und Abschluss-CTA hell statt zweier schwarzer Blöcke untereinander */
+.finder-teaser--light{background:rgba(241,220,220,0.5);color:var(--black);padding:3.4rem 1.5rem;}
+.finder-teaser--light::before{display:none;}
+.finder-teaser--light .finder-teaser-inner{flex-direction:row;justify-content:space-between;align-items:center;gap:2.4rem;max-width:1100px;text-align:left;}
+.finder-teaser--light .mark{color:var(--wine);justify-content:flex-start;}
+.finder-teaser--light h2{color:var(--black);font-size:clamp(1.6rem,3vw,2.35rem);margin-bottom:0.25em;}
+.finder-teaser--light h2 em{color:var(--rose-deep);}
+.finder-teaser--light .finder-teaser-text p:not(.mark){color:var(--text-soft);margin:0;max-width:46ch;font-size:clamp(1rem,1.4vw,1.1rem);}
+.finder-teaser--light .btn-primary{background:var(--wine);color:#fff;}
+.finder-teaser--light .btn-primary:hover{background:var(--wine-deep);color:#fff;}
+.treatment-cta--light{background:var(--white);color:var(--black);border-top:1px solid var(--line);padding:4rem 2rem;}
+.treatment-cta--light h2{color:var(--black);}
+.treatment-cta--light h2 em{color:var(--rose-deep);}
+.treatment-cta--light p{color:var(--text-soft);}
+.treatment-cta--light .btn-primary{background:var(--wine);color:#fff;}
+.treatment-cta--light .btn-primary:hover{background:var(--wine-deep);color:#fff;}
+@media (max-width:760px){
+  .finder-teaser--light{padding:2.8rem 1.4rem;}
+  .finder-teaser--light .finder-teaser-inner{flex-direction:column;align-items:flex-start;gap:1.4rem;}
+  .finder-teaser--light .btn-primary{width:100%;}
+}
