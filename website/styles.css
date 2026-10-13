@@ -1354,3 +1354,7 @@ h1.reveal.in,h2.reveal.in{filter:blur(0);}
 .filter-bar.on-dark .chip.active{background:var(--white);color:var(--black);border-color:var(--white);}
 .herren-cards .way-wide .way-meta{color:var(--text-soft);}
 .herren-hero--compact{padding-bottom:3rem;}
+/* Männer-Seite: Kopfbereich in reinem Weiß */
+.page-hero.page-hero--white{background:#ffffff;}
+.page-hero.page-hero--white::before{display:none;}
+.page-hero--white + .filter-bar{background:#ffffff;margin:0;padding-top:0.4rem;padding-bottom:2.4rem;}
