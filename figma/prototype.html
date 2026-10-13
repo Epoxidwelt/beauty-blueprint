@@ -707,6 +707,65 @@
   }
   .main-tab.current { background: #fff; color: var(--rose-deep); box-shadow: 0 4px 14px rgba(0,0,0,0.16); }
 
+
+  /* ---------- Urlaub ---------- */
+  .u-badge { display: inline-block; min-width: 1.25rem; padding: 0 0.4rem; margin-left: 0.3rem; border-radius: 999px;
+    background: var(--anthrazit); color: #fff; font-size: 0.72rem; font-weight: 800; line-height: 1.25rem; text-align: center; }
+  .main-tab.current .u-badge, .admin-tab-btn.current .u-badge { background: #fff; color: var(--anthrazit); border: 1px solid var(--anthrazit); }
+  .u-notice { border: 2px solid var(--anthrazit); border-radius: 12px; padding: 0.8rem 1rem; margin: 0 0 0.8rem; cursor: pointer;
+    font-size: 0.95rem; color: var(--text); background: #fff; }
+  .u-notice.ok { border-color: var(--anthrazit); }
+  .u-notice.no { border-style: dashed; }
+  .u-info { background: var(--rose-pale); border-radius: 10px; padding: 0.7rem 0.9rem; font-size: 0.875rem; margin: 0.4rem 0 0.9rem; }
+  .u-card { border: 1.5px solid var(--border); border-radius: 14px; padding: 1rem 1.05rem; margin: 0 0 1rem; background: var(--surface-raised); }
+  .u-card.current { border-color: var(--anthrazit); }
+  .u-card-title { font-weight: 800; font-size: 1.05rem; color: var(--text); }
+  .u-card-sub { font-size: 0.78rem; color: var(--text-soft); margin-top: 0.1rem; }
+  .u-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin: 0.8rem 0 0.4rem; }
+  .u-stats > div { background: var(--rose-pale); border-radius: 10px; padding: 0.55rem 0.4rem; text-align: center; }
+  .u-stats .k { display: block; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-soft); }
+  .u-stats .v { display: block; font-size: 1.5rem; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
+  .u-stats .rest { background: var(--anthrazit); }
+  .u-stats .rest .k { color: rgba(255,255,255,0.75); }
+  .u-stats .rest .v { color: #fff; }
+  .u-pend { font-size: 0.8rem; color: var(--text-soft); margin: 0.2rem 0 0.6rem; }
+  .u-empty { font-size: 0.85rem; color: var(--text-soft); margin: 0.6rem 0; }
+  .u-req-list { display: flex; flex-direction: column; gap: 0.5rem; margin: 0.7rem 0; }
+  .u-req { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; border: 1px solid var(--border); border-radius: 10px; padding: 0.6rem 0.75rem; background: #fff; }
+  .u-req.rejected { opacity: 0.6; }
+  .u-req-main { flex: 1; min-width: 12rem; }
+  .u-req-dates { font-weight: 700; font-size: 0.9rem; color: var(--text); }
+  .u-req-note { font-size: 0.75rem; color: var(--text-soft); margin-top: 0.1rem; }
+  .u-chip { font-size: 0.72rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 999px; white-space: nowrap; }
+  .u-chip.ok { background: var(--anthrazit); color: #fff; }
+  .u-chip.wait { border: 1.5px solid var(--anthrazit); color: var(--text); }
+  .u-chip.no { border: 1.5px dashed var(--text-soft); color: var(--text-soft); text-decoration: line-through; }
+  .u-open { border: 1.5px solid var(--anthrazit); border-radius: 12px; padding: 0.6rem; background: var(--rose-pale); }
+  .u-open-who { font-size: 0.8rem; color: var(--text-soft); margin: 0 0 0.4rem 0.2rem; display: flex; flex-direction: column; }
+  .u-open-who b { color: var(--text); font-size: 1rem; }
+  .u-form { border-top: 1px solid var(--border); margin-top: 0.8rem; padding-top: 0.8rem; display: flex; flex-direction: column; gap: 0.6rem; }
+  .u-form-row { display: flex; gap: 0.6rem; }
+  .u-form-row > * { flex: 1; min-width: 0; }
+  .u-field { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.78rem; font-weight: 600; color: var(--text-soft); }
+  .u-field .text-input, .u-field select { max-width: none; }
+  .u-preview { font-weight: 700; font-size: 0.9rem; color: var(--text); margin: 0; min-height: 1.2rem; }
+  .u-form-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+  .u-add { margin-top: 0.4rem; width: 100%; }
+  .u-staff-list { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.8rem; }
+  .u-staff { border: 1.5px solid var(--border); border-radius: 12px; background: var(--surface-raised); overflow: hidden; }
+  .u-staff.sel { border-color: var(--anthrazit); }
+  .u-staff-head { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; flex-wrap: wrap;
+    padding: 0.75rem 0.9rem; background: transparent; border: none; cursor: pointer; font-family: var(--font-body); text-align: left; }
+  .u-staff-name { font-weight: 800; font-size: 1rem; color: var(--text); }
+  .u-staff-nums { font-size: 0.82rem; color: var(--text-soft); }
+  .u-staff-nums b { color: var(--text); font-size: 1rem; }
+  .u-staff-body { padding: 0.2rem 0.9rem 0.9rem; border-top: 1px solid var(--border); }
+  .u-ent { display: flex; gap: 0.6rem; align-items: flex-end; flex-wrap: wrap; margin: 0.7rem 0 0.2rem; }
+  .u-ent .u-field { flex: 1; min-width: 12rem; }
+  .u-settings { display: flex; flex-direction: column; gap: 0.6rem; margin: 0.6rem 0 1.4rem; }
+  .u-check { font-size: 0.85rem; color: var(--text); display: flex; gap: 0.5rem; align-items: center; }
+  .u-admin-block { margin-bottom: 1.6rem; padding-bottom: 0.4rem; border-bottom: 2px solid var(--border); }
+
   .best-wrap { width: 100%; max-width: 1100px; margin: 0 auto; }
   .best-top { display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap; margin: 0 0 0.9rem; }
   .best-top h1 { font-family: var(--font-display); font-size: 1.6rem; font-weight: 600; margin: 0; color: var(--text); flex: 1; min-width: 12rem; }
@@ -2257,7 +2316,7 @@
     render();
   }
   window.__bb = {
-    goHome: function () { try { bestScanStop(); } catch (e) { /* egal */ } path = ['login']; pointer = 0; render(); },   // Logo antippen = sofort zum Hauptmenü „Wer berät heute?"
+    goHome: function () { try { bestScanStop(); } catch (e) { /* egal */ } urlaubResetUi(); path = ['login']; pointer = 0; render(); },   // Logo antippen = sofort zum Hauptmenü „Wer berät heute?"
     goTo: goTo, goBack: goBack, replaceTop: replaceTop, state: STATE, select: selectHandler, input: inputHandler,
     filterProducts: filterProducts, pickProduct: pickProduct,
     filterTreatments: filterTreatments, pickTreatment: pickTreatment, pickKurOption: pickKurOption,
@@ -2270,6 +2329,7 @@
     setEanTable: function (map) { Object.keys(map || {}).forEach(function (k) { BEST_EAN_TABLE[k] = map[k]; }); },   // EAN → Artikelnummer, z. B. aus CSV/Excel
     bestBrandEmailBody: function (id, brand) { return bestBrandEmailBody(bestFindOrder(id), brand); },
     bestBrandEmailHtml: function (id, brand) { return bestBrandEmailHtml(bestFindOrder(id), brand); },
+    urlaubPreview: function () { urlaubPreview(); },
     handleMitarbeiterFotoChange: handleMitarbeiterFotoChange,
     filterAktionVerknuepfung: filterAktionVerknuepfung,
     pickAktionVerknuepfung: pickAktionVerknuepfung,
@@ -2278,7 +2338,8 @@
 
   function selectHandler(kind, key, extra) {
     if (kind.indexOf('best-') === 0) return bestellungHandler(kind, key, extra);
-    if (kind === 'mitarbeiterin') { resetBeratung(); STATE.mitarbeiterin = key; goTo('kunde-wahl'); }
+    if (kind.indexOf('urlaub-') === 0) return urlaubHandler(kind, key, extra);
+    if (kind === 'mitarbeiterin') { resetBeratung(); urlaubResetUi(); STATE.mitarbeiterin = key; goTo('kunde-wahl'); }
     else if (kind === 'beratung-neu') { resetBeratung(); goTo('ziel'); }   // bewusst ohne Namensabfrage (anonym)
     else if (kind === 'beratung-abschliessen') { resetBeratung(); STATE.mitarbeiterin = null; path = ['login']; pointer = 0; render(); }
     else if (kind === 'ziel') { toggleMulti(STATE.ziel, key); render(); }
@@ -2815,6 +2876,7 @@
     }).join('');
 
     return '' +
+      '<div class="u-admin-block">' + urlaubManageHtml() + '</div>' +
       '<p class="admin-section-title">Team</p>' +
       '<p class="admin-hint"><b>Inhaberin:</b> Nur die als Inhaberin markierte Person sieht in der Bestell-App WKZ, Preise und Rabatte, gibt die Bestellung frei und löst die E-Mails an die Hersteller aus. Alle anderen Mitarbeiterinnen tragen nur ein. Mindestens eine Inhaberin muss festgelegt bleiben.</p>' +
       '<p class="admin-hint">„Ausblenden" nimmt eine Mitarbeiterin nur vom Login-Screen — alle Daten bleiben erhalten. „Löschen" entfernt sie endgültig und fragt deshalb zweifach nach (inkl. Admin-Passwort).</p>' +
@@ -2872,7 +2934,8 @@
       { key: 'produkte', label: 'Produkte' }
     ];
     var tabBtns = tabs.map(function (t) {
-      return '<button type="button" class="admin-tab-btn' + (STATE.adminTab === t.key ? ' current' : '') + '" onclick="__bb.select(\'admin-tab\',\'' + t.key + '\')">' + t.label + '</button>';
+      var badge = (t.key === 'mitarbeiter' && uPendingCount()) ? ' <span class="u-badge">' + uPendingCount() + '</span>' : '';
+      return '<button type="button" class="admin-tab-btn' + (STATE.adminTab === t.key ? ' current' : '') + '" onclick="__bb.select(\'admin-tab\',\'' + t.key + '\')">' + t.label + badge + '</button>';
     }).join('');
     var content = STATE.adminTab === 'mitarbeiter' ? renderAdminMitarbeiterTab()
       : STATE.adminTab === 'fragen' ? renderAdminFragenTab()
@@ -2908,9 +2971,11 @@
       '<img class="brand-logo md logo-home" src="' + LOGO_SRC + '" alt="Beauty Lounge — zum Hauptmenü" title="Zum Hauptmenü" role="button" tabindex="0" onclick="__bb.goHome()" onkeydown="if(event.key===\'Enter\'){__bb.goHome()}" />' +
       '<p class="welcome-title">Willkommen, ' + esc(STATE.mitarbeiterin || '') + '</p>' +
       loginHinweise +
+      urlaubNoticeHtml() +
       '<div class="stack">' +
         '<button class="stack-btn primary" onclick="__bb.select(\'beratung-neu\')">Neue Beratung</button>' +
         '<button class="stack-btn" onclick="__bb.goTo(\'bestellung\')">Bestellung öffnen<span class="hint">' + bestCollectiveSummary() + '</span></button>' +
+        '<button class="stack-btn" onclick="__bb.goTo(\'urlaub\')">Urlaub<span class="hint">' + esc(urlaubMenuHint()) + '</span></button>' +
       '</div>' +
       // Damit eine Mitarbeiterin schon VOR der ersten Beratung kurz nachsehen kann, welche
       // Aktion gerade läuft — unabhängig vom Hinweis-Banner, der erst bei einer passenden
@@ -4748,7 +4813,8 @@
   function bestMainTabs(active) {
     return '<div class="main-tabs">' +
       '<button class="main-tab' + (active === 'beratung' ? ' current' : '') + '" onclick="__bb.replaceTop(\'kunde-wahl\')">Beratung</button>' +
-      '<button class="main-tab' + (active === 'bestellung' ? ' current' : '') + '" onclick="__bb.replaceTop(\'bestellung\')">Bestellung</button></div>';
+      '<button class="main-tab' + (active === 'bestellung' ? ' current' : '') + '" onclick="__bb.replaceTop(\'bestellung\')">Bestellung</button>' +
+      '<button class="main-tab' + (active === 'urlaub' ? ' current' : '') + '" onclick="__bb.replaceTop(\'urlaub\')">' + urlaubLabel() + '</button></div>';
   }
   // Der Besteller (= angemeldete Mitarbeiterin) steht schon oben rechts — hier nicht nochmals.
   function bestWhoChips() { return ''; }
@@ -5754,10 +5820,387 @@
     else if (kind === 'best-email-intern') { var ei = bestFindOrder(key); if (ei && bestIsApprover()) bestOpenMailto(bestEmailHref(ei)); }
   }
 
+  // =====================================================================================
+  // Urlaub — Mitarbeiter tragen Urlaub ein, Inhaberin (Svenja) bzw. der separate Admin geben frei.
+  //
+  // Urlaubsjahr = 01.11. bis 31.10. (z. B. "2026/27" = 01.11.2026 – 31.10.2027). Mit dem
+  // 01.11. erscheint automatisch die Kachel des neuen Urlaubsjahres (Datum des Geräts).
+  // Daten: localStorage (Prototyp, je Gerät). Für den Betrieb auf mehreren Geräten liegt
+  // supabase/migrations/005_urlaub.sql bereit (Tabellen + Zugriffsregeln).
+  // =====================================================================================
+  var URLAUB_KEY = 'bb_urlaub_v1';
+  function urlaubDefault() { return { defaultDays: 30, countSaturday: false, entitlements: {}, requests: [] }; }
+  function urlaubLoad() {
+    try {
+      var raw = window.localStorage.getItem(URLAUB_KEY);
+      if (!raw) return urlaubDefault();
+      var p = JSON.parse(raw);
+      if (!p || !Array.isArray(p.requests)) return urlaubDefault();
+      p.entitlements = p.entitlements || {};
+      if (typeof p.defaultDays !== 'number') p.defaultDays = 30;
+      return p;
+    } catch (e) { return urlaubDefault(); }
+  }
+  var URLAUB = urlaubLoad();
+  var URLAUB_UI = { year: null, person: null, formFor: null, formOpen: false, error: '', info: '' };
+  function urlaubResetUi() { URLAUB_UI = { year: null, person: null, formFor: null, formOpen: false, error: '', info: '' }; }
+  function urlaubSave() { try { window.localStorage.setItem(URLAUB_KEY, JSON.stringify(URLAUB)); } catch (e) { /* ohne Speicher weiterarbeiten */ } }
+
+  function uP2(n) { return ('0' + n).slice(-2); }
+  function uIso(d) { return d.getFullYear() + '-' + uP2(d.getMonth() + 1) + '-' + uP2(d.getDate()); }
+  function uParse(s) { var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; }
+  function uFmt(s) { var d = uParse(s); return d ? uP2(d.getDate()) + '.' + uP2(d.getMonth() + 1) + '.' + d.getFullYear() : ''; }
+  function uFmtShort(s) { var d = uParse(s); return d ? uP2(d.getDate()) + '.' + uP2(d.getMonth() + 1) + '.' : ''; }
+  function uYearOf(d) { return d.getMonth() >= 10 ? d.getFullYear() : d.getFullYear() - 1; }
+  function uYearLabel(y) { return y + '/' + String(y + 1).slice(2); }
+  function uYearStart(y) { return y + '-11-01'; }
+  function uYearEnd(y) { return (y + 1) + '-10-31'; }
+  function uCurrentYear() { return uYearOf(new Date()); }
+
+  // Gesetzliche Feiertage NRW (zählen nicht als Urlaubstage)
+  var U_HOL = {};
+  function uEaster(y) {
+    var a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25),
+        g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4,
+        l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451),
+        mo = Math.floor((h + l - 7 * m + 114) / 31), da = ((h + l - 7 * m + 114) % 31) + 1;
+    return new Date(y, mo - 1, da);
+  }
+  function uHolidays(y) {
+    if (U_HOL[y]) return U_HOL[y];
+    var map = {}, e = uEaster(y);
+    function add(d) { map[uIso(d)] = true; }
+    function plus(n) { var d = new Date(e.getTime()); d.setDate(d.getDate() + n); return d; }
+    add(new Date(y, 0, 1)); add(plus(-2)); add(plus(1)); add(new Date(y, 4, 1)); add(plus(39)); add(plus(50)); add(plus(60));
+    add(new Date(y, 9, 3)); add(new Date(y, 10, 1)); add(new Date(y, 11, 25)); add(new Date(y, 11, 26));
+    U_HOL[y] = map;
+    return map;
+  }
+  function uCountDays(fromIso, toIso) {
+    var a = uParse(fromIso), b = uParse(toIso);
+    if (!a || !b || b < a) return 0;
+    var n = 0;
+    for (var d = new Date(a.getTime()); d <= b; d.setDate(d.getDate() + 1)) {
+      var wd = d.getDay();
+      var work = (wd >= 1 && wd <= 5) || (wd === 6 && URLAUB.countSaturday);
+      if (work && !uHolidays(d.getFullYear())[uIso(d)]) n++;
+    }
+    return n;
+  }
+
+  function uStaff() { return ADMIN_DATA.team.filter(function (m) { return m.sichtbar !== false; }).map(function (m) { return m.name; }); }
+  function uCanManage() { return !!STATE.isAdmin || bestIsApprover(); }
+  function uEntitlement(person, year) {
+    var e = (URLAUB.entitlements[person] || {})[year];
+    return typeof e === 'number' ? e : URLAUB.defaultDays;
+  }
+  function uRequests(person, year) {
+    return URLAUB.requests.filter(function (r) { return (person == null || r.person === person) && (year == null || r.year === year); })
+      .sort(function (a, b) { return a.from < b.from ? -1 : 1; });
+  }
+  function uStats(person, year) {
+    var ent = uEntitlement(person, year), used = 0, pend = 0;
+    uRequests(person, year).forEach(function (r) { if (r.status === 'freigegeben') used += r.days; else if (r.status === 'offen') pend += r.days; });
+    return { ent: ent, used: used, pend: pend, rest: ent - used };
+  }
+  function uPendingCount() { return URLAUB.requests.filter(function (r) { return r.status === 'offen'; }).length; }
+  function uUnread(person) { return URLAUB.requests.filter(function (r) { return r.person === person && r.unread; }); }
+  function uYears() {
+    var cur = uCurrentYear(), min = cur;
+    URLAUB.requests.forEach(function (r) { if (r.year < min) min = r.year; });
+    Object.keys(URLAUB.entitlements).forEach(function (p) { Object.keys(URLAUB.entitlements[p]).forEach(function (y) { if (+y < min) min = +y; }); });
+    var out = [];
+    for (var y = min; y <= cur; y++) out.push(y);
+    return out;
+  }
+  function uId() { return 'u' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+  function uOverlap(a1, a2, b1, b2) { return a1 <= b2 && b1 <= a2; }
+  function uOthersOverlapping(person, from, to) {
+    var names = [];
+    URLAUB.requests.forEach(function (r) {
+      if (r.person !== person && r.status !== 'abgelehnt' && uOverlap(from, to, r.from, r.to) && names.indexOf(r.person) < 0) names.push(r.person);
+    });
+    return names;
+  }
+  function uYear() { return URLAUB_UI.year == null ? uCurrentYear() : URLAUB_UI.year; }
+
+  function urlaubLabel() {
+    var n = uCanManage() ? uPendingCount() : 0;
+    return 'Urlaub' + (n ? ' <span class="u-badge">' + n + '</span>' : '');
+  }
+
+  function uStatusChip(r) {
+    if (r.status === 'freigegeben') return '<span class="u-chip ok">✓ Freigegeben</span>';
+    if (r.status === 'abgelehnt') return '<span class="u-chip no">Abgelehnt</span>';
+    return '<span class="u-chip wait">Wartet auf Freigabe</span>';
+  }
+
+  function uRequestRow(r, mode) {
+    // mode: 'own' (Mitarbeiter sieht eigenen Antrag) | 'manage' (Inhaberin/Admin)
+    var info = uFmt(r.from) + (r.to !== r.from ? ' – ' + uFmt(r.to) : '') + ' · ' + r.days + ' Tag' + (r.days === 1 ? '' : 'e');
+    var actions = '';
+    if (mode === 'manage') {
+      if (r.status === 'offen') {
+        actions += '<button type="button" class="admin-icon-btn good" onclick="__bb.select(\'urlaub-approve\',\'' + r.id + '\')">Freigeben</button>' +
+                   '<button type="button" class="admin-icon-btn danger" onclick="__bb.select(\'urlaub-reject\',\'' + r.id + '\')">Ablehnen</button>';
+      } else {
+        actions += '<button type="button" class="admin-icon-btn" onclick="__bb.select(\'urlaub-delete\',\'' + r.id + '\')">Entfernen</button>';
+      }
+    } else if (r.status === 'offen') {
+      actions += '<button type="button" class="admin-icon-btn" onclick="__bb.select(\'urlaub-withdraw\',\'' + r.id + '\')">Zurückziehen</button>';
+    }
+    return '<div class="u-req' + (r.status === 'abgelehnt' ? ' rejected' : '') + '">' +
+        '<div class="u-req-main"><div class="u-req-dates">' + esc(info) + '</div>' +
+          (r.note ? '<div class="u-req-note">' + esc(r.note) + '</div>' : '') +
+          (r.status !== 'offen' && r.decidedBy ? '<div class="u-req-note">' + (r.status === 'freigegeben' ? 'Freigegeben' : 'Abgelehnt') + ' von ' + esc(r.decidedBy) + (r.decidedAt ? ' am ' + uFmt(r.decidedAt) : '') + '</div>' : '') +
+        '</div>' +
+        uStatusChip(r) +
+        (actions ? '<div class="admin-item-actions">' + actions + '</div>' : '') +
+      '</div>';
+  }
+
+  function uStatsHtml(s) {
+    return '<div class="u-stats">' +
+      '<div><span class="k">Anspruch</span><span class="v">' + s.ent + '</span></div>' +
+      '<div><span class="k">Genommen</span><span class="v">' + s.used + '</span></div>' +
+      '<div class="rest"><span class="k">Resturlaub</span><span class="v">' + s.rest + '</span></div>' +
+    '</div>' + (s.pend ? '<p class="u-pend">+ ' + s.pend + ' Tag' + (s.pend === 1 ? '' : 'e') + ' beantragt, wartet auf Freigabe</p>' : '');
+  }
+
+  // Formular „Urlaub eintragen" (für eine Person und ein Urlaubsjahr)
+  function uFormHtml(person, year, mgr) {
+    var staff = uStaff();
+    var personField = '';
+    if (mgr) {
+      personField = '<label class="u-field"><span>Mitarbeiter</span><select id="u-person" class="text-input">' +
+        staff.map(function (n) { return '<option value="' + esc(n) + '"' + (n === person ? ' selected' : '') + '>' + esc(n) + '</option>'; }).join('') + '</select></label>';
+    }
+    var today = uIso(new Date());
+    var min = uYearStart(year), max = uYearEnd(year);
+    var start = today >= min && today <= max ? today : min;
+    return '<div class="u-form">' +
+      personField +
+      '<div class="u-form-row">' +
+        '<label class="u-field"><span>Von</span><input id="u-from" class="text-input" type="date" min="' + min + '" max="' + max + '" value="' + start + '" oninput="__bb.urlaubPreview()" /></label>' +
+        '<label class="u-field"><span>Bis</span><input id="u-to" class="text-input" type="date" min="' + min + '" max="' + max + '" value="' + start + '" oninput="__bb.urlaubPreview()" /></label>' +
+      '</div>' +
+      '<label class="u-field"><span>Anmerkung (optional)</span><input id="u-note" class="text-input" type="text" maxlength="120" placeholder="z. B. Sommerurlaub" /></label>' +
+      '<p class="u-preview" id="u-preview"></p>' +
+      (mgr ? '<label class="u-field"><span>Urlaubstage (automatisch berechnet — nur ändern, wenn nötig, z. B. halber Tag)</span><input id="u-days" class="text-input" type="number" min="0.5" step="0.5" placeholder="automatisch" /></label>' : '') +
+      (URLAUB_UI.error ? '<div class="admin-error">' + esc(URLAUB_UI.error) + '</div>' : '') +
+      '<div class="u-form-actions">' +
+        '<button type="button" class="btn-primary" onclick="__bb.select(\'urlaub-save\',\'' + year + '\')">' + (mgr ? 'Eintragen &amp; freigeben' : 'Urlaub beantragen') + '</button>' +
+        '<button type="button" class="btn-ghost" onclick="__bb.select(\'urlaub-form-close\')">Abbrechen</button>' +
+      '</div>' +
+    '</div>';
+  }
+
+  // Kachel eines Urlaubsjahres für eine Person
+  function uYearCard(person, year, mgr, canAdd) {
+    var s = uStats(person, year);
+    var reqs = uRequests(person, year);
+    var isCur = year === uCurrentYear();
+    var formOpen = URLAUB_UI.formOpen && URLAUB_UI.year === year && URLAUB_UI.formFor === person && URLAUB_UI.formFor === STATE.mitarbeiterin;
+    return '<div class="u-card' + (isCur ? ' current' : '') + '">' +
+      '<div class="u-card-head"><div><div class="u-card-title">Urlaubsjahr ' + uYearLabel(year) + '</div>' +
+        '<div class="u-card-sub">' + uFmt(uYearStart(year)) + ' – ' + uFmt(uYearEnd(year)) + (isCur ? ' · aktuell' : '') + '</div></div></div>' +
+      uStatsHtml(s) +
+      (reqs.length ? '<div class="u-req-list">' + reqs.map(function (r) { return uRequestRow(r, mgr ? 'manage' : 'own'); }).join('') + '</div>'
+                   : '<p class="u-empty">Noch kein Urlaub eingetragen.</p>') +
+      (formOpen ? uFormHtml(person, year, mgr)
+        : (canAdd ? '<button type="button" class="btn-primary u-add" onclick="__bb.select(\'urlaub-form-open\',\'' + year + '\',' + JSON.stringify(person).replace(/"/g, '&quot;') + ')">Urlaub eintragen</button>' : '')) +
+    '</div>';
+  }
+
+  // Verwaltungsteil für Inhaberin / Admin: offene Anträge + Team-Übersicht + Details je Person
+  function urlaubManageHtml() {
+    var year = uYear();
+    var staff = uStaff();
+    var open = URLAUB.requests.filter(function (r) { return r.status === 'offen'; }).sort(function (a, b) { return a.from < b.from ? -1 : 1; });
+    var openHtml = open.length ? '<div class="u-req-list">' + open.map(function (r) {
+        var s = uStats(r.person, r.year);
+        return '<div class="u-open"><div class="u-open-who"><b>' + esc(r.person) + '</b><span>Urlaubsjahr ' + uYearLabel(r.year) + ' · Rest vor Freigabe: ' + s.rest + ' von ' + s.ent + ' Tagen</span></div>' +
+          uRequestRow(r, 'manage') + '</div>';
+      }).join('') + '</div>'
+      : '<p class="u-empty">Keine offenen Anträge.</p>';
+    var yearChips = uYears().map(function (y) {
+      return '<button type="button" class="admin-tab-btn' + (y === year ? ' current' : '') + '" onclick="__bb.select(\'urlaub-year\',\'' + y + '\')">' + uYearLabel(y) + '</button>';
+    }).join('');
+    var rows = staff.map(function (n, i) {
+      var s = uStats(n, year);
+      var open2 = uRequests(n, year).filter(function (r) { return r.status === 'offen'; }).length;
+      var sel = URLAUB_UI.person === n;
+      return '<div class="u-staff' + (sel ? ' sel' : '') + '">' +
+        '<button type="button" class="u-staff-head" onclick="__bb.select(\'urlaub-person\',' + i + ')">' +
+          '<span class="u-staff-name">' + esc(n) + (open2 ? ' <span class="u-badge">' + open2 + ' offen</span>' : '') + '</span>' +
+          '<span class="u-staff-nums"><b>' + s.rest + '</b> Rest · ' + s.used + ' von ' + s.ent + ' genommen</span>' +
+        '</button>' +
+        (sel ? '<div class="u-staff-body">' +
+          '<div class="u-ent"><label class="u-field"><span>Urlaubsanspruch ' + uYearLabel(year) + ' (Tage)</span><input id="u-ent-input" class="text-input" type="number" min="0" step="0.5" value="' + s.ent + '" /></label>' +
+          '<button type="button" class="btn-ghost" onclick="__bb.select(\'urlaub-set-ent\',' + i + ')">Anspruch speichern</button></div>' +
+          uStatsHtml(s) +
+          (uRequests(n, year).length ? '<div class="u-req-list">' + uRequests(n, year).map(function (r) { return uRequestRow(r, 'manage'); }).join('') + '</div>' : '<p class="u-empty">Noch kein Urlaub eingetragen.</p>') +
+          (URLAUB_UI.formOpen && URLAUB_UI.formFor === n && URLAUB_UI.person === n ? uFormHtml(n, year, true)
+            : '<button type="button" class="btn-primary u-add" onclick="__bb.select(\'urlaub-form-open\',\'' + year + '\',' + JSON.stringify(n).replace(/"/g, '&quot;') + ')">Urlaub für ' + esc(n) + ' eintragen</button>') +
+        '</div>' : '') +
+      '</div>';
+    }).join('');
+    return '<p class="admin-section-title">Offene Urlaubsanträge' + (open.length ? ' (' + open.length + ')' : '') + '</p>' + openHtml +
+      '<p class="admin-section-title">Urlaub je Mitarbeiter</p>' +
+      '<div class="admin-tabs">' + yearChips + '</div>' +
+      '<div class="u-staff-list">' + rows + '</div>' +
+      '<p class="admin-hint">Gezählt werden Montag bis Freitag ohne gesetzliche Feiertage (NRW)' + (URLAUB.countSaturday ? ' und Samstage' : '') + '. Standard-Anspruch: ' + URLAUB.defaultDays + ' Tage je Urlaubsjahr.</p>' +
+      '<div class="u-settings"><label class="u-field"><span>Standard-Urlaubstage je Urlaubsjahr</span><input id="u-default-days" class="text-input" type="number" min="0" step="0.5" value="' + URLAUB.defaultDays + '" /></label>' +
+      '<label class="u-check"><input id="u-sat" type="checkbox"' + (URLAUB.countSaturday ? ' checked' : '') + ' /> Samstage als Arbeitstage zählen</label>' +
+      '<button type="button" class="btn-ghost" onclick="__bb.select(\'urlaub-settings\')">Einstellungen speichern</button></div>';
+  }
+
+  function renderUrlaub() {
+    var me = STATE.mitarbeiterin;
+    // Entscheidungen gelten als gesehen, sobald die Person ihre Urlaubsseite öffnet
+    var changed = false;
+    URLAUB.requests.forEach(function (r) { if (r.person === me && r.unread) { r.unread = false; changed = true; } });
+    if (changed) urlaubSave();
+    var mgr = uCanManage();
+    var years = uYears().slice().reverse();
+    var own = years.map(function (y) { return uYearCard(me, y, false, y === uCurrentYear()); }).join('');
+    var body = '' +
+      bestMainTabs('urlaub') +
+      '<h1 class="q" style="margin-bottom:.3rem">Urlaub</h1>' +
+      (URLAUB_UI.info ? '<div class="u-info">' + esc(URLAUB_UI.info) + '</div>' : '') +
+      (mgr ? urlaubManageHtml() + '<p class="admin-section-title">Mein Urlaub</p>' : '<p class="sub">Trage hier deinen Urlaub ein. Die Inhaberin gibt ihn frei — hier siehst du den Stand und deinen Resturlaub.</p>') +
+      own +
+      '<div class="footer-actions"><button class="btn-ghost" onclick="__bb.replaceTop(\'kunde-wahl\')">Zurück zum Hauptmenü</button></div>';
+    URLAUB_UI.info = '';
+    screenWrap('dezent', 0, contextLabel(), body);
+  }
+
+  function urlaubNoticeHtml() {
+    var me = STATE.mitarbeiterin;
+    var out = '';
+    if (uCanManage() && uPendingCount()) {
+      var n = uPendingCount();
+      out += '<div class="u-notice" role="button" tabindex="0" onclick="__bb.replaceTop(\'urlaub\')"><b>' + n + ' Urlaubsantrag' + (n === 1 ? '' : 'e') + '</b> wart' + (n === 1 ? 'et' : 'en') + ' auf Freigabe — jetzt prüfen →</div>';
+    }
+    var unread = uUnread(me);
+    unread.forEach(function (r) {
+      var span = uFmtShort(r.from) + (r.to !== r.from ? '–' + uFmtShort(r.to) : '') + uParse(r.to).getFullYear();
+      out += '<div class="u-notice ' + (r.status === 'freigegeben' ? 'ok' : 'no') + '" role="button" tabindex="0" onclick="__bb.replaceTop(\'urlaub\')">Dein Urlaub ' + esc(span) + ' wurde <b>' + (r.status === 'freigegeben' ? 'freigegeben ✓' : 'abgelehnt') + '</b> →</div>';
+    });
+    return out;
+  }
+  function urlaubMenuHint() {
+    var me = STATE.mitarbeiterin;
+    var s = uStats(me, uCurrentYear());
+    var parts = ['Resturlaub ' + s.rest + ' Tag' + (s.rest === 1 ? '' : 'e')];
+    if (uCanManage() && uPendingCount()) parts.push(uPendingCount() + ' Antrag' + (uPendingCount() === 1 ? '' : 'e') + ' offen');
+    else if (s.pend) parts.push(s.pend + ' Tag' + (s.pend === 1 ? '' : 'e') + ' beantragt');
+    return parts.join(' · ');
+  }
+
+  function urlaubHandler(kind, key, extra) {
+    var me = STATE.mitarbeiterin;
+    var staff = uStaff();
+    if (kind === 'urlaub-year') { URLAUB_UI.year = +key; URLAUB_UI.formOpen = false; URLAUB_UI.error = ''; render(); return; }
+    if (kind === 'urlaub-person') {
+      var n = staff[+key];
+      URLAUB_UI.person = URLAUB_UI.person === n ? null : n;
+      URLAUB_UI.formOpen = false; URLAUB_UI.error = ''; render(); return;
+    }
+    if (kind === 'urlaub-form-open') {
+      URLAUB_UI.year = +key;
+      URLAUB_UI.formFor = extra || me;
+      URLAUB_UI.formOpen = true; URLAUB_UI.error = ''; render();
+      setTimeout(function () { urlaubPreview(); }, 0);
+      return;
+    }
+    if (kind === 'urlaub-form-close') { URLAUB_UI.formOpen = false; URLAUB_UI.error = ''; render(); return; }
+    if (kind === 'urlaub-save') {
+      var mgr = uCanManage();
+      var year = +key;
+      var person = mgr ? (document.getElementById('u-person') ? document.getElementById('u-person').value : (URLAUB_UI.formFor || me)) : me;
+      var from = (document.getElementById('u-from') || {}).value, to = (document.getElementById('u-to') || {}).value;
+      var note = ((document.getElementById('u-note') || {}).value || '').trim();
+      var err = '';
+      if (!person) err = 'Bitte eine Person wählen.';
+      else if (!uParse(from) || !uParse(to)) err = 'Bitte Von- und Bis-Datum angeben.';
+      else if (to < from) err = 'Das Ende liegt vor dem Beginn.';
+      else if (from < uYearStart(year) || to > uYearEnd(year)) err = 'Der Zeitraum muss im Urlaubsjahr ' + uYearLabel(year) + ' liegen (' + uFmt(uYearStart(year)) + ' – ' + uFmt(uYearEnd(year)) + '). Über den 01.11. hinweg bitte zwei Einträge machen.';
+      var days = uCountDays(from, to);
+      var manual = mgr ? parseFloat(String((document.getElementById('u-days') || {}).value || '').replace(',', '.')) : NaN;
+      if (!isNaN(manual) && manual > 0) days = manual;
+      if (!err && days <= 0) err = 'In diesem Zeitraum liegt kein Arbeitstag (Wochenende/Feiertag).';
+      if (!err) {
+        var clash = URLAUB.requests.filter(function (r) { return r.person === person && r.status !== 'abgelehnt' && uOverlap(from, to, r.from, r.to); })[0];
+        if (clash) err = 'Der Zeitraum überschneidet sich mit einem vorhandenen Eintrag (' + uFmt(clash.from) + ' – ' + uFmt(clash.to) + ').';
+      }
+      if (err) { URLAUB_UI.error = err; render(); return; }
+      var now = uIso(new Date());
+      var req = { id: uId(), person: person, year: year, from: from, to: to, days: days, note: note, status: mgr ? 'freigegeben' : 'offen',
+                  createdAt: now, createdBy: mgr ? (STATE.isAdmin && !me ? 'Admin' : me) : me };
+      if (mgr) { req.decidedBy = (STATE.isAdmin && !me) ? 'Admin' : me; req.decidedAt = now; req.unread = person !== me; }
+      URLAUB.requests.push(req);
+      urlaubSave();
+      var others = uOthersOverlapping(person, from, to);
+      URLAUB_UI.formOpen = false; URLAUB_UI.error = '';
+      URLAUB_UI.info = (mgr ? 'Eingetragen und freigegeben' : 'Antrag gespeichert — wartet auf Freigabe') + ': ' + uFmt(from) + (to !== from ? ' – ' + uFmt(to) : '') + ' (' + days + ' Tag' + (days === 1 ? '' : 'e') + ').' +
+        (others.length ? ' Hinweis: im gleichen Zeitraum ist auch ' + others.join(', ') + ' im Urlaub.' : '');
+      render(); return;
+    }
+    if (kind === 'urlaub-approve' || kind === 'urlaub-reject') {
+      if (!uCanManage()) return;
+      var r = URLAUB.requests.filter(function (x) { return x.id === key; })[0];
+      if (!r) return;
+      r.status = kind === 'urlaub-approve' ? 'freigegeben' : 'abgelehnt';
+      r.decidedBy = (STATE.isAdmin && !me) ? 'Admin' : me;
+      r.decidedAt = uIso(new Date());
+      r.unread = true;
+      urlaubSave(); render(); return;
+    }
+    if (kind === 'urlaub-delete') {
+      if (!uCanManage()) return;
+      if (!window.confirm('Diesen Urlaubseintrag entfernen? Die Urlaubstage werden wieder gutgeschrieben.')) return;
+      URLAUB.requests = URLAUB.requests.filter(function (x) { return x.id !== key; });
+      urlaubSave(); render(); return;
+    }
+    if (kind === 'urlaub-withdraw') {
+      var own = URLAUB.requests.filter(function (x) { return x.id === key && x.person === me && x.status === 'offen'; })[0];
+      if (!own) return;
+      URLAUB.requests = URLAUB.requests.filter(function (x) { return x.id !== key; });
+      urlaubSave(); render(); return;
+    }
+    if (kind === 'urlaub-set-ent') {
+      if (!uCanManage()) return;
+      var v = parseFloat(String((document.getElementById('u-ent-input') || {}).value || '').replace(',', '.'));
+      var p = staff[+key];
+      if (!p || isNaN(v) || v < 0) return;
+      URLAUB.entitlements[p] = URLAUB.entitlements[p] || {};
+      URLAUB.entitlements[p][uYear()] = v;
+      urlaubSave(); URLAUB_UI.info = 'Anspruch für ' + p + ' (' + uYearLabel(uYear()) + ') gespeichert: ' + v + ' Tage.'; render(); return;
+    }
+    if (kind === 'urlaub-settings') {
+      if (!uCanManage()) return;
+      var dd = parseFloat(String((document.getElementById('u-default-days') || {}).value || '').replace(',', '.'));
+      if (!isNaN(dd) && dd >= 0) URLAUB.defaultDays = dd;
+      URLAUB.countSaturday = !!(document.getElementById('u-sat') || {}).checked;
+      urlaubSave(); URLAUB_UI.info = 'Einstellungen gespeichert.'; render(); return;
+    }
+  }
+  function urlaubPreview() {
+    var f = (document.getElementById('u-from') || {}).value, t = (document.getElementById('u-to') || {}).value;
+    var el = document.getElementById('u-preview');
+    if (!el) return;
+    if (!uParse(f) || !uParse(t)) { el.textContent = ''; return; }
+    if (t < f) { el.textContent = 'Das Ende liegt vor dem Beginn.'; return; }
+    var d = uCountDays(f, t);
+    el.textContent = '= ' + d + ' Urlaubstag' + (d === 1 ? '' : 'e') + ' (Wochenenden und Feiertage zählen nicht)';
+  }
+
   function render() {
     var id = path[pointer];
     if (id === 'login') return renderLogin();
     if (id === 'kunde-wahl') return renderKundeWahl();
+    if (id === 'urlaub') return renderUrlaub();
     if (id === 'aktionen-uebersicht') return renderAktionenUebersicht();
     if (id === 'ziel') return renderZiel();
     if (id === 'painpoint') return renderPainpoint();
