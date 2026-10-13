@@ -295,7 +295,7 @@ if (localNav) {
     },
     diolaze: {
       name: 'DIOLAZE Haarentfernung',
-      desc: 'Dauerhafte Haarentfernung mit dem InMode Alexandrit-Dioden-Laser — für Damen und Herren.',
+      desc: 'Dauerhafte Haarentfernung mit dem InMode Alexandrit-Dioden-Laser — für Frauen und Männer.',
       page: 'behandlungen/diolaze-haarentfernung.html'
     }
   };
@@ -386,20 +386,20 @@ if (localNav) {
     pkg_ab: { name: 'MUST HAVE Achseln + Bikini', min: 40, price: 155, online: true },
     pkg_ai: { name: 'MUST HAVE Achseln + Intim Bereich', min: 45, price: 199, online: true },
     pkg_aib: { name: 'MUST HAVE Achseln + Intim Bereich + Beine Komplett', min: 80, price: 439, online: true },
-    h_chest: { name: 'Herren Brust', min: 30, price: 115, online: true },
-    h_belly: { name: 'Herren Bauch', min: 30, price: 129, online: true },
-    h_neck: { name: 'Herren Nacken', min: 20, price: 69, online: true },
-    h_shoulders: { name: 'Herren Schultern', min: 20, price: 89, online: true },
-    h_back: { name: 'Herren Rücken', min: 40, price: 169, online: true },
-    h_partback: { name: 'Herren Teilrücken', min: 20, price: 79, online: true },
-    h_armpit: { name: 'Herren Achseln', min: 30, price: 95, online: true },
-    h_chest_belly: { name: 'Herren Brust + Bauch', min: 50, price: 199, online: true },
-    h_back_shoulder: { name: 'Herren Rücken + Schulter', min: 50, price: 229, online: true },
-    h_neck_shoulder: { name: 'Herren Nacken + Schulter', min: 30, price: 135, online: true },
-    h_bsn: { name: 'Herren Rücken + Schulter + Nacken', min: 60, price: 259, online: true },
-    h_all3: { name: 'Herren Brust + Bauch + Rücken', min: 75, price: 329, online: true },
-    h_arms: { name: 'Herren Arme Komplett', min: 45, price: 219, online: true },
-    h_legs: { name: 'Herren Beine Komplett', min: 50, price: 295, online: true }
+    h_chest: { name: 'Brust (Männer)', min: 30, price: 115, online: true },
+    h_belly: { name: 'Bauch (Männer)', min: 30, price: 129, online: true },
+    h_neck: { name: 'Nacken (Männer)', min: 20, price: 69, online: true },
+    h_shoulders: { name: 'Schultern (Männer)', min: 20, price: 89, online: true },
+    h_back: { name: 'Rücken (Männer)', min: 40, price: 169, online: true },
+    h_partback: { name: 'Teilrücken (Männer)', min: 20, price: 79, online: true },
+    h_armpit: { name: 'Achseln (Männer)', min: 30, price: 95, online: true },
+    h_chest_belly: { name: 'Brust + Bauch (Männer)', min: 50, price: 199, online: true },
+    h_back_shoulder: { name: 'Rücken + Schulter (Männer)', min: 50, price: 229, online: true },
+    h_neck_shoulder: { name: 'Nacken + Schulter (Männer)', min: 30, price: 135, online: true },
+    h_bsn: { name: 'Rücken + Schulter + Nacken (Männer)', min: 60, price: 259, online: true },
+    h_all3: { name: 'Brust + Bauch + Rücken (Männer)', min: 75, price: 329, online: true },
+    h_arms: { name: 'Arme Komplett (Männer)', min: 45, price: 219, online: true },
+    h_legs: { name: 'Beine Komplett (Männer)', min: 50, price: 295, online: true }
   };
 
   const fmtMin = (m) => m + '\u00a0Min.';
@@ -770,7 +770,7 @@ if (localNav) {
     };
     const p = plan[zone];
     const notes = [p.note, 'Für ein glattes, langfristiges Ergebnis ist in der Regel eine Serie von Behandlungen nötig.'];
-    if (mann) notes.unshift('Die Behandlung ist für Damen und Herren geeignet — für Herren gibt es eigene Zonen und Pakete.');
+    if (mann) notes.unshift('Die Behandlung ist für Frauen und Männer geeignet — für Männer gibt es eigene Zonen und Pakete.');
     notes.push('Zur Vorbereitung: 24 Stunden vorher rasieren, 4 Wochen vorher nicht zupfen, epilieren oder waxen.');
     return {
       treatment: 'diolaze',
