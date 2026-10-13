@@ -206,8 +206,8 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
   display:flex;align-items:center;justify-content:space-between;
 }
 .brand{flex:none;}
-.brand img{height:88px;transition:height .3s var(--ease);width:auto;max-width:none;display:block;}
-.site-header.scrolled .brand img{height:70px;}
+.brand img{height:104px;transition:height .3s var(--ease);width:auto;max-width:none;display:block;}
+.site-header.scrolled .brand img{height:82px;}
 .main-nav{display:flex;align-items:center;gap:1.9rem;}
 .main-nav a,.main-nav button.js-open-finder{
   font-size:.875rem;letter-spacing:0;text-transform:none;font-weight:500;
@@ -983,10 +983,10 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
 /* Navigation: acht Einträge brauchen ca. 1090px — darunter zuerst enger setzen, dann als Menü einklappen,
    statt dass einzelne Einträge umbrechen. */
 .main-nav a,.main-nav button.js-open-finder{white-space:nowrap;}
-@media (max-width:1180px){
+@media (max-width:1280px){
   .main-nav{gap:1.5rem;}
 }
-@media (max-width:1100px){
+@media (max-width:1180px){
   .main-nav{
     position:fixed;top:0;right:0;height:100vh;height:100dvh;width:min(320px,80vw);
     background:var(--white);flex-direction:column;justify-content:center;
@@ -1070,7 +1070,7 @@ a.btn:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visi
    Lokale Navigation auf den Behandlungsseiten (Überblick · Ablauf · Preise …)
    --------------------------------------------------------------------------- */
 .local-nav{
-  position:sticky;top:88px;z-index:800;
+  position:sticky;top:96px;z-index:800;
   background:rgba(255,253,250,0.82);
   -webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
   border-bottom:1px solid rgba(18,16,14,0.07);
@@ -1314,7 +1314,7 @@ h1.reveal.in,h2.reveal.in{filter:blur(0);}
 @media (max-width:760px){.price-tools{top:58px;}}
 
 /* Startseite: Angebots-Kacheln gleich unter dem Kopfbereich sichtbar */
-.hero--compact{padding:6.2rem 1.5rem 0.5rem;}
+.hero--compact{padding:7.6rem 1.5rem 0.5rem;}
 .hero--compact h1{font-size:clamp(2.3rem,4.4vw,3.5rem);margin-bottom:0.25em;}
 .hero--compact h1 br{display:none;}
 .hero--compact .hero-sub{max-width:58ch;margin-bottom:1.1em;font-size:clamp(1.05rem,1.6vw,1.2rem);}
@@ -1324,7 +1324,7 @@ h1.reveal.in,h2.reveal.in{filter:blur(0);}
 .studio-band{padding:6.5rem 1.5rem 0;}
 .studio-band .hero-visual{margin:0 auto;}
 @media (max-width:600px){
-  .hero--compact{padding:6rem 1.4rem 1rem;}
+  .hero--compact{padding:7.2rem 1.4rem 1rem;}
   .section--offer{padding:1.6rem 1.4rem 4.5rem;}
   .studio-band{padding:4.5rem 1.4rem 0;}
 }
@@ -1362,7 +1362,7 @@ h1.reveal.in,h2.reveal.in{filter:blur(0);}
 
 /* Logo größer und gut lesbar (Kopfleiste): am Handy etwas kleiner, aber deutlich größer als zuvor */
 @media (max-width:600px){
-  .brand img{height:70px;}
-  .site-header.scrolled .brand img{height:58px;}
-  .local-nav{top:76px;}
+  .brand img{height:84px;}
+  .site-header.scrolled .brand img{height:68px;}
+  .local-nav{top:82px;}
 }
