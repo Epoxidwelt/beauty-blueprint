@@ -726,6 +726,10 @@
   .stack-btn.hyg-todo-btn .hint { color: var(--todo-ink); font-weight: 700; }
   .stack-btn.hyg-todo-btn::before { content: 'TO DO'; display: inline-block; margin-right: 0.5rem; background: var(--todo); color: #fff; font-size: 0.65rem; font-weight: 800; padding: 0.15rem 0.45rem; border-radius: 999px; vertical-align: middle; letter-spacing: 0.04em; }
   .u-badge.hyg-badge, .main-tab.current .u-badge.hyg-badge { background: var(--todo); color: #fff; border: none; }
+  .hyg-sig { display: block; width: 100%; height: 170px; border: 2px dashed var(--border-strong); border-radius: 12px; background: #fff; touch-action: none; cursor: crosshair; }
+  .hyg-sigthumb { height: 34px; width: auto; border: 1px solid var(--border); border-radius: 6px; background: #fff; flex-shrink: 0; }
+  .hyg-check { display: flex; gap: 0.6rem; align-items: flex-start; font-size: 0.92rem; line-height: 1.4; margin: 0.3rem 0 0.8rem; color: var(--text); }
+  .hyg-check input { width: 22px; height: 22px; flex-shrink: 0; margin-top: 0.05rem; accent-color: var(--todo); }
   .btn-primary.hyg-btn-todo { background: var(--todo); border-color: var(--todo); color: #fff; }
   .main-tabs .main-tab { padding: 0.85rem 0.2rem; font-size: 0.88rem; min-width: 0; white-space: nowrap; }
   .hyg-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.7rem; }
@@ -3026,7 +3030,7 @@
         '<button class="stack-btn primary" onclick="__bb.select(\'beratung-neu\')">Neue Beratung</button>' +
         '<button class="stack-btn" onclick="__bb.goTo(\'bestellung\')">Bestellung öffnen<span class="hint">' + bestCollectiveSummary() + '</span></button>' +
         '<button class="stack-btn" onclick="__bb.goTo(\'urlaub\')">Urlaub<span class="hint">' + esc(urlaubMenuHint()) + '</span></button>' +
-        '<button class="stack-btn' + (hygCanEdit() && hygActionCount() ? ' hyg-todo-btn' : '') + '" onclick="__bb.goTo(\'hygiene\')">Desinfektionsplan<span class="hint">' + esc(hygMenuHint()) + '</span></button>' +
+        '<button class="stack-btn' + (hygTodoCount() ? ' hyg-todo-btn' : '') + '" onclick="__bb.goTo(\'hygiene\')">Desinfektionsplan<span class="hint">' + esc(hygMenuHint()) + '</span></button>' +
       '</div>' +
       // Damit eine Mitarbeiterin schon VOR der ersten Beratung kurz nachsehen kann, welche
       // Aktion gerade läuft — unabhängig vom Hinweis-Banner, der erst bei einer passenden
@@ -6323,7 +6327,7 @@
     ]
   };
 
-  function hygDefault() { return { areas: {}, history: [] }; }
+  function hygDefault() { return { areas: {}, history: [], sign: [] }; }
   function hygLoad() {
     try {
       var raw = window.localStorage.getItem(HYG_KEY);
@@ -6331,6 +6335,7 @@
       var p = JSON.parse(raw);
       if (!p || typeof p.areas !== 'object') return hygDefault();
       p.history = Array.isArray(p.history) ? p.history : [];
+      p.sign = Array.isArray(p.sign) ? p.sign : [];
       return p;
     } catch (e) { return hygDefault(); }
   }
@@ -6368,24 +6373,37 @@
   function hygNeedsAction(a) { return a.status !== 'abgeschlossen' || !!hygDue(a); }
   function hygActionCount() { return HYG_AREAS.filter(function (d) { return hygNeedsAction(hygArea(d.key)); }).length; }
   function hygMenuHint() {
+    var so = hygSignOpen(STATE.mitarbeiterin);
+    if (so) return 'Unterschrift erforderlich: ' + so + ' Plan' + (so === 1 ? '' : 'e');
     var due = HYG_AREAS.filter(function (d) { var x = hygArea(d.key); return hygDue(x); }).length;
     var done = HYG_AREAS.filter(function (d) { return hygArea(d.key).plan; }).length;
     if (due) return due + ' Bereich' + (due === 1 ? '' : 'e') + ': Aktualisierung fällig';
     return done ? 'Abläufe & Mittel ansehen · ' + done + ' von ' + HYG_AREAS.length + ' Bereichen' : (hygCanEdit() ? 'Pläne noch zu erstellen' : 'Plan wird noch erstellt');
   }
+  // ---------- Unterweisung: Plan an Mitarbeitende senden, digital unterschreiben lassen ----------
+  var HYG_SIG_W = 600, HYG_SIG_H = 240;
+  var HYG_SIG = { drawn: false };
+  function hygSignOpen(person) { return person ? HYG.sign.filter(function (e) { return e.person === person && e.status === 'offen'; }).length : 0; }
+  function hygSignOpenFor(person, area) { return HYG.sign.filter(function (e) { return e.person === person && e.area === area && e.status === 'offen'; })[0] || null; }
+  function hygSignFor(area, version) { return HYG.sign.filter(function (e) { return e.area === area && e.version === version; }); }
+  function hygTodoCount() { return (hygCanEdit() ? hygActionCount() : 0) + hygSignOpen(STATE.mitarbeiterin); }
+  function hygNowStamp() { var d = new Date(); return uIso(d) + ' ' + uP2(d.getHours()) + ':' + uP2(d.getMinutes()); }
+  function hygStampFmt(t) { return t ? uFmt(t.slice(0, 10)) + ', ' + t.slice(11, 16) + ' Uhr' : ''; }
   function hygTodo(a) { return hygCanEdit() && hygNeedsAction(a); }
   function hygLabel() {
-    var n = hygCanEdit() ? hygActionCount() : 0;
+    var n = hygTodoCount();
     return 'Hygiene' + (n ? ' <span class="u-badge hyg-badge">' + n + '</span>' : '');
   }
   function hygNoticeHtml() {
-    if (!hygCanEdit()) return '';
+    var so = hygSignOpen(STATE.mitarbeiterin), pre = '';
+    if (so) pre = '<div class="u-notice hyg-todo-notice" role="button" tabindex="0" onclick="__bb.goTo(\'hygiene\')"><span class="hyg-pill todo">TO DO</span> <b>Unterweisung:</b> ' + so + ' ' + (so === 1 ? 'Hygieneplan' : 'Hygienepläne') + ' ' + (so === 1 ? 'wartet' : 'warten') + ' auf deine Unterschrift →</div>';
+    if (!hygCanEdit()) return pre;
     var n = hygActionCount();
-    if (!n) return '';
+    if (!n) return pre;
     var due = HYG_AREAS.filter(function (d) { return hygDue(hygArea(d.key)); }).length;
     var txt = due ? '<b>' + due + ' Hygieneplan' + (due === 1 ? '' : 'e') + '</b> ' + (due === 1 ? 'muss' : 'müssen') + ' aktualisiert werden (12 Monate) — jetzt prüfen →'
       : '<b>Desinfektionsplan:</b> ' + n + ' Bereich' + (n === 1 ? '' : 'e') + ' noch nicht abgeschlossen — jetzt erstellen →';
-    return '<div class="u-notice hyg-todo-notice" role="button" tabindex="0" onclick="__bb.goTo(\'hygiene\')"><span class="hyg-pill todo">TO DO</span> ' + txt + '</div>';
+    return pre + '<div class="u-notice hyg-todo-notice" role="button" tabindex="0" onclick="__bb.goTo(\'hygiene\')"><span class="hyg-pill todo">TO DO</span> ' + txt + '</div>';
   }
 
   // ---------- Plan aus den Antworten erzeugen ----------
@@ -6588,6 +6606,7 @@
     var key = HYG_UI.area;
     HYG_UI.info = ''; HYG_UI.error = '';
     if (!key || !hygAreaDef(key)) return body + hygOverviewHtml();
+    if (HYG_UI.mode === 'sign') return body + hygSignHtml(key);
     if (HYG_UI.mode === 'fragen' && hygCanEdit()) return body + hygQuestionsHtml(key);
     if (HYG_UI.mode === 'edit' && hygCanEdit()) return body + hygEditHtml(key);
     return body + hygViewHtml(key);
@@ -6607,11 +6626,17 @@
     HYG_AREAS.forEach(function (d) {
       var a = hygArea(d.key);
       var btns = '';
-      if (a.plan) btns += '<button type="button" class="btn-primary u-add" onclick="__bb.select(\'hyg-open\',\'' + d.key + '\')">Plan ansehen</button>';
+      var mySign = hygSignOpenFor(STATE.mitarbeiterin, d.key);
+      if (mySign) btns += '<button type="button" class="btn-primary hyg-btn-todo u-add" onclick="__bb.select(\'hyg-sign-open\',\'' + d.key + '\')">Lesen &amp; unterschreiben</button>';
+      if (a.plan) btns += '<button type="button" class="' + (mySign ? 'btn-ghost' : 'btn-primary') + ' u-add" onclick="__bb.select(\'hyg-open\',\'' + d.key + '\')">Plan ansehen</button>';
       if (mgr) btns += '<button type="button" class="' + (a.plan ? 'btn-ghost' : 'btn-primary hyg-btn-todo') + ' u-add" onclick="__bb.select(\'hyg-open\',\'' + d.key + '\',\'fragen\')">' + (a.plan ? 'Fragenkatalog neu ausfüllen' : 'Plan erstellen (Fragenkatalog)') + '</button>';
       if (!a.plan && !mgr) btns += '<p class="admin-hint" style="margin:.4rem 0 0">Dieser Plan wird gerade erstellt.</p>';
-      out += '<div class="u-card' + (hygTodo(a) ? ' hyg-todo-card' : (a.status === 'abgeschlossen' ? ' hyg-done-card' : '')) + '">' +
-        '<div class="hyg-head"><div><div class="u-card-title">' + esc(d.label) + '</div><div class="u-card-sub">' + esc(hygMeta(a) || 'Noch kein Plan hinterlegt') + '</div></div>' + hygChip(a) + '</div>' +
+      var sl = a.plan ? hygSignFor(d.key, a.version) : [], sd = sl.filter(function (e) { return e.status === 'unterschrieben'; }).length;
+      var signLine = (mgr && sl.length) ? '<div class="u-card-sub" style="margin-top:.35rem;' + (sd < sl.length ? 'color:var(--todo-ink);font-weight:700' : 'color:var(--done);font-weight:700') + '">Unterschriften: ' + sd + ' von ' + sl.length + (sd < sl.length ? ' — noch offen' : ' ✓') + '</div>' : '';
+      var myDone = (!mgr || STATE.mitarbeiterin) && a.plan ? sl.filter(function (e) { return e.person === STATE.mitarbeiterin && e.status === 'unterschrieben'; })[0] : null;
+      if (myDone && !mgr) signLine = '<div class="u-card-sub" style="margin-top:.35rem;color:var(--done);font-weight:700">✓ Von dir unterschrieben am ' + esc(hygStampFmt(myDone.signedAt)) + '</div>';
+      out += '<div class="u-card' + ((hygTodo(a) || mySign) ? ' hyg-todo-card' : (a.status === 'abgeschlossen' ? ' hyg-done-card' : '')) + '">' +
+        '<div class="hyg-head"><div><div class="u-card-title">' + esc(d.label) + '</div><div class="u-card-sub">' + esc(hygMeta(a) || 'Noch kein Plan hinterlegt') + '</div></div><div style="display:flex;flex-direction:column;gap:.3rem;align-items:flex-end">' + hygChip(a) + (mySign ? '<span class="hyg-pill todo">TO DO · Unterschrift</span>' : '') + '</div></div>' + signLine +
         btns + '</div>';
     });
     var hist = HYG.history.slice(-5).reverse();
@@ -6630,19 +6655,8 @@
     return '<button type="button" class="btn-ghost hyg-back" onclick="__bb.select(\'hyg-back\')">← Alle Bereiche</button>';
   }
 
-  function hygViewHtml(key) {
-    var d = hygAreaDef(key), a = hygArea(key), mgr = hygCanEdit();
-    var out = hygBackBar() + '<h2 class="hyg-title">' + esc(d.label) + '</h2><div class="hyg-head" style="margin-bottom:.8rem"><div class="u-card-sub">' + esc(hygMeta(a)) + '</div>' + hygChip(a) + '</div>';
-    if (!a.plan) {
-      out += '<div class="u-card"><p class="sub" style="margin:0 0 .6rem">Für diesen Bereich gibt es noch keinen Plan.</p>' +
-        (mgr ? '<button type="button" class="btn-primary" onclick="__bb.select(\'hyg-mode\',\'fragen\')">Plan erstellen (Fragenkatalog)</button>' : '<p class="admin-hint">Die Inhaberin erstellt den Plan — er erscheint hier, sobald er fertig ist.</p>') + '</div>';
-      return out;
-    }
-    var due = hygDue(a);
-    if (mgr && a.status === 'entwurf') out += '<div class="hyg-todo-bar"><span class="hyg-pill todo">TO DO</span><span><b>Plan noch nicht abgeschlossen.</b> Prüfen, ggf. anpassen und unten „Abschließen &amp; PDF erzeugen“ wählen.</span></div>';
-    if (due) out += '<div class="u-notice hyg-todo-notice" style="cursor:default"><span class="hyg-pill todo">TO DO</span> ' + (due === 'faellig' ? '<b>Gültigkeit abgelaufen.</b> Dieser Plan muss aktualisiert werden (alle 12 Monate).' : '<b>Bald fällig.</b> Aktualisierung bis ' + esc(uFmt(a.next)) + '.') + '</div>';
-    if (a.stale && mgr) out += '<div class="u-info">Der Plan wurde seit dem letzten Abschluss geändert — zum Übernehmen unten „Abschließen &amp; PDF erzeugen" wählen.</div>';
-    var p = a.plan;
+  function hygPlanBodyHtml(p) {
+    var out = '';
     // Ablauf
     var stepHtml = HYG_PHASES.map(function (ph) {
       var list = p.steps.filter(function (s) { return s.phase === ph; });
@@ -6662,6 +6676,26 @@
     });
     if (p.open && p.open.length) out += '<p class="admin-section-title">Noch zu klären</p><ul class="hyg-open">' + p.open.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>';
     if (p.notes) out += '<p class="admin-section-title">Hinweise</p><p class="sub" style="white-space:pre-wrap">' + esc(p.notes) + '</p>';
+    return out;
+  }
+
+  function hygViewHtml(key) {
+    var d = hygAreaDef(key), a = hygArea(key), mgr = hygCanEdit();
+    var out = hygBackBar() + '<h2 class="hyg-title">' + esc(d.label) + '</h2><div class="hyg-head" style="margin-bottom:.8rem"><div class="u-card-sub">' + esc(hygMeta(a)) + '</div>' + hygChip(a) + '</div>';
+    if (!a.plan) {
+      out += '<div class="u-card"><p class="sub" style="margin:0 0 .6rem">Für diesen Bereich gibt es noch keinen Plan.</p>' +
+        (mgr ? '<button type="button" class="btn-primary" onclick="__bb.select(\'hyg-mode\',\'fragen\')">Plan erstellen (Fragenkatalog)</button>' : '<p class="admin-hint">Die Inhaberin erstellt den Plan — er erscheint hier, sobald er fertig ist.</p>') + '</div>';
+      return out;
+    }
+    var due = hygDue(a);
+    if (mgr && a.status === 'entwurf') out += '<div class="hyg-todo-bar"><span class="hyg-pill todo">TO DO</span><span><b>Plan noch nicht abgeschlossen.</b> Prüfen, ggf. anpassen und unten „Abschließen &amp; PDF erzeugen“ wählen.</span></div>';
+    if (due) out += '<div class="u-notice hyg-todo-notice" style="cursor:default"><span class="hyg-pill todo">TO DO</span> ' + (due === 'faellig' ? '<b>Gültigkeit abgelaufen.</b> Dieser Plan muss aktualisiert werden (alle 12 Monate).' : '<b>Bald fällig.</b> Aktualisierung bis ' + esc(uFmt(a.next)) + '.') + '</div>';
+    if (a.stale && mgr) out += '<div class="u-info">Der Plan wurde seit dem letzten Abschluss geändert — zum Übernehmen unten „Abschließen &amp; PDF erzeugen" wählen.</div>';
+    var p = a.plan;
+    var myOpen = hygSignOpenFor(STATE.mitarbeiterin, key);
+    if (myOpen) out += '<div class="hyg-todo-bar" style="flex-direction:column;align-items:stretch"><span><span class="hyg-pill todo">TO DO</span> <b>Deine Unterschrift fehlt.</b> Bitte den Plan lesen und die Unterweisung digital bestätigen.</span><button type="button" class="btn-primary hyg-btn-todo" onclick="__bb.select(\'hyg-sign-open\',\'' + key + '\')">Jetzt lesen &amp; unterschreiben</button></div>';
+    out += hygPlanBodyHtml(p);
+    out += hygSignSectionHtml(key);
     // Aktionen
     out += '<div class="hyg-actions">' +
       '<button type="button" class="btn-primary" onclick="__bb.select(\'hyg-pdf\',\'' + key + '\',\'save\')">PDF speichern' + (window.showDirectoryPicker ? ' (Ordner „' + HYG_FOLDER + '")' : '') + '</button>' +
@@ -6674,6 +6708,68 @@
     }
     out += '</div><p class="admin-hint">' + esc(HYG_DISCLAIMER) + '</p>';
     return out;
+  }
+
+
+  function hygSignSectionHtml(key) {
+    var a = hygArea(key), mgr = hygCanEdit(), me = STATE.mitarbeiterin;
+    var list = hygSignFor(key, a.version);
+    var out = '<p class="admin-section-title">Unterweisung · digitale Unterschrift</p>';
+    if (!mgr) {
+      var mine = list.filter(function (e) { return e.person === me; })[0];
+      if (mine && mine.status === 'unterschrieben') return out + '<div class="u-info">✓ Du hast diese Planversion am ' + esc(hygStampFmt(mine.signedAt)) + ' unterschrieben.</div>';
+      return out + '<p class="admin-hint">Sobald die Inhaberin den Plan an dich sendet, kannst du ihn hier lesen und digital unterschreiben.</p>';
+    }
+    if (a.status !== 'abgeschlossen') return out + '<p class="admin-hint">Zuerst den Plan abschließen. Danach kannst du ihn an die Mitarbeitenden senden, damit sie ihn digital unterschreiben.</p>';
+    var staff = uStaff(), me2 = me || '';
+    if (list.length) {
+      var sd = list.filter(function (e) { return e.status === 'unterschrieben'; }).length;
+      out += '<p class="admin-hint" style="margin:0 0 .5rem"><b>Version ' + a.version + ' · Stand ' + esc(uFmt(a.stand)) + ':</b> ' + sd + ' von ' + list.length + ' haben unterschrieben.</p><div class="admin-list">' + list.map(function (e) {
+        var done = e.status === 'unterschrieben';
+        return '<div class="admin-item"><div class="admin-item-body"><div class="admin-item-title">' + esc(e.person) + '</div><div class="admin-item-meta">' + (done ? 'Unterschrieben am ' + esc(hygStampFmt(e.signedAt)) : 'Gesendet am ' + esc(hygStampFmt(e.pushedAt)) + (e.pushedBy ? ' von ' + esc(e.pushedBy) : '')) + '</div></div>' +
+          (done ? '<img class="hyg-sigthumb" alt="Unterschrift ' + esc(e.person) + '" src="' + e.signature + '" /><span class="hyg-pill done">✓</span>'
+                : '<span class="hyg-pill todo">offen</span><button type="button" class="admin-icon-btn danger" onclick="__bb.select(\'hyg-sign-remove\',\'' + esc(e.id) + '\')">Zurückziehen</button>') + '</div>';
+      }).join('') + '</div>';
+      if (sd === list.length) out += '<div class="u-info">Alle haben unterschrieben. Mit „PDF speichern“ liegt der Nachweis samt Unterschriften im Ordner „' + HYG_FOLDER + '“.</div>';
+    }
+    var cand = staff.map(function (n, i) { return { n: n, i: i, signed: list.some(function (e) { return e.person === n && e.status === 'unterschrieben'; }), open: list.some(function (e) { return e.person === n && e.status === 'offen'; }) }; });
+    out += '<p class="admin-hint" style="margin:.6rem 0 .3rem"><b>An Mitarbeitende senden</b> (zur Unterschrift):</p>' + cand.map(function (c) {
+      return '<label class="hyg-check"><input type="checkbox" id="hyg-to-' + c.i + '"' + (c.signed ? ' disabled' : (c.n !== me2 && !c.open ? ' checked' : '')) + ' /> <span>' + esc(c.n) + (c.signed ? ' <i>(hat unterschrieben)</i>' : c.open ? ' <i>(offen, wird erneut gesendet)</i>' : '') + '</span></label>';
+    }).join('') +
+      '<button type="button" class="btn-primary hyg-btn-todo" onclick="__bb.select(\'hyg-push\',\'' + key + '\')">Plan an Mitarbeitende senden</button>' +
+      '<p class="admin-hint">Die Mitarbeitenden sehen nach der Anmeldung einen orangen Hinweis, lesen den Plan und unterschreiben mit Finger oder Maus. Datum und Uhrzeit werden mit der Planversion gespeichert. Solange die Pläne nur auf diesem Gerät liegen, funktioniert das an diesem Gerät, zum Beispiel am Studio-Tablet; über mehrere Geräte erst mit der gemeinsamen Datenbank.</p>';
+    return out;
+  }
+
+  function hygSignHtml(key) {
+    var d = hygAreaDef(key), a = hygArea(key), me = STATE.mitarbeiterin;
+    var e = hygSignOpenFor(me, key);
+    if (!e || !a.plan) { HYG_UI.mode = 'view'; return hygViewHtml(key); }
+    return hygBackBar() + '<h2 class="hyg-title">Unterweisung: ' + esc(d.label) + '</h2>' +
+      '<div class="hyg-todo-bar"><span class="hyg-pill todo">TO DO</span><span>Bitte lies den Plan bis zum Ende und unterschreibe unten. <b>Version ' + e.version + ' · Stand ' + esc(uFmt(e.stand)) + '</b></span></div>' +
+      hygPlanBodyHtml(a.plan) +
+      '<div class="u-card" style="margin-top:1.2rem"><p class="admin-section-title" style="margin-top:0">Bestätigung</p>' +
+      '<label class="hyg-check"><input type="checkbox" id="hyg-sig-ok" /> <span>Ich, <b>' + esc(me) + '</b>, habe den Hygieneplan „' + esc(d.label) + '“ (Version ' + e.version + ') gelesen und verstanden. Ich bestätige, dass ich unterwiesen wurde.</span></label>' +
+      '<div class="hyg-lbl" style="margin-bottom:.35rem">Unterschrift (mit Finger oder Maus)</div>' +
+      '<canvas id="hyg-sig-canvas" class="hyg-sig" width="' + HYG_SIG_W + '" height="' + HYG_SIG_H + '"></canvas>' +
+      '<p id="hyg-sig-err" class="admin-error" style="display:none"></p>' +
+      '<div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.7rem"><button type="button" class="btn-primary hyg-btn-todo" onclick="__bb.select(\'hyg-sign\',\'' + esc(e.id) + '\')">Unterschreiben &amp; speichern</button>' +
+      '<button type="button" class="btn-ghost" onclick="__bb.select(\'hyg-sig-clear\')">Unterschrift löschen</button></div></div>';
+  }
+
+  function hygSigInit() {
+    var c = document.getElementById('hyg-sig-canvas');
+    if (!c) return;
+    HYG_SIG.drawn = false;
+    var ctx = c.getContext('2d');
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+    ctx.strokeStyle = '#111'; ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    var down = false, last = null;
+    function pt(ev) { var r = c.getBoundingClientRect(); return { x: (ev.clientX - r.left) * c.width / r.width, y: (ev.clientY - r.top) * c.height / r.height }; }
+    c.addEventListener('pointerdown', function (ev) { down = true; last = pt(ev); try { c.setPointerCapture(ev.pointerId); } catch (e) { /* egal */ } ctx.beginPath(); ctx.arc(last.x, last.y, 2, 0, 6.3); ctx.fillStyle = '#111'; ctx.fill(); HYG_SIG.drawn = true; ev.preventDefault(); });
+    c.addEventListener('pointermove', function (ev) { if (!down) return; var q = pt(ev); ctx.beginPath(); ctx.moveTo(last.x, last.y); ctx.lineTo(q.x, q.y); ctx.stroke(); last = q; HYG_SIG.drawn = true; ev.preventDefault(); });
+    function up() { down = false; }
+    c.addEventListener('pointerup', up); c.addEventListener('pointercancel', up); c.addEventListener('pointerleave', up);
   }
 
   function hygQuestionsHtml(key) {
@@ -6736,6 +6832,7 @@
       hygBody() +
       '<div class="footer-actions"><button class="btn-ghost" onclick="__bb.replaceTop(\'kunde-wahl\')">Zurück zum Hauptmenü</button></div>';
     screenWrap('dezent', 0, contextLabel(), body);
+    if (HYG_UI.mode === 'sign') setTimeout(hygSigInit, 0);
   }
   function renderAdminHygieneTab() {
     return '<p class="admin-hint">Als Admin kannst du alle Hygienepläne ansehen und ändern — genau wie die Inhaberin (Svenja). Mitarbeitende können die Pläne nur ansehen.</p>' + hygBody();
@@ -6760,8 +6857,48 @@
     }
     if (kind === 'hyg-back') { HYG_UI.area = null; HYG_UI.mode = 'view'; render(); return; }
     if (kind === 'hyg-pdf') { hygDeliverPdf(key, extra); return; }
+    if (kind === 'hyg-sign-open') {
+      if (!hygSignOpenFor(STATE.mitarbeiterin, key)) return;
+      HYG_UI.area = key; HYG_UI.mode = 'sign'; render(); return;
+    }
+    if (kind === 'hyg-sig-clear') { hygSigInit(); return; }
+    if (kind === 'hyg-sign') {
+      var se = HYG.sign.filter(function (x) { return x.id === key; })[0];
+      if (!se || se.status !== 'offen' || se.person !== STATE.mitarbeiterin) return;   // nur die eigene Unterschrift
+      var errEl = document.getElementById('hyg-sig-err'), cv = document.getElementById('hyg-sig-canvas');
+      function fail(msg) { if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; } }
+      if (!document.getElementById('hyg-sig-ok') || !document.getElementById('hyg-sig-ok').checked) { fail('Bitte zuerst bestätigen, dass du den Plan gelesen und verstanden hast.'); return; }
+      if (!cv || !HYG_SIG.drawn) { fail('Bitte unterschreibe im Feld.'); return; }
+      se.signature = cv.toDataURL('image/jpeg', 0.85);
+      se.status = 'unterschrieben'; se.signedAt = hygNowStamp();
+      hygSave();
+      HYG_UI.area = se.area; HYG_UI.mode = 'view';
+      HYG_UI.info = 'Danke, deine Unterschrift ist gespeichert (' + hygStampFmt(se.signedAt) + ').';
+      render(); return;
+    }
     if (!hygCanEdit()) return;   // ab hier: nur Admin und Inhaberin
     if (kind === 'hyg-mode') { HYG_UI.mode = key; render(); return; }
+    if (kind === 'hyg-push') {
+      var pa = hygArea(key);
+      if (pa.status !== 'abgeschlossen') { HYG_UI.error = 'Der Plan muss zuerst abgeschlossen werden.'; render(); return; }
+      var staff = uStaff(), sent = 0;
+      staff.forEach(function (n, i) {
+        var box = document.getElementById('hyg-to-' + i);
+        if (!box || box.disabled || !box.checked) return;
+        HYG.sign = HYG.sign.filter(function (x) { return !(x.area === key && x.person === n && x.status === 'offen'); });
+        HYG.sign.push({ id: hygId(), area: key, version: pa.version, stand: pa.stand, person: n, status: 'offen', pushedAt: hygNowStamp(), pushedBy: hygWho() || hygOwner() });
+        sent++;
+      });
+      if (!sent) { HYG_UI.error = 'Bitte mindestens eine Person auswählen.'; render(); return; }
+      hygSave();
+      HYG_UI.info = 'Plan an ' + sent + ' Mitarbeitende gesendet. Sie sehen nach der Anmeldung den Hinweis zur Unterschrift.';
+      render(); return;
+    }
+    if (kind === 'hyg-sign-remove') {
+      if (!ask('Diese Aufforderung zur Unterschrift zurückziehen?')) return;
+      HYG.sign = HYG.sign.filter(function (x) { return !(x.id === key && x.status === 'offen'); });
+      hygSave(); render(); return;
+    }
     if (kind === 'hyg-folder-reset') { hygDbPut('dir', null).catch(function () { /* egal */ }).then(function () { hygFlash('Beim nächsten Speichern kannst du den Ordner „' + HYG_FOLDER + '“ neu auswählen.'); }); return; }
     var a = area ? hygArea(area) : null;
     if (kind === 'hyg-ans' && a) {
@@ -6961,10 +7098,26 @@
     }
 
     // Unterweisung
-    need(150); heading('Unterweisung der Mitarbeitenden — zur Kenntnis genommen');
-    var uw = [{ t: 'Name', w: 260 }, { t: 'Datum', w: 120 }, { t: 'Unterschrift', w: (X1 - M) - 380 }];
-    fillRect(M, y - 4, X1 - M, 15, HEAD); var ux = M; uw.forEach(function (c) { txt(c.t, ux + 4, y, 8, 'F2', INK); ux += c.w; }); y -= 16;
-    for (var ri = 0; ri < 6; ri++) { need(24); y -= 14; hline(M, X1, y - 4, LINE, 0.5); y -= 4; }
+    var sigImgs = [];
+    var entries = a.plan ? hygSignFor(key, a.version) : [];
+    need(170); heading('Unterweisung der Mitarbeitenden — digitale Unterschrift');
+    hygWrap('Mit der Unterschrift bestätigen die Mitarbeitenden, dass sie diese Planversion' + (a.version ? ' (Version ' + a.version + ', Stand ' + uFmt(a.stand) + ')' : '') + ' gelesen und verstanden haben und unterwiesen wurden.', X1 - M, 8.5, false).forEach(function (l) { txt(l, M, y, 8.5, 'F1', MUTED); y -= 11; });
+    y -= 4;
+    var uw = [{ t: 'Name', w: 260 }, { t: 'Datum / Uhrzeit', w: 150 }, { t: 'Unterschrift', w: (X1 - M) - 410 }];
+    function uwHead() { fillRect(M, y - 4, X1 - M, 15, HEAD); var ux = M; uw.forEach(function (c) { txt(c.t, ux + 4, y, 8, 'F2', INK); ux += c.w; }); y -= 16; }
+    uwHead();
+    entries.forEach(function (e) {
+      if (need(44)) uwHead();
+      txt(e.person, M + 4, y - 14, 9.5, 'F2', INK);
+      if (e.status === 'unterschrieben') {
+        txt(hygStampFmt(e.signedAt), M + uw[0].w + 4, y - 14, 8.5, 'F1', INK);
+        var sw = 96, sh = sw * HYG_SIG_H / HYG_SIG_W;
+        sigImgs.push({ bytes: base64ToBytes(String(e.signature).split(',')[1]) });
+        ops.push('q ' + sw.toFixed(2) + ' 0 0 ' + sh.toFixed(2) + ' ' + (M + uw[0].w + uw[1].w + 4).toFixed(2) + ' ' + (y - 6 - sh).toFixed(2) + ' cm /Sg' + sigImgs.length + ' Do Q');
+      } else txt('ausstehend', M + uw[0].w + 4, y - 14, 8.5, 'F1', MUTED);
+      y -= 44; hline(M, X1, y + 4, LINE, 0.5);
+    });
+    for (var ri = 0; ri < (entries.length ? 2 : 6); ri++) { need(24); y -= 14; hline(M, X1, y - 4, LINE, 0.5); y -= 4; }
     y -= 10;
     hygWrap(HYG_DISCLAIMER, X1 - M, 7.5, false).forEach(function (l) { need(10); txt(l, M, y, 7.5, 'F1', MUTED); y -= 9.5; });
     pages.push(ops);
@@ -6986,12 +7139,17 @@
     var f2 = addObj('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
     var logoBytes = base64ToBytes(LOGO_PDF_JPEG_B64);
     var img = addObj({ stream: logoBytes, dict: '<< /Type /XObject /Subtype /Image /Width ' + LOGO_PDF_W + ' /Height ' + LOGO_PDF_H + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + logoBytes.length + ' >>' });
+    var xo = '/Im1 ' + img + ' 0 R';
+    sigImgs.forEach(function (si, k) {
+      var no = addObj({ stream: si.bytes, dict: '<< /Type /XObject /Subtype /Image /Width ' + HYG_SIG_W + ' /Height ' + HYG_SIG_H + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + si.bytes.length + ' >>' });
+      xo += ' /Sg' + (k + 1) + ' ' + no + ' 0 R';
+    });
     var pagesNum = objs.length + 1; objs.push(null);
     var kids = [];
     pages.forEach(function (po, i) {
       var s = po.join('\n') + '\n';
       var cn = addObj({ stream: stringToBytes(s), dict: '<< /Length ' + s.length + ' >>' });
-      kids.push(addObj('<< /Type /Page /Parent ' + pagesNum + ' 0 R /MediaBox [0 0 ' + PW.toFixed(2) + ' ' + PH.toFixed(2) + '] /Resources << /Font << /F1 ' + f1 + ' 0 R /F2 ' + f2 + ' 0 R >> /XObject << /Im1 ' + img + ' 0 R >> >> /Contents ' + cn + ' 0 R >>'));
+      kids.push(addObj('<< /Type /Page /Parent ' + pagesNum + ' 0 R /MediaBox [0 0 ' + PW.toFixed(2) + ' ' + PH.toFixed(2) + '] /Resources << /Font << /F1 ' + f1 + ' 0 R /F2 ' + f2 + ' 0 R >> /XObject << ' + xo + ' >> >> /Contents ' + cn + ' 0 R >>'));
     });
     objs[pagesNum - 1] = '<< /Type /Pages /Kids [' + kids.map(function (n) { return n + ' 0 R'; }).join(' ') + '] /Count ' + kids.length + ' >>';
     var cat = addObj('<< /Type /Catalog /Pages ' + pagesNum + ' 0 R >>');

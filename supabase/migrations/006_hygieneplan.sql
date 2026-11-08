@@ -36,3 +36,27 @@ select bereich, stand, naechste_pruefung,
        case when naechste_pruefung <= current_date then 'faellig' else 'bald' end as status
 from hygieneplan
 where status = 'abgeschlossen' and naechste_pruefung <= current_date + 30;
+
+-- Unterweisung: Plan wird an Mitarbeitende gesendet und digital unterschrieben (QM-Nachweis)
+create table if not exists hygieneplan_unterschrift (
+  id               uuid primary key default gen_random_uuid(),
+  bereich          text not null references hygieneplan(bereich),
+  version          int  not null,
+  plan_stand       date not null,
+  profile_id       uuid not null references profile(id) on delete cascade,
+  gesendet_von     uuid references profile(id),
+  gesendet_am      timestamptz not null default now(),
+  status           text not null default 'offen' check (status in ('offen','unterschrieben')),
+  unterschrieben_am timestamptz,
+  unterschrift     text            -- Bild der Unterschrift (JPEG als Data-URL)
+);
+create index if not exists hyg_unt_person_idx on hygieneplan_unterschrift(profile_id, status);
+alter table hygieneplan_unterschrift enable row level security;
+-- Lesen: die eigene Zeile, Inhaberin alles
+create policy hyg_unt_lesen on hygieneplan_unterschrift for select using (profile_id = auth.uid() or is_inhaber());
+-- Senden/Zurückziehen: nur Inhaberin
+create policy hyg_unt_inhaber on hygieneplan_unterschrift for all using (is_inhaber()) with check (is_inhaber());
+-- Unterschreiben: nur die eigene, noch offene Zeile
+create policy hyg_unt_unterschreiben on hygieneplan_unterschrift for update
+  using (profile_id = auth.uid() and status = 'offen')
+  with check (profile_id = auth.uid() and status = 'unterschrieben');
