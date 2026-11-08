@@ -6621,6 +6621,7 @@
         return '<div class="admin-item"><div class="admin-item-body"><div class="admin-item-title">' + esc(d ? d.label : h.area) + '</div><div class="admin-item-meta">Version ' + h.version + ' · ' + esc(uFmt(h.date)) + (h.by ? ' · ' + esc(h.by) : '') + '</div></div></div>';
       }).join('') + '</div>';
     }
+    if (mgr && window.showDirectoryPicker) out += '<button type="button" class="btn-ghost" style="margin-top:0.6rem" onclick="__bb.select(\'hyg-folder-reset\')">Ablageordner „' + HYG_FOLDER + '“ neu wählen</button>';
     out += '<p class="admin-hint">' + esc(HYG_DISCLAIMER) + '</p>';
     return out;
   }
@@ -6761,6 +6762,7 @@
     if (kind === 'hyg-pdf') { hygDeliverPdf(key, extra); return; }
     if (!hygCanEdit()) return;   // ab hier: nur Admin und Inhaberin
     if (kind === 'hyg-mode') { HYG_UI.mode = key; render(); return; }
+    if (kind === 'hyg-folder-reset') { hygDbPut('dir', null).catch(function () { /* egal */ }).then(function () { hygFlash('Beim nächsten Speichern kannst du den Ordner „' + HYG_FOLDER + '“ neu auswählen.'); }); return; }
     var a = area ? hygArea(area) : null;
     if (kind === 'hyg-ans' && a) {
       var q = hygQ(area, key);
@@ -6819,7 +6821,43 @@
   function hygPdfFileName(key) {
     var a = hygArea(key), d = hygAreaDef(key);
     var n = d.label.split(/[:&(]/)[0].trim().replace(/[^A-Za-z0-9ÄÖÜäöüß]+/g, '-').replace(/^-|-$/g, '');
-    return 'Hygieneplan_' + n + '_' + (a.stand || hygToday()) + '.pdf';
+    return (a.status === 'abgeschlossen' ? '' : 'ENTWURF_') + 'Hygieneplan_' + n + '_' + (a.stand || hygToday()) + '.pdf';
+  }
+  // Immer gleicher Name = wird bei jeder Aktualisierung überschrieben; das datierte Exemplar geht ins Archiv
+  function hygPdfCurrentName(key) {
+    var a = hygArea(key), d = hygAreaDef(key);
+    var n = d.label.split(/[:&(]/)[0].trim().replace(/[^A-Za-z0-9ÄÖÜäöüß]+/g, '-').replace(/^-|-$/g, '');
+    return (a.status === 'abgeschlossen' ? '' : 'ENTWURF_') + 'Hygieneplan_' + n + '_aktuell.pdf';
+  }
+  // Der gewählte Ordner „Hygienepläne“ wird im Browser gemerkt, damit nicht jedes Mal neu gefragt wird
+  function hygDbOpen() {
+    return new Promise(function (res, rej) {
+      var r = indexedDB.open('bb_hyg_fs', 1);
+      r.onupgradeneeded = function () { r.result.createObjectStore('h'); };
+      r.onsuccess = function () { res(r.result); };
+      r.onerror = function () { rej(r.error); };
+    });
+  }
+  function hygDbGet(k) { return hygDbOpen().then(function (db) { return new Promise(function (res, rej) { var q = db.transaction('h').objectStore('h').get(k); q.onsuccess = function () { res(q.result); }; q.onerror = function () { rej(q.error); }; }); }); }
+  function hygDbPut(k, v) { return hygDbOpen().then(function (db) { return new Promise(function (res, rej) { var q = db.transaction('h', 'readwrite').objectStore('h').put(v, k); q.onsuccess = function () { res(); }; q.onerror = function () { rej(q.error); }; }); }); }
+  function hygGetDir() {
+    return hygDbGet('dir').catch(function () { return null; }).then(function (h) {
+      if (h && h.queryPermission) {
+        return h.queryPermission({ mode: 'readwrite' }).then(function (pm) {
+          if (pm === 'granted') return h;
+          return h.requestPermission({ mode: 'readwrite' }).then(function (p2) { return p2 === 'granted' ? h : null; });
+        }).catch(function () { return null; });
+      }
+      return null;
+    }).then(function (h) {
+      if (h) return h;
+      return window.showDirectoryPicker({ mode: 'readwrite', id: 'hygieneplaene' }).then(function (d) {
+        return (d.name === HYG_FOLDER ? Promise.resolve(d) : d.getDirectoryHandle(HYG_FOLDER, { create: true })).then(function (t) { hygDbPut('dir', t).catch(function () { /* egal */ }); return t; });
+      });
+    });
+  }
+  function hygWriteFile(dir, name, bytes) {
+    return dir.getFileHandle(name, { create: true }).then(function (fh) { return fh.createWritable(); }).then(function (w) { return w.write(bytes).then(function () { return w.close(); }); });
   }
   function hygClean(s) {
     return String(s == null ? '' : s).replace(/→/g, '->').replace(/←/g, '<-').replace(/≥/g, '>=').replace(/≤/g, '<=').replace(/✓/g, '').replace(/[ -​]/g, ' ').replace(/ /g, ' ');
@@ -7003,14 +7041,16 @@
       return;
     }
     if (window.showDirectoryPicker) {
-      window.showDirectoryPicker({ mode: 'readwrite', id: 'hygieneplaene' }).then(function (dir) {
-        return (dir.name === HYG_FOLDER ? Promise.resolve(dir) : dir.getDirectoryHandle(HYG_FOLDER, { create: true })).then(function (target) {
-          return target.getFileHandle(fileName, { create: true }).then(function (fh) {
-            return fh.createWritable().then(function (wr) { return wr.write(bytes).then(function () { return wr.close(); }); });
-          });
-        }).then(function () { hygFlash('PDF „' + fileName + '" im Ordner „' + HYG_FOLDER + '" gespeichert.'); });
+      var done = false;
+      hygGetDir().then(function (dir) {
+        return hygWriteFile(dir, hygPdfCurrentName(key), bytes).then(function () {
+          if (a.status !== 'abgeschlossen') return;
+          return dir.getDirectoryHandle('Archiv', { create: true }).then(function (arch) { return hygWriteFile(arch, fileName, bytes); });
+        });
+      }).then(function () {
+        hygFlash('PDF gespeichert im Ordner „' + HYG_FOLDER + '": ' + hygPdfCurrentName(key) + (a.status === 'abgeschlossen' ? ' (überschrieben) und datierte Kopie im Unterordner „Archiv“.' : '.'));
       }).catch(function (err) {
-        if (err && err.name === "AbortError") { hygFlash("Ordnerwahl abgebrochen — der Plan ist gespeichert; das PDF kann jederzeit über „PDF speichern“ erzeugt werden."); return; }
+        if (err && err.name === 'AbortError') { hygFlash('Ordnerwahl abgebrochen — der Plan ist gespeichert; das PDF kann jederzeit über „PDF speichern“ erzeugt werden.'); return; }
         viaDownload();
       });
     } else viaDownload();
