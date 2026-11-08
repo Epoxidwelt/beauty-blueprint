@@ -24,7 +24,7 @@ Stand: 04.10.2026 · Prinzip: **mehrere unabhängige Schutzschichten** — fäll
 - Optional (Bezahltarif): Netzwerk-Beschränkung für direkte Datenbankverbindungen.
 
 ## Schicht 4 — App und Code
-- Admin-Demo-Zugang (`1234`) **entfernen**; Admin nur über Inhaberin-Konto + 2FA.
+- Admin-Demo-Zugang (`0000`) **entfernen**; Admin nur über Inhaberin-Konto + 2FA.
 - Fremdbibliotheken (Excel-Import, Barcode-Scanner) **selbst hosten statt von fremden Servern laden**, Versionen fest — verhindert Manipulation von außen.
 - Strenge Sicherheits-Header (Content-Security-Policy, nur eigene Quellen + Supabase), schon teilweise in `dist/_headers`.
 - Eingaben prüfen (nur Zahlen bei Mengen/EAN), keine Geheimnisse im Browser-Speicher.

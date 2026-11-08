@@ -708,6 +708,52 @@
   .main-tab.current { background: #fff; color: var(--rose-deep); box-shadow: 0 4px 14px rgba(0,0,0,0.16); }
 
 
+
+  /* ---------- Hygiene / Desinfektionsplan ---------- */
+  :root { --todo: #D9650B; --todo-bg: #FFF3E6; --todo-ink: #9A4A08; --done: #2F7D4F; --done-bg: #E8F4EC; }
+  .main-tabs { max-width: 32rem; gap: 0.25rem; }
+  .hyg-todo-card { border-color: var(--todo) !important; border-left-width: 6px !important; background: var(--todo-bg) !important; }
+  .hyg-done-card { border-left: 6px solid var(--done) !important; }
+  .hyg-pill { display: inline-block; font-size: 0.72rem; font-weight: 800; padding: 0.28rem 0.65rem; border-radius: 999px; white-space: nowrap; letter-spacing: 0.02em; }
+  .hyg-pill.todo { background: var(--todo); color: #fff; }
+  .hyg-pill.done { background: var(--done); color: #fff; }
+  .hyg-pill.wait { background: #ECECEC; color: #555; }
+  .hyg-todo-bar { display: flex; align-items: center; gap: 0.7rem; background: var(--todo-bg); border: 2px solid var(--todo); border-radius: 12px; padding: 0.75rem 0.95rem; margin: 0 0 1rem; color: var(--todo-ink); font-size: 0.9rem; line-height: 1.35; }
+  .hyg-todo-bar b { color: inherit; }
+  .hyg-todo-bar .hyg-pill { flex-shrink: 0; }
+  .hyg-todo-notice { border-color: var(--todo) !important; background: var(--todo-bg) !important; color: var(--todo-ink) !important; }
+  .stack-btn.hyg-todo-btn { border-color: var(--todo); background: var(--todo-bg); }
+  .stack-btn.hyg-todo-btn .hint { color: var(--todo-ink); font-weight: 700; }
+  .stack-btn.hyg-todo-btn::before { content: 'TO DO'; display: inline-block; margin-right: 0.5rem; background: var(--todo); color: #fff; font-size: 0.65rem; font-weight: 800; padding: 0.15rem 0.45rem; border-radius: 999px; vertical-align: middle; letter-spacing: 0.04em; }
+  .u-badge.hyg-badge, .main-tab.current .u-badge.hyg-badge { background: var(--todo); color: #fff; border: none; }
+  .btn-primary.hyg-btn-todo { background: var(--todo); border-color: var(--todo); color: #fff; }
+  .main-tabs .main-tab { padding: 0.85rem 0.2rem; font-size: 0.88rem; min-width: 0; white-space: nowrap; }
+  .hyg-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.7rem; }
+  .hyg-title { font-size: 1.15rem; font-weight: 800; margin: 0.6rem 0 0.3rem; color: var(--text); }
+  .hyg-back { margin: 0 0 0.4rem; }
+  .hyg-actions { display: flex; flex-direction: column; gap: 0.6rem; margin: 1.2rem 0 0.6rem; }
+  .hyg-phase { margin: 0 0 0.9rem; }
+  .hyg-phase-t { font-weight: 700; font-size: 0.9rem; margin-bottom: 0.25rem; color: var(--text); }
+  .hyg-phase ol { margin: 0; padding-left: 1.3rem; font-size: 0.875rem; line-height: 1.45; color: var(--text); }
+  .hyg-phase li { margin: 0 0 0.25rem; }
+  .hyg-group { font-size: 0.78rem; font-weight: 700; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.05em; margin: 1rem 0 0.45rem; }
+  .hyg-row { border: 1.5px solid var(--border); border-radius: 12px; padding: 0.7rem 0.85rem; margin: 0 0 0.55rem; background: var(--surface-raised); }
+  .hyg-row-t { font-weight: 700; font-size: 0.92rem; margin-bottom: 0.35rem; color: var(--text); }
+  .hyg-row dl { margin: 0; display: grid; grid-template-columns: 4.2rem 1fr; gap: 0.2rem 0.6rem; font-size: 0.83rem; }
+  .hyg-row dt { color: var(--text-soft); font-weight: 600; }
+  .hyg-row dd { margin: 0; color: var(--text); }
+  .hyg-open { margin: 0 0 0.6rem; padding-left: 1.2rem; font-size: 0.86rem; line-height: 1.45; }
+  .hyg-q .hyg-qn { font-size: 0.72rem; color: var(--text-soft); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+  .hyg-q .hyg-qt { font-weight: 700; font-size: 0.98rem; margin: 0.25rem 0 0.7rem; color: var(--text); }
+  .hyg-opts { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .hyg-opt { font-family: var(--font-body); font-size: 0.95rem; font-weight: 600; min-height: 46px; padding: 0.55rem 1.1rem; border-radius: 12px; border: 1.5px solid var(--border-strong); background: var(--surface-raised); color: var(--text); cursor: pointer; }
+  .hyg-opt.on { background: var(--anthrazit); color: #fff; border-color: var(--anthrazit); }
+  .hyg-in { max-width: none; width: 100%; font-size: 0.9rem; }
+  textarea.hyg-in { resize: vertical; font-family: var(--font-body); }
+  .hyg-ed { display: flex; flex-direction: column; gap: 0.5rem; }
+  .hyg-ed .admin-icon-btn { align-self: flex-start; }
+  .hyg-lbl { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.75rem; font-weight: 600; color: var(--text-soft); }
+
   /* ---------- Urlaub ---------- */
   .u-badge { display: inline-block; min-width: 1.25rem; padding: 0 0.4rem; margin-left: 0.3rem; border-radius: 999px;
     background: var(--anthrazit); color: #fff; font-size: 0.72rem; font-weight: 800; line-height: 1.25rem; text-align: center; }
@@ -1881,7 +1927,7 @@
   // ---------- Admin-Bereich: Zugang, Aktionen, Team ----------
   // Reines Demo-Login für den Prototyp (kein echtes Backend) — Zugangsdaten bewusst
   // einfach und sichtbar im Code, wie vom Studio für den Test gewünscht.
-  var ADMIN_CREDENTIALS = { user: 'Admin', pass: '1234' };
+  var ADMIN_CREDENTIALS = { user: 'Admin', pass: '0000' };
 
   // Dieselben 9 Beauty-Need-Kategorien wie NEED_INFO/PROGRAM_FAMILIES — eine Aktion wird
   // gegen genau eine dieser Kategorien (oder "alle") gehalten, um zu prüfen, ob sie zur
@@ -2339,6 +2385,7 @@
   function selectHandler(kind, key, extra) {
     if (kind.indexOf('best-') === 0) return bestellungHandler(kind, key, extra);
     if (kind.indexOf('urlaub-') === 0) return urlaubHandler(kind, key, extra);
+    if (kind.indexOf('hyg-') === 0) return hygHandler(kind, key, extra);
     if (kind === 'mitarbeiterin') { resetBeratung(); urlaubResetUi(); STATE.mitarbeiterin = key; goTo('kunde-wahl'); }
     else if (kind === 'beratung-neu') { resetBeratung(); goTo('ziel'); }   // bewusst ohne Namensabfrage (anonym)
     else if (kind === 'beratung-abschliessen') { resetBeratung(); STATE.mitarbeiterin = null; path = ['login']; pointer = 0; render(); }
@@ -2931,7 +2978,8 @@
       { key: 'mitarbeiter', label: 'Mitarbeiter' },
       { key: 'fragen', label: 'Ziele' },
       { key: 'hersteller', label: 'Hersteller' },
-      { key: 'produkte', label: 'Produkte' }
+      { key: 'produkte', label: 'Produkte' },
+      { key: 'hygiene', label: 'Desinfektion' }
     ];
     var tabBtns = tabs.map(function (t) {
       var badge = (t.key === 'mitarbeiter' && uPendingCount()) ? ' <span class="u-badge">' + uPendingCount() + '</span>' : '';
@@ -2941,6 +2989,7 @@
       : STATE.adminTab === 'fragen' ? renderAdminFragenTab()
       : STATE.adminTab === 'hersteller' ? renderAdminHerstellerTab()
       : STATE.adminTab === 'produkte' ? renderAdminProdukteTab()
+      : STATE.adminTab === 'hygiene' ? renderAdminHygieneTab()
       : renderAdminAktionenTab();
     var body = '' +
       '<p class="eyebrow">Admin-Bereich</p>' +
@@ -2972,10 +3021,12 @@
       '<p class="welcome-title">Willkommen, ' + esc(STATE.mitarbeiterin || '') + '</p>' +
       loginHinweise +
       urlaubNoticeHtml() +
+      hygNoticeHtml() +
       '<div class="stack">' +
         '<button class="stack-btn primary" onclick="__bb.select(\'beratung-neu\')">Neue Beratung</button>' +
         '<button class="stack-btn" onclick="__bb.goTo(\'bestellung\')">Bestellung öffnen<span class="hint">' + bestCollectiveSummary() + '</span></button>' +
         '<button class="stack-btn" onclick="__bb.goTo(\'urlaub\')">Urlaub<span class="hint">' + esc(urlaubMenuHint()) + '</span></button>' +
+        '<button class="stack-btn' + (hygCanEdit() && hygActionCount() ? ' hyg-todo-btn' : '') + '" onclick="__bb.goTo(\'hygiene\')">Desinfektionsplan<span class="hint">' + esc(hygMenuHint()) + '</span></button>' +
       '</div>' +
       // Damit eine Mitarbeiterin schon VOR der ersten Beratung kurz nachsehen kann, welche
       // Aktion gerade läuft — unabhängig vom Hinweis-Banner, der erst bei einer passenden
@@ -4814,7 +4865,8 @@
     return '<div class="main-tabs">' +
       '<button class="main-tab' + (active === 'beratung' ? ' current' : '') + '" onclick="__bb.replaceTop(\'kunde-wahl\')">Beratung</button>' +
       '<button class="main-tab' + (active === 'bestellung' ? ' current' : '') + '" onclick="__bb.replaceTop(\'bestellung\')">Bestellung</button>' +
-      '<button class="main-tab' + (active === 'urlaub' ? ' current' : '') + '" onclick="__bb.replaceTop(\'urlaub\')">' + urlaubLabel() + '</button></div>';
+      '<button class="main-tab' + (active === 'urlaub' ? ' current' : '') + '" onclick="__bb.replaceTop(\'urlaub\')">' + urlaubLabel() + '</button>' +
+      '<button class="main-tab' + (active === 'hygiene' ? ' current' : '') + '" onclick="__bb.replaceTop(\'hygiene\')">' + hygLabel() + '</button></div>';
   }
   // Der Besteller (= angemeldete Mitarbeiterin) steht schon oben rechts — hier nicht nochmals.
   function bestWhoChips() { return ''; }
@@ -5843,7 +5895,7 @@
   }
   var URLAUB = urlaubLoad();
   var URLAUB_UI = { year: null, person: null, formFor: null, formOpen: false, error: '', info: '' };
-  function urlaubResetUi() { URLAUB_UI = { year: null, person: null, formFor: null, formOpen: false, error: '', info: '' }; }
+  function urlaubResetUi() { URLAUB_UI = { year: null, person: null, formFor: null, formOpen: false, error: '', info: '' }; hygResetUi(); }
   function urlaubSave() { try { window.localStorage.setItem(URLAUB_KEY, JSON.stringify(URLAUB)); } catch (e) { /* ohne Speicher weiterarbeiten */ } }
 
   function uP2(n) { return ('0' + n).slice(-2); }
@@ -6196,11 +6248,780 @@
     el.textContent = '= ' + d + ' Urlaubstag' + (d === 1 ? '' : 'e') + ' (Wochenenden und Feiertage zählen nicht)';
   }
 
+  // =====================================================================================
+  // Hygiene — Desinfektionsplan je Bereich (Kosmetik, Nageldesign, Fußpflege, Haarentfernung, Allgemein)
+  //
+  // • Alle Mitarbeitenden können die Pläne jederzeit ansehen (Ablauf + Maßnahmen-Tabelle) und als PDF ausdrucken/speichern.
+  // • Ändern dürfen nur der Admin und die Inhaberin (Svenja) — gleiche Regel wie bei Urlaub/Bestellung (hygCanEdit).
+  // • Ein Fragenkatalog je Bereich erzeugt den individuellen Plan; danach lässt er sich frei überschreiben/ergänzen.
+  // • Jeder abgeschlossene Plan gilt 12 Monate; danach (und 30 Tage vorher) erscheint der Hinweis zur Aktualisierung.
+  // • Beim Abschließen entsteht ein PDF — Ablage im Ordner „Hygienepläne" (Ordnerwahl im Browser, sonst Download).
+  // Daten: localStorage (Prototyp, je Gerät). Für den Betrieb auf mehreren Geräten liegt
+  // supabase/migrations/006_hygieneplan.sql bereit.
+  // =====================================================================================
+  var HYG_KEY = 'bb_hygiene_v1';
+  var HYG_FOLDER = 'Hygienepläne';
+  var HYG_AREAS = [
+    { key: 'allgemein', label: 'Allgemein: Empfang, Räume & Hände', icon: 'Studio' },
+    { key: 'kosmetik', label: 'Kosmetik & Gesichtsbehandlung', icon: 'Kosmetik' },
+    { key: 'nagel', label: 'Nageldesign & Maniküre', icon: 'Nagel' },
+    { key: 'fuss', label: 'Fußpflege & Pediküre', icon: 'Fuß' },
+    { key: 'haar', label: 'Haarentfernung (Wachs, Sugaring, Pinzette)', icon: 'Haar' }
+  ];
+  var HYG_GROUPS = ['Hände & Person', 'Arbeitsplatz & Flächen', 'Instrumente & Geräte', 'Material & Textilien', 'Abfall & Entsorgung', 'Besonderheiten & Notfall'];
+  var HYG_PHASES = ['Tagesbeginn', 'Vor der Behandlung', 'Während der Behandlung', 'Nach der Behandlung', 'Tagesende', 'Wöchentlich'];
+  var HYG_DISCLAIMER = 'Vorschlag auf Grundlage der Angaben im Fragenkatalog. Die Herstellerangaben der Mittel und Geräte sowie die für das Studio geltenden Vorgaben (Gesundheitsamt, Berufsgenossenschaft) haben Vorrang. Der Plan ist von der Inhaberin zu prüfen und freizugeben.';
+
+  // Fragenkatalog: t = 'yn' (Ja/Nein) | 'text' | 'choice'; def = Vorbelegung, solange nichts anderes angegeben wurde
+  var HYG_Q = {
+    allgemein: [
+      { id: 'beauftragte', t: 'text', q: 'Wer ist für die Hygiene im Studio verantwortlich?', h: 'Name der Hygienebeauftragten (leer = Inhaberin)' },
+      { id: 'hand_wasch', t: 'yn', q: 'Gibt es einen Handwaschplatz mit Flüssigseife aus dem Spender und Einmalhandtüchern?', def: 'ja' },
+      { id: 'hand_desinf', t: 'yn', q: 'Werden die Hände vor und nach jedem Kundenkontakt desinfiziert?', def: 'ja' },
+      { id: 'mittel_haut', t: 'text', q: 'Welches Händedesinfektionsmittel wird verwendet?', h: 'Name · Einwirkzeit laut Etikett (z. B. 30 Sek.)' },
+      { id: 'mittel_flaeche', t: 'text', q: 'Welches Flächendesinfektionsmittel wird verwendet?', h: 'Name · Konzentration · Einwirkzeit laut Etikett' },
+      { id: 'mittel_inst', t: 'text', q: 'Welches Instrumentendesinfektionsmittel (Einlegebad) wird verwendet?', h: 'Name · Konzentration · Einwirkzeit · Standzeit des Bades' },
+      { id: 'textil', t: 'choice', q: 'Wie werden Liegen, Handtücher und Textilien gehandhabt?', o: ['Einmalauflage (Papier/Vlies)', 'Waschbare Textilien', 'Beides'], def: 'Einmalauflage (Papier/Vlies)' },
+      { id: 'reinigung_wer', t: 'choice', q: 'Wer reinigt Böden und Sanitärbereich?', o: ['Eigenes Team', 'Reinigungsfirma'], def: 'Eigenes Team' },
+      { id: 'lueften', t: 'yn', q: 'Werden die Räume zwischen den Terminen gelüftet?', def: 'ja' },
+      { id: 'verbandkasten', t: 'yn', q: 'Gibt es einen vollständigen Verbandkasten und ein Verbandbuch für Erste-Hilfe-Fälle?', def: 'ja' }
+    ],
+    kosmetik: [
+      { id: 'k_liege', t: 'yn', q: 'Wird die Liege bei jeder Kundin mit einer frischen Einmalauflage (Papier/Vlies) abgedeckt?', def: 'ja' },
+      { id: 'k_einweg', t: 'yn', q: 'Werden Spatel, Wattepads, Tupfer und Wattestäbchen nur einmal verwendet?', def: 'ja' },
+      { id: 'k_geraete', t: 'text', q: 'Welche Geräte kommen zum Einsatz?', h: 'z. B. Hochfrequenz, Ultraschall, Dampf, Radiofrequenz, LED' },
+      { id: 'k_ausreinigen', t: 'yn', q: 'Wird ausgereinigt (Mitesser, Milien)?', def: 'ja' },
+      { id: 'k_nadel', t: 'yn', q: 'Werden Nadeln, Lanzetten oder Dermaroller-Aufsätze verwendet (Blutkontakt möglich)?', def: 'nein' },
+      { id: 'k_masken', t: 'choice', q: 'Wie werden Pinsel, Schalen und Masken-Zubehör gehandhabt?', o: ['Einweg', 'Wiederverwendbar (wird desinfiziert)'], def: 'Wiederverwendbar (wird desinfiziert)' },
+      { id: 'k_dampf', t: 'yn', q: 'Gibt es ein Dampfgerät oder einen Wasserbehälter, der regelmäßig gewechselt werden muss?', def: 'nein' }
+    ],
+    nagel: [
+      { id: 'n_feilen', t: 'choice', q: 'Wie werden Feilen und Buffer gehandhabt?', o: ['Einweg (pro Kundin)', 'Desinfizierbar (Metall/Glas)', 'Mischung aus beidem'], def: 'Einweg (pro Kundin)' },
+      { id: 'n_fraeser', t: 'yn', q: 'Werden wiederverwendbare Fräser/Bits eingesetzt?', def: 'ja' },
+      { id: 'n_zangen', t: 'yn', q: 'Werden Metallinstrumente (Hautzange, Nagelzange, Schieber) mehrfach verwendet?', def: 'ja' },
+      { id: 'n_steril', t: 'yn', q: 'Gibt es einen Autoklav oder Heißluftsterilisator?', def: 'nein' },
+      { id: 'n_uv', t: 'yn', q: 'Gibt es eine UV-/LED-Lampe?', def: 'ja' },
+      { id: 'n_staub', t: 'yn', q: 'Gibt es eine Staubabsaugung am Arbeitsplatz?', def: 'ja' },
+      { id: 'n_haende', t: 'yn', q: 'Waschen oder desinfizieren die Kundinnen vor der Behandlung ihre Hände?', def: 'ja' },
+      { id: 'n_blut', t: 'yn', q: 'Kann es bei der Behandlung zu kleinen Verletzungen kommen (Nagelhaut)?', def: 'ja' }
+    ],
+    fuss: [
+      { id: 'f_instr', t: 'choice', q: 'Wie werden Fußpflege-Instrumente aufbereitet?', o: ['Autoklav (Dampfsterilisation)', 'Heißluftsterilisator', 'Nur Desinfektionsbad', 'Einweginstrumente'], def: 'Nur Desinfektionsbad' },
+      { id: 'f_fraeser', t: 'yn', q: 'Werden wiederverwendbare Fräser (Diamant, Hartmetall) eingesetzt?', def: 'ja' },
+      { id: 'f_fussbad', t: 'choice', q: 'Wie wird das Fußbad gehandhabt?', o: ['Einwegfolie/Einwegwanne', 'Wanne wird nach jeder Kundin desinfiziert', 'Kein Fußbad'], def: 'Wanne wird nach jeder Kundin desinfiziert' },
+      { id: 'f_blut', t: 'yn', q: 'Kann es zu Blutkontakt kommen (Hornhaut-/Nagelbearbeitung mit scharfen Instrumenten)?', def: 'ja' },
+      { id: 'f_handschuhe', t: 'yn', q: 'Werden Einmalhandschuhe getragen (Wechsel pro Kundin)?', def: 'ja' },
+      { id: 'f_spray', t: 'yn', q: 'Werden die Füße vor der Behandlung gereinigt und desinfiziert?', def: 'ja' },
+      { id: 'f_diab', t: 'yn', q: 'Werden Risikokundinnen behandelt (Diabetes, Durchblutungsstörungen, Immunschwäche)?', def: 'ja' },
+      { id: 'f_sterildok', t: 'yn', q: 'Wird die Sterilisation dokumentiert (Datum, Charge, Programm)?', def: 'nein' }
+    ],
+    haar: [
+      { id: 'h_wachs', t: 'choice', q: 'Wie wird gewachst?', o: ['Einwegpatronen (Roll-On)', 'Wachstopf mit Einwegspateln', 'Sugaring/Paste pro Kundin'], def: 'Wachstopf mit Einwegspateln' },
+      { id: 'h_pinzetten', t: 'yn', q: 'Werden Pinzetten mehrfach verwendet?', def: 'ja' },
+      { id: 'h_geraete', t: 'yn', q: 'Gibt es ein IPL-/Laser-/Diodengerät zur Haarentfernung?', def: 'nein' },
+      { id: 'h_nachpflege', t: 'yn', q: 'Wird die Haut nach der Behandlung desinfiziert bzw. beruhigt?', def: 'ja' }
+    ]
+  };
+
+  function hygDefault() { return { areas: {}, history: [] }; }
+  function hygLoad() {
+    try {
+      var raw = window.localStorage.getItem(HYG_KEY);
+      if (!raw) return hygDefault();
+      var p = JSON.parse(raw);
+      if (!p || typeof p.areas !== 'object') return hygDefault();
+      p.history = Array.isArray(p.history) ? p.history : [];
+      return p;
+    } catch (e) { return hygDefault(); }
+  }
+  var HYG = hygLoad();
+  var HYG_UI = { area: null, mode: 'view', info: '', error: '', pending: null };
+  function hygResetUi() { HYG_UI = { area: null, mode: 'view', info: '', error: '', pending: null }; }
+  function hygSave() { try { window.localStorage.setItem(HYG_KEY, JSON.stringify(HYG)); } catch (e) { /* ohne Speicher weiterarbeiten */ } }
+  function hygId() { return 'h' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+  function hygAreaDef(key) { return HYG_AREAS.filter(function (a) { return a.key === key; })[0]; }
+  function hygArea(key) {
+    if (!HYG.areas[key]) HYG.areas[key] = { answers: {}, plan: null, status: 'leer', stand: null, next: null, version: 0, by: null, stale: false };
+    return HYG.areas[key];
+  }
+  function hygQ(key, id) { return (HYG_Q[key] || []).filter(function (q) { return q.id === id; })[0]; }
+  function hygAns(key, id) {
+    var a = hygArea(key);
+    if (a.answers[id] !== undefined) return a.answers[id];
+    var q = hygQ(key, id);
+    return q && q.def !== undefined ? q.def : '';
+  }
+  function hygCanEdit() { return !!STATE.isAdmin || bestIsApprover(); }
+  function hygWho() { return STATE.mitarbeiterin || (STATE.isAdmin ? 'Admin' : ''); }
+  function hygOwner() { var o = bestOwners(); return o.length ? o[0] : 'Svenja'; }
+  function hygResponsible() { return (hygAns('allgemein', 'beauftragte') || '').trim() || hygOwner(); }
+  function hygPlus12(iso) { var d = uParse(iso); d.setFullYear(d.getFullYear() + 1); return uIso(d); }
+  function hygToday() { return uIso(new Date()); }
+  // null = alles gut · 'bald' = in den nächsten 30 Tagen fällig · 'faellig' = Gültigkeit abgelaufen
+  function hygDue(a) {
+    if (a.status !== 'abgeschlossen' || !a.next) return null;
+    var t = hygToday();
+    if (t >= a.next) return 'faellig';
+    var s = uParse(a.next); s.setDate(s.getDate() - 30);
+    return t >= uIso(s) ? 'bald' : null;
+  }
+  function hygNeedsAction(a) { return a.status !== 'abgeschlossen' || !!hygDue(a); }
+  function hygActionCount() { return HYG_AREAS.filter(function (d) { return hygNeedsAction(hygArea(d.key)); }).length; }
+  function hygMenuHint() {
+    var due = HYG_AREAS.filter(function (d) { var x = hygArea(d.key); return hygDue(x); }).length;
+    var done = HYG_AREAS.filter(function (d) { return hygArea(d.key).plan; }).length;
+    if (due) return due + ' Bereich' + (due === 1 ? '' : 'e') + ': Aktualisierung fällig';
+    return done ? 'Abläufe & Mittel ansehen · ' + done + ' von ' + HYG_AREAS.length + ' Bereichen' : (hygCanEdit() ? 'Pläne noch zu erstellen' : 'Plan wird noch erstellt');
+  }
+  function hygTodo(a) { return hygCanEdit() && hygNeedsAction(a); }
+  function hygLabel() {
+    var n = hygCanEdit() ? hygActionCount() : 0;
+    return 'Hygiene' + (n ? ' <span class="u-badge hyg-badge">' + n + '</span>' : '');
+  }
+  function hygNoticeHtml() {
+    if (!hygCanEdit()) return '';
+    var n = hygActionCount();
+    if (!n) return '';
+    var due = HYG_AREAS.filter(function (d) { return hygDue(hygArea(d.key)); }).length;
+    var txt = due ? '<b>' + due + ' Hygieneplan' + (due === 1 ? '' : 'e') + '</b> ' + (due === 1 ? 'muss' : 'müssen') + ' aktualisiert werden (12 Monate) — jetzt prüfen →'
+      : '<b>Desinfektionsplan:</b> ' + n + ' Bereich' + (n === 1 ? '' : 'e') + ' noch nicht abgeschlossen — jetzt erstellen →';
+    return '<div class="u-notice hyg-todo-notice" role="button" tabindex="0" onclick="__bb.goTo(\'hygiene\')"><span class="hyg-pill todo">TO DO</span> ' + txt + '</div>';
+  }
+
+  // ---------- Plan aus den Antworten erzeugen ----------
+  function hygBuild(key) {
+    var rows = [], steps = [], open = [];
+    function g(id) { return hygAns('allgemein', id); }
+    function a(id) { return hygAns(key, id); }
+    function R(gr, was, mittel, wie, wann, wer) { rows.push({ id: hygId(), gruppe: gr, was: was, mittel: mittel, wie: wie, wann: wann, wer: wer }); }
+    function S(ph, t) { steps.push({ id: hygId(), phase: ph, text: t }); }
+    function O(t) { open.push(t); }
+    var G1 = HYG_GROUPS[0], G2 = HYG_GROUPS[1], G3 = HYG_GROUPS[2], G4 = HYG_GROUPS[3], G5 = HYG_GROUPS[4], G6 = HYG_GROUPS[5];
+    var MH = (g('mittel_haut') || '').trim(), MF = (g('mittel_flaeche') || '').trim(), MI = (g('mittel_inst') || '').trim();
+    if (!MH) { O('Händedesinfektionsmittel (Name, Einwirkzeit) im Bereich „Allgemein" eintragen.'); MH = 'Händedesinfektionsmittel (VAH-/IHO-gelistet)'; }
+    if (!MF) { O('Flächendesinfektionsmittel (Name, Konzentration, Einwirkzeit) im Bereich „Allgemein" eintragen.'); MF = 'Flächendesinfektionsmittel (VAH-/IHO-gelistet)'; }
+    if (!MI && key !== 'allgemein') { O('Instrumentendesinfektionsmittel (Name, Konzentration, Einwirkzeit) im Bereich „Allgemein" eintragen.'); }
+    MI = MI || 'Instrumentendesinfektionsmittel (VAH-/IHO-gelistet)';
+    var EW = 'Einwirkzeit laut Herstellerangabe einhalten';
+    var ALLE = 'Alle Mitarbeitenden', BEH = 'Behandelnde Person';
+    var textil = g('textil');
+    if (g('hand_wasch') !== 'ja') O('Handwaschplatz mit Seifenspender und Einmalhandtüchern fehlt — Lösung festlegen.');
+    if (g('hand_desinf') !== 'ja') O('Händedesinfektion vor und nach jedem Kundenkontakt wird noch nicht durchgeführt — Ablauf festlegen.');
+
+    // Gemeinsame Hygieneregeln (stehen in jedem Plan, damit jeder Bereichsplan für sich vollständig ist)
+    R(G1, 'Händewaschen', 'Flüssigseife (Spender), Einmalhandtuch', 'Hände nass machen, gründlich einseifen (mind. 20–30 Sek.), abspülen, trocken tupfen', 'Arbeitsbeginn, bei sichtbarer Verschmutzung, nach Toilettengang', ALLE);
+    R(G1, 'Hygienische Händedesinfektion', MH, '3 ml in die trockenen Hände einreiben und 30 Sek. feucht halten', 'Vor und nach jedem Kundenkontakt, nach Kontakt mit Blut oder Körperflüssigkeiten', ALLE);
+    R(G1, 'Persönliche Hygiene', '—', 'Ringe, Armbänder und Uhren ablegen; saubere Arbeitskleidung; lange Haare zusammenbinden; Nägel kurz', 'Täglich vor Arbeitsbeginn', ALLE);
+
+    if (key === 'allgemein') {
+      S('Tagesbeginn', 'Hände waschen, Arbeitskleidung anlegen.');
+      S('Tagesbeginn', 'Spender für Seife, Händedesinfektion und Einmalhandtücher prüfen und auffüllen.');
+      S('Tagesbeginn', 'Desinfektionsmittel: Ansatzdatum und Haltbarkeit prüfen, Behälter beschriftet halten.');
+      S('Nach der Behandlung', 'Kontaktflächen am Empfang (Türgriffe, Kartenterminal, Telefon, Tablet) desinfizieren.');
+      S('Nach der Behandlung', 'Raum zwischen den Terminen lüften.');
+      S('Tagesende', 'Abfall leeren, Böden feucht wischen, Sanitärbereich reinigen.');
+      S('Tagesende', 'Benutzte Wäsche getrennt von sauberer Wäsche sammeln und waschen.');
+      S('Wöchentlich', 'Vorräte an Desinfektionsmitteln, Handschuhen und Einmalmaterial kontrollieren.');
+      R(G2, 'Kontaktflächen am Empfang (Türgriffe, Kartenterminal, Telefon, Tablet)', MF, 'Wischdesinfektion; ' + EW + '; Bildschirme nur nach Herstellerangabe', 'Täglich, bei sichtbarer Verschmutzung sofort', ALLE);
+      R(G2, 'Arbeitsflächen, Liegen, Stühle, Ablagen', MF, 'Wischdesinfektion; Fläche sichtbar feucht; ' + EW, 'Nach jeder Kundin / jedem Kunden', BEH);
+      R(G2, 'Böden', 'Haushaltsreiniger', 'Feucht wischen; bei Kontamination mit Blut/Körperflüssigkeit zuerst desinfizieren', 'Täglich', g('reinigung_wer') === 'Reinigungsfirma' ? 'Reinigungsfirma' : 'Eigenes Team');
+      R(G2, 'Sanitärbereich (WC, Waschbecken)', 'Sanitärreiniger', 'Reinigen; Handtuchspender und Seife auffüllen', 'Täglich', g('reinigung_wer') === 'Reinigungsfirma' ? 'Reinigungsfirma' : 'Eigenes Team');
+      if (g('lueften') === 'ja') R(G2, 'Lüften', '—', 'Stoßlüften (mehrere Minuten, Fenster ganz öffnen)', 'Zwischen den Terminen, mindestens morgens und abends', ALLE);
+      else O('Lüften der Räume zwischen den Terminen ist noch nicht festgelegt.');
+      if (textil === 'Einmalauflage (Papier/Vlies)' || textil === 'Beides') R(G4, 'Liegenauflage (Papier/Vlies)', 'Einmalprodukt', 'Pro Kundin frisch auflegen; nach Gebrauch entsorgen', 'Vor jeder Behandlung', BEH);
+      if (textil === 'Waschbare Textilien' || textil === 'Beides') R(G4, 'Handtücher, Laken, Textilien', 'Waschmittel (desinfizierend)', 'Pro Kundin wechseln; Wäsche bei mind. 60 °C waschen; saubere und benutzte Wäsche getrennt lagern', 'Nach jeder Kundin / Wäsche täglich', BEH);
+      R(G4, 'Desinfektionsmittel und Vorräte', '—', 'Ansatzdatum auf dem Behälter notieren; Standzeiten und Haltbarkeit beachten; nur beschriftete Gefäße verwenden', 'Wöchentlich prüfen', hygOwner());
+      R(G5, 'Abfall', 'Deckeleimer mit Beutel', 'Verschlossen entsorgen; Eimer bei Bedarf reinigen', 'Täglich', ALLE);
+      R(G6, 'Erste Hilfe', 'Verbandkasten, Verbandbuch', g('verbandkasten') === 'ja' ? 'Verbandkasten vollständig und zugänglich halten; jeden Erste-Hilfe-Fall im Verbandbuch dokumentieren' : 'Verbandkasten und Verbandbuch beschaffen und eintragen, wo sie liegen', 'Monatlich prüfen, im Bedarfsfall sofort', hygOwner());
+      if (g('verbandkasten') !== 'ja') O('Verbandkasten und Verbandbuch sind noch nicht vorhanden.');
+      R(G6, 'Schnitt-/Stichverletzung oder Blutkontakt', 'Hautantiseptikum, Einmalhandschuhe', 'Blutung sofort stillen, Wunde spülen und desinfizieren, Vorfall dokumentieren; bei Kontakt mit fremdem Blut zeitnah ärztlichen Rat einholen', 'Im Bedarfsfall', ALLE);
+    }
+
+    if (key === 'kosmetik') {
+      S('Vor der Behandlung', 'Hände waschen und desinfizieren.');
+      S('Vor der Behandlung', a('k_liege') === 'ja' ? 'Frische Einmalauflage (Papier/Vlies) auf die Liege legen.' : 'Frisch gewaschene Textilauflage verwenden.');
+      S('Vor der Behandlung', 'Haut der Kundin auf Entzündungen, offene Stellen und Infektionen prüfen — bei Auffälligkeiten nicht behandeln und ärztlichen Rat empfehlen.');
+      S('Vor der Behandlung', 'Einmalmaterial und aufbereitete Geräteteile erst am Behandlungsplatz bereitlegen.');
+      S('Während der Behandlung', 'Cremes und Masken nur mit sauberem Spatel entnehmen, nie mit den Fingern aus dem Tiegel; Entnommenes nicht zurück in den Vorrat geben.');
+      if (a('k_ausreinigen') === 'ja') S('Während der Behandlung', 'Beim Ausreinigen Einmalhandschuhe tragen, Haut vorher desinfizieren; Handschuhe bei Blutkontakt sofort wechseln.');
+      if (a('k_nadel') === 'ja') S('Während der Behandlung', 'Nadeln, Lanzetten und Aufsätze nur steril verpackt öffnen und nach Gebrauch sofort im durchstichsicheren Behälter entsorgen.');
+      S('Nach der Behandlung', 'Einmalmaterial entsorgen; wiederverwendbare Schalen, Pinsel und Geräteaufsätze aufbereiten (reinigen, desinfizieren).');
+      S('Nach der Behandlung', 'Liege, Ablagen und Geräte-Handstücke wischdesinfizieren; Hände desinfizieren.');
+      if (a('k_dampf') === 'ja') S('Tagesende', 'Dampfgerät: Wasser entleeren, Behälter reinigen; am nächsten Tag mit frischem (destilliertem) Wasser füllen.');
+      S('Tagesende', 'Abfall leeren, Arbeitsplatz und Boden reinigen.');
+      R(G2, 'Liege, Stuhl, Ablagen, Griffe', MF, 'Wischdesinfektion; ' + EW, 'Nach jeder Kundin', BEH);
+      R(G3, 'Geräte und Handstücke' + (a('k_geraete') ? ' (' + a('k_geraete') + ')' : ''), MF, 'Handstück/Elektrode abwischen; Aufsätze mit Hautkontakt abnehmen und in Instrumentendesinfektion legen; ' + EW, 'Nach jeder Kundin', BEH);
+      R(G3, 'Pinsel, Schalen, Masken-Zubehör', a('k_masken') === 'Einweg' ? 'Einmalprodukt' : MI, a('k_masken') === 'Einweg' ? 'Nach einer Kundin entsorgen' : 'Reinigen, in Desinfektionsbad einlegen, spülen, trocknen; ' + EW, 'Nach jeder Kundin', BEH);
+      R(G4, 'Spatel, Wattepads, Tupfer, Wattestäbchen', a('k_einweg') === 'ja' ? 'Einmalprodukt' : MI, a('k_einweg') === 'ja' ? 'Nach einmaliger Verwendung entsorgen' : 'Nach Gebrauch aufbereiten (reinigen und desinfizieren)', 'Pro Kundin / pro Anwendung', BEH);
+      if (a('k_liege') !== 'ja') O('Liege wird nicht mit Einmalauflage abgedeckt — Wechsel der Textilauflage pro Kundin sicherstellen.');
+      if (a('k_ausreinigen') === 'ja') R(G6, 'Ausreinigen (Blutkontakt möglich)', 'Einmalhandschuhe, Hautantiseptikum, Tupfer', 'Haut vorher desinfizieren; bei Blutkontakt Handschuhe wechseln, Stelle abtupfen und desinfizieren; benutzte Instrumente aufbereiten', 'Bei jedem Ausreinigen', BEH);
+      if (a('k_nadel') === 'ja') {
+        R(G3, 'Nadeln, Lanzetten, Dermaroller-Aufsätze', 'Steril verpackte Einmalprodukte', 'Erst vor der Kundin öffnen; sofort nach Gebrauch im durchstichsicheren, verschließbaren Behälter entsorgen', 'Bei jeder Behandlung', BEH);
+        R(G5, 'Spitze und scharfe Gegenstände', 'Durchstichsicherer Behälter', 'Nicht zurückstecken oder umfüllen; verschließen, wenn zu drei Vierteln gefüllt', 'Sofort nach Gebrauch', BEH);
+      }
+      if (a('k_dampf') === 'ja') R(G3, 'Dampfgerät / Wasserbehälter', 'Destilliertes Wasser', 'Wasser entleeren, Behälter reinigen; Entkalken nach Herstellerangabe', 'Täglich / nach Herstellerangabe', BEH);
+      R(G5, 'Abfall', 'Deckeleimer mit Beutel', 'Verschlossen entsorgen', 'Täglich', ALLE);
+      R(G6, 'Hautreaktion, Allergie oder Verletzung', 'Hautantiseptikum, Verbandmaterial', 'Behandlung abbrechen, Erste Hilfe leisten, Vorfall im Verbandbuch dokumentieren; Kundin bei Bedarf an Arzt verweisen', 'Im Bedarfsfall', BEH);
+    }
+
+    if (key === 'nagel') {
+      var feil = a('n_feilen');
+      var steril = a('n_steril') === 'ja';
+      S('Vor der Behandlung', 'Hände waschen und desinfizieren; Hände der Kundin ' + (a('n_haende') === 'ja' ? 'waschen oder desinfizieren lassen.' : 'auf Sauberkeit prüfen.'));
+      S('Vor der Behandlung', 'Arbeitsplatz wischdesinfizieren und frische Einmalunterlage auflegen.');
+      S('Vor der Behandlung', 'Nägel und Haut prüfen — bei Verdacht auf Nagelpilz, Entzündung oder Infektion nicht behandeln und ärztlichen Rat empfehlen.');
+      S('Vor der Behandlung', 'Aufbereitete Instrumente erst am Platz aus der Verpackung/dem Behälter nehmen; Einmalfeilen neu bereitlegen.');
+      S('Während der Behandlung', 'Einmalmaterial (Feilen, Buffer, Tupfer) nur bei einer Kundin verwenden; benutzte Teile nicht auf der sauberen Fläche ablegen.');
+      if (a('n_blut') === 'ja') S('Während der Behandlung', 'Bei Verletzung: Behandlung unterbrechen, Handschuhe anziehen, Blutung stillen, Wunde desinfizieren und mit Pflaster versorgen, benutztes Instrument aussondern.');
+      S('Nach der Behandlung', 'Einmalmaterial entsorgen; benutzte Instrumente sofort in das Instrumentendesinfektionsbad legen.');
+      if (a('n_fraeser') === 'ja' || a('n_zangen') === 'ja') S('Nach der Behandlung', 'Instrumente reinigen (Bürste), im Bad desinfizieren, spülen und trocknen' + (steril ? ', verpacken und im Sterilisator sterilisieren.' : '.'));
+      S('Nach der Behandlung', 'Arbeitsplatz' + (a('n_uv') === 'ja' ? ' und Lampe' : '') + ' wischdesinfizieren; Hände desinfizieren.');
+      S('Tagesende', 'Instrumentenbad nach Herstellerangabe wechseln; Abfall leeren; Boden reinigen.');
+      if (a('n_staub') === 'ja') S('Wöchentlich', 'Staubabsaugung leeren, Filter nach Herstellerangabe reinigen oder wechseln.');
+      R(G2, 'Arbeitsplatz, Tisch, Armauflage, Ablagen', MF, 'Wischdesinfektion; ' + EW, 'Vor und nach jeder Kundin', BEH);
+      if (a('n_uv') === 'ja') R(G2, 'UV-/LED-Lampe', MF, 'Ausgeschaltet und kalt abwischen; keine Flüssigkeit in das Gerät', 'Nach jeder Kundin', BEH);
+      if (a('n_haende') === 'ja') R(G1, 'Hände der Kundin', 'Handdesinfektionsmittel oder Seife', 'Vor der Behandlung waschen oder desinfizieren lassen', 'Vor jeder Behandlung', BEH);
+      if (feil === 'Einweg (pro Kundin)' || feil === 'Mischung aus beidem') R(G4, 'Feilen und Buffer (Einweg)', 'Einmalprodukt', 'Pro Kundin neu; nicht aufbewahren oder weitergeben', 'Pro Kundin', BEH);
+      if (feil === 'Desinfizierbar (Metall/Glas)' || feil === 'Mischung aus beidem') R(G3, 'Feilen aus Metall oder Glas', MI, 'Reinigen, im Desinfektionsbad einlegen, spülen, trocknen; ' + EW, 'Nach jeder Kundin', BEH);
+      if (a('n_fraeser') === 'ja') R(G3, 'Fräser und Bits', MI, 'Reinigen (Bürste/Ultraschall), im Desinfektionsbad einlegen, spülen, trocknen' + (steril ? ', anschließend sterilisieren' : '') + '; ' + EW, 'Nach jeder Kundin', BEH);
+      if (a('n_zangen') === 'ja') R(G3, 'Metallinstrumente (Hautzange, Nagelzange, Schieber)', MI, 'Reinigen, im Desinfektionsbad einlegen, spülen, trocknen' + (steril ? ', verpacken und sterilisieren' : '') + '; ' + EW, 'Nach jeder Kundin', BEH);
+      if ((a('n_fraeser') === 'ja' || a('n_zangen') === 'ja') && !steril) O('Kein Sterilisator vorhanden — prüfen, ob für die angebotenen Behandlungen (mögliche Verletzungen der Nagelhaut) eine Sterilisation oder Einwegprodukte nötig sind (Gesundheitsamt/Berufsgenossenschaft fragen).');
+      if (steril) R(G3, 'Sterilisator', 'Destilliertes Wasser, Sterilgutverpackung', 'Beladen, Programm nach Herstellerangabe; Charge, Datum und Person dokumentieren; Wartung nach Herstellerangabe', 'Bei jedem Durchlauf', BEH);
+      if (a('n_staub') === 'ja') R(G3, 'Staubabsaugung', '—', 'Beutel/Filter leeren bzw. wechseln; Außenflächen abwischen', 'Wöchentlich bzw. nach Herstellerangabe', BEH);
+      R(G4, 'Gel-/Lackflaschen, Pinsel, Töpfchen', MF, 'Nach Gebrauch verschließen; Außenflächen bei Verschmutzung abwischen; Pinsel haben keinen Kundenkontakt mit Haut', 'Nach jeder Anwendung / bei Verschmutzung', BEH);
+      R(G5, 'Nagelstaub, Einmalmaterial, Handschuhe', 'Deckeleimer mit Beutel', 'Verschlossen entsorgen', 'Täglich', ALLE);
+      if (a('n_blut') === 'ja') R(G6, 'Verletzung / Blutung', 'Einmalhandschuhe, Hautantiseptikum, Pflaster', 'Handschuhe an, Blutung stillen, Wunde desinfizieren und abdecken; kontaminierte Instrumente aussondern und aufbereiten; Vorfall im Verbandbuch dokumentieren', 'Im Bedarfsfall', BEH);
+      R(G6, 'Verdacht auf Nagelpilz oder Entzündung', '—', 'Nicht behandeln; Kundin freundlich auf ärztliche Abklärung hinweisen; Arbeitsplatz und Instrumente danach besonders gründlich desinfizieren', 'Im Bedarfsfall', BEH);
+    }
+
+    if (key === 'fuss') {
+      var fi = a('f_instr');
+      var sterilF = fi === 'Autoklav (Dampfsterilisation)' || fi === 'Heißluftsterilisator';
+      var hs = a('f_handschuhe') === 'ja';
+      S('Vor der Behandlung', 'Hände waschen und desinfizieren' + (hs ? '; Einmalhandschuhe anziehen.' : '.'));
+      S('Vor der Behandlung', 'Füße und Nägel prüfen (Pilz, offene Stellen, Entzündung) — bei Verdacht nicht behandeln und ärztlichen Rat empfehlen.');
+      if (a('f_diab') === 'ja') S('Vor der Behandlung', 'Risikokundinnen (Diabetes, Durchblutungsstörung, Immunschwäche) vorab befragen; bei Befunden an Arzt oder Podologen verweisen.');
+      if (a('f_spray') === 'ja') S('Vor der Behandlung', 'Füße der Kundin reinigen und mit Hautdesinfektionsmittel desinfizieren.');
+      S('Vor der Behandlung', a('f_fussbad') === 'Einwegfolie/Einwegwanne' ? 'Frische Einwegfolie bzw. Einwegwanne für das Fußbad verwenden.' : a('f_fussbad') === 'Kein Fußbad' ? 'Frische Einmalunterlage unter die Füße legen.' : 'Fußwanne gereinigt und desinfiziert bereitstellen.');
+      S('Vor der Behandlung', 'Aufbereitete bzw. sterile Instrumente erst am Platz vor der Kundin entnehmen.');
+      S('Während der Behandlung', 'Einmalmaterial (Feilen, Tupfer) nur bei einer Kundin verwenden; benutzte Instrumente nicht auf die saubere Fläche legen.');
+      if (a('f_blut') === 'ja') S('Während der Behandlung', 'Bei Blutung: Behandlung unterbrechen, Blutung stillen, Wunde versorgen, Handschuhe wechseln, Instrument aussondern und aufbereiten.');
+      S('Nach der Behandlung', 'Einmalmaterial entsorgen; spitze und scharfe Gegenstände in den durchstichsicheren Behälter geben.');
+      S('Nach der Behandlung', 'Benutzte Instrumente sofort in das Desinfektionsbad legen (Einwirkzeit beachten), dann reinigen, spülen und trocknen.');
+      if (sterilF) S('Nach der Behandlung', 'Instrumente in Sterilgutverpackung einschweißen und im Sterilisator aufbereiten' + (a('f_sterildok') === 'ja' ? '; Charge dokumentieren.' : '.'));
+      S('Nach der Behandlung', 'Behandlungsstuhl, Fußstütze und Ablagen wischdesinfizieren; Handschuhe entsorgen; Hände desinfizieren.');
+      S('Tagesende', 'Desinfektionsbad wechseln (Standzeit beachten); Fußwanne reinigen und desinfizieren; Abfall leeren; Boden reinigen.');
+      R(G2, 'Behandlungsstuhl, Fußstütze, Ablagen', MF, 'Wischdesinfektion; ' + EW, 'Nach jeder Kundin', BEH);
+      if (a('f_spray') === 'ja') R(G1, 'Füße der Kundin', 'Hautdesinfektionsmittel', 'Füße reinigen, dann Mittel auftragen und trocknen lassen; ' + EW, 'Vor jeder Behandlung', BEH);
+      if (hs) R(G1, 'Einmalhandschuhe, Mundschutz', 'Einmalprodukt', 'Pro Kundin Handschuhe wechseln; bei Staubentwicklung Mundschutz tragen', 'Pro Kundin', BEH);
+      if (fi === 'Autoklav (Dampfsterilisation)') R(G3, 'Metallinstrumente (Zangen, Hobel, Scheren)', MI + ' · Autoklav', 'Sofort einlegen → reinigen → spülen/trocknen → verpacken → Dampfsterilisation (Programm nach Herstellerangabe)', 'Nach jeder Kundin', BEH);
+      else if (fi === 'Heißluftsterilisator') R(G3, 'Metallinstrumente (Zangen, Hobel, Scheren)', MI + ' · Heißluftsterilisator', 'Sofort einlegen → reinigen → spülen/trocknen → verpacken → Heißluftsterilisation (Temperatur/Zeit nach Herstellerangabe)', 'Nach jeder Kundin', BEH);
+      else if (fi === 'Einweginstrumente') R(G3, 'Instrumente', 'Einmalprodukt', 'Nach einer Kundin entsorgen; spitze Teile im durchstichsicheren Behälter', 'Pro Kundin', BEH);
+      else { R(G3, 'Metallinstrumente (Zangen, Hobel, Scheren)', MI, 'Sofort einlegen → reinigen → spülen/trocknen; ' + EW, 'Nach jeder Kundin', BEH); O('Nur Desinfektionsbad vorhanden — prüfen, ob für die angebotenen Behandlungen (Blutkontakt möglich) eine Sterilisation oder Einweginstrumente nötig sind (Gesundheitsamt/Berufsgenossenschaft fragen).'); }
+      if (a('f_fraeser') === 'ja') R(G3, 'Fräser (Diamant, Hartmetall)', MI, 'Reinigen (Bürste/Ultraschall), im Desinfektionsbad einlegen, spülen, trocknen' + (sterilF ? ', anschließend sterilisieren' : '') + '; ' + EW, 'Nach jeder Kundin', BEH);
+      R(G3, 'Fußbad / Fußwanne', a('f_fussbad') === 'Einwegfolie/Einwegwanne' ? 'Einmalprodukt' : a('f_fussbad') === 'Kein Fußbad' ? '—' : MF, a('f_fussbad') === 'Einwegfolie/Einwegwanne' ? 'Pro Kundin neue Folie bzw. Wanne; Wanne dahinter bei Verschmutzung reinigen' : a('f_fussbad') === 'Kein Fußbad' ? 'Entfällt' : 'Entleeren, reinigen, desinfizieren; ' + EW + '; trocknen', a('f_fussbad') === 'Kein Fußbad' ? '—' : 'Nach jeder Kundin', BEH);
+      if (sterilF) R(G3, 'Sterilisator', 'Destilliertes Wasser (Autoklav), Sterilgutverpackung', 'Beladen, Programm nach Herstellerangabe; Wartung und Prüfungen nach Herstellerangabe', 'Bei jedem Durchlauf', BEH);
+      if (sterilF && a('f_sterildok') === 'ja') R(G6, 'Sterilisationsdokumentation', 'Dokumentationsbogen', 'Datum, Chargennummer, Programm und durchführende Person festhalten; Ablage im Ordner', 'Bei jedem Durchlauf', BEH);
+      if (sterilF && a('f_sterildok') !== 'ja') O('Sterilisation wird nicht dokumentiert — Dokumentation (Datum, Charge, Programm, Person) einführen.');
+      if (a('f_blut') === 'ja') R(G5, 'Spitze und scharfe Gegenstände', 'Durchstichsicherer, verschließbarer Behälter', 'Nicht zurückstecken oder umfüllen; verschließen, wenn zu drei Vierteln gefüllt', 'Sofort nach Gebrauch', BEH);
+      R(G5, 'Einmalmaterial, Handschuhe, Hornhautabfall', 'Deckeleimer mit Beutel', 'Verschlossen entsorgen', 'Täglich', ALLE);
+      if (a('f_blut') === 'ja') R(G6, 'Blutkontakt / Verletzung', 'Einmalhandschuhe, Hautantiseptikum, Pflaster', 'Blutung stillen, Wunde desinfizieren und abdecken; Handschuhe wechseln; Instrument aussondern und aufbereiten; Vorfall im Verbandbuch dokumentieren; bei Kontakt mit fremdem Blut zeitnah ärztlichen Rat einholen', 'Im Bedarfsfall', BEH);
+      if (a('f_diab') === 'ja') R(G6, 'Risikokundinnen (Diabetes, Durchblutungsstörung, Immunschwäche)', '—', 'Vor der Behandlung nachfragen; Verletzungen unbedingt vermeiden; bei Befunden an Arzt oder Podologen verweisen', 'Vor jeder Behandlung', BEH);
+      R(G6, 'Verdacht auf Fuß- oder Nagelpilz, Entzündung, Warzen', '—', 'Nicht behandeln; auf ärztliche Abklärung hinweisen; Arbeitsplatz und Instrumente danach besonders gründlich aufbereiten', 'Im Bedarfsfall', BEH);
+    }
+
+    if (key === 'haar') {
+      var w = a('h_wachs');
+      S('Vor der Behandlung', 'Hände waschen, desinfizieren und Einmalhandschuhe anziehen.');
+      S('Vor der Behandlung', 'Frische Einmalauflage auf die Liege legen.');
+      S('Vor der Behandlung', 'Haut prüfen — bei Entzündung, offenen Stellen oder Sonnenbrand nicht behandeln.');
+      S('Vor der Behandlung', 'Haut reinigen' + (a('h_nachpflege') === 'ja' ? ' und desinfizieren.' : '.'));
+      S('Während der Behandlung', w === 'Wachstopf mit Einwegspateln' ? 'Spatel nur einmal eintauchen („kein Double-Dipping"); benutzte Spatel und Streifen sofort entsorgen.' : w === 'Einwegpatronen (Roll-On)' ? 'Patrone und Aufsatz pro Kundin verwenden; benutzte Streifen sofort entsorgen.' : 'Pro Kundin eine neue Portion entnehmen; Reste nicht zurück in den Vorrat geben.');
+      S('Nach der Behandlung', a('h_nachpflege') === 'ja' ? 'Haut desinfizieren und beruhigen.' : 'Haut beruhigen.');
+      S('Nach der Behandlung', 'Einmalmaterial und Handschuhe entsorgen; Liege wischdesinfizieren; Hände desinfizieren.');
+      if (a('h_pinzetten') === 'ja') S('Nach der Behandlung', 'Pinzetten reinigen und im Desinfektionsbad aufbereiten.');
+      S('Tagesende', w === 'Wachstopf mit Einwegspateln' ? 'Wachstopf nach Herstellerangabe reinigen; Abfall leeren; Boden reinigen.' : 'Arbeitsplatz reinigen; Abfall leeren; Boden reinigen.');
+      R(G2, 'Liege, Ablagen, Wachsgerät außen', MF, 'Wischdesinfektion; ' + EW, 'Nach jeder Kundin', BEH);
+      R(G1, 'Einmalhandschuhe', 'Einmalprodukt', 'Pro Kundin wechseln; bei Blutkontakt sofort wechseln', 'Pro Kundin', BEH);
+      R(G1, 'Haut der Kundin', 'Hautdesinfektionsmittel', 'Vor ' + (a('h_nachpflege') === 'ja' ? 'und nach ' : '') + 'der Behandlung auftragen; ' + EW, 'Pro Behandlung', BEH);
+      if (w === 'Einwegpatronen (Roll-On)') R(G4, 'Wachspatrone, Roll-On-Aufsatz', 'Einmalprodukt', 'Pro Kundin Aufsatz/Patrone wechseln; Heizgerät außen abwischen', 'Pro Kundin', BEH);
+      if (w === 'Wachstopf mit Einwegspateln') R(G4, 'Wachstopf, Wachs', 'Einwegspatel', 'Kein Double-Dipping; Wachs bei Verunreinigung verwerfen; Topf nach Herstellerangabe reinigen', 'Pro Behandlung / täglich', BEH);
+      if (w === 'Sugaring/Paste pro Kundin') R(G4, 'Sugaring-Paste', 'Einmalhandschuhe', 'Pro Kundin neue Portion entnehmen; Reste verwerfen', 'Pro Kundin', BEH);
+      R(G4, 'Wachsstreifen, Spatel, Tücher', 'Einmalprodukt', 'Nach Gebrauch entsorgen', 'Pro Kundin', BEH);
+      if (a('h_pinzetten') === 'ja') R(G3, 'Pinzetten', MI, 'Reinigen, im Desinfektionsbad einlegen, spülen, trocknen; ' + EW, 'Nach jeder Kundin', BEH);
+      if (a('h_geraete') === 'ja') {
+        R(G3, 'IPL-/Laser-/Diodengerät (Handstück, Kontaktfläche)', MF, 'Handstück ausgeschaltet abwischen; ' + EW + '; Schutzbrillen nach jeder Kundin reinigen', 'Nach jeder Kundin', BEH);
+        S('Nach der Behandlung', 'Handstück und Schutzbrillen reinigen bzw. desinfizieren.');
+      }
+      R(G5, 'Einmalmaterial, Handschuhe', 'Deckeleimer mit Beutel', 'Verschlossen entsorgen', 'Täglich', ALLE);
+      R(G6, 'Hautreaktion, Verbrennung oder Verletzung', 'Kühlung, Hautantiseptikum, Verbandmaterial', 'Behandlung abbrechen, Erste Hilfe leisten, Vorfall im Verbandbuch dokumentieren; Kundin bei Bedarf an Arzt verweisen', 'Im Bedarfsfall', BEH);
+    }
+
+    return { rows: rows, steps: steps, open: open, notes: '' };
+  }
+
+  // ---------- Anzeige ----------
+  function hygChip(a) {
+    var due = hygDue(a), mgr = hygCanEdit();
+    if (a.status === 'leer') return mgr ? '<span class="hyg-pill todo">TO DO · Plan erstellen</span>' : '<span class="hyg-pill wait">Wird erstellt</span>';
+    if (a.status === 'entwurf') return mgr ? '<span class="hyg-pill todo">TO DO · Entwurf abschließen</span>' : '<span class="hyg-pill wait">Wird erstellt</span>';
+    if (due === 'faellig') return mgr ? '<span class="hyg-pill todo">TO DO · Aktualisieren</span>' : '<span class="hyg-pill wait">Aktualisierung steht an</span>';
+    if (due === 'bald') return '<span class="hyg-pill ' + (mgr ? 'todo' : 'wait') + '">' + (mgr ? 'TO DO · bis ' : 'Bald fällig · bis ') + esc(uFmt(a.next)) + '</span>';
+    return '<span class="hyg-pill done">✓ Gültig bis ' + esc(uFmt(a.next)) + '</span>';
+  }
+  function hygMeta(a) {
+    var p = [];
+    if (a.stand) p.push('Stand ' + uFmt(a.stand));
+    if (a.version) p.push('Version ' + a.version);
+    if (a.by) p.push('von ' + a.by);
+    return p.join(' · ');
+  }
+
+  function hygBody() {
+    var body = '';
+    if (HYG_UI.info) body += '<div class="u-info">' + esc(HYG_UI.info) + '</div>';
+    if (HYG_UI.error) body += '<div class="admin-error">' + esc(HYG_UI.error) + '</div>';
+    if (HYG_UI.pending) {
+      var pd = HYG_UI.pending;
+      body += '<div class="hyg-todo-bar" style="flex-direction:column;align-items:stretch"><span><b>' + esc(pd.msg) + '</b></span><span style="display:flex;gap:0.5rem;flex-wrap:wrap"><button type="button" class="btn-primary hyg-btn-todo" onclick="__bb.select(\'' + pd.kind + '\',\'' + esc(pd.key) + '\')">Ja, fortfahren</button><button type="button" class="btn-ghost" onclick="__bb.select(\'hyg-cancel\')">Abbrechen</button></span></div>';
+    }
+    var key = HYG_UI.area;
+    HYG_UI.info = ''; HYG_UI.error = '';
+    if (!key || !hygAreaDef(key)) return body + hygOverviewHtml();
+    if (HYG_UI.mode === 'fragen' && hygCanEdit()) return body + hygQuestionsHtml(key);
+    if (HYG_UI.mode === 'edit' && hygCanEdit()) return body + hygEditHtml(key);
+    return body + hygViewHtml(key);
+  }
+
+  function hygOverviewHtml() {
+    var mgr = hygCanEdit();
+    var out = '<p class="sub">' + (mgr
+      ? 'Hier pflegst du die Hygienepläne für jeden Bereich: Fragenkatalog ausfüllen, Plan erstellen, anpassen, abschließen — es entsteht ein PDF. Jeder Plan gilt 12 Monate und lässt sich jederzeit überschreiben.'
+      : 'Hier findest du für jeden Bereich den aktuellen Hygiene- und Desinfektionsplan: Ablauf, Mittel und was wann zu tun ist.') + '</p>';
+    if (mgr) {
+      var open = hygActionCount(), total = HYG_AREAS.length;
+      out += open
+        ? '<div class="hyg-todo-bar"><span class="hyg-pill todo">TO DO</span><span><b>' + open + ' von ' + total + ' Bereichen</b> sind noch offen (orange markiert). ' + (total - open) + ' erledigt.</span></div>'
+        : '<div class="hyg-todo-bar" style="background:var(--done-bg);border-color:var(--done);color:#1d5a37"><span class="hyg-pill done">✓ ERLEDIGT</span><span><b>Alle ' + total + ' Bereiche</b> sind abgeschlossen und aktuell.</span></div>';
+    }
+    HYG_AREAS.forEach(function (d) {
+      var a = hygArea(d.key);
+      var btns = '';
+      if (a.plan) btns += '<button type="button" class="btn-primary u-add" onclick="__bb.select(\'hyg-open\',\'' + d.key + '\')">Plan ansehen</button>';
+      if (mgr) btns += '<button type="button" class="' + (a.plan ? 'btn-ghost' : 'btn-primary hyg-btn-todo') + ' u-add" onclick="__bb.select(\'hyg-open\',\'' + d.key + '\',\'fragen\')">' + (a.plan ? 'Fragenkatalog neu ausfüllen' : 'Plan erstellen (Fragenkatalog)') + '</button>';
+      if (!a.plan && !mgr) btns += '<p class="admin-hint" style="margin:.4rem 0 0">Dieser Plan wird gerade erstellt.</p>';
+      out += '<div class="u-card' + (hygTodo(a) ? ' hyg-todo-card' : (a.status === 'abgeschlossen' ? ' hyg-done-card' : '')) + '">' +
+        '<div class="hyg-head"><div><div class="u-card-title">' + esc(d.label) + '</div><div class="u-card-sub">' + esc(hygMeta(a) || 'Noch kein Plan hinterlegt') + '</div></div>' + hygChip(a) + '</div>' +
+        btns + '</div>';
+    });
+    var hist = HYG.history.slice(-5).reverse();
+    if (hist.length) {
+      out += '<p class="admin-section-title">Zuletzt abgeschlossen</p><div class="admin-list">' + hist.map(function (h) {
+        var d = hygAreaDef(h.area);
+        return '<div class="admin-item"><div class="admin-item-body"><div class="admin-item-title">' + esc(d ? d.label : h.area) + '</div><div class="admin-item-meta">Version ' + h.version + ' · ' + esc(uFmt(h.date)) + (h.by ? ' · ' + esc(h.by) : '') + '</div></div></div>';
+      }).join('') + '</div>';
+    }
+    out += '<p class="admin-hint">' + esc(HYG_DISCLAIMER) + '</p>';
+    return out;
+  }
+
+  function hygBackBar(key) {
+    return '<button type="button" class="btn-ghost hyg-back" onclick="__bb.select(\'hyg-back\')">← Alle Bereiche</button>';
+  }
+
+  function hygViewHtml(key) {
+    var d = hygAreaDef(key), a = hygArea(key), mgr = hygCanEdit();
+    var out = hygBackBar() + '<h2 class="hyg-title">' + esc(d.label) + '</h2><div class="hyg-head" style="margin-bottom:.8rem"><div class="u-card-sub">' + esc(hygMeta(a)) + '</div>' + hygChip(a) + '</div>';
+    if (!a.plan) {
+      out += '<div class="u-card"><p class="sub" style="margin:0 0 .6rem">Für diesen Bereich gibt es noch keinen Plan.</p>' +
+        (mgr ? '<button type="button" class="btn-primary" onclick="__bb.select(\'hyg-mode\',\'fragen\')">Plan erstellen (Fragenkatalog)</button>' : '<p class="admin-hint">Die Inhaberin erstellt den Plan — er erscheint hier, sobald er fertig ist.</p>') + '</div>';
+      return out;
+    }
+    var due = hygDue(a);
+    if (mgr && a.status === 'entwurf') out += '<div class="hyg-todo-bar"><span class="hyg-pill todo">TO DO</span><span><b>Plan noch nicht abgeschlossen.</b> Prüfen, ggf. anpassen und unten „Abschließen &amp; PDF erzeugen“ wählen.</span></div>';
+    if (due) out += '<div class="u-notice hyg-todo-notice" style="cursor:default"><span class="hyg-pill todo">TO DO</span> ' + (due === 'faellig' ? '<b>Gültigkeit abgelaufen.</b> Dieser Plan muss aktualisiert werden (alle 12 Monate).' : '<b>Bald fällig.</b> Aktualisierung bis ' + esc(uFmt(a.next)) + '.') + '</div>';
+    if (a.stale && mgr) out += '<div class="u-info">Der Plan wurde seit dem letzten Abschluss geändert — zum Übernehmen unten „Abschließen &amp; PDF erzeugen" wählen.</div>';
+    var p = a.plan;
+    // Ablauf
+    var stepHtml = HYG_PHASES.map(function (ph) {
+      var list = p.steps.filter(function (s) { return s.phase === ph; });
+      if (!list.length) return '';
+      return '<div class="hyg-phase"><div class="hyg-phase-t">' + esc(ph) + '</div><ol>' + list.map(function (s) { return '<li>' + esc(s.text) + '</li>'; }).join('') + '</ol></div>';
+    }).join('');
+    out += '<p class="admin-section-title">Ablauf</p>' + (stepHtml || '<p class="admin-hint">Kein Ablauf hinterlegt.</p>');
+    // Maßnahmen
+    out += '<p class="admin-section-title">Was · womit · wie · wann · wer</p>';
+    HYG_GROUPS.forEach(function (gr) {
+      var rows = p.rows.filter(function (r) { return r.gruppe === gr; });
+      if (!rows.length) return;
+      out += '<div class="hyg-group">' + esc(gr) + '</div>' + rows.map(function (r) {
+        return '<div class="hyg-row"><div class="hyg-row-t">' + esc(r.was) + '</div>' +
+          '<dl><dt>Womit</dt><dd>' + esc(r.mittel || '—') + '</dd><dt>Wie</dt><dd>' + esc(r.wie || '—') + '</dd><dt>Wann</dt><dd>' + esc(r.wann || '—') + '</dd><dt>Wer</dt><dd>' + esc(r.wer || '—') + '</dd></dl></div>';
+      }).join('');
+    });
+    if (p.open && p.open.length) out += '<p class="admin-section-title">Noch zu klären</p><ul class="hyg-open">' + p.open.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>';
+    if (p.notes) out += '<p class="admin-section-title">Hinweise</p><p class="sub" style="white-space:pre-wrap">' + esc(p.notes) + '</p>';
+    // Aktionen
+    out += '<div class="hyg-actions">' +
+      '<button type="button" class="btn-primary" onclick="__bb.select(\'hyg-pdf\',\'' + key + '\',\'save\')">PDF speichern' + (window.showDirectoryPicker ? ' (Ordner „' + HYG_FOLDER + '")' : '') + '</button>' +
+      '<button type="button" class="btn-ghost" onclick="__bb.select(\'hyg-pdf\',\'' + key + '\',\'print\')">Drucken / PDF öffnen</button>';
+    if (mgr) {
+      out += '<p class="admin-section-title">Plan verwalten</p>' +
+        '<button type="button" class="btn-ghost" onclick="__bb.select(\'hyg-mode\',\'edit\')">Plan bearbeiten</button>' +
+        '<button type="button" class="btn-ghost" onclick="__bb.select(\'hyg-mode\',\'fragen\')">Fragenkatalog neu ausfüllen &amp; Plan neu erstellen</button>' +
+        '<button type="button" class="btn-primary' + (hygTodo(a) || a.stale ? ' hyg-btn-todo' : '') + '" onclick="__bb.select(\'hyg-finish\',\'' + key + '\')">' + (a.status === 'abgeschlossen' ? (due || a.stale ? 'Jetzt aktualisieren: Abschließen &amp; PDF erzeugen' : 'Erneut abschließen &amp; PDF erzeugen') : 'Abschließen &amp; PDF erzeugen') + '</button>';
+    }
+    out += '</div><p class="admin-hint">' + esc(HYG_DISCLAIMER) + '</p>';
+    return out;
+  }
+
+  function hygQuestionsHtml(key) {
+    var d = hygAreaDef(key), a = hygArea(key);
+    var out = hygBackBar() + '<h2 class="hyg-title">Fragenkatalog</h2><p class="sub" style="margin-top:0">' + esc(d.label) + ' — beantworte die Fragen für euer Studio. Daraus entsteht der individuelle Plan; danach kannst du ihn noch frei ändern.' +
+      (key === 'allgemein' ? ' <b>Die Mittel aus diesem Bereich (Hände, Flächen, Instrumente) werden in alle anderen Pläne übernommen.</b>' : '') + '</p>';
+    (HYG_Q[key] || []).forEach(function (q, i) {
+      var v = hygAns(key, q.id), ctl = '';
+      var qid = esc(q.id);
+      if (q.t === 'yn') {
+        ctl = '<div class="hyg-opts">' + ['ja', 'nein'].map(function (o) { return '<button type="button" class="hyg-opt' + (v === o ? ' on' : '') + '" onclick="__bb.select(\'hyg-ans\',\'' + qid + '\',\'' + o + '\')">' + (o === 'ja' ? 'Ja' : 'Nein') + '</button>'; }).join('') + '</div>';
+      } else if (q.t === 'choice') {
+        ctl = '<div class="hyg-opts">' + q.o.map(function (o, oi) { return '<button type="button" class="hyg-opt' + (v === o ? ' on' : '') + '" onclick="__bb.select(\'hyg-ans\',\'' + qid + '\',' + oi + ')">' + esc(o) + '</button>'; }).join('') + '</div>';
+      } else {
+        ctl = '<input class="text-input hyg-in" type="text" value="' + esc(v) + '" placeholder="' + esc(q.h || '') + '" onchange="__bb.select(\'hyg-anstext\',\'' + qid + '\',this.value)" />';
+      }
+      out += '<div class="u-card hyg-q"><div class="hyg-qn">Frage ' + (i + 1) + ' von ' + HYG_Q[key].length + '</div><div class="hyg-qt">' + esc(q.q) + '</div>' + ctl + '</div>';
+    });
+    out += '<div class="hyg-actions"><button type="button" class="btn-primary" onclick="__bb.select(\'hyg-build\',\'' + key + '\')">' + (a.plan ? 'Plan neu erstellen (überschreibt Ablauf &amp; Tabelle)' : 'Plan aus den Antworten erstellen') + '</button>' +
+      '<button type="button" class="btn-ghost" onclick="__bb.select(\'hyg-mode\',\'view\')">Abbrechen</button></div>';
+    return out;
+  }
+
+  function hygEditHtml(key) {
+    var d = hygAreaDef(key), a = hygArea(key), p = a.plan;
+    if (!p) return hygQuestionsHtml(key);
+    var k = esc(key);
+    var out = hygBackBar() + '<h2 class="hyg-title">Plan bearbeiten</h2><p class="sub" style="margin-top:0">' + esc(d.label) + ' — Änderungen werden sofort gespeichert und überschreiben die bisherigen Angaben.</p>';
+    out += '<p class="admin-section-title">Ablauf</p>';
+    out += p.steps.map(function (s) {
+      return '<div class="u-card hyg-ed"><select class="text-input hyg-in" onchange="__bb.select(\'hyg-set\',\'step|' + esc(s.id) + '|phase\',this.value)">' +
+        HYG_PHASES.map(function (ph) { return '<option' + (ph === s.phase ? ' selected' : '') + '>' + esc(ph) + '</option>'; }).join('') + '</select>' +
+        '<textarea class="text-input hyg-in" rows="2" onchange="__bb.select(\'hyg-set\',\'step|' + esc(s.id) + '|text\',this.value)">' + esc(s.text) + '</textarea>' +
+        '<button type="button" class="admin-icon-btn danger" onclick="__bb.select(\'hyg-del-step\',\'' + esc(s.id) + '\')">Schritt löschen</button></div>';
+    }).join('');
+    out += '<button type="button" class="btn-ghost" onclick="__bb.select(\'hyg-add-step\')">+ Schritt hinzufügen</button>';
+    out += '<p class="admin-section-title">Maßnahmen</p>';
+    out += p.rows.map(function (r) {
+      function f(label, field, area) {
+        var ev = 'onchange="__bb.select(\'hyg-set\',\'row|' + esc(r.id) + '|' + field + '\',this.value)"';
+        return '<label class="hyg-lbl">' + label + (area ? '<textarea class="text-input hyg-in" rows="2" ' + ev + '>' + esc(r[field] || '') + '</textarea>' : '<input class="text-input hyg-in" type="text" value="' + esc(r[field] || '') + '" ' + ev + ' />') + '</label>';
+      }
+      return '<div class="u-card hyg-ed">' +
+        '<label class="hyg-lbl">Gruppe<select class="text-input hyg-in" onchange="__bb.select(\'hyg-set\',\'row|' + esc(r.id) + '|gruppe\',this.value)">' + HYG_GROUPS.map(function (gr) { return '<option' + (gr === r.gruppe ? ' selected' : '') + '>' + esc(gr) + '</option>'; }).join('') + '</select></label>' +
+        f('Was', 'was', false) + f('Womit (Mittel, Konzentration)', 'mittel', true) + f('Wie (Ablauf, Einwirkzeit)', 'wie', true) + f('Wann', 'wann', false) + f('Wer', 'wer', false) +
+        '<button type="button" class="admin-icon-btn danger" onclick="__bb.select(\'hyg-del-row\',\'' + esc(r.id) + '\')">Zeile löschen</button></div>';
+    }).join('');
+    out += '<button type="button" class="btn-ghost" onclick="__bb.select(\'hyg-add-row\')">+ Zeile hinzufügen</button>';
+    out += '<p class="admin-section-title">Noch zu klären (eine Zeile pro Punkt)</p><textarea class="text-input hyg-in" rows="3" onchange="__bb.select(\'hyg-set\',\'open\',this.value)">' + esc((p.open || []).join('\n')) + '</textarea>';
+    out += '<p class="admin-section-title">Hinweise</p><textarea class="text-input hyg-in" rows="3" onchange="__bb.select(\'hyg-set\',\'notes\',this.value)">' + esc(p.notes || '') + '</textarea>';
+    out += '<div class="hyg-actions"><button type="button" class="btn-primary" onclick="__bb.select(\'hyg-mode\',\'view\')">Fertig — Plan ansehen</button>' +
+      '<button type="button" class="btn-ghost" onclick="__bb.select(\'hyg-mode\',\'fragen\')">Zum Fragenkatalog</button></div>';
+    return out;
+  }
+
+  function renderHygiene() {
+    var body = '' +
+      bestMainTabs('hygiene') +
+      '<h1 class="q" style="margin-bottom:.3rem">Desinfektionsplan</h1>' +
+      hygBody() +
+      '<div class="footer-actions"><button class="btn-ghost" onclick="__bb.replaceTop(\'kunde-wahl\')">Zurück zum Hauptmenü</button></div>';
+    screenWrap('dezent', 0, contextLabel(), body);
+  }
+  function renderAdminHygieneTab() {
+    return '<p class="admin-hint">Als Admin kannst du alle Hygienepläne ansehen und ändern — genau wie die Inhaberin (Svenja). Mitarbeitende können die Pläne nur ansehen.</p>' + hygBody();
+  }
+
+  // ---------- Bedienung ----------
+  function hygHandler(kind, key, extra) {
+    var area = HYG_UI.area;
+    // Rückfrage direkt auf der Seite (Dialoge wie confirm() zeigt die Vorschau nicht an)
+    function ask(msg) {
+      var pd = HYG_UI.pending;
+      if (pd && pd.kind === kind && pd.key === key) { HYG_UI.pending = null; return true; }
+      HYG_UI.pending = { kind: kind, key: key, msg: msg };
+      render();
+      setTimeout(function () { var c = document.querySelector('.content'); if (c) c.scrollTop = 0; }, 400);
+      return false;
+    }
+    if (kind === 'hyg-cancel') { HYG_UI.pending = null; render(); return; }
+    if (kind === 'hyg-open' || kind === 'hyg-back' || kind === 'hyg-mode') HYG_UI.pending = null;
+    if (kind === 'hyg-open') {
+      HYG_UI.area = key; HYG_UI.mode = (extra === 'fragen' && hygCanEdit()) ? 'fragen' : 'view'; render(); return;
+    }
+    if (kind === 'hyg-back') { HYG_UI.area = null; HYG_UI.mode = 'view'; render(); return; }
+    if (kind === 'hyg-pdf') { hygDeliverPdf(key, extra); return; }
+    if (!hygCanEdit()) return;   // ab hier: nur Admin und Inhaberin
+    if (kind === 'hyg-mode') { HYG_UI.mode = key; render(); return; }
+    var a = area ? hygArea(area) : null;
+    if (kind === 'hyg-ans' && a) {
+      var q = hygQ(area, key);
+      a.answers[key] = (q && q.t === 'choice') ? q.o[+extra] : extra;
+      hygSave(); render(); return;
+    }
+    if (kind === 'hyg-anstext' && a) { a.answers[key] = String(extra || '').trim(); hygSave(); return; }
+    if (kind === 'hyg-build' && a) {
+      if (a.plan && !ask('Der bestehende Ablauf und die Maßnahmen-Tabelle werden durch einen neuen Vorschlag aus den Antworten ersetzt. Eigene Änderungen gehen dabei verloren.')) return;
+      a.plan = hygBuild(area);
+      if (a.status === 'leer') a.status = 'entwurf';
+      a.stale = true;
+      hygSave();
+      HYG_UI.mode = 'edit';
+      HYG_UI.info = 'Plan erstellt. Bitte prüfen und bei Bedarf anpassen — danach „Abschließen & PDF erzeugen".';
+      render(); return;
+    }
+    if (kind === 'hyg-set' && a && a.plan) {
+      var parts = String(key).split('|');
+      var v = String(extra == null ? '' : extra);
+      if (parts[0] === 'open') a.plan.open = v.split('\n').map(function (s) { return s.trim(); }).filter(Boolean);
+      else if (parts[0] === 'notes') a.plan.notes = v;
+      else {
+        var list = parts[0] === 'row' ? a.plan.rows : a.plan.steps;
+        var it = list.filter(function (x) { return x.id === parts[1]; })[0];
+        if (it) it[parts[2]] = v;
+      }
+      a.stale = true; hygSave();
+      return;
+    }
+    if (kind === 'hyg-add-row' && a && a.plan) { a.plan.rows.push({ id: hygId(), gruppe: HYG_GROUPS[0], was: 'Neue Maßnahme', mittel: '', wie: '', wann: '', wer: '' }); a.stale = true; hygSave(); render(); return; }
+    if (kind === 'hyg-add-step' && a && a.plan) { a.plan.steps.push({ id: hygId(), phase: HYG_PHASES[1], text: 'Neuer Schritt' }); a.stale = true; hygSave(); render(); return; }
+    if (kind === 'hyg-del-row' && a && a.plan) {
+      if (!ask('Diese Zeile wirklich löschen?')) return;
+      a.plan.rows = a.plan.rows.filter(function (x) { return x.id !== key; }); a.stale = true; hygSave(); render(); return;
+    }
+    if (kind === 'hyg-del-step' && a && a.plan) {
+      if (!ask('Diesen Schritt wirklich löschen?')) return;
+      a.plan.steps = a.plan.steps.filter(function (x) { return x.id !== key; }); a.stale = true; hygSave(); render(); return;
+    }
+    if (kind === 'hyg-finish') {
+      var fa = hygArea(key);
+      if (!fa.plan) { HYG_UI.error = 'Es gibt noch keinen Plan — bitte zuerst den Fragenkatalog ausfüllen.'; render(); return; }
+      fa.status = 'abgeschlossen'; fa.stand = hygToday(); fa.next = hygPlus12(fa.stand); fa.version = (fa.version || 0) + 1; fa.by = hygWho() || hygOwner(); fa.stale = false;
+      HYG.history.push({ area: key, date: fa.stand, version: fa.version, by: fa.by });
+      hygSave();
+      HYG_UI.area = key; HYG_UI.mode = 'view';
+      HYG_UI.info = 'Plan abgeschlossen (Version ' + fa.version + '). Er gilt bis ' + uFmt(fa.next) + '. Das PDF wird erzeugt …';
+      render();
+      hygDeliverPdf(key, 'save');
+      return;
+    }
+  }
+
+  // ---------- PDF ----------
+  function hygPdfFileName(key) {
+    var a = hygArea(key), d = hygAreaDef(key);
+    var n = d.label.split(/[:&(]/)[0].trim().replace(/[^A-Za-z0-9ÄÖÜäöüß]+/g, '-').replace(/^-|-$/g, '');
+    return 'Hygieneplan_' + n + '_' + (a.stand || hygToday()) + '.pdf';
+  }
+  function hygClean(s) {
+    return String(s == null ? '' : s).replace(/→/g, '->').replace(/←/g, '<-').replace(/≥/g, '>=').replace(/≤/g, '<=').replace(/✓/g, '').replace(/[ -​]/g, ' ').replace(/ /g, ' ');
+  }
+  function hygWrap(text, maxW, size, bold) {
+    var cw = size * (bold ? 0.56 : 0.52);
+    var maxChars = Math.max(6, Math.floor(maxW / cw));
+    var out = [];
+    String(hygClean(text)).split('\n').forEach(function (para) {
+      var cur = '';
+      para.split(' ').forEach(function (w) {
+        while (w.length > maxChars) { if (cur) { out.push(cur); cur = ''; } out.push(w.slice(0, maxChars - 1) + '-'); w = w.slice(maxChars - 1); }
+        var t = cur ? cur + ' ' + w : w;
+        if (t.length > maxChars && cur) { out.push(cur); cur = w; } else cur = t;
+      });
+      out.push(cur);
+    });
+    return out.length ? out : [''];
+  }
+
+  function hygPdfBytes(key) {
+    var d = hygAreaDef(key), a = hygArea(key), p = a.plan || { rows: [], steps: [], open: [], notes: '' };
+    var PW = 841.89, PH = 595.28, M = 36, BOT = 54, X1 = PW - M;
+    var INK = '2B2B2D', MUTED = '6B6B6E', LINE = 'CFCFD2', HEAD = 'EDEDEF', ACC = '111111';
+    var pages = [], ops = [], y = PH - M;
+    function col(hex) { return (parseInt(hex.substr(0, 2), 16) / 255).toFixed(3) + ' ' + (parseInt(hex.substr(2, 2), 16) / 255).toFixed(3) + ' ' + (parseInt(hex.substr(4, 2), 16) / 255).toFixed(3); }
+    function txt(s, x, yy, size, font, hex) { ops.push(col(hex) + ' rg BT /' + font + ' ' + size.toFixed(1) + ' Tf ' + x.toFixed(2) + ' ' + yy.toFixed(2) + ' Td (' + pdfEscape(hygClean(s)) + ') Tj ET'); }
+    function fillRect(x, yy, w, h, hex) { ops.push(col(hex) + ' rg ' + x.toFixed(2) + ' ' + yy.toFixed(2) + ' ' + w.toFixed(2) + ' ' + h.toFixed(2) + ' re f'); }
+    function hline(x0, x1_, yy, hex, lw) { ops.push(col(hex) + ' RG ' + (lw || 0.5) + ' w ' + x0.toFixed(2) + ' ' + yy.toFixed(2) + ' m ' + x1_.toFixed(2) + ' ' + yy.toFixed(2) + ' l S'); }
+    function newPage() { pages.push(ops); ops = []; y = PH - M; }
+    function need(h) { if (y - h < BOT) { newPage(); return true; } return false; }
+
+    // Kopf
+    var logoW = 92, logoH = logoW * (LOGO_PDF_H / LOGO_PDF_W);
+    ops.push('q ' + logoW.toFixed(2) + ' 0 0 ' + logoH.toFixed(2) + ' ' + (X1 - logoW).toFixed(2) + ' ' + (PH - M - logoH + 6).toFixed(2) + ' cm /Im1 Do Q');
+    txt('HYGIENEPLAN · DESINFEKTIONSPLAN', M, y - 8, 8.5, 'F2', MUTED); y -= 30;
+    txt(d.label, M, y, 19, 'F2', ACC); y -= 18;
+    txt('Beauty Lounge · Inh. Svenja Gampp · Hoistener Straße 15 · 41466 Neuss', M, y, 9, 'F1', MUTED); y -= 20;
+    var metaW = (X1 - M) / 4;
+    var meta = [['Stand', a.stand ? uFmt(a.stand) : 'Entwurf'], ['Gültig bis (12 Monate)', a.next ? uFmt(a.next) : '—'], ['Version', a.version ? String(a.version) : '—'], ['Verantwortlich', hygResponsible()]];
+    fillRect(M, y - 28, X1 - M, 34, HEAD);
+    meta.forEach(function (m, i) { txt(m[0], M + 8 + i * metaW, y - 4, 7.5, 'F1', MUTED); txt(m[1], M + 8 + i * metaW, y - 18, 10, 'F2', INK); });
+    y -= 52;
+
+    // Ablauf
+    function heading(t) { need(34); txt(t.toUpperCase().replace('MASSNAHMEN', 'MAßNAHMEN'), M, y, 9, 'F2', ACC); y -= 5; hline(M, X1, y, ACC, 0.8); y -= 14; }
+    if (p.steps.length) {
+      heading('Ablauf');
+      HYG_PHASES.forEach(function (ph) {
+        var list = p.steps.filter(function (s) { return s.phase === ph; });
+        if (!list.length) return;
+        need(28); txt(ph, M, y, 9.5, 'F2', INK); y -= 13;
+        list.forEach(function (s, i) {
+          var lines = hygWrap(s.text, X1 - M - 22, 9, false);
+          need(lines.length * 11.5 + 3);
+          txt((i + 1) + '.', M + 4, y, 9, 'F2', MUTED);
+          lines.forEach(function (l, li) { txt(l, M + 20, y - li * 11.5, 9, 'F1', INK); });
+          y -= lines.length * 11.5 + 3;
+        });
+        y -= 5;
+      });
+      y -= 4;
+    }
+
+    // Tabelle
+    var cols = [{ k: 'was', t: 'Was', w: 150 }, { k: 'mittel', t: 'Womit', w: 170 }, { k: 'wie', t: 'Wie / Einwirkzeit', w: 220 }, { k: 'wann', t: 'Wann', w: 135 }, { k: 'wer', t: 'Wer', w: 0 }];
+    var used = 0; cols.forEach(function (c) { used += c.w; }); cols[4].w = (X1 - M) - used;
+    function tableHead() {
+      fillRect(M, y - 4, X1 - M, 15, HEAD);
+      var x = M; cols.forEach(function (c) { txt(c.t, x + 4, y, 8, 'F2', INK); x += c.w; });
+      y -= 16;
+    }
+    var any = false;
+    HYG_GROUPS.forEach(function (gr) {
+      var rows = p.rows.filter(function (r) { return r.gruppe === gr; });
+      if (!rows.length) return;
+      if (!any) { heading('Maßnahmen im Überblick'); any = true; }
+      need(60);
+      txt(gr, M, y, 9.5, 'F2', ACC); y -= 12; tableHead();
+      rows.forEach(function (r) {
+        var cells = cols.map(function (c) { return hygWrap(r[c.k] || '—', c.w - 8, 8, c.k === 'was'); });
+        var n = 1; cells.forEach(function (c) { if (c.length > n) n = c.length; });
+        var h = n * 10.2 + 6;
+        if (need(h + 4)) { txt(gr + ' (Fortsetzung)', M, y, 9, 'F2', MUTED); y -= 12; tableHead(); }
+        var x = M;
+        cells.forEach(function (c, ci) { c.forEach(function (l, li) { txt(l, x + 4, y - li * 10.2, 8, cols[ci].k === 'was' ? 'F2' : 'F1', INK); }); x += cols[ci].w; });
+        y -= h; hline(M, X1, y + 4, LINE, 0.4);
+      });
+      y -= 8;
+    });
+
+    if (p.open && p.open.length) {
+      heading('Noch zu klären');
+      p.open.forEach(function (t) { var lines = hygWrap(t, X1 - M - 16, 9, false); need(lines.length * 11.5 + 2); txt('-', M + 4, y, 9, 'F2', INK); lines.forEach(function (l, li) { txt(l, M + 16, y - li * 11.5, 9, 'F1', INK); }); y -= lines.length * 11.5 + 2; });
+      y -= 6;
+    }
+    if (p.notes) {
+      heading('Hinweise');
+      hygWrap(p.notes, X1 - M, 9, false).forEach(function (l) { need(12); txt(l, M, y, 9, 'F1', INK); y -= 11.5; });
+      y -= 6;
+    }
+
+    // Unterweisung
+    need(150); heading('Unterweisung der Mitarbeitenden — zur Kenntnis genommen');
+    var uw = [{ t: 'Name', w: 260 }, { t: 'Datum', w: 120 }, { t: 'Unterschrift', w: (X1 - M) - 380 }];
+    fillRect(M, y - 4, X1 - M, 15, HEAD); var ux = M; uw.forEach(function (c) { txt(c.t, ux + 4, y, 8, 'F2', INK); ux += c.w; }); y -= 16;
+    for (var ri = 0; ri < 6; ri++) { need(24); y -= 14; hline(M, X1, y - 4, LINE, 0.5); y -= 4; }
+    y -= 10;
+    hygWrap(HYG_DISCLAIMER, X1 - M, 7.5, false).forEach(function (l) { need(10); txt(l, M, y, 7.5, 'F1', MUTED); y -= 9.5; });
+    pages.push(ops);
+
+    // Fußzeile
+    pages.forEach(function (po, i) {
+      var saved = ops; ops = po;
+      hline(M, X1, 40, LINE, 0.5);
+      txt('Beauty Lounge Neuss · Hygieneplan ' + d.label.split(':')[0] + ' · Stand ' + (a.stand ? uFmt(a.stand) : 'Entwurf'), M, 28, 7.5, 'F1', MUTED);
+      var lab = 'Seite ' + (i + 1) + ' von ' + pages.length;
+      txt(lab, X1 - lab.length * 7.5 * 0.5, 28, 7.5, 'F1', MUTED);
+      ops = saved;
+    });
+
+    // Serialisierung
+    var objs = [];
+    function addObj(b) { objs.push(b); return objs.length; }
+    var f1 = addObj('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');
+    var f2 = addObj('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
+    var logoBytes = base64ToBytes(LOGO_PDF_JPEG_B64);
+    var img = addObj({ stream: logoBytes, dict: '<< /Type /XObject /Subtype /Image /Width ' + LOGO_PDF_W + ' /Height ' + LOGO_PDF_H + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + logoBytes.length + ' >>' });
+    var pagesNum = objs.length + 1; objs.push(null);
+    var kids = [];
+    pages.forEach(function (po, i) {
+      var s = po.join('\n') + '\n';
+      var cn = addObj({ stream: stringToBytes(s), dict: '<< /Length ' + s.length + ' >>' });
+      kids.push(addObj('<< /Type /Page /Parent ' + pagesNum + ' 0 R /MediaBox [0 0 ' + PW.toFixed(2) + ' ' + PH.toFixed(2) + '] /Resources << /Font << /F1 ' + f1 + ' 0 R /F2 ' + f2 + ' 0 R >> /XObject << /Im1 ' + img + ' 0 R >> >> /Contents ' + cn + ' 0 R >>'));
+    });
+    objs[pagesNum - 1] = '<< /Type /Pages /Kids [' + kids.map(function (n) { return n + ' 0 R'; }).join(' ') + '] /Count ' + kids.length + ' >>';
+    var cat = addObj('<< /Type /Catalog /Pages ' + pagesNum + ' 0 R >>');
+    var w = new ByteWriter(); w.writeString('%PDF-1.4\n');
+    var off = [0];
+    for (var n = 1; n <= objs.length; n++) {
+      off[n] = w.length; var o = objs[n - 1];
+      if (o && typeof o === 'object' && o.stream) { w.writeString(n + ' 0 obj\n' + o.dict + '\nstream\n'); w.writeBytes(o.stream); w.writeString('\nendstream\nendobj\n'); }
+      else w.writeString(n + ' 0 obj\n' + o + '\nendobj\n');
+    }
+    var xs = w.length;
+    w.writeString('xref\n0 ' + (objs.length + 1) + '\n0000000000 65535 f \n');
+    for (var n2 = 1; n2 <= objs.length; n2++) w.writeString(pad10(off[n2]) + ' 00000 n \n');
+    w.writeString('trailer\n<< /Size ' + (objs.length + 1) + ' /Root ' + cat + ' 0 R >>\nstartxref\n' + xs + '\n%%EOF');
+    return w.toUint8Array();
+  }
+
+  function hygBlobDownload(fileName, bytes) {
+    var url = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
+    var el = document.createElement('a'); el.href = url; el.download = fileName;
+    document.body.appendChild(el); el.click(); document.body.removeChild(el);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+  }
+  function hygFlash(msg) { HYG_UI.info = msg; render(); }
+
+  // mode 'save': in den Ordner „Hygienepläne" speichern (Ordnerwahl, wo der Browser das kann) bzw. herunterladen
+  // mode 'print': PDF in neuem Tab öffnen, dort drucken
+  function hygDeliverPdf(key, mode) {
+    var a = hygArea(key);
+    if (!a.plan) return;
+    var bytes, fileName = hygPdfFileName(key);
+    try { bytes = hygPdfBytes(key); } catch (e) { HYG_UI.error = 'Das PDF konnte nicht erzeugt werden.'; render(); return; }
+    function viaDownload(forPrint) {
+      var finish = function () { hygFlash(forPrint ? 'PDF „' + fileName + '" gespeichert — zum Drucken die Datei öffnen.' : 'PDF „' + fileName + '" heruntergeladen. Bitte in den Ordner „' + HYG_FOLDER + '" legen.'); };
+      if (window.claude && typeof window.claude.use === 'function') {
+        window.claude.use('downloads').then(function (dl) {
+          if (!dl) { hygBlobDownload(fileName, bytes); finish(); return; }
+          dl.save({ filename: fileName, data: bytes }).then(finish, function (err) { if (err && err.code === 'declined') return; hygBlobDownload(fileName, bytes); finish(); });
+        }, function () { hygBlobDownload(fileName, bytes); finish(); });
+      } else { hygBlobDownload(fileName, bytes); finish(); }
+    }
+    if (mode === 'print') {
+      var purl = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
+      var win = null; try { win = window.open(purl, '_blank'); } catch (e) { win = null; }
+      if (win) return;
+      viaDownload(true);
+      return;
+    }
+    if (window.showDirectoryPicker) {
+      window.showDirectoryPicker({ mode: 'readwrite', id: 'hygieneplaene' }).then(function (dir) {
+        return (dir.name === HYG_FOLDER ? Promise.resolve(dir) : dir.getDirectoryHandle(HYG_FOLDER, { create: true })).then(function (target) {
+          return target.getFileHandle(fileName, { create: true }).then(function (fh) {
+            return fh.createWritable().then(function (wr) { return wr.write(bytes).then(function () { return wr.close(); }); });
+          });
+        }).then(function () { hygFlash('PDF „' + fileName + '" im Ordner „' + HYG_FOLDER + '" gespeichert.'); });
+      }).catch(function (err) {
+        if (err && err.name === "AbortError") { hygFlash("Ordnerwahl abgebrochen — der Plan ist gespeichert; das PDF kann jederzeit über „PDF speichern“ erzeugt werden."); return; }
+        viaDownload();
+      });
+    } else viaDownload();
+  }
+
   function render() {
     var id = path[pointer];
     if (id === 'login') return renderLogin();
     if (id === 'kunde-wahl') return renderKundeWahl();
     if (id === 'urlaub') return renderUrlaub();
+    if (id === 'hygiene') return renderHygiene();
     if (id === 'aktionen-uebersicht') return renderAktionenUebersicht();
     if (id === 'ziel') return renderZiel();
     if (id === 'painpoint') return renderPainpoint();
