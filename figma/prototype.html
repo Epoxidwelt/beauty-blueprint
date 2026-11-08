@@ -734,6 +734,7 @@
   .hyg-gbthumb { width: 76px; height: 76px; object-fit: cover; border-radius: 10px; flex-shrink: 0; background: #EEE; border: 1px solid var(--border); }
   .hyg-gbnone { display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: var(--text-soft); text-align: center; }
   .hyg-gbphoto { display: block; width: 100%; max-height: 340px; min-height: 120px; object-fit: contain; border-radius: 12px; background: #F3F3F3; }
+  .hyg-todo-outline { border-color: var(--todo) !important; color: var(--todo-ink) !important; font-weight: 700; }
   .hyg-filebtn { display: flex; justify-content: center; align-items: center; text-align: center; cursor: pointer; flex: 1 1 140px; }
   .btn-primary.hyg-btn-todo { background: var(--todo); border-color: var(--todo); color: #fff; }
   .main-tabs .main-tab { padding: 0.85rem 0.2rem; font-size: 0.88rem; min-width: 0; white-space: nowrap; }
@@ -2376,7 +2377,7 @@
     filterProducts: filterProducts, pickProduct: pickProduct,
     filterTreatments: filterTreatments, pickTreatment: pickTreatment, pickKurOption: pickKurOption,
     downloadPdfReport: downloadPdfReport,
-    gbPhoto: function (el) { gbPhotoChosen(el); },
+    gbPhoto: function (el, mode) { gbPhotoChosen(el, mode); },
     sendKundeEmail: sendKundeEmail,
     bestInput: bestInput,
     produkteImportFile: function (f) { produkteImportFile(f); },   // Test-/Automatisierungszugang
@@ -7236,18 +7237,19 @@
   var GB_STATUS = ['In Betrieb', 'Defekt / in Reparatur', 'Ausgesondert'];
   var GB_LOG_ART = ['Wartung', 'Prüfung (DGUV V3 / Sicherheit)', 'Reparatur', 'Einweisung', 'Sonstiges'];
   var GB_AREAS = HYG_AREAS.map(function (a) { return a.label.split(/[:&(]/)[0].trim(); }).concat(['Empfang / Allgemein', 'Sonstiges']);
-  function gbDefault() { return { items: [] }; }
+  function gbDefault() { return { items: [], autoOcr: true }; }
   function gbLoad() {
     try {
       var raw = window.localStorage.getItem(GB_KEY);
       if (!raw) return gbDefault();
       var p = JSON.parse(raw);
-      return p && Array.isArray(p.items) ? p : gbDefault();
+      if (p && Array.isArray(p.items)) { if (typeof p.autoOcr !== 'boolean') p.autoOcr = true; return p; }
+      return gbDefault();
     } catch (e) { return gbDefault(); }
   }
   var GB = gbLoad();
-  var GB_UI = { id: null, info: '', error: '', pending: null };
-  function gbResetUi() { GB_UI = { id: null, info: '', error: '', pending: null }; }
+  var GB_UI = { id: null, info: '', error: '', pending: null, ocr: null };
+  function gbResetUi() { GB_UI = { id: null, info: '', error: '', pending: null, ocr: GB_UI && GB_UI.ocr ? GB_UI.ocr : null }; }
   function gbSave() {
     try { window.localStorage.setItem(GB_KEY, JSON.stringify(GB)); return true; }
     catch (e) { GB_UI.error = 'Speichern nicht möglich: Der Browser-Speicher ist voll. Bitte Fotos verkleinern oder das Gerätebuch in den Ordner sichern und alte Geräte entfernen.'; return false; }
@@ -7300,15 +7302,140 @@
     rd.onerror = function () { cb(null); };
     rd.readAsDataURL(file);
   }
-  function gbPhotoChosen(input) {
+  // ---------- Typenschild: erkannten Text den Spalten zuordnen ----------
+  function gbParseTypenschild(raw) {
+    var text = String(raw || '').replace(/\r/g, '').replace(/[|_]/g, ' ');
+    var lines = text.split('\n').map(function (l) { return l.replace(/\s+/g, ' ').trim(); }).filter(Boolean);
+    var res = { hersteller: '', modell: '', serie: '', baujahr: '', technik: '' };
+    function after(re) {
+      for (var i = 0; i < lines.length; i++) {
+        var m = re.exec(lines[i]);
+        if (m) {
+          var v = (m[1] || '').trim().replace(/^[:.#\-\s]+/, '');
+          if (!v && lines[i + 1]) v = lines[i + 1].trim();
+          if (v) return v;
+        }
+      }
+      return '';
+    }
+    // Seriennummer: erstes Wort mit mindestens einer Ziffer
+    var sv = after(/(?:serial\s*(?:no|nr|number)?|ser\.?\s*[-.]?\s*(?:no|nr)|s\s*\/\s*n|seriennummer|serien\s*-?\s*nr|seriennr|sn|s\.n)\b\.?\s*[:#.\-]?\s*(.*)$/i);
+    sv = sv.replace(/^(?:s\s*\/?\s*n|sn)\b[\s:.#\-]*/i, '');
+    var sm = /[A-Z0-9][A-Z0-9\-\/\.]{3,}/i.exec(sv);
+    if (sm && /\d/.test(sm[0])) res.serie = sm[0].replace(/[.\-\/]+$/, '');
+    // Modell / Typ / Artikelnummer
+    var mv = after(/(?:model|modell|mod\.|type|typ|art\.?\s*[-.]?\s*(?:nr|no)|artikel(?:nummer|nr)|item\s*(?:no|nr)|ref\.?)\b\.?\s*[:#.\-]?\s*(.*)$/i);
+    mv = mv.split(/\s{2,}|\s(?=serial|ser\.|s\/n|sn\b|baujahr|year|art\.)/i)[0].trim();
+    if (mv && mv.length <= 40 && /[A-Za-z0-9]/.test(mv)) res.modell = mv.replace(/[.,;:]+$/, '');
+    // Hersteller
+    var hv = after(/(?:hersteller|manufacturer|mfr\.?|manufactured by|made by|hergestellt von|fabricant|produced by)\b\.?\s*[:#.\-]?\s*(.*)$/i);
+    if (!hv) {
+      for (var i = 0; i < lines.length; i++) {
+        if (/\b(?:GmbH|AG|KG|OHG|Ltd\.?|Inc\.?|S\.?r\.?l\.?|S\.?p\.?A\.?|B\.?V\.?|Co\.|Corp\.?|e\.K\.)/.test(lines[i]) && lines[i].length <= 70) { hv = lines[i]; break; }
+      }
+    }
+    if (hv) res.hersteller = hv.split(/\s{2,}/)[0].replace(/[.,;:]+$/, '').slice(0, 60);
+    // Baujahr / Herstelldatum
+    for (var j = 0; j < lines.length; j++) {
+      var km = /(?:baujahr|year of manufacture|manufacturing date|date of manufacture|mfg\.?\s*date|herstelldatum|prod\.?\s*date|year|bj\.?|datum|date)\b(.*)$/i.exec(lines[j]);
+      if (km) {
+        var ym = /((?:0?[1-9]|1[0-2])\s*[\/.\-]\s*)?((?:19|20)\d{2})/.exec(km[1]);
+        if (ym) { var mo = ym[1] ? ym[1].replace(/[\s\/.\-]/g, '') : ''; res.baujahr = mo ? ('0' + mo).slice(-2) + '/' + ym[2] : ym[2]; break; }
+      }
+    }
+    // Technische Daten (Spannung, Frequenz, Leistung, Strom)
+    var all = lines.join(' '), found = [];
+    function grab(re) { var m, seen = {}; while ((m = re.exec(all))) { var t = m[0].replace(/\s+/g, ' ').trim(); if (!seen[t.toLowerCase()]) { seen[t.toLowerCase()] = 1; found.push(t); } } }
+    grab(/\b\d{2,3}(?:\s*[-–\/]\s*\d{2,3})?\s*V\b(?:\s*[~≈]|\s*AC|\s*DC)?/gi);
+    grab(/\b\d{2}(?:\s*\/\s*\d{2})?\s*Hz\b/gi);
+    grab(/\b\d+(?:[.,]\d+)?\s*(?:kW|W|VA)\b/g);
+    grab(/\b\d+(?:[.,]\d+)?\s*A\b/g);
+    if (found.length) res.technik = found.join(' · ').slice(0, 120);
+    return res;
+  }
+
+  function gbLoadOcr(cb) {
+    if (window.Tesseract) { cb(null); return; }
+    var sc = document.createElement('script');
+    sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.1.1/tesseract.min.js';
+    sc.onload = function () { cb(null); };
+    sc.onerror = function () { cb('Die Texterkennung konnte nicht geladen werden. Bitte die Internetverbindung prüfen.'); };
+    document.head.appendChild(sc);
+  }
+  // Foto in hoher Auflösung und kontrastreich für die Texterkennung vorbereiten (das gespeicherte Foto ist kleiner)
+  function gbOcrImage(file, cb) {
+    var rd = new FileReader();
+    rd.onload = function () {
+      var img = new Image();
+      img.onload = function () {
+        var sc = Math.min(1, 2200 / Math.max(img.width, img.height));
+        var w = Math.max(1, Math.round(img.width * sc)), h = Math.max(1, Math.round(img.height * sc));
+        var c = document.createElement('canvas'); c.width = w; c.height = h;
+        var x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, w, h);
+        try { x.filter = 'grayscale(1) contrast(1.35)'; } catch (e) { /* ohne Filter weiter */ }
+        x.drawImage(img, 0, 0, w, h);
+        cb(c.toDataURL('image/jpeg', 0.92));
+      };
+      img.onerror = function () { cb(null); };
+      img.src = rd.result;
+    };
+    rd.onerror = function () { cb(null); };
+    rd.readAsDataURL(file);
+  }
+  function gbOcrStatus(t) { if (GB_UI.ocr) GB_UI.ocr.text = t; var el = document.getElementById('gb-ocr-status'); if (el) el.textContent = t; }
+  function gbOcrDone(msg, isErr) {
+    GB_UI.ocr = null;
+    if (isErr) GB_UI.error = msg; else GB_UI.info = msg;
+    render();
+  }
+  var GB_OCR_FIELDS = [['hersteller', 'Hersteller'], ['modell', 'Modell'], ['serie', 'Seriennummer'], ['baujahr', 'Baujahr'], ['technik', 'Technische Daten']];
+  function gbRunOcr(id, file) {
+    var d = gbFind(id); if (!d || !file) return;
+    if (document.documentElement.classList.contains('embedded')) {
+      GB_UI.error = 'Das automatische Auslesen des Typenschilds funktioniert in dieser Vorschau nicht. In der App auf der Webseite steht es zur Verfügung. Die Felder kannst du hier von Hand ausfüllen.'; render(); return;
+    }
+    GB_UI.ocr = { id: id, text: 'Typenschild wird vorbereitet …' }; render();
+    gbOcrImage(file, function (url) {
+      if (!url) { gbOcrDone('Das Bild konnte nicht gelesen werden.', true); return; }
+      gbOcrStatus('Texterkennung wird geladen (beim ersten Mal etwas länger) …');
+      gbLoadOcr(function (err) {
+        if (err) { gbOcrDone(err, true); return; }
+        var finished = false;
+        var guard = setTimeout(function () { if (!finished) { finished = true; gbOcrDone('Die Texterkennung hat zu lange gebraucht. Bitte erneut versuchen oder die Felder von Hand ausfüllen.', true); } }, 150000);
+        window.Tesseract.recognize(url, 'deu+eng', { logger: function (m) { if (m && m.status === 'recognizing text') gbOcrStatus('Typenschild wird gelesen … ' + Math.round((m.progress || 0) * 100) + ' %'); else if (m && m.status) gbOcrStatus('Texterkennung wird vorbereitet …'); } }).then(function (r) {
+          if (finished) return; finished = true; clearTimeout(guard);
+          var text = (r && r.data && r.data.text) || '';
+          var p = gbParseTypenschild(text), put = [], diff = [];
+          d.ocrText = text.slice(0, 2000);
+          GB_OCR_FIELDS.forEach(function (f) {
+            var v = p[f[0]]; if (!v) return;
+            if (!d[f[0]]) { d[f[0]] = v; put.push(f[1] + ': ' + v); }
+            else if (String(d[f[0]]).toLowerCase().replace(/\s/g, '') !== v.toLowerCase().replace(/\s/g, '')) diff.push(f[1] + ': ' + v);
+          });
+          if (!d.name && (p.hersteller || p.modell)) { d.name = [p.hersteller, p.modell].filter(Boolean).join(' ').slice(0, 60); put.push('Gerätename: ' + d.name); }
+          d.geaendert = hygToday(); gbSave();
+          if (!put.length && !diff.length) { gbOcrDone(text.trim() ? 'Im Foto wurde Text erkannt, aber keine passenden Angaben gefunden. Den erkannten Text siehst du unten unter „Erkannter Text“. Bitte näher, gerade und mit gutem Licht fotografieren.' : 'Es wurde kein Text erkannt. Bitte das Typenschild näher, gerade und mit gutem Licht fotografieren.', true); return; }
+          gbOcrDone('Aus dem Typenschild eingetragen (bitte prüfen): ' + (put.join(' · ') || 'nichts Neues') + (diff.length ? '. Abweichend erkannt, nicht überschrieben: ' + diff.join(' · ') : '') + '.', false);
+        }).catch(function () {
+          if (finished) return; finished = true; clearTimeout(guard);
+          gbOcrDone('Die Texterkennung ist fehlgeschlagen. Bitte erneut versuchen oder die Felder von Hand ausfüllen.', true);
+        });
+      });
+    });
+  }
+
+  // mode 'foto': Gerätefoto speichern (und, wenn eingeschaltet, Typenschild auslesen) · mode 'schild': nur Typenschild auslesen
+  function gbPhotoChosen(input, mode) {
     var id = GB_UI.id, d = id ? gbFind(id) : null;
     var f = input && input.files && input.files[0];
     if (!d || !f || !hygCanEdit()) return;
+    if (mode === 'schild') { gbRunOcr(id, f); return; }
     gbResizePhoto(f, function (url, w, h) {
       if (!url) { GB_UI.error = 'Das Bild konnte nicht gelesen werden. Bitte ein anderes Foto wählen.'; render(); return; }
       d.foto = url; d.fotoW = w; d.fotoH = h; d.geaendert = hygToday();
       if (gbSave()) GB_UI.info = 'Foto gespeichert.'; else { d.foto = null; }
       render();
+      if (GB.autoOcr && d.foto) gbRunOcr(id, f);
     });
   }
 
@@ -7333,6 +7460,7 @@
       var pd = GB_UI.pending;
       body += '<div class="hyg-todo-bar" style="flex-direction:column;align-items:stretch"><span><b>' + esc(pd.msg) + '</b></span><span style="display:flex;gap:0.5rem;flex-wrap:wrap"><button type="button" class="btn-primary hyg-btn-todo" onclick="__bb.select(\'' + pd.kind + '\',\'' + esc(pd.key) + '\')">Ja, fortfahren</button><button type="button" class="btn-ghost" onclick="__bb.select(\'gb-cancel\')">Abbrechen</button></span></div>';
     }
+    if (GB_UI.ocr) body += '<div class="hyg-todo-bar"><span class="hyg-pill todo">LÄUFT</span><span id="gb-ocr-status">' + esc(GB_UI.ocr.text) + '</span></div>';
     GB_UI.info = ''; GB_UI.error = '';
     var d = GB_UI.id ? gbFind(GB_UI.id) : null;
     return body + (d ? gbDetailHtml(d) : gbListHtml());
@@ -7370,13 +7498,16 @@
     out += '<div class="u-card"><p class="admin-section-title" style="margin-top:0">Foto vom Gerät</p>' +
       (d.foto ? '<img class="hyg-gbphoto" alt="Foto ' + esc(d.name) + '" src="' + d.foto + '" />' : '<div class="hyg-gbphoto hyg-gbnone">Noch kein Foto</div>') +
       '<div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.7rem">' +
-      '<label class="btn-primary hyg-filebtn">Foto aufnehmen<input type="file" accept="image/*" capture="environment" id="gb-photo-cam" style="display:none" onchange="__bb.gbPhoto(this)" /></label>' +
-      '<label class="btn-ghost hyg-filebtn">Bild auswählen<input type="file" accept="image/*" id="gb-photo-pick" style="display:none" onchange="__bb.gbPhoto(this)" /></label>' +
-      (d.foto ? '<button type="button" class="admin-icon-btn danger" onclick="__bb.select(\'gb-photo-remove\',\'' + id + '\')">Foto entfernen</button>' : '') + '</div></div>';
+      '<label class="btn-primary hyg-filebtn">Foto aufnehmen<input type="file" accept="image/*" capture="environment" id="gb-photo-cam" style="display:none" onchange="__bb.gbPhoto(this,\'foto\')" /></label>' +
+      '<label class="btn-ghost hyg-filebtn">Bild auswählen<input type="file" accept="image/*" id="gb-photo-pick" style="display:none" onchange="__bb.gbPhoto(this,\'foto\')" /></label>' +
+      '<label class="btn-ghost hyg-filebtn hyg-todo-outline">Typenschild fotografieren &amp; auslesen<input type="file" accept="image/*" capture="environment" id="gb-photo-schild" style="display:none" onchange="__bb.gbPhoto(this,\'schild\')" /></label>' +
+      (d.foto ? '<button type="button" class="admin-icon-btn danger" onclick="__bb.select(\'gb-photo-remove\',\'' + id + '\')">Foto entfernen</button>' : '') + '</div>' +
+      '<label class="hyg-check" style="margin:.8rem 0 0"><input type="checkbox" id="gb-auto-ocr"' + (GB.autoOcr ? ' checked' : '') + ' onchange="__bb.select(\'gb-auto-ocr\',this.checked ? \'1\' : \'0\')" /> <span>Typenschild bei jedem Foto automatisch auslesen und in die Spalten eintragen. Leere Felder werden gefüllt, vorhandene Angaben nie überschrieben. Bitte das Ergebnis prüfen.</span></label>' +
+      (d.ocrText ? '<details style="margin-top:.6rem"><summary class="admin-hint" style="cursor:pointer">Erkannter Text</summary><pre style="white-space:pre-wrap;font-size:.78rem;margin:.4rem 0 0">' + esc(d.ocrText) + '</pre></details>' : '') + '</div>';
     // Stammdaten
     out += '<div class="u-card hyg-ed"><p class="admin-section-title" style="margin-top:0">Stammdaten</p>' +
       inp('Gerätename *', 'name', 'text', 'z. B. Hochfrequenzgerät, Autoklav, Fußpflegestuhl') + inp('Inventarnummer', 'inv') +
-      inp('Hersteller', 'hersteller') + inp('Modell / Typ', 'modell') + inp('Seriennummer', 'serie') +
+      inp('Hersteller', 'hersteller') + inp('Modell / Typ', 'modell') + inp('Seriennummer', 'serie') + inp('Baujahr / Herstelldatum', 'baujahr') + inp('Technische Daten (Spannung, Leistung)', 'technik', 'text', 'z. B. 230 V, 50 Hz, 1200 W') +
       sel('Bereich', 'bereich', GB_AREAS) + inp('Standort im Studio', 'standort', 'text', 'z. B. Kabine 2') +
       sel('Status', 'status', GB_STATUS) + '</div>';
     // Anschaffung & Prüfung
@@ -7429,7 +7560,7 @@
     if (kind === 'gb-open') {
       GB_UI.pending = null;
       if (key === 'new') {
-        var nd = { id: hygId(), inv: gbNextInv(), name: '', hersteller: '', modell: '', serie: '', bereich: '', standort: '', status: 'In Betrieb', kauf: '', lieferant: '', garantie: '', intervall: '', letzte: '', einweisung: '', notiz: '', foto: null, log: [], angelegt: hygToday(), geaendert: hygToday() };
+        var nd = { id: hygId(), inv: gbNextInv(), name: '', hersteller: '', modell: '', serie: '', baujahr: '', technik: '', bereich: '', standort: '', status: 'In Betrieb', kauf: '', lieferant: '', garantie: '', intervall: '', letzte: '', einweisung: '', notiz: '', foto: null, log: [], angelegt: hygToday(), geaendert: hygToday() };
         GB.items.push(nd); gbSave(); GB_UI.id = nd.id;
       } else GB_UI.id = key;
       render(); setTimeout(function () { var c = document.querySelector('.content'); if (c) c.scrollTop = 0; }, 50); return;
@@ -7440,6 +7571,7 @@
       if (['status', 'bereich', 'intervall', 'letzte', 'name'].indexOf(parts[1]) > -1) render();
       return;
     }
+    if (kind === 'gb-auto-ocr') { GB.autoOcr = key === '1'; gbSave(); return; }
     if (kind === 'gb-photo-remove') { var pd = gbFind(key); if (pd) { pd.foto = null; pd.fotoW = pd.fotoH = 0; gbSave(); render(); } return; }
     if (kind === 'gb-log-add') {
       var ld = gbFind(key); if (!ld) return;
@@ -7524,7 +7656,7 @@
         ops.push('q ' + pw.toFixed(2) + ' 0 0 ' + ph.toFixed(2) + ' ' + M + ' ' + (top - ph).toFixed(2) + ' cm /Ph' + photos.length + ' Do Q');
         ops.push(col(LINE) + ' RG 0.6 w ' + M + ' ' + (top - ph).toFixed(2) + ' ' + pw.toFixed(2) + ' ' + ph.toFixed(2) + ' re S');
       } else { fillRect(M, top - 150, photoW, 150, HEAD); txt('Kein Foto', M + 100, top - 78, 9, 'F1', MUTED); }
-      var fields = [['Hersteller', d.hersteller], ['Modell / Typ', d.modell], ['Seriennummer', d.serie], ['Bereich', d.bereich], ['Standort', d.standort], ['Anschaffung', d.kauf ? uFmt(d.kauf) : ''], ['Lieferant', d.lieferant], ['Garantie bis', d.garantie ? uFmt(d.garantie) : ''], ['Prüfintervall', d.intervall ? d.intervall + ' Monate' : ''], ['Letzte Prüfung', d.letzte ? uFmt(d.letzte) : ''], ['Nächste Prüfung', gbNext(d) ? uFmt(gbNext(d)) : ''], ['Eingewiesen', d.einweisung]];
+      var fields = [['Hersteller', d.hersteller], ['Modell / Typ', d.modell], ['Seriennummer', d.serie], ['Baujahr', d.baujahr], ['Technische Daten', d.technik], ['Bereich', d.bereich], ['Standort', d.standort], ['Anschaffung', d.kauf ? uFmt(d.kauf) : ''], ['Lieferant', d.lieferant], ['Garantie bis', d.garantie ? uFmt(d.garantie) : ''], ['Prüfintervall', d.intervall ? d.intervall + ' Monate' : ''], ['Letzte Prüfung', d.letzte ? uFmt(d.letzte) : ''], ['Nächste Prüfung', gbNext(d) ? uFmt(gbNext(d)) : ''], ['Eingewiesen', d.einweisung]];
       var fy = top;
       fields.forEach(function (f) {
         txt(f[0], textX, fy - 8, 8, 'F1', MUTED);
