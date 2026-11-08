@@ -730,6 +730,11 @@
   .hyg-sigthumb { height: 34px; width: auto; border: 1px solid var(--border); border-radius: 6px; background: #fff; flex-shrink: 0; }
   .hyg-check { display: flex; gap: 0.6rem; align-items: flex-start; font-size: 0.92rem; line-height: 1.4; margin: 0.3rem 0 0.8rem; color: var(--text); }
   .hyg-check input { width: 22px; height: 22px; flex-shrink: 0; margin-top: 0.05rem; accent-color: var(--todo); }
+  .hyg-gbitem { display: flex; gap: 0.8rem; align-items: center; cursor: pointer; }
+  .hyg-gbthumb { width: 76px; height: 76px; object-fit: cover; border-radius: 10px; flex-shrink: 0; background: #EEE; border: 1px solid var(--border); }
+  .hyg-gbnone { display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: var(--text-soft); text-align: center; }
+  .hyg-gbphoto { display: block; width: 100%; max-height: 340px; min-height: 120px; object-fit: contain; border-radius: 12px; background: #F3F3F3; }
+  .hyg-filebtn { display: flex; justify-content: center; align-items: center; text-align: center; cursor: pointer; flex: 1 1 140px; }
   .btn-primary.hyg-btn-todo { background: var(--todo); border-color: var(--todo); color: #fff; }
   .main-tabs .main-tab { padding: 0.85rem 0.2rem; font-size: 0.88rem; min-width: 0; white-space: nowrap; }
   .hyg-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.7rem; }
@@ -2371,6 +2376,7 @@
     filterProducts: filterProducts, pickProduct: pickProduct,
     filterTreatments: filterTreatments, pickTreatment: pickTreatment, pickKurOption: pickKurOption,
     downloadPdfReport: downloadPdfReport,
+    gbPhoto: function (el) { gbPhotoChosen(el); },
     sendKundeEmail: sendKundeEmail,
     bestInput: bestInput,
     produkteImportFile: function (f) { produkteImportFile(f); },   // Test-/Automatisierungszugang
@@ -2390,6 +2396,7 @@
     if (kind.indexOf('best-') === 0) return bestellungHandler(kind, key, extra);
     if (kind.indexOf('urlaub-') === 0) return urlaubHandler(kind, key, extra);
     if (kind.indexOf('hyg-') === 0) return hygHandler(kind, key, extra);
+    if (kind.indexOf('gb-') === 0) return gbHandler(kind, key, extra);
     if (kind === 'mitarbeiterin') { resetBeratung(); urlaubResetUi(); STATE.mitarbeiterin = key; goTo('kunde-wahl'); }
     else if (kind === 'beratung-neu') { resetBeratung(); goTo('ziel'); }   // bewusst ohne Namensabfrage (anonym)
     else if (kind === 'beratung-abschliessen') { resetBeratung(); STATE.mitarbeiterin = null; path = ['login']; pointer = 0; render(); }
@@ -2983,7 +2990,8 @@
       { key: 'fragen', label: 'Ziele' },
       { key: 'hersteller', label: 'Hersteller' },
       { key: 'produkte', label: 'Produkte' },
-      { key: 'hygiene', label: 'Desinfektion' }
+      { key: 'hygiene', label: 'Desinfektion' },
+      { key: 'geraete', label: 'Gerätebuch' }
     ];
     var tabBtns = tabs.map(function (t) {
       var badge = (t.key === 'mitarbeiter' && uPendingCount()) ? ' <span class="u-badge">' + uPendingCount() + '</span>' : '';
@@ -2994,6 +3002,7 @@
       : STATE.adminTab === 'hersteller' ? renderAdminHerstellerTab()
       : STATE.adminTab === 'produkte' ? renderAdminProdukteTab()
       : STATE.adminTab === 'hygiene' ? renderAdminHygieneTab()
+      : STATE.adminTab === 'geraete' ? renderAdminGeraeteTab()
       : renderAdminAktionenTab();
     var body = '' +
       '<p class="eyebrow">Admin-Bereich</p>' +
@@ -3026,11 +3035,13 @@
       loginHinweise +
       urlaubNoticeHtml() +
       hygNoticeHtml() +
+      gbNoticeHtml() +
       '<div class="stack">' +
         '<button class="stack-btn primary" onclick="__bb.select(\'beratung-neu\')">Neue Beratung</button>' +
         '<button class="stack-btn" onclick="__bb.goTo(\'bestellung\')">Bestellung öffnen<span class="hint">' + bestCollectiveSummary() + '</span></button>' +
         '<button class="stack-btn" onclick="__bb.goTo(\'urlaub\')">Urlaub<span class="hint">' + esc(urlaubMenuHint()) + '</span></button>' +
         '<button class="stack-btn' + (hygTodoCount() ? ' hyg-todo-btn' : '') + '" onclick="__bb.goTo(\'hygiene\')">Desinfektionsplan<span class="hint">' + esc(hygMenuHint()) + '</span></button>' +
+        (hygCanEdit() ? '<button class="stack-btn' + (gbDueCount() ? ' hyg-todo-btn' : '') + '" onclick="__bb.goTo(\'geraete\')">Gerätebuch<span class="hint">' + esc(gbMenuHint()) + '</span></button>' : '') +
       '</div>' +
       // Damit eine Mitarbeiterin schon VOR der ersten Beratung kurz nachsehen kann, welche
       // Aktion gerade läuft — unabhängig vom Hinweis-Banner, der erst bei einer passenden
@@ -5899,7 +5910,7 @@
   }
   var URLAUB = urlaubLoad();
   var URLAUB_UI = { year: null, person: null, formFor: null, formOpen: false, error: '', info: '' };
-  function urlaubResetUi() { URLAUB_UI = { year: null, person: null, formFor: null, formOpen: false, error: '', info: '' }; hygResetUi(); }
+  function urlaubResetUi() { URLAUB_UI = { year: null, person: null, formFor: null, formOpen: false, error: '', info: '' }; hygResetUi(); gbResetUi(); }
   function urlaubSave() { try { window.localStorage.setItem(URLAUB_KEY, JSON.stringify(URLAUB)); } catch (e) { /* ohne Speicher weiterarbeiten */ } }
 
   function uP2(n) { return ('0' + n).slice(-2); }
@@ -7214,12 +7225,441 @@
     } else viaDownload();
   }
 
+  // =====================================================================================
+  // Gerätebuch — alle Geräte des Studios mit Foto, Stammdaten und Wartungsprotokoll.
+  // Nur für Admin und Inhaberin (Svenja); Mitarbeitende sehen weder Kachel noch Seite.
+  // Ablage: Ordner „Gerätebuch" (PDF, Datensicherung, Fotos, Archiv) — Ordnerwahl im Browser,
+  // sonst PDF-Download. Daten: localStorage (Prototyp, je Gerät); supabase/migrations/007_geraetebuch.sql liegt bereit.
+  // =====================================================================================
+  var GB_KEY = 'bb_geraete_v1';
+  var GB_FOLDER = 'Gerätebuch';
+  var GB_STATUS = ['In Betrieb', 'Defekt / in Reparatur', 'Ausgesondert'];
+  var GB_LOG_ART = ['Wartung', 'Prüfung (DGUV V3 / Sicherheit)', 'Reparatur', 'Einweisung', 'Sonstiges'];
+  var GB_AREAS = HYG_AREAS.map(function (a) { return a.label.split(/[:&(]/)[0].trim(); }).concat(['Empfang / Allgemein', 'Sonstiges']);
+  function gbDefault() { return { items: [] }; }
+  function gbLoad() {
+    try {
+      var raw = window.localStorage.getItem(GB_KEY);
+      if (!raw) return gbDefault();
+      var p = JSON.parse(raw);
+      return p && Array.isArray(p.items) ? p : gbDefault();
+    } catch (e) { return gbDefault(); }
+  }
+  var GB = gbLoad();
+  var GB_UI = { id: null, info: '', error: '', pending: null };
+  function gbResetUi() { GB_UI = { id: null, info: '', error: '', pending: null }; }
+  function gbSave() {
+    try { window.localStorage.setItem(GB_KEY, JSON.stringify(GB)); return true; }
+    catch (e) { GB_UI.error = 'Speichern nicht möglich: Der Browser-Speicher ist voll. Bitte Fotos verkleinern oder das Gerätebuch in den Ordner sichern und alte Geräte entfernen.'; return false; }
+  }
+  function gbFind(id) { return GB.items.filter(function (d) { return d.id === id; })[0] || null; }
+  function gbNextInv() {
+    var m = 0; GB.items.forEach(function (d) { var n = parseInt(String(d.inv || '').replace(/\D/g, ''), 10); if (n > m) m = n; });
+    return 'G-' + ('00' + (m + 1)).slice(-3);
+  }
+  function gbNext(d) {
+    var n = parseInt(d.intervall, 10);
+    if (!d.letzte || !uParse(d.letzte) || !(n > 0)) return null;
+    var x = uParse(d.letzte); x.setMonth(x.getMonth() + n); return uIso(x);
+  }
+  function gbDue(d) {
+    if (d.status === 'Ausgesondert') return null;
+    var nx = gbNext(d); if (!nx) return null;
+    var t = uIso(new Date());
+    if (t >= nx) return 'faellig';
+    var s = uParse(nx); s.setDate(s.getDate() - 30);
+    return t >= uIso(s) ? 'bald' : null;
+  }
+  function gbDueCount() { return GB.items.filter(function (d) { return gbDue(d); }).length; }
+  function gbMenuHint() {
+    var n = GB.items.length, due = gbDueCount();
+    if (due) return due + ' Gerät' + (due === 1 ? '' : 'e') + ': Prüfung fällig';
+    return n ? n + ' Gerät' + (n === 1 ? '' : 'e') + ' erfasst' : 'Noch keine Geräte erfasst';
+  }
+  function gbNoticeHtml() {
+    if (!hygCanEdit()) return '';
+    var due = gbDueCount(); if (!due) return '';
+    return '<div class="u-notice hyg-todo-notice" role="button" tabindex="0" onclick="__bb.goTo(\'geraete\')"><span class="hyg-pill todo">TO DO</span> <b>Gerätebuch:</b> bei ' + due + ' Gerät' + (due === 1 ? '' : 'en') + ' ist die Prüfung/Wartung fällig →</div>';
+  }
+
+  // ---------- Foto ----------
+  function gbResizePhoto(file, cb) {
+    var rd = new FileReader();
+    rd.onload = function () {
+      var img = new Image();
+      img.onload = function () {
+        var sc = Math.min(1, 900 / Math.max(img.width, img.height));
+        var w = Math.max(1, Math.round(img.width * sc)), h = Math.max(1, Math.round(img.height * sc));
+        var c = document.createElement('canvas'); c.width = w; c.height = h;
+        var x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); x.drawImage(img, 0, 0, w, h);
+        cb(c.toDataURL('image/jpeg', 0.8), w, h);
+      };
+      img.onerror = function () { cb(null); };
+      img.src = rd.result;
+    };
+    rd.onerror = function () { cb(null); };
+    rd.readAsDataURL(file);
+  }
+  function gbPhotoChosen(input) {
+    var id = GB_UI.id, d = id ? gbFind(id) : null;
+    var f = input && input.files && input.files[0];
+    if (!d || !f || !hygCanEdit()) return;
+    gbResizePhoto(f, function (url, w, h) {
+      if (!url) { GB_UI.error = 'Das Bild konnte nicht gelesen werden. Bitte ein anderes Foto wählen.'; render(); return; }
+      d.foto = url; d.fotoW = w; d.fotoH = h; d.geaendert = hygToday();
+      if (gbSave()) GB_UI.info = 'Foto gespeichert.'; else { d.foto = null; }
+      render();
+    });
+  }
+
+  // ---------- Anzeige ----------
+  function gbDueChip(d) {
+    var due = gbDue(d);
+    if (due === 'faellig') return '<span class="hyg-pill todo">TO DO · Prüfung fällig</span>';
+    if (due === 'bald') return '<span class="hyg-pill todo">TO DO · bis ' + esc(uFmt(gbNext(d))) + '</span>';
+    return '';
+  }
+  function gbStatusChip(d) {
+    if (d.status === 'Defekt / in Reparatur') return '<span class="hyg-pill todo">Defekt</span>';
+    if (d.status === 'Ausgesondert') return '<span class="hyg-pill wait">Ausgesondert</span>';
+    return '<span class="hyg-pill done">In Betrieb</span>';
+  }
+  function gbBody() {
+    if (!hygCanEdit()) return '<div class="u-card"><p class="sub" style="margin:0">Das Gerätebuch sehen nur die Inhaberin und der Admin.</p></div>';
+    var body = '';
+    if (GB_UI.info) body += '<div class="u-info">' + esc(GB_UI.info) + '</div>';
+    if (GB_UI.error) body += '<div class="admin-error">' + esc(GB_UI.error) + '</div>';
+    if (GB_UI.pending) {
+      var pd = GB_UI.pending;
+      body += '<div class="hyg-todo-bar" style="flex-direction:column;align-items:stretch"><span><b>' + esc(pd.msg) + '</b></span><span style="display:flex;gap:0.5rem;flex-wrap:wrap"><button type="button" class="btn-primary hyg-btn-todo" onclick="__bb.select(\'' + pd.kind + '\',\'' + esc(pd.key) + '\')">Ja, fortfahren</button><button type="button" class="btn-ghost" onclick="__bb.select(\'gb-cancel\')">Abbrechen</button></span></div>';
+    }
+    GB_UI.info = ''; GB_UI.error = '';
+    var d = GB_UI.id ? gbFind(GB_UI.id) : null;
+    return body + (d ? gbDetailHtml(d) : gbListHtml());
+  }
+
+  function gbListHtml() {
+    var out = '<p class="sub">Alle Geräte des Studios mit Foto, Seriennummer und Wartung. Sichtbar nur für Inhaberin und Admin. Die Ablage erfolgt zentral im Ordner „' + GB_FOLDER + '“.</p>';
+    out += '<div class="hyg-actions" style="margin:0 0 1rem"><button type="button" class="btn-primary" onclick="__bb.select(\'gb-open\',\'new\')">+ Gerät hinzufügen</button>';
+    if (GB.items.length) out += '<button type="button" class="btn-ghost" onclick="__bb.select(\'gb-save-folder\')">Im Ordner „' + GB_FOLDER + '“ speichern (PDF' + (window.showDirectoryPicker ? ', Daten, Fotos' : '') + ')</button><button type="button" class="btn-ghost" onclick="__bb.select(\'gb-pdf\')">Drucken / PDF öffnen</button>';
+    out += '</div>';
+    if (!GB.items.length) return out + '<div class="u-card"><div class="u-card-title">Noch keine Geräte erfasst</div><p class="sub" style="margin:.4rem 0 0">Tippe auf „Gerät hinzufügen“, trage Name, Hersteller und Seriennummer ein und mache ein Foto vom Gerät.</p></div>';
+    var due = gbDueCount();
+    if (due) out += '<div class="hyg-todo-bar"><span class="hyg-pill todo">TO DO</span><span><b>' + due + ' Gerät' + (due === 1 ? '' : 'e') + '</b> mit fälliger Prüfung oder Wartung (orange markiert).</span></div>';
+    GB.items.forEach(function (d) {
+      var todo = gbDue(d) || d.status === 'Defekt / in Reparatur';
+      out += '<div class="u-card hyg-gbitem' + (todo ? ' hyg-todo-card' : '') + '" role="button" tabindex="0" onclick="__bb.select(\'gb-open\',\'' + esc(d.id) + '\')">' +
+        (d.foto ? '<img class="hyg-gbthumb" alt="" src="' + d.foto + '" />' : '<div class="hyg-gbthumb hyg-gbnone">Kein Foto</div>') +
+        '<div style="flex:1;min-width:0"><div class="u-card-title">' + esc(d.name || 'Neues Gerät') + '</div>' +
+        '<div class="u-card-sub">' + esc([d.inv, d.hersteller, d.modell].filter(Boolean).join(' · ')) + '</div>' +
+        '<div class="u-card-sub">' + esc([d.bereich, d.standort].filter(Boolean).join(' · ') || 'Bereich/Standort fehlt') + '</div>' +
+        '<div style="display:flex;gap:.3rem;flex-wrap:wrap;margin-top:.4rem">' + gbStatusChip(d) + gbDueChip(d) + '</div></div></div>';
+    });
+    return out;
+  }
+
+  function gbDetailHtml(d) {
+    var id = esc(d.id);
+    function ev(f, re) { return 'onchange="__bb.select(\'gb-set\',\'' + id + '|' + f + '\',this.value)"'; }
+    function inp(label, f, type, ph) { return '<label class="hyg-lbl">' + label + '<input class="text-input hyg-in" type="' + (type || 'text') + '" value="' + esc(d[f] || '') + '" ' + (ph ? 'placeholder="' + esc(ph) + '" ' : '') + ev(f) + ' /></label>'; }
+    function sel(label, f, opts) { return '<label class="hyg-lbl">' + label + '<select class="text-input hyg-in" ' + ev(f) + '><option value=""></option>' + opts.map(function (o) { return '<option' + (o === d[f] ? ' selected' : '') + '>' + esc(o) + '</option>'; }).join('') + '</select></label>'; }
+    var nx = gbNext(d);
+    var out = '<button type="button" class="btn-ghost hyg-back" onclick="__bb.select(\'gb-back\')">← Alle Geräte</button>' +
+      '<h2 class="hyg-title">' + esc(d.name || 'Neues Gerät') + '</h2><div class="hyg-head" style="margin-bottom:.8rem"><div class="u-card-sub">' + esc(d.inv) + '</div><div style="display:flex;gap:.3rem;flex-wrap:wrap;justify-content:flex-end">' + gbStatusChip(d) + gbDueChip(d) + '</div></div>';
+    // Foto
+    out += '<div class="u-card"><p class="admin-section-title" style="margin-top:0">Foto vom Gerät</p>' +
+      (d.foto ? '<img class="hyg-gbphoto" alt="Foto ' + esc(d.name) + '" src="' + d.foto + '" />' : '<div class="hyg-gbphoto hyg-gbnone">Noch kein Foto</div>') +
+      '<div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.7rem">' +
+      '<label class="btn-primary hyg-filebtn">Foto aufnehmen<input type="file" accept="image/*" capture="environment" id="gb-photo-cam" style="display:none" onchange="__bb.gbPhoto(this)" /></label>' +
+      '<label class="btn-ghost hyg-filebtn">Bild auswählen<input type="file" accept="image/*" id="gb-photo-pick" style="display:none" onchange="__bb.gbPhoto(this)" /></label>' +
+      (d.foto ? '<button type="button" class="admin-icon-btn danger" onclick="__bb.select(\'gb-photo-remove\',\'' + id + '\')">Foto entfernen</button>' : '') + '</div></div>';
+    // Stammdaten
+    out += '<div class="u-card hyg-ed"><p class="admin-section-title" style="margin-top:0">Stammdaten</p>' +
+      inp('Gerätename *', 'name', 'text', 'z. B. Hochfrequenzgerät, Autoklav, Fußpflegestuhl') + inp('Inventarnummer', 'inv') +
+      inp('Hersteller', 'hersteller') + inp('Modell / Typ', 'modell') + inp('Seriennummer', 'serie') +
+      sel('Bereich', 'bereich', GB_AREAS) + inp('Standort im Studio', 'standort', 'text', 'z. B. Kabine 2') +
+      sel('Status', 'status', GB_STATUS) + '</div>';
+    // Anschaffung & Prüfung
+    out += '<div class="u-card hyg-ed"><p class="admin-section-title" style="margin-top:0">Anschaffung &amp; Prüfung</p>' +
+      inp('Anschaffungsdatum', 'kauf', 'date') + inp('Lieferant / Händler', 'lieferant') + inp('Garantie bis', 'garantie', 'date') +
+      inp('Prüf-/Wartungsintervall (Monate)', 'intervall', 'number', 'z. B. 12') + inp('Letzte Prüfung / Wartung', 'letzte', 'date') +
+      '<div class="hyg-lbl">Nächste Prüfung / Wartung<div style="font-size:.95rem;font-weight:700;color:' + (gbDue(d) ? 'var(--todo-ink)' : 'var(--text)') + '">' + (nx ? esc(uFmt(nx)) : 'wird aus Intervall und letzter Prüfung berechnet') + '</div></div>' +
+      inp('Eingewiesen (Person, Datum)', 'einweisung', 'text', 'z. B. Svenja, 12.03.2026') + '</div>';
+    // Protokoll
+    var log = (d.log || []).slice().sort(function (a, b) { return a.datum < b.datum ? 1 : -1; });
+    out += '<p class="admin-section-title">Wartung, Prüfung &amp; Reparaturen</p>' +
+      (log.length ? '<div class="admin-list">' + log.map(function (l) {
+        return '<div class="admin-item"><div class="admin-item-body"><div class="admin-item-title">' + esc(uFmt(l.datum)) + ' · ' + esc(l.art) + '</div><div class="admin-item-meta">' + esc(l.text || '') + (l.von ? ' — ' + esc(l.von) : '') + '</div></div><button type="button" class="admin-icon-btn danger" onclick="__bb.select(\'gb-log-del\',\'' + id + '|' + esc(l.id) + '\')">Entfernen</button></div>';
+      }).join('') + '</div>' : '<p class="admin-hint">Noch kein Eintrag.</p>') +
+      '<div class="u-card hyg-ed"><label class="hyg-lbl">Datum<input class="text-input hyg-in" type="date" id="gb-log-date" value="' + hygToday() + '" /></label>' +
+      '<label class="hyg-lbl">Art<select class="text-input hyg-in" id="gb-log-art">' + GB_LOG_ART.map(function (a) { return '<option>' + esc(a) + '</option>'; }).join('') + '</select></label>' +
+      '<label class="hyg-lbl">Beschreibung<textarea class="text-input hyg-in" rows="2" id="gb-log-text" placeholder="Was wurde gemacht, durch wen / welche Firma?"></textarea></label>' +
+      '<label class="hyg-lbl">Durchgeführt von<input class="text-input hyg-in" type="text" id="gb-log-von" placeholder="Name oder Firma" /></label>' +
+      '<button type="button" class="btn-ghost" onclick="__bb.select(\'gb-log-add\',\'' + id + '\')">Eintrag hinzufügen</button></div>';
+    out += '<p class="admin-section-title">Notizen</p><textarea class="text-input hyg-in" rows="3" ' + ev('notiz') + '>' + esc(d.notiz || '') + '</textarea>';
+    out += '<div class="hyg-actions"><button type="button" class="btn-primary" onclick="__bb.select(\'gb-back\')">Fertig</button>' +
+      '<button type="button" class="admin-icon-btn danger" style="align-self:flex-start" onclick="__bb.select(\'gb-del\',\'' + id + '\')">Gerät löschen</button></div>';
+    return out;
+  }
+
+  function renderGeraete() {
+    var body = '' +
+      '<h1 class="q" style="margin-bottom:.3rem">Gerätebuch</h1>' +
+      gbBody() +
+      '<div class="footer-actions"><button class="btn-ghost" onclick="__bb.replaceTop(\'kunde-wahl\')">Zurück zum Hauptmenü</button></div>';
+    screenWrap('dezent', 0, contextLabel(), body);
+  }
+  function renderAdminGeraeteTab() {
+    return '<p class="admin-hint">Das Gerätebuch ist nur für Admin und Inhaberin (Svenja) sichtbar, nicht für Mitarbeitende.</p>' + gbBody();
+  }
+
+  // ---------- Bedienung ----------
+  function gbHandler(kind, key, extra) {
+    if (!hygCanEdit()) return;   // nur Admin und Inhaberin
+    function ask(msg) {
+      var pd = GB_UI.pending;
+      if (pd && pd.kind === kind && pd.key === key) { GB_UI.pending = null; return true; }
+      GB_UI.pending = { kind: kind, key: key, msg: msg };
+      render();
+      setTimeout(function () { var c = document.querySelector('.content'); if (c) c.scrollTop = 0; }, 400);
+      return false;
+    }
+    if (kind === 'gb-cancel') { GB_UI.pending = null; render(); return; }
+    if (kind === 'gb-back') { GB_UI.id = null; GB_UI.pending = null; render(); return; }
+    if (kind === 'gb-open') {
+      GB_UI.pending = null;
+      if (key === 'new') {
+        var nd = { id: hygId(), inv: gbNextInv(), name: '', hersteller: '', modell: '', serie: '', bereich: '', standort: '', status: 'In Betrieb', kauf: '', lieferant: '', garantie: '', intervall: '', letzte: '', einweisung: '', notiz: '', foto: null, log: [], angelegt: hygToday(), geaendert: hygToday() };
+        GB.items.push(nd); gbSave(); GB_UI.id = nd.id;
+      } else GB_UI.id = key;
+      render(); setTimeout(function () { var c = document.querySelector('.content'); if (c) c.scrollTop = 0; }, 50); return;
+    }
+    if (kind === 'gb-set') {
+      var parts = String(key).split('|'), d = gbFind(parts[0]); if (!d) return;
+      d[parts[1]] = String(extra == null ? '' : extra).trim(); d.geaendert = hygToday(); gbSave();
+      if (['status', 'bereich', 'intervall', 'letzte', 'name'].indexOf(parts[1]) > -1) render();
+      return;
+    }
+    if (kind === 'gb-photo-remove') { var pd = gbFind(key); if (pd) { pd.foto = null; pd.fotoW = pd.fotoH = 0; gbSave(); render(); } return; }
+    if (kind === 'gb-log-add') {
+      var ld = gbFind(key); if (!ld) return;
+      var date = (document.getElementById('gb-log-date') || {}).value, art = (document.getElementById('gb-log-art') || {}).value,
+          text = ((document.getElementById('gb-log-text') || {}).value || '').trim(), von = ((document.getElementById('gb-log-von') || {}).value || '').trim();
+      if (!uParse(date)) { GB_UI.error = 'Bitte ein Datum angeben.'; render(); return; }
+      if (!text && !von) { GB_UI.error = 'Bitte kurz beschreiben, was gemacht wurde.'; render(); return; }
+      ld.log = ld.log || []; ld.log.push({ id: hygId(), datum: date, art: art, text: text, von: von });
+      if (art !== 'Einweisung' && art !== 'Sonstiges' && art !== 'Reparatur' && (!ld.letzte || date > ld.letzte)) ld.letzte = date;   // Wartung/Prüfung setzt die letzte Prüfung
+      ld.geaendert = hygToday(); gbSave(); GB_UI.info = 'Eintrag gespeichert.'; render(); return;
+    }
+    if (kind === 'gb-log-del') {
+      if (!ask('Diesen Eintrag im Protokoll wirklich entfernen?')) return;
+      var lp = String(key).split('|'), dd = gbFind(lp[0]); if (!dd) return;
+      dd.log = (dd.log || []).filter(function (l) { return l.id !== lp[1]; }); gbSave(); render(); return;
+    }
+    if (kind === 'gb-del') {
+      if (!ask('Dieses Gerät mit Foto und Protokoll wirklich löschen? Die Daten in bereits gespeicherten PDFs im Ordner bleiben erhalten.')) return;
+      GB.items = GB.items.filter(function (x) { return x.id !== key; }); GB_UI.id = null; gbSave(); render(); return;
+    }
+    if (kind === 'gb-pdf') { gbDeliver('print'); return; }
+    if (kind === 'gb-save-folder') { gbDeliver('save'); return; }
+    if (kind === 'gb-folder-reset') { hygDbPut('dirGB', null).catch(function () { /* egal */ }).then(function () { GB_UI.info = 'Beim nächsten Speichern kannst du den Ordner „' + GB_FOLDER + '“ neu auswählen.'; render(); }); return; }
+  }
+
+  // ---------- PDF ----------
+  function gbSlug(s) { return String(s || 'Geraet').replace(/[^A-Za-z0-9ÄÖÜäöüß]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'Geraet'; }
+  function gbPdfBytes() {
+    var PW = 841.89, PH = 595.28, M = 36, BOT = 54, X1 = PW - M;
+    var INK = '2B2B2D', MUTED = '6B6B6E', LINE = 'CFCFD2', HEAD = 'EDEDEF', ACC = '111111';
+    var pages = [], ops = [], y = PH - M, photos = [];
+    function col(hex) { return (parseInt(hex.substr(0, 2), 16) / 255).toFixed(3) + ' ' + (parseInt(hex.substr(2, 2), 16) / 255).toFixed(3) + ' ' + (parseInt(hex.substr(4, 2), 16) / 255).toFixed(3); }
+    function txt(s, x, yy, size, font, hex) { ops.push(col(hex) + ' rg BT /' + font + ' ' + size.toFixed(1) + ' Tf ' + x.toFixed(2) + ' ' + yy.toFixed(2) + ' Td (' + pdfEscape(hygClean(s)) + ') Tj ET'); }
+    function fillRect(x, yy, w, h, hex) { ops.push(col(hex) + ' rg ' + x.toFixed(2) + ' ' + yy.toFixed(2) + ' ' + w.toFixed(2) + ' ' + h.toFixed(2) + ' re f'); }
+    function hline(x0, x1_, yy, hex, lw) { ops.push(col(hex) + ' RG ' + (lw || 0.5) + ' w ' + x0.toFixed(2) + ' ' + yy.toFixed(2) + ' m ' + x1_.toFixed(2) + ' ' + yy.toFixed(2) + ' l S'); }
+    function newPage() { pages.push(ops); ops = []; y = PH - M; }
+    function need(h) { if (y - h < BOT) { newPage(); return true; } return false; }
+    function logo() {
+      var lw = 92, lh = lw * (LOGO_PDF_H / LOGO_PDF_W);
+      ops.push('q ' + lw.toFixed(2) + ' 0 0 ' + lh.toFixed(2) + ' ' + (X1 - lw).toFixed(2) + ' ' + (PH - M - lh + 6).toFixed(2) + ' cm /Im1 Do Q');
+    }
+    function heading(t) { need(34); txt(t.toUpperCase(), M, y, 9, 'F2', ACC); y -= 5; hline(M, X1, y, ACC, 0.8); y -= 14; }
+
+    logo();
+    txt('GERÄTEBUCH', M, y - 8, 8.5, 'F2', MUTED); y -= 30;
+    txt('Geräteverzeichnis Beauty Lounge', M, y, 19, 'F2', ACC); y -= 18;
+    txt('Beauty Lounge · Inh. Svenja Gampp · Hoistener Straße 15 · 41466 Neuss', M, y, 9, 'F1', MUTED); y -= 20;
+    fillRect(M, y - 28, X1 - M, 34, HEAD);
+    var metaW = (X1 - M) / 3;
+    [['Stand', uFmt(hygToday())], ['Anzahl Geräte', String(GB.items.length)], ['Davon Prüfung fällig', String(gbDueCount())]].forEach(function (m, i) { txt(m[0], M + 8 + i * metaW, y - 4, 7.5, 'F1', MUTED); txt(m[1], M + 8 + i * metaW, y - 18, 10, 'F2', INK); });
+    y -= 52;
+
+    // Übersicht
+    heading('Übersicht');
+    var cols = [{ k: 'inv', t: 'Inv.-Nr.', w: 50 }, { k: 'name', t: 'Gerät', w: 150 }, { k: 'hm', t: 'Hersteller / Modell', w: 150 }, { k: 'serie', t: 'Seriennummer', w: 110 }, { k: 'bs', t: 'Bereich / Standort', w: 140 }, { k: 'next', t: 'Nächste Prüfung', w: 80 }, { k: 'status', t: 'Status', w: 0 }];
+    var used = 0; cols.forEach(function (c) { used += c.w; }); cols[6].w = (X1 - M) - used;
+    function tHead() { fillRect(M, y - 4, X1 - M, 15, HEAD); var x = M; cols.forEach(function (c) { txt(c.t, x + 4, y, 8, 'F2', INK); x += c.w; }); y -= 16; }
+    tHead();
+    GB.items.forEach(function (d) {
+      var nx = gbNext(d);
+      var vals = { inv: d.inv, name: d.name || '—', hm: [d.hersteller, d.modell].filter(Boolean).join(' ') || '—', serie: d.serie || '—', bs: [d.bereich, d.standort].filter(Boolean).join(' · ') || '—', next: nx ? uFmt(nx) : '—', status: d.status || '' };
+      var cells = cols.map(function (c) { return hygWrap(vals[c.k], c.w - 8, 8, c.k === 'name'); });
+      var n = 1; cells.forEach(function (c) { if (c.length > n) n = c.length; });
+      var h = n * 10.2 + 6;
+      if (need(h + 4)) tHead();
+      var x = M; cells.forEach(function (c, ci) { c.forEach(function (l, li) { txt(l, x + 4, y - li * 10.2, 8, cols[ci].k === 'name' ? 'F2' : 'F1', INK); }); x += cols[ci].w; });
+      y -= h; hline(M, X1, y + 4, LINE, 0.4);
+    });
+    if (!GB.items.length) txt('Noch keine Geräte erfasst.', M, y, 9, 'F1', MUTED);
+
+    // Gerätekarten (je Gerät eine Seite)
+    GB.items.forEach(function (d) {
+      newPage(); logo();
+      txt((d.inv || '') + ' · GERÄTEKARTE', M, y - 8, 8.5, 'F2', MUTED); y -= 30;
+      txt(d.name || 'Gerät', M, y, 17, 'F2', ACC); y -= 14;
+      txt(d.status || '', M, y, 9, 'F1', gbDue(d) ? 'B45309' : MUTED); y -= 14;
+      var top = y, photoW = 250, textX = M + photoW + 24;
+      if (d.foto) {
+        var pw = photoW, ph = pw * (d.fotoH || 3) / (d.fotoW || 4);
+        if (ph > 190) { ph = 190; pw = ph * (d.fotoW || 4) / (d.fotoH || 3); }
+        photos.push({ bytes: base64ToBytes(String(d.foto).split(',')[1]), w: d.fotoW, h: d.fotoH });
+        ops.push('q ' + pw.toFixed(2) + ' 0 0 ' + ph.toFixed(2) + ' ' + M + ' ' + (top - ph).toFixed(2) + ' cm /Ph' + photos.length + ' Do Q');
+        ops.push(col(LINE) + ' RG 0.6 w ' + M + ' ' + (top - ph).toFixed(2) + ' ' + pw.toFixed(2) + ' ' + ph.toFixed(2) + ' re S');
+      } else { fillRect(M, top - 150, photoW, 150, HEAD); txt('Kein Foto', M + 100, top - 78, 9, 'F1', MUTED); }
+      var fields = [['Hersteller', d.hersteller], ['Modell / Typ', d.modell], ['Seriennummer', d.serie], ['Bereich', d.bereich], ['Standort', d.standort], ['Anschaffung', d.kauf ? uFmt(d.kauf) : ''], ['Lieferant', d.lieferant], ['Garantie bis', d.garantie ? uFmt(d.garantie) : ''], ['Prüfintervall', d.intervall ? d.intervall + ' Monate' : ''], ['Letzte Prüfung', d.letzte ? uFmt(d.letzte) : ''], ['Nächste Prüfung', gbNext(d) ? uFmt(gbNext(d)) : ''], ['Eingewiesen', d.einweisung]];
+      var fy = top;
+      fields.forEach(function (f) {
+        txt(f[0], textX, fy - 8, 8, 'F1', MUTED);
+        var lines = hygWrap(f[1] || '—', X1 - textX - 110, 9, true);
+        lines.forEach(function (l, li) { txt(l, textX + 110, fy - 8 - li * 11, 9, 'F2', INK); });
+        fy -= Math.max(15, lines.length * 11 + 4);
+      });
+      y = Math.min(top - (d.foto ? 200 : 160), fy) - 10;
+      heading('Wartung, Prüfung & Reparaturen');
+      var lc = [{ t: 'Datum', w: 70 }, { t: 'Art', w: 170 }, { t: 'Beschreibung', w: 340 }, { t: 'Durchgeführt von', w: 0 }];
+      var lu = 0; lc.forEach(function (c) { lu += c.w; }); lc[3].w = (X1 - M) - lu;
+      function lHead() { fillRect(M, y - 4, X1 - M, 15, HEAD); var x = M; lc.forEach(function (c) { txt(c.t, x + 4, y, 8, 'F2', INK); x += c.w; }); y -= 16; }
+      lHead();
+      var log = (d.log || []).slice().sort(function (a, b) { return a.datum < b.datum ? 1 : -1; });
+      log.forEach(function (l) {
+        var cells = [[uFmt(l.datum)], hygWrap(l.art, lc[1].w - 8, 8, false), hygWrap(l.text || '—', lc[2].w - 8, 8, false), hygWrap(l.von || '—', lc[3].w - 8, 8, false)];
+        var n = 1; cells.forEach(function (c) { if (c.length > n) n = c.length; });
+        var h = n * 10.2 + 6;
+        if (need(h + 4)) lHead();
+        var x = M; cells.forEach(function (c, ci) { c.forEach(function (ln, li) { txt(ln, x + 4, y - li * 10.2, 8, 'F1', INK); }); x += lc[ci].w; });
+        y -= h; hline(M, X1, y + 4, LINE, 0.4);
+      });
+      if (!log.length) { txt('Noch kein Eintrag.', M + 4, y, 8.5, 'F1', MUTED); y -= 14; }
+      if (d.notiz) { y -= 6; heading('Notizen'); hygWrap(d.notiz, X1 - M, 9, false).forEach(function (l) { need(12); txt(l, M, y, 9, 'F1', INK); y -= 11.5; }); }
+    });
+    pages.push(ops);
+
+    pages.forEach(function (po, i) {
+      var saved = ops; ops = po;
+      hline(M, X1, 40, LINE, 0.5);
+      txt('Beauty Lounge Neuss · Gerätebuch · Stand ' + uFmt(hygToday()), M, 28, 7.5, 'F1', MUTED);
+      var lab = 'Seite ' + (i + 1) + ' von ' + pages.length;
+      txt(lab, X1 - lab.length * 7.5 * 0.5, 28, 7.5, 'F1', MUTED);
+      ops = saved;
+    });
+
+    var objs = [];
+    function addObj(b) { objs.push(b); return objs.length; }
+    var f1 = addObj('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');
+    var f2 = addObj('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
+    var logoBytes = base64ToBytes(LOGO_PDF_JPEG_B64);
+    var img = addObj({ stream: logoBytes, dict: '<< /Type /XObject /Subtype /Image /Width ' + LOGO_PDF_W + ' /Height ' + LOGO_PDF_H + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + logoBytes.length + ' >>' });
+    var xo = '/Im1 ' + img + ' 0 R';
+    photos.forEach(function (ph, k) {
+      var no = addObj({ stream: ph.bytes, dict: '<< /Type /XObject /Subtype /Image /Width ' + ph.w + ' /Height ' + ph.h + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + ph.bytes.length + ' >>' });
+      xo += ' /Ph' + (k + 1) + ' ' + no + ' 0 R';
+    });
+    var pagesNum = objs.length + 1; objs.push(null);
+    var kids = [];
+    pages.forEach(function (po) {
+      var s = po.join('\n') + '\n';
+      var cn = addObj({ stream: stringToBytes(s), dict: '<< /Length ' + s.length + ' >>' });
+      kids.push(addObj('<< /Type /Page /Parent ' + pagesNum + ' 0 R /MediaBox [0 0 ' + PW.toFixed(2) + ' ' + PH.toFixed(2) + '] /Resources << /Font << /F1 ' + f1 + ' 0 R /F2 ' + f2 + ' 0 R >> /XObject << ' + xo + ' >> >> /Contents ' + cn + ' 0 R >>'));
+    });
+    objs[pagesNum - 1] = '<< /Type /Pages /Kids [' + kids.map(function (n) { return n + ' 0 R'; }).join(' ') + '] /Count ' + kids.length + ' >>';
+    var cat = addObj('<< /Type /Catalog /Pages ' + pagesNum + ' 0 R >>');
+    var w = new ByteWriter(); w.writeString('%PDF-1.4\n');
+    var off = [0];
+    for (var n = 1; n <= objs.length; n++) {
+      off[n] = w.length; var o = objs[n - 1];
+      if (o && typeof o === 'object' && o.stream) { w.writeString(n + ' 0 obj\n' + o.dict + '\nstream\n'); w.writeBytes(o.stream); w.writeString('\nendstream\nendobj\n'); }
+      else w.writeString(n + ' 0 obj\n' + o + '\nendobj\n');
+    }
+    var xs = w.length;
+    w.writeString('xref\n0 ' + (objs.length + 1) + '\n0000000000 65535 f \n');
+    for (var n2 = 1; n2 <= objs.length; n2++) w.writeString(pad10(off[n2]) + ' 00000 n \n');
+    w.writeString('trailer\n<< /Size ' + (objs.length + 1) + ' /Root ' + cat + ' 0 R >>\nstartxref\n' + xs + '\n%%EOF');
+    return w.toUint8Array();
+  }
+
+  function gbGetDir() {
+    return hygDbGet('dirGB').catch(function () { return null; }).then(function (h) {
+      if (h && h.queryPermission) {
+        return h.queryPermission({ mode: 'readwrite' }).then(function (pm) {
+          if (pm === 'granted') return h;
+          return h.requestPermission({ mode: 'readwrite' }).then(function (p2) { return p2 === 'granted' ? h : null; });
+        }).catch(function () { return null; });
+      }
+      return null;
+    }).then(function (h) {
+      if (h) return h;
+      return window.showDirectoryPicker({ mode: 'readwrite', id: 'geraetebuch' }).then(function (d) {
+        return (d.name === GB_FOLDER ? Promise.resolve(d) : d.getDirectoryHandle(GB_FOLDER, { create: true })).then(function (t) { hygDbPut('dirGB', t).catch(function () { /* egal */ }); return t; });
+      });
+    });
+  }
+  function gbFlash(msg) { GB_UI.info = msg; render(); }
+
+  // mode 'save': Ordner „Gerätebuch" (PDF, Daten-JSON, Fotos, Archiv) bzw. Download · mode 'print': PDF öffnen
+  function gbDeliver(mode) {
+    var bytes, fileName = 'Gerätebuch_' + hygToday() + '.pdf';
+    try { bytes = gbPdfBytes(); } catch (e) { GB_UI.error = 'Das PDF konnte nicht erzeugt werden.'; render(); return; }
+    function viaDownload(forPrint) {
+      var finish = function () { gbFlash(forPrint ? 'PDF „' + fileName + '“ gespeichert — zum Drucken die Datei öffnen.' : 'PDF „' + fileName + '“ heruntergeladen. Bitte in den Ordner „' + GB_FOLDER + '“ legen.'); };
+      if (window.claude && typeof window.claude.use === 'function') {
+        window.claude.use('downloads').then(function (dl) {
+          if (!dl) { hygBlobDownload(fileName, bytes); finish(); return; }
+          dl.save({ filename: fileName, data: bytes }).then(finish, function (err) { if (err && err.code === 'declined') return; hygBlobDownload(fileName, bytes); finish(); });
+        }, function () { hygBlobDownload(fileName, bytes); finish(); });
+      } else { hygBlobDownload(fileName, bytes); finish(); }
+    }
+    if (mode === 'print') {
+      var purl = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
+      var win = null; try { win = window.open(purl, '_blank'); } catch (e) { win = null; }
+      if (win) return;
+      viaDownload(true); return;
+    }
+    if (!window.showDirectoryPicker) { viaDownload(false); return; }
+    gbGetDir().then(function (dir) {
+      var json = stringToBytes(unescape(encodeURIComponent(JSON.stringify({ gespeichert: new Date().toISOString(), geraete: GB.items.map(function (d) { var c = Object.assign({}, d); c.foto = c.foto ? '(siehe Ordner Fotos)' : null; return c; }) }, null, 2))));
+      return hygWriteFile(dir, 'Gerätebuch_aktuell.pdf', bytes)
+        .then(function () { return hygWriteFile(dir, 'Gerätebuch_Daten.json', json); })
+        .then(function () { return dir.getDirectoryHandle('Archiv', { create: true }).then(function (a) { return hygWriteFile(a, fileName, bytes); }); })
+        .then(function () {
+          return dir.getDirectoryHandle('Fotos', { create: true }).then(function (fd) {
+            return GB.items.filter(function (d) { return d.foto; }).reduce(function (p, d) {
+              return p.then(function () { return hygWriteFile(fd, (d.inv || 'G') + '_' + gbSlug(d.name) + '.jpg', base64ToBytes(String(d.foto).split(',')[1])); });
+            }, Promise.resolve());
+          });
+        });
+    }).then(function () {
+      gbFlash('Gespeichert im Ordner „' + GB_FOLDER + '“: Gerätebuch_aktuell.pdf (überschrieben), Gerätebuch_Daten.json, Fotos und eine datierte Kopie im Archiv.');
+    }).catch(function (err) {
+      if (err && err.name === 'AbortError') { gbFlash('Ordnerwahl abgebrochen — die Daten sind im Gerätebuch gespeichert.'); return; }
+      viaDownload(false);
+    });
+  }
+
   function render() {
     var id = path[pointer];
     if (id === 'login') return renderLogin();
     if (id === 'kunde-wahl') return renderKundeWahl();
     if (id === 'urlaub') return renderUrlaub();
     if (id === 'hygiene') return renderHygiene();
+    if (id === 'geraete') return renderGeraete();
     if (id === 'aktionen-uebersicht') return renderAktionenUebersicht();
     if (id === 'ziel') return renderZiel();
     if (id === 'painpoint') return renderPainpoint();
